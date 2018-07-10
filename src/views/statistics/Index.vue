@@ -86,20 +86,20 @@
             <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <span>-</span>
             <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box sell-box d-f pb-40">
+            <div class="echart-box sell-box d-f pb-40" v-if="Object.keys(sell.sell_lists).length">
                 <div class="funnel-chart flex1 pl-100 d-f mt-50">
                     <div class="model-box p-r">
                         <ul>
-                            <li v-for="(item, index) in sell.sell_type" :key="index" :style="{backgroundColor: item.color}" :class="{'mt-5': index > 0}"></li>
+                            <li v-for="(item, index) in sell.sell_lists.data" :key="index" :style="{backgroundColor: item.color}" :class="{'mt-5': index > 0}"></li>
                         </ul>
                     </div>
 
                     <ul class="detail-box pl-20">
-                        <li v-for="(item, index) in sell.sell_type" :key="index" class="p-r d-f f-a-c" :class="{'mt-5': index > 0}">
+                        <li v-for="(item, index) in sell.sell_lists.data" :key="index" class="p-r d-f f-a-c" :class="{'mt-5': index > 0}">
                             <div class="line"></div>
                             <div class="detail d-f f-a-c ml-5">
                                 <span class="type" :style="{backgroundColor: item.color}"></span>
-                                <span class="fc-7 fs-12 ml-10">{{item.name}}：{{item.data}}</span>
+                                <span class="fc-7 fs-12 ml-10">{{item.name}}：{{item.c}}</span>
                             </div>
                         </li>
                     </ul>
@@ -108,16 +108,16 @@
                     <div class="item p-r">
                         <span class="fs-15 fc-5">成交率（已成交/全部咨询）</span>
                         <div class="schedule-box mt-10">
-                            <a :style="{width: sell.data.sign_ratio}" :class="{'all': sell.data.sign_ratio == '100%'}"></a>
-                            <span class="fs-20 ratio">{{sell.data.sign_ratio}}</span>
+                            <a :style="{width: `${Number(sell.sell_lists.deal_ratio) * 100}%`}" :class="{'all': sell.sell_lists.deal_ratio == 1}"></a>
+                            <span class="fs-20 ratio">{{`${Number(sell.sell_lists.deal_ratio) * 100}%`}}</span>
                         </div>
                     </div>
 
-                    <div class="item mt-30 p-r">
+                    <div class="item mt-40 p-r">
                         <span class="fs-15 fc-5">失效率（已失效/全部咨询）</span>
                         <div class="schedule-box mt-10">
-                            <a :style="{width: sell.data.wait_ratio}" :class="{'all': sell.data.wait_ratio == '100%'}"></a>
-                            <span class="fs-20 ratio">{{sell.data.wait_ratio}}</span>
+                            <a :style="{width: `${Number(sell.sell_lists.fail_ratio) * 100}%`}" :class="{'all': sell.sell_lists.fail_ratio == 1}"></a>
+                            <span class="fs-20 ratio">{{`${Number(sell.sell_lists.fail_ratio) * 100}%`}}</span>
                         </div>
                     </div>
                 </div>
@@ -176,17 +176,18 @@ export default {
             sell: {
                 start_time: new Date().getTime() -  60*60*24*365*1000,
                 end_time: new Date().getTime(),
-                sell_type: [
-                    {id: 'total', name: '全部咨询', color: '#45DAB2', data: 0},
-                    {id: 'to', name: '待跟进', color: '#BDD74E', data: 0},
-                    {id: 'have', name: '跟进中', color: '#FDDE3B', data: 0},
-                    {id: 'invited', name: '已邀约', color: '#A3B4DA', data: 0},
-                    {id: 'listen', name: '已试听', color: '#838A99', data: 0},
-                    {id: 'visited', name: '已到访', color: '#114355', data: 0},
-                    {id: 'sign', name: '已成交', color: '#E94848', data: 0}
-                ],
-                colors: ['#45DAB2', '#BDD74E', '#FDDE3B', '#A3B4DA', '#838A99', '#114355', '#E94848'],
-                data: {}
+                // sell_type: [
+                //     {id: 'total', name: '全部咨询', color: '#45DAB2', data: 0},
+                //     {id: 'to', name: '待跟进', color: '#BDD74E', data: 0},
+                //     {id: 'have', name: '跟进中', color: '#FDDE3B', data: 0},
+                //     {id: 'invited', name: '已邀约', color: '#A3B4DA', data: 0},
+                //     {id: 'listen', name: '已试听', color: '#838A99', data: 0},
+                //     {id: 'visited', name: '已到访', color: '#114355', data: 0},
+                //     {id: 'sign', name: '已成交', color: '#E94848', data: 0}
+                // ],
+                // colors: ['#45DAB2', '#BDD74E', '#FDDE3B', '#A3B4DA', '#838A99', '#114355', '#E94848'],
+                // data: {},
+                sell_lists: [],
             },
             colors: {
                 sex: ['#FFCC50', '#45DAD5'],
@@ -446,12 +447,14 @@ export default {
             console.log(result);
             if(!result) return 0;
 
-            this.sell.sell_type.forEach(v => {v.data = result.lists[`${v.id}_num`]});
+            this.sell.sell_lists = result.lists;
 
-            result.lists.sign_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.sign_num / result.lists.total_num * 100).toFixed() + '%';
-            result.lists.wait_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.to_num / result.lists.total_num * 100).toFixed() + '%';
+            // this.sell.sell_type.forEach(v => {v.data = result.lists[`${v.id}_num`]});
 
-            this.sell.data = result.lists;
+            // result.lists.sign_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.sign_num / result.lists.total_num * 100).toFixed() + '%';
+            // result.lists.wait_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.to_num / result.lists.total_num * 100).toFixed() + '%';
+
+            // this.sell.data = result.lists;
             // this.sell.sell_type.sort((a, b) => {return b.data - a.data});
         }   
     },
@@ -593,8 +596,11 @@ export default {
                     }        
                 }
                 .ratio {
+                    display: block;
+                    text-align: left;
+                    width: 100px;
                     position: absolute;
-                    right: -60px;
+                    right: -120px;
                     top: 50%;
                     transform: translateY(-50%);
                 }

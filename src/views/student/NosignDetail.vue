@@ -1,7 +1,7 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader :title="detail.name" :icon="true" @clicked="editDetail">
+            <TableHeader :title="detail.name" :icon="true" @clicked="editStudent">
                 <MyButton class="ml-20" @click.native="addListenHandle">试听</MyButton>
                 <MyButton class="ml-20" type="subm" @click.native="buyCourse">购课</MyButton>
             </TableHeader>
@@ -173,275 +173,23 @@
                         <el-date-picker type="date" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('followUpForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
 
-        <!-- 学员修改弹窗 -->
-        <el-dialog title="学员修改" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
-            <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" class="form-box" :rules="detailRules">
-                <div class="form-box">
-                    <h3>家长信息</h3>
-                    <el-row>
-                        <el-col :span="13">
-                            <el-form-item label="家长姓名：" prop="parent_name">
-                                <el-input v-model.trim="studentForm.parent_name"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4" :offset="1">
-                            <el-form-item prop="relation" label-width="0">
-                                <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in relationArr" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    
-                    <el-row class="mt-10">
-                        <el-col :span="13">
-                            <el-form-item label="手机号码：" prop="mobile">
-                                <el-input v-model.trim="studentForm.mobile"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="家庭住址：" class="mt-10" prop="address">
-                        <el-col :span="20"><el-input v-model.trim="studentForm.address" placeholder="选填"></el-input></el-col>
-                    </el-form-item>
-
-                    <h3>学员信息</h3>
-                    
-                    <el-row>
-                        <el-col :span="13">
-                            <el-form-item label="学员姓名：" prop="student_name">
-                                <el-input v-model.trim="studentForm.student_name"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4" :offset="1">
-                            <el-form-item prop="sex" label-width="0">
-                                <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-row class="mt-10">
-                        <el-col :span="13">
-                            <el-form-item label="出生日期：">
-                                <el-date-picker v-model="studentForm.birthday" type="date" :picker-options="pickerBeginDateAfter" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    
-
-                    <el-form-item label="就读学校：" class="mt-10" prop="school_name">
-                        <el-col :span="20"><el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input></el-col>
-                    </el-form-item>
-
-                    <el-row class="mt-10">
-                        <el-col :span="12">
-                            <el-form-item label="意向课程：">
-                                <el-select v-model="studentForm.like_course" placeholder="选择课程">
-                                    <el-option v-for="(item, index) in fillInfo.course" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label-width="0">
-                                <el-select v-model="studentForm.like_grade" placeholder="选择意向度">
-                                <el-option v-for="(item, index) in likeGrade" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-row class="mt-10">
-                        <el-col :span="12">
-                            <el-form-item label="渠道信息：" prop="source_id">
-                                <el-select v-model="studentForm.source_id" placeholder="请选择">
-                                    <el-option v-for="(item, index) in fillInfo.source" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="2"  class="add-source cursor-pointer ml-20" @click.native="addSource">
-                            <img src="../../images/common/add.png" alt="">
-                        </el-col>
-                    </el-row>
-
-                    <el-row class="mt-10">
-                        <el-col :span="12">
-                            <el-form-item label="分配顾问：">
-                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问">
-                                    <el-option v-for="(item, index) in fillInfo.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="备注：" prop="remark" class="mt-10 textarea-cls">
-                        <el-col :span="20">
-                            <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
-                        </el-col>
-                    </el-form-item>
-
-                    <div class="d-f f-j-c mt-50">
-                        <MyButton @click.native="doneHandle('addStudent')">确定</MyButton>
-                        <MyButton type="gray" class="ml-20" @click.native="deleteStudent">删除</MyButton>
-                    </div>
-                </div>
-            </el-form>
-
-            <el-dialog title="添加渠道" width="500px" center :visible.sync="sourceMaskStatus" :close-on-click-modal="false" @close="dialogClose('sourseForm')" append-to-body>
-                <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm">
-                    <el-form-item label="渠道来源：" prop="name">
-                        <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
-                    </el-form-item>
-                </el-form>
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('sourseForm')">确定</MyButton></div>
-            </el-dialog>
-        </el-dialog>
+        <!-- 登记学员弹窗 -->
+        <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
+            @CB-dialogStatus="CB_dialogStatus" @CB-addStudent="CB_addStudent">
+        </AddStudentDialog>
 
         <!-- 购买课程弹窗 -->
-        <el-dialog title="购买课程" width="1100px" center :visible.sync="courseMaskStatus" :close-on-click-modal="false" @close="dialogClose('courseForm')">
-            <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm">
-                <div class="form-box">
-                    <p class="head-info">购买信息</p>
-                    <el-row class="mt-10">
-                        <el-col :span="7">
-                            <el-form-item label="选择课程：" prop="course_id">
-                                <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
-                                    <el-option v-for="(item, index) in buyCourseLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="购课日期：" prop="pay_at">
-                                <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="课程有效期：" prop="expire" label-width="110px">
-                                <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">月</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <p class="head-info">课程信息</p>
-                    <el-row class="mt-10 course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="购买课时：" prop="lesson_num">
-                                <el-input-number v-model="courseForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label="课时单价：" prop="unit_price">
-                                <el-input-number v-model="courseForm.unit_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元/课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
-                                <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row class="course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="已扣课时：" prop="lesson_num_already">
-                                <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <p class="head-info">购课优惠及费用</p>
-                    <el-row class="mt-10 course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="赠送课时：" prop="given_num">
-                                <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label="优惠金额：" prop="preferential_price">
-                                <el-input-number v-model="courseForm.preferential_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7">
-                            <el-form-item label="付款方式：" prop="pay_way" label-width="110px">
-                                <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                                    <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="购买说明：" class="mt-10 textarea-cls" prop="explain">
-                        <el-col :span="21">
-                            <el-input type="textarea" :rows="4" placeholder="购买说明" v-model.trim="courseForm.explain"></el-input>
-                        </el-col>
-                    </el-form-item>
-
-                    <div class="pl-90">业绩归属：<span>{{detail.advisor_info && detail.advisor_info.name}}</span></div>
-
-                    <div class="mt-10 pl-10">总金额：<span class="fc-m fs-22">￥{{courseForm.unit_price * courseForm.lesson_num - courseForm.preferential_price}}</span></div>
-
-                    <div class="d-f f-j-c mt-30">
-                        <MyButton @click.native="doneHandle('courseForm')">提交生成合约</MyButton>
-                    </div>
-                </div>
-            </el-form>
-        </el-dialog>
+        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+            @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
+        </BuyCourseDialog>
 
         <!-- 购课合约弹窗 -->
-        <el-dialog title="购课合约" width="800px" center :visible.sync="contractMaskStatus" :close-on-click-modal="false">
-            <div class="contract-box" v-if="Object.keys(contractData).length">
-                <p>
-                    <span>甲方：<i>{{contractData.institution.name}}</i></span>
-                    <span>签约校区：<i>{{contractData.school.name}}</i></span>
-                    <span>签约人：<i>{{contractData.user.name}}</i></span>
-                </p>
-                <p v-if="contractData.parent">
-                    <span>乙方(学员)：<i>{{contractData.student.name}}</i></span>
-                    <span>乙方家长：<i>{{contractData.parent.name}}</i></span>
-                    <span>电话：<i>{{contractData.parent.mobile}}</i></span>
-                </p>
-                <p><span>签约日期：<i>{{$$tools.format(contractData.pay_at)}}</i></span></p>
-
-                <p>购买课程详情：</p>
-                <table class="course-table">
-                    <tr>
-                        <td>课程名称</td>
-                        <td>购买课时</td>
-                        <td>课时单价</td>
-                        <td>优惠金额</td>
-                        <td>赠送课时</td>
-                        <td>已扣课时</td>
-                        <td>合同金额</td>
-                    </tr>
-                    <tr>
-                        <td>{{contractData.course.name}}</td>
-                        <td>{{contractData.lesson_num}}</td>
-                        <td>{{contractData.unit_price}}</td>
-                        <td>{{contractData.preferential_price}}</td>
-                        <td>{{contractData.given_num}}</td>
-                        <td>{{contractData.lesson_num_already}}</td>
-                        <td>{{contractData.real_price}}</td>
-                    </tr>
-                </table>
-                <p>课程有效期：<i>{{contractData.expire}}</i>个月</p>
-                <p>购买日期：<i>{{$$tools.format(contractData.pay_at)}}</i></p>
-                <p>购买说明：<i>{{contractData.explain}}</i></p>
-                <p>
-                    <img :src="`data:image/png;base64,${contractData.qr}`" /><br/>
-                    <span>扫码获取合约信息</span>
-                </p>
-                <div class="d-f f-j-e">
-                    <MyButton @click.native="goSignedLists">确定</MyButton>
-                    <MyButton @click.native="printCompact" class="ml-20">打印合同</MyButton>
-                </div>
-            </div>
-        </el-dialog>
+        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
     </div>
 </template>
 
@@ -452,12 +200,15 @@ import {StudentStatic} from '../../script/static'
 import Bus from '../../script/bus'
 import Tools from '../../script/tools'
 
+import AddStudentDialog from '../../components/dialog/AddStudent'
+import BuyCourseDialog from '../../components/dialog/BuyCourse'
+import ContractDialog from '../../components/dialog/Contract'
+
 export default {
     data() {
         return {
             detail: {},
             studentId: '',
-            fillInfo: {},
             loading: true,
 
             listenType: '',   //试听类型，直接试听、跟进邀约试听
@@ -471,18 +222,18 @@ export default {
             contractData: {},  //合约数据
             maskAudition: false, //试听弹窗
             maskFollowUp: false,   //跟进弹窗
-            studentMaskStatus: false,  //学员修改弹窗
-            courseMaskStatus: false,  //购买课程弹窗
-            contractMaskStatus: false, //购课合约弹窗
-            sourceMaskStatus: false, //添加渠道弹窗
+
+            dialogStatus: {student: false, course: false, contract: false},
+            buyCourseData: {},
+            editDetail: {},
+
+            studentType: '',
+
             followupStatus: '',   //跟进结果
             wayIdArr: StudentStatic.followUp.wayId,
             resultArr: StudentStatic.followUp.status,
-            relationArr: StudentStatic.relation,
-            likeGrade: StudentStatic.likeGrade,
-            paymentMethod: StudentStatic.paymentMethod, //付款方式
+
             followUpLists: [],   //跟进列表
-            buyCourseLists: [],   //购买课程，课程列表
             followUpForm: {
                 way_id: '',   //跟进方式
                 status: '',   //跟进结果
@@ -490,36 +241,6 @@ export default {
                 content: '',   //跟进内容
                 next_at: ''
             },
-            courseForm: {
-                course_id: '',  //课程id
-                lesson_num: '',   //购买课时
-                given_num: '',  //赠送课时
-                lesson_num_already: '',  //已扣课时数
-                expire: '',   //有效期
-                leave_num: '',   //请假次数 
-                pay_at: '',   //购课日期
-                pay_way: '',   //付款方式
-                unit_price: '',   //课时单价
-                preferential_price: '',  //优惠价格
-                explain: ''   //说明
-            },
-            studentForm: {
-                id: '',
-                student_name: '',
-                parent_name: '',
-                relation: '',
-                mobile: '',
-                address: '',
-                sex: '',
-                birthday: '',
-                like_course: '',
-                like_grade: '',
-                source_id: '',   //渠道id
-                advisor_id: '',    //顾问id
-                remark: '',   //备注信息
-                school_name: ''
-            },
-            sourceForm: {name: ''},
             followUpRules: {
                 way_id: [
                     {required: true, message: '请选择跟进方式', trigger: 'change'}
@@ -535,71 +256,10 @@ export default {
                     {max: 150, message: '长度不能超过150个字符'}
                 ]
             },
-            detailRules: {
-                parent_name: [
-                    {required: true, message: '请输入家长姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                relation: [
-                    {required: true, message: '请选择关系', trigger: 'change'}
-                ],
-                address: [
-                    {max: 50, message: '长度不能超过50个字符'}
-                ],
-                school_name: [
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                mobile: [
-                    {required: true, message: '请输入家长电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                student_name: [
-                    {required: true, message: '请输入学员姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                sex: [
-                    {required: true, message: '请选择性别', trigger: 'change'}
-                ],
-                source_id: [
-                    {required: true, message: '请选择渠道信息', trigger: 'change'}
-                ],
-                remark: [
-                    {max: 50, message: '长度不能超过50个字符'}
-                ]
-            },
             sourceRules: {  
                 name: [
                     {required: true, message: '请输入渠道'},
                     {max: 20, message: '长度不能超过20个字符'}
-                ]
-            },
-            courseRules: {
-                course_id: [
-                    {required: true, message: '请选择课程', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入购买课时数'}
-                ],
-                given_num: [
-                    {required: true, message: '请输入赠送课时数'}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'}
-                ],
-                pay_at: [
-                    {required: true, message: '请选择购课日期', trigger: 'change'}
-                ],
-                pay_way: [
-                    {required: true, message: '请选择付款方式', trigger: 'change'}
-                ],
-                preferential_price: [
-                    {required: true, message: '请输入优惠金额'}
-                ],
-                unit_price: [
-                    {required: true, message: '请输入课时单价'}
-                ],
-                explain: [
-                    {max: 200,  message: '最多输入200字符'}
                 ]
             },
             pickerBeginDateAfter: {
@@ -626,10 +286,31 @@ export default {
                     teacher_id: '',
                     course_id: ''
                 };
-            }else if(form === 'followUpForm') {
+            }else{
                 this.listenCourseInit();
                 this.$refs[form].resetFields();
-            }else this.$refs[form].resetFields();
+            }
+        },
+        //弹窗变比，改变dialog状态回调
+        CB_dialogStatus(type) {
+            if(type == 'student') {
+                this.dialogStatus.student = false;
+                this.editDetail = {};
+                return 0;
+            }
+            if(type == 'course') return this.dialogStatus.course = false;
+        },
+        //修改详情成功，刷新列表
+        CB_addStudent() {
+            this.getStudentDetail();
+            this.dialogStatus.student = false;
+        },
+        //购课成功，合约回调
+        CB_contract(data) {
+            this.contractData = data;
+            this.getFollowUpLists();
+            this.dialogStatus.course = false;
+            this.dialogStatus.contract = true;
         },
         //添加跟进
         addFollowUp() {
@@ -647,16 +328,6 @@ export default {
             }else {
                 this.listenCourseInit();
             }
-        },
-        //购买课程，选择课程change
-        addCourseChange(val) {
-            this.buyCourseLists.forEach(v => {
-                if(v.id == val) {
-                    this.courseForm.expire = v.expire;
-                    this.courseForm.leave_num = v.leave_num;
-                    this.courseForm.unit_price = v.unit_price;
-                }
-            });
         },
         //添加试听
         addListenHandle() {
@@ -688,20 +359,11 @@ export default {
             this.listenCourseLists = [];
             Object.keys(this.checkListenCourse).forEach(v => {this.checkListenCourse[v] = ''});
         },
-        //合约确定按钮，跳转签约学员详情
-        goSignedLists() {
-            this.contractMaskStatus = false;
-            this.$router.replace({path: '/student/signeddetail', query: {id: this.studentId}});
-        },
-        //打印合同
-        printCompact() {
-            this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: '/student/signeddetail', path_query: {id: this.studentId}}});
-        },
         //购课
         buyCourse() {
-            this.courseForm.expire = 12;
-            this.courseForm.pay_at = new Date().getTime();
-            this.courseMaskStatus = true;
+            console.log(this.detail)
+            this.dialogStatus.course = true;
+            this.buyCourseData = this.detail;
         },
         //试听确定
         listenDoneHandle() {
@@ -727,13 +389,8 @@ export default {
             this.maskAudition = false;
         },
         //表单确定
-        doneHandle(type) {
-            this.$refs[type].validate(valid => {if(valid) {
-                if(type === 'followUpForm') this.submitFollowUpInfo();
-                else if(type === 'addStudent') this.submitStudentInfo();
-                else if(type === 'courseForm') this.submitBuyCourse();
-                else this.submitSourceInfo();
-            }});
+        followUpDoneHandle(type) {
+            this.$refs.followUpForm.validate(valid => {if(valid) this.submitFollowUpInfo()});
         },
         nextClick(currentPage) {
             this.currPage = true;
@@ -749,23 +406,10 @@ export default {
             this.currPage = false;
         },
         //编辑
-        editDetail() {
-            for(let key in this.detail) {
-                if(key == 'address' || key == 'remark' || key == 'school_name' || key == 'source_id' || key == 'sex' || key == 'id') {
-                    this.studentForm[key] = this.detail[key];
-                }else if(key == 'birthday') {
-                    this.studentForm[key] = this.detail[key] > 0 ? this.detail[key] * 1000 : '';
-                }else if(key == 'parent_info') {
-                    this.studentForm.mobile = this.detail[key].mobile;
-                    this.studentForm.parent_name = this.detail[key].name;
-                    this.studentForm.relation = this.detail[key].relation;
-                }else if(key == 'name') this.studentForm.student_name = this.detail[key]
-                else if(key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {
-                    this.studentForm[key] = this.detail[key] == 0 ? '' : this.detail[key];
-                }
-            }
-            
-            this.studentMaskStatus = true;
+        editStudent() {
+            this.studentType = 'edit';
+            this.editDetail = this.detail;
+            this.dialogStatus.student = true;
         },
         //删除学员
         deleteStudent() {
@@ -784,59 +428,6 @@ export default {
                 Bus.$emit('refreshStudentLists');
                 this.$router.go(-1);
             }
-        },
-        addSource() {
-            this.sourceForm.name = '';
-            this.sourceMaskStatus = true;
-        },
-        //提交购课信息
-        async submitBuyCourse() {
-            if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
-            if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-            if(this.courseForm.preferential_price > this.courseForm.unit_price * this.courseForm.lesson_num) return this.$message.warning('优惠不能超过总金额!');
-            let params = {};
-            for(let key in this.courseForm) {
-                if(typeof this.courseForm[key] === 'undefined') params[key] = '';
-                else params[key] = key == 'pay_at' ? this.courseForm[key] / 1000 : this.courseForm[key];
-            }
-            console.log(params)
-
-            let result = await this.$$request.post('api/studentCourse/add', {...params, student_id: this.detail.id, parent_id: this.detail.parent_id, advisor_id: this.detail.advisor_id});
-            console.log(result);
-
-            if(!result) return 0;
-            this.$set(this, 'contractData', result.data);
-            this.courseMaskStatus = false;
-            this.contractMaskStatus = true;
-            this.getFollowUpLists();
-        },
-        //提交渠道信息
-        async submitSourceInfo() {
-            let result = await this.$$request.post('api/source/add', this.sourceForm);
-            if(!result) return 0;
-
-            this.sourceMaskStatus = false;
-            this.fillInfo.source.push({id: result.data.id, name: result.data.name});
-        },
-        //提交学员信息
-        async submitStudentInfo() {
-            let params = {};
-            for(let key in this.studentForm) {
-                if(key == 'birthday') {
-                    params[key] = this.studentForm[key] / 1000;
-                }else params[key] = this.studentForm[key];
-            };
-
-            console.log(params);
-
-            let result = await this.$$request.post('api/student/edit', params);
-            console.log(result);
-            if(!result) return 0;
-
-            this.$message.success('修改成功');
-            this.studentMaskStatus = false;
-            this.getStudentDetail();
-            Bus.$emit('refreshStudentLists');
         },
         //提交跟进
         async submitFollowUpInfo() {
@@ -881,21 +472,6 @@ export default {
             if(!result) return 0;
             this.$set(this, 'detail', result.detail);
         },
-        //获取附件信息
-        async getStudentFill() {
-            let result = await this.$$request.post('api/student/fill');
-            console.log(result)
-            if(!result) return 0;
-            this.$set(this, 'fillInfo', result);
-            this.getCourseLits();
-        },
-        //获取购课页面，课程列表
-        async getCourseLits() {
-            let result = await this.$$request.post('api/course/normalLists');
-            console.log(result);
-            if(!result) return 0;
-            this.buyCourseLists = result.lists;
-        },
         //获取试听填充列表
         async getListenLists() {
             let select_time = this.auditionData.time / 1000;
@@ -928,10 +504,9 @@ export default {
     created() {
         if(this.$route.query.student_id) this.studentId = this.$route.query.student_id;
         this.getStudentDetail();
-        this.getStudentFill();
         this.getFollowUpLists();
     },
-    components: {TableHeader, MyButton}
+    components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}
 }
 </script>
 

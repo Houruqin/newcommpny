@@ -43,7 +43,11 @@
                                 <span>{{$$tools.format(scope.row.expired_at)}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="所有课时" prop="lesson_num" align="center"></el-table-column>
+                        <el-table-column label="所有课时" prop="lesson_num" align="center">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="剩余课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num_remain}}</span>
@@ -268,7 +272,7 @@
                         <el-col :span="12">
                             <el-form-item label="分配顾问：">
                                 <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option v-for="(item, index) in fillInfo.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -285,146 +289,14 @@
                 </div>
             </el-form>
         </el-dialog>
-
+        
         <!-- 购买课程弹窗 -->
-        <el-dialog title="购买课程" width="1100px" center :visible.sync="courseMaskStatus" :close-on-click-modal="false" @close="dialogClose('courseForm')">
-            <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm">
-                <div class="form-box">
-                    <p class="head-info">购买信息</p>
-                    <el-row class="mt-10">
-                        <el-col :span="7">
-                            <el-form-item label="选择课程：" prop="course_id">
-                                <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
-                                    <el-option v-for="(item, index) in buyCourseLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="购课日期：" prop="pay_at">
-                                <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="课程有效期：" prop="expire" label-width="110px">
-                                <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">月</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <p class="head-info">课程信息</p>
-                    <el-row class="mt-10 course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="购买课时：" prop="lesson_num">
-                                <el-input-number v-model="courseForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label="课时单价：" prop="unit_price">
-                                <el-input-number v-model="courseForm.unit_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元/课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
-                                <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row class="course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="已扣课时：" prop="lesson_num_already">
-                                <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <p class="head-info">购课优惠及费用</p>
-                    <el-row class="mt-10 course-form-box">
-                        <el-col :span="7">
-                            <el-form-item label="赠送课时：" prop="given_num">
-                                <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label="优惠金额：" prop="preferential_price">
-                                <el-input-number v-model="courseForm.preferential_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7">
-                            <el-form-item label="付款方式：" prop="pay_way" label-width="110px">
-                                <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                                    <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="购买说明：" class="mt-10 textarea-cls" prop="explain">
-                        <el-col :span="21">
-                            <el-input type="textarea" :rows="4" placeholder="购买说明" v-model.trim="courseForm.explain"></el-input>
-                        </el-col>
-                    </el-form-item>
-
-                    <div class="pl-90">业绩归属：<span>{{studentDetail.advisor_info && studentDetail.advisor_info.name}}</span></div>
-
-                    <div class="mt-10 pl-10">总金额：<span class="fc-m fs-22">￥{{courseForm.unit_price * courseForm.lesson_num - courseForm.preferential_price}}</span></div>
-
-                    <div class="d-f f-j-c mt-30">
-                        <MyButton @click.native="doneHandle('courseForm')">提交生成合约</MyButton>
-                    </div>
-                </div>
-            </el-form>
-        </el-dialog>
-
+        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+            @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
+        </BuyCourseDialog>
+        
         <!-- 购课合约弹窗 -->
-        <el-dialog title="购课合约" width="800px" center :visible.sync="contractMaskStatus" :close-on-click-modal="false">
-            <div class="contract-box" v-if="Object.keys(contractData).length">
-                <p>
-                    <span>甲方：<i>{{contractData.institution.name}}</i></span>
-                    <span>签约校区：<i>{{contractData.school.name}}</i></span>
-                    <span>签约人：<i>{{contractData.user.name}}</i></span>
-                </p>
-                <p v-if="contractData.parent">
-                    <span>乙方(学员)：<i>{{contractData.student.name}}</i></span>
-                    <span>乙方家长：<i>{{contractData.parent.name}}</i></span>
-                    <span>电话：<i>{{contractData.parent.mobile}}</i></span>
-                </p>
-                <p><span>签约日期：<i>{{$$tools.format(contractData.pay_at)}}</i></span></p>
-
-                <p>购买课程详情：</p>
-                <table class="course-table">
-                    <tr>
-                        <td>课程名称</td>
-                        <td>购买课时</td>
-                        <td>课时单价</td>
-                        <td>优惠金额</td>
-                        <td>赠送课时</td>
-                        <td>已扣课时</td>
-                        <td>合同金额</td>
-                    </tr>
-                    <tr>
-                        <td>{{contractData.course.name}}</td>
-                        <td>{{contractData.lesson_num}}</td>
-                        <td>{{contractData.unit_price}}</td>
-                        <td>{{contractData.preferential_price}}</td>
-                        <td>{{contractData.given_num}}</td>
-                        <td>{{contractData.lesson_num_already}}</td>
-                        <td>{{contractData.real_price}}</td>
-                    </tr>
-                </table>
-
-                <p>课程有效期：<i>{{contractData.expire}}</i>个月</p>
-                <p>购买日期：<i>{{$$tools.format(contractData.pay_at)}}</i></p>
-                <p>购买说明：<i>{{contractData.explain}}</i></p>
-                <p>
-                    <img :src="`data:image/png;base64,${contractData.qr}`" /><br/>
-                    <span>扫码获取合约信息</span>
-                </p>
-                <div class="d-f f-j-e">
-                    <MyButton @click.native="goSignedLists">确定</MyButton>
-                    <MyButton @click.native="printCompact" class="ml-20">打印合同</MyButton>
-                </div>
-            </div>
-        </el-dialog>
+        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="800px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
@@ -470,8 +342,8 @@
                     <div class="fc-m fs-16">{{course.name}}</div>
                     <div v-if="course.grade.length">
                         <el-radio-group v-model="divideClassRadio">
-                            <ul class="d-f mt-20">
-                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15" :class="{'ml-30': index}">
+                            <ul class="d-f f-w-w">
+                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span><span class="ml-20">{{list.join_num}}/{{list.limit_num}}</span>
                                     </el-radio>
@@ -709,8 +581,11 @@
 <script>
 import TableHeader  from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
-import {StudentStatic, timeTableStatic, courseStatic} from '../../script/static'
+import {StudentStatic, timeTableStatic} from '../../script/static'
 import Bus from '../../script/bus'
+
+import BuyCourseDialog from '../../components/dialog/BuyCourse'
+import ContractDialog from '../../components/dialog/Contract'
 
 export default {
     data() {
@@ -719,9 +594,7 @@ export default {
             studentId: '',     //学员id
             studentDetail: {},
             contractData: {},  //合约详情
-            fillInfo: {},
 
-            buyCourseLists: [],    //购买课程列表
             quitCourseLists: {},   //退费课程列表
             courseTimeTable: {},   //课程表
             courseCommentLists: {},   //课评列表
@@ -732,6 +605,7 @@ export default {
             checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''},  //试听课程，跟进form显示
             checkListen: [],
 
+            buyCourseData: {},
             auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''},   //试听数据
 
             gradeDivideLists: {
@@ -746,15 +620,15 @@ export default {
             gradeName: '',   //班级名称
             lessonNumDetail: [],   //已扣课时详情列表
             leaveNumDetail: [],   //请假详情列表
-            buyCourseStatus: courseStatic.buyCourseStatus,
 
             gradeDetailMask: false,
             lessonNumDetailMask: false,
             leaveNumDetailMask: false,
 
             activeTab: 'course_info',  //tab列表选中key
-            courseMaskStatus: false,  //购买课程弹窗
-            contractMaskStatus: false, //购课合约弹窗
+
+            dialogStatus: {student: false, course: false, contract: false},
+
             classMaskStatus: false,  //分班弹窗
             quitCourseMaskStatus: false, //退费弹窗
             maskFollowUp: false,   //添加跟进弹窗
@@ -782,19 +656,6 @@ export default {
                 explain: [
                     {max: 200, message: '最多输入200个字符'}
                 ]
-            },
-            courseForm: {
-                course_id: '',  //课程id
-                lesson_num: '',   //购买课时
-                given_num: '',  //赠送课时
-                lesson_num_already: '',  //已扣课时数
-                expire: '',   //有效期
-                leave_num: '',   //请假次数 
-                pay_at: '',   //购课日期
-                pay_way: '',   //付款方式
-                unit_price: '',   //课时单价
-                preferential_price: '',  //优惠价格
-                explain: ''   //说明
             },
             studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
             followUpForm: {
@@ -828,35 +689,6 @@ export default {
                 ],
                 sex: [
                     {required: true, message: '请选择性别', trigger: 'change'}
-                ]
-            },
-            courseRules: {
-                course_id: [
-                    {required: true, message: '请选择课程', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入购买课时数'}
-                ],
-                given_num: [
-                    {required: true, message: '请输入赠送课时数'}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'}
-                ],
-                pay_at: [
-                    {required: true, message: '请选择购课日期', trigger: 'change'}
-                ],
-                pay_way: [
-                    {required: true, message: '请选择付款方式', trigger: 'change'}
-                ],
-                preferential_price: [
-                    {required: true, message: '请输入优惠金额'}
-                ],
-                unit_price: [
-                    {required: true, message: '请输入课时单价'}
-                ],
-                explain: [
-                    {max: 200,  message: '最多输入200字符'}
                 ]
             },
             followUpRules: {
@@ -910,23 +742,24 @@ export default {
             let result = await this.$$request.get('api/studentCourse/detail', {sc_id: data.id});
             console.log(result);
             if(!result) return 0;
-            this.$set(this, 'contractData', result.data);
-            this.contractMaskStatus = true;
+            this.contractData = result.data
+            this.dialogStatus.contract = true;
         },
-        buyCourseStatusHandle(type) {
-            console.log(type)
-            let text = '正常';
-            this.buyCourseStatus.forEach(v => {if(type === v.id) text = v.name});
-            return text;
+        //弹窗变比，改变dialog状态回调
+        CB_dialogStatus(type) {
+            if(type == 'course') return this.dialogStatus.course = false;
+            if(type == 'contract') {
+                this.contractData = {};
+                this.dialogStatus.contract = false;
+                return 0;
+            }
         },
-        //合约确定按钮，跳转签约学员详情
-        goSignedLists() {
-            this.contractMaskStatus = false;
-        },
-        //打印合同
-        printCompact() {
-            this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: '/student/signeddetail', path_query: {id: this.studentId}}});
-            // this.contractMaskStatus = false;
+        //购课成功，合约回调
+        CB_contract(data) {
+            this.contractData = data;
+            this.getBottomTabLists('api/studentCourse/normalLists', 'quitCourseLists');
+            this.dialogStatus.course = false;
+            this.dialogStatus.contract = true;
         },
         //添加跟进
         addFollowUp() {
@@ -992,7 +825,7 @@ export default {
             this.gradeDivideLists.lists.forEach(v => {
                 v.grade.forEach(d => {
                     if(d.id == this.divideClassRadio) {
-                        if(d.join_num >= d.limit_num) {
+                        if(d.join_num >= d.limit_num && v.type === 1) {
                             this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
                                 confirmButtonText: '确定',
                                 cancelButtonText: '取消',
@@ -1007,6 +840,7 @@ export default {
                 });
             })
         },
+        //提交分班数据
         submitClassRoomHandle() {
             if(this.divideClassType === 'add') {
                 this.submitDivideClass('api/studentGrade/add', {student_id: this.studentId, grade_id: this.divideClassRadio});
@@ -1039,19 +873,9 @@ export default {
         },
         //购课
         buyCourse() {
-            this.courseForm.expire = 12;
-            this.courseForm.pay_at = new Date().getTime();
-            this.courseMaskStatus = true;
-        },
-        //购买课程，选择课程change
-        addCourseChange(val) {
-            this.buyCourseLists.forEach(v => {
-                if(v.id == val) {
-                    this.courseForm.expire = v.expire;
-                    this.courseForm.leave_num = v.leave_num;
-                    this.courseForm.unit_price = v.unit_price;
-                }
-            });
+            console.log(this.studentDetail)
+            this.dialogStatus.course = true;
+            this.buyCourseData = this.studentDetail;
         },
         //上课状态转换
         timeTableStatus(status) {
@@ -1072,7 +896,7 @@ export default {
             this.studentForm.address = this.studentDetail.parent_info.address;
             this.studentForm.sex = this.studentDetail.sex;
             this.studentForm.school_name = this.studentDetail.school_name;
-            this.studentForm.advisor_id = this.studentDetail.advisor_id;
+            this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
 
             this.studentMaskStatus = true;
         },
@@ -1133,7 +957,6 @@ export default {
             this.$refs[type].validate(valid => {if(valid) {
                 if(type === 'followUpForm') this.submitFollowUpInfo();
                 else if(type === 'addStudent') this.submitStudentInfo();
-                else if(type === 'courseForm') this.submitBuyCourse();
                 else if(type === 'quitCourseForm') this.submitQuitCourse();
             }});
         },
@@ -1202,32 +1025,6 @@ export default {
             this.getStudentDetail(this.studentForm.id);
             Bus.$emit('refreshStudentLists');
         },
-        //提交购课信息
-        async submitBuyCourse() {
-            if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
-            if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-            if(this.courseForm.preferential_price > this.courseForm.unit_price * this.courseForm.lesson_num) return this.$message.warning('优惠不能超过总金额!');
-
-
-            let params = {};
-
-            for(let key in this.courseForm) {
-                if(typeof this.courseForm[key] === 'undefined') params[key] = '';
-                else params[key] = key == 'pay_at' ? this.courseForm[key] / 1000 : this.courseForm[key];
-            }
-
-            console.log(params);
-
-            let result = await this.$$request.post('api/studentCourse/add', {...params, student_id: this.studentId, parent_id: this.studentDetail.parent_id, advisor_id: this.studentDetail.advisor_id});
-            console.log(result);
-
-            if(!result) return 0;
-            this.$set(this, 'contractData', result.data);
-            this.getBottomTabLists('api/studentCourse/normalLists', 'quitCourseLists');
-            this.courseMaskStatus = false;
-            this.contractMaskStatus = true;
-            Bus.$emit('refreshStudentLists');
-        },
         //提交分班信息
         async submitDivideClass(url, params) {
             console.log(params)
@@ -1264,20 +1061,12 @@ export default {
             for(let key in this.followUpForm) this.followUpForm[key] = '';
             this.getBottomTabLists('api/followUp/lists', 'followUpLists');
         },
-        //获取筛选条件列表
-        async getStudentFill() {
-            let result = await this.$$request.post('api/sign/fill');
-            console.log(result);
-            if(!result) return 0;
-            this.$set(this, 'fillInfo', result.data);
-        },  
         //获取学员详情
         async getStudentDetail() {
             let result = await this.$$request.post('api/student/detail', {id: this.studentId});
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'studentDetail', result.detail);
-            this.getStudentFill();
             this.getTabLists();
         },
         //课程列表，点击分班，获取班级列表
@@ -1321,14 +1110,7 @@ export default {
             });
             this[data] = result.lists;
         },
-        //获取购课页面，课程列表
-        async getBuyCurseLits() {
-            let result = await this.$$request.post('api/course/normalLists');
-            console.log(result);
-            if(!result) return 0;
-            this.buyCourseLists = result.lists;
-        },
-         //获取试听填充列表
+        //获取试听填充列表
         async getListenLists() {
             let old_time = Math.round(this.auditionData.time / 1000);
 
@@ -1357,10 +1139,9 @@ export default {
     },
     created() {
         this.studentId = this.$route.query.id;
-        this.getBuyCurseLits();
         this.getStudentDetail();
     },
-    components: {TableHeader, MyButton}
+    components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog}
 }
 </script>
 
@@ -1514,31 +1295,6 @@ export default {
             .two-p {
                 span {
                     position: relative;
-                    // &::before {
-                    //     content: '';
-                    //     position: absolute;
-                    //     left: 0;
-                    //     top: 50%;
-                    //     transform: translateY(-50%);
-                    // }
-                    // &.time-icon::before{
-                    //     width: 15px;
-                    //     height: 15px;
-                    //     background: url(../../images/common/time-icon.png) no-repeat;
-                    //     background-size: 100%;
-                    // }
-                    // &.teacher-icon::before{
-                    //     width: 14px;
-                    //     height: 17px;
-                    //     background: url(../../images/common/teacher-icon.png) no-repeat;
-                    //     background-size: 100%;
-                    // }
-                    // &.class-icon::before{
-                    //     width: 15px;
-                    //     height: 17px;
-                    //     background: url(../../images/common/address-icon.png) no-repeat;
-                    //     background-size: 100%;
-                    // }
                 }
             }
         }

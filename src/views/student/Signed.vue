@@ -10,15 +10,15 @@
             <div class="fifter-toolbar">
                 <ul class="d-f">                   
                     <li v-if="activeTab !== 'birthday'">    
-                        <el-select size="small" placeholder="全部课程" v-model="searchFilter.course_id" @change="searchHandle">
+                        <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
                             <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in fillInfo.course" :key="index" :value="item.id" :label="item.name"></el-option>
+                            <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li v-if="activeTab === 'onCourse' || activeTab === 'noGrade'">
-                        <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
+                        <el-select size="small" placeholder="选择顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
-                            <el-option v-for="(item, index) in fillInfo.advisor" :key="index" :value="item.id" :label="item.name"></el-option>
+                            <el-option v-for="(item, index) in $store.state.advisor" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li v-if="activeTab === 'absent'">
@@ -31,7 +31,8 @@
                     <li v-if="activeTab === 'onCourse'">
                         <el-select size="small" placeholder="全部签约" v-model="searchFilter.sign_what_time" @change="searchHandle">
                             <el-option label="全部签约" value=""></el-option>
-                            <el-option v-for="(item, index) in fillInfo.what_time" :key="index" :value="item.id" :label="item.name"></el-option>
+                            <el-option label="本周签约" value="week"></el-option>
+                            <el-option label="本月签约" value="month"></el-option>
                         </el-select>
                     </li>
                     <template v-if="activeTab === 'birthday'">
@@ -74,7 +75,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in fillInfo.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -140,7 +141,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in fillInfo.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -186,7 +187,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in fillInfo.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -242,7 +243,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in fillInfo.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -337,7 +338,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in fillInfo.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -448,7 +449,7 @@
                         <el-col :span="12">
                             <el-form-item label="分配顾问：">
                                 <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option v-for="(item, index) in fillInfo.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -501,7 +502,6 @@ export default {
             
             monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
 
-            fillInfo: {},
             svg_src: null,
             searchKeyWord: '',
             classRoomInfo: {course_name: '', sc_id: '', classLists: []},  //分班，班级列表 
@@ -509,7 +509,7 @@ export default {
             tabLists: [],
             loading: true,
             studentTable: {},  //学员table列表  
-            headTab: ['在校学员', '当月生日学员', '待分班学员', '需续约学员', '旷课学员', '结业学员'],
+            headTab: ['在校学员', '当月生日学员', '待分班学员', '需续约学员', '结业学员'],
             studentMaskStatus: false,   //编辑学员信息弹窗
             classMaskStatus: false,   //分班弹窗
             searchFilter: {  //学员搜索筛选条件
@@ -732,13 +732,6 @@ export default {
             this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
             this.getStudentLists();
         },
-        //获取筛选条件列表
-        async getStudentFill() {
-            let result = await this.$$request.post('api/sign/fill');
-            console.log(result);
-            if(!result) return 0;
-            this.$set(this, 'fillInfo', result.data);
-        },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(id) {
             let result = await this.$$request.post('api/sign/gradeLists', {id: id});
@@ -837,7 +830,6 @@ export default {
     created() {
         this.searchFilter.month = new Date().getMonth() + 1;
         this.getTabLists();
-        this.getStudentFill();
         //监听如果详情修改，那么刷新学员列表
         Bus.$on('refreshStudentLists', () => {this.getStudentLists()});
     },

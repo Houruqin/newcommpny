@@ -15,6 +15,10 @@ import Statistics from '@/views/statistics/Index'
 
 import TimeTable from '@/views/timetable/Index'
 
+import ClassElimination from '@/views/academic/ClassElimination'
+import Audition from '@/views/academic/Audition'
+import Buy from '@/views/academic/Buy'
+
 const homeRouter = [
     {path: '', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
@@ -29,6 +33,9 @@ const homeRouter = [
     {path: 'timetable/index', component: TimeTable, name: 'timetableDefault', meta: {needlogin: true}},
     {path: 'timetable/teacher', component: TimeTable, name: 'timetableTeacher', meta: {needlogin: true}},
     {path: 'timetable/class', component: TimeTable, name: 'timetableClass', meta: {needlogin: true}},
+    {path: 'academic/classElimination', component: ClassElimination, name: 'academicDefault', meta: {needlogin: true}},
+    {path: 'academic/audition', component: Audition, name: 'academicAudition', meta: {needlogin: true}},
+    {path: 'academic/buy', component: Buy, name: 'academicBuy', meta: {needlogin: true}},
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
     {path: 'course', component: CourseIndex, meta: {needlogin: true}},
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}

@@ -241,6 +241,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.getUserLists();
+            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$message.success('已修改为离职状态');
             this.maskStatus = false;
         },
@@ -264,6 +265,7 @@ export default {
 
             if(!result) return 0;
             this.getUserLists();
+            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$message.success(this.type == 'modify' ? '修改成功' : '添加成功');
             this.maskStatus = false;
         },

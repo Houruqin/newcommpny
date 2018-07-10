@@ -109,7 +109,6 @@
                         </el-table-column>
                         <el-table-column label="渠道来源" prop="source" align="center"></el-table-column>
                         <el-table-column v-if="uploadType === 'nosign'" :label="uploadType === 'nosign' ? '意向课程' : '签约课程'" prop="course_name" align="center"></el-table-column>
-                        <el-table-column v-if="uploadType === 'nosign'" label="跟进顾问" prop="advisor_name" align="center"></el-table-column>
                         
                         <el-table-column v-if="uploadType === 'signed'" label="所在班级" prop="grade_name" align="center"></el-table-column>
                         <el-table-column v-if="uploadType === 'signed'" label="购课时数" align="center">
@@ -190,7 +189,7 @@ export default {
                 {text: '下载模板', step: 1}, {text: '预览名单', step: 2}, {text: '上传结果', step: 3}
             ],
             tableAllHeader: {
-                nosign: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'advisor_name', 'course_advisor'],
+                nosign: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'course_advisor'],
                 signed: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'grade_name',
                     'lesson_num', 'remain_num', 'given_num', 'leave_num', 'real_price', 'created_at', 'course_advisor']
             },

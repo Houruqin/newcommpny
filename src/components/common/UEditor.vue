@@ -21,6 +21,12 @@ export default {
     },
     get_content_length() {
       return this.ue.getPlainTxt().replace(/\s+/g, "").length;
+    },
+    get_content_text_length() {
+      return this.ue.getContentTxt().replace(/[\t\r\n]+/g, '').length;
+    },
+    get_content_plain_length() {
+      return this.ue.getPlainTxt().length;
     }
   },
   mounted() {

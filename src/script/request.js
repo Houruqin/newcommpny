@@ -47,7 +47,10 @@ axios.interceptors.response.use(res => {
     }
 }, error => {
     let result = error.response;
-    if (!result) return Message.warning('网络错误，请稍后再试');
+    if (!result) {
+        Message.warning('网络错误，请稍后再试');
+        return null;
+    } 
     switch (result.status) {
         case 403:
             Message.warning('您没有操作权限');

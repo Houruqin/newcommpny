@@ -23,11 +23,17 @@ const Tools = {
 	formOtherValidate(type) {
 		return (rule, value, callback, event, e, d) => {
 			if(type == 'price') {
-				if(!value || isNaN(value)) return callback(new Error('请输入数字'));
-				else if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
+                if(!value || isNaN(value)) return callback(new Error('请输入数字'));
+                else if(value < 0) return callback(new Error('请输入正数!'))
+				else if(String(value).split('.')[1] && String(value).split('.')[1].length > 2) return callback(new Error('最多两位小数'));
 				else if(value > 99999) return callback(new Error('价格不能超过99999'));
 				else return callback();
-			}
+            };
+            
+            if(type == 'int') {
+                if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
+                else return callback();
+            };
 		}
 	},
 

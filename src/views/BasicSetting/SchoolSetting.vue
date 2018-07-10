@@ -79,6 +79,7 @@ export default {
             schoolLists: [],
             organizationInfo: [],
             loading: true,
+            schoolId: '',
             form: {
                 organization_id: '', //机构id
                 school_name: '',    //校区名称
@@ -137,7 +138,6 @@ export default {
         },
         //列表操作按钮方法
         operateHnadle(scope, type) {
-            console.log(scope);
             if(type == 'modify') {
                 for(let key in scope) {
                     if(key != 'institution_info') {
@@ -166,6 +166,7 @@ export default {
         },
         //删除
         deleteList(scope) {
+            if(scope.school_id === this.$$cache.getMemberInfo().school_id) return this.$message.warning('不能删除当前所在校区');
             this.$confirm('确定删除该校区吗?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -179,9 +180,9 @@ export default {
             console.log(result);
             if(!result) return 0;
 
-            // let memberInfo = this.$$cache.getMemberInfo();
-            // memberInfo.school_id = result.user.school_id;
-            // this.$$cache.setMemberInfo(memberInfo);
+            let memberInfo = this.$$cache.getMemberInfo();
+            memberInfo.school_id = result.user.school_id;
+            this.$$cache.setMemberInfo(memberInfo);
 
             this.getSchoolLists();
             Bus.$emit('refreshSchoolLists');

@@ -52,9 +52,6 @@ const StudentStatic = {
 const courseStatic = {
     classRoomStatus: [
         {type: 'begin', text: '开课'}, {type: 'plan', text: '排课'}, {type: 'over', text: '结课'}, {type: 'stop', text: '停课'}, {type: 'edit', text: '编辑'}, {type: 'delete', text: '删除'}
-    ],
-    buyCourseStatus: [
-        {id: -1, name: '删除'}, {id: 0, name: '待审核'}, {id: 1, name: '课程已经过期'}, {id: 2, name: '课时已用完'}, {id: 3, name: '已退费'}
     ]
 };
 
@@ -83,7 +80,6 @@ const excelHeader = {
         '家长称呼': 'relation', 
         '渠道来源': 'source',
         '意向课程': 'course_name',
-        '跟进顾问': 'advisor_name',
         '课程顾问': 'course_advisor'
     },
     signed: {
