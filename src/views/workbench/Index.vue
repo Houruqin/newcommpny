@@ -5,6 +5,7 @@
         <el-card shadow="hover">
           <TableHeader title="今日待办">
             <MyButton @click.native="register">登记学员</MyButton>
+            <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;">备忘录</div>
           </TableHeader>
           <el-tabs v-model="activeName" @tab-click="change_tab">
 
@@ -84,7 +85,6 @@
                         <span class='name fc-m cursor-pointer'>{{scope.row.name}}</span>
                       </span>
                     </router-link>
-
                   </template>
                 </el-table-column>
                 <el-table-column label="班级" prop="grade.name" align="center"></el-table-column>
@@ -94,12 +94,33 @@
                   </template>
                 </el-table-column>
               </el-table>
+            </el-tab-pane>  
+
+            <!-- 备忘录 -->
+            <el-tab-pane label="备忘录" name="memo" class="t-o-e">
+              <el-table class="student-table" @row-click="view_memo" :data="memo_info.data" v-loading="loading" :show-header="false">
+                <el-table-column type="index" align="center" width="80px"></el-table-column>
+                <el-table-column prop="trim_content" align="left">
+                  <template slot-scope="scope">
+                    <div class="t-o-e">{{scope.row.trim_content}}</div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="created_at" align="center" width="200px">
+                  <template slot-scope="scope">
+                    {{scope.row.created_at | date('yyyy-MM-dd hh:mm')}}
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-tab-pane>
+            
           </el-tabs>
-          <div v-if="activeName === 'leave'" @click="view_all_leave_record" class="more_record t-a-c fc-7 mt-20 cursor-pointer">历史请假记录>></div>
+          <div v-if="activeName === 'leave'" @click="open_all_leave_dialog" class="more_record t-a-c fc-7 mt-20 cursor-pointer">历史请假记录>></div>
           <!-- 分页 -->
-          <el-pagination v-if="page_info.total > 5" class="d-f f-j-c mt-10" :page-size="5" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.current_page" @current-change="go_page">
+          <el-pagination v-if="activeName !== 'memo' && page_info.total > 5" class="d-f f-j-c mt-10" :page-size="5" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.current_page" @current-change="go_page">
           </el-pagination>
+          <el-pagination v-if="activeName === 'memo' && page_info.total > 6" class="d-f f-j-c mt-10" :page-size="6" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.current_page" @current-change="go_page">
+          </el-pagination>
+          
           
         </el-card>
       </el-col>
@@ -111,22 +132,21 @@
               <el-row class='fc-3'>
                 <el-col :span="11">
                   <span class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.grade.name}}</span>
-                  <span class='ml-20 fs-12 fc-9'>{{item.class_room.name}}</span>
                 </el-col>
                 <el-col :span="13" class="t-a-r">
                   <span @click="view_all_student(item.id,item.begin_time,item.end_time,item.grade_id,item.grade.name)" class='fs-12 cursor-pointer'>全部学员（{{item.students}}人） >></span>
                 </el-col>
               </el-row>
               <el-row class="border_item">
-                <el-col class="fs-13" :span="8">
+                <el-col class="fs-13 t-a-l" :span="8">
                   <i class='c_icon icon_teacher'></i>
                   <span v-for="teacher in item.teacher" :key="teacher.id" class='ml-16'>{{teacher.name}}</span>
                 </el-col>
-                <el-col class="fs-13" :span="8">
+                <el-col class="fs-13 t-a-c" :span="7" :offset="1">
                   <i class='c_icon icon_people'></i>
-                  <span class='ml-16'>{{item.students}}人</span>
+                  <span class='ml-16'>{{item.class_room.name}}</span>
                 </el-col>
-                <el-col class="fs-13" :span="8">
+                <el-col class="fs-13 t-a-r" :span="7" :offset="1">
                   <i class='c_icon icon_time'></i>
                   <span class='ml-16  '>{{item.begin_time | date('hh:mm')}}-{{item.end_time | date('hh:mm')}}</span>
                 </el-col>
@@ -186,7 +206,7 @@
                 <el-table-column label="试听课程" prop="timetable.course.name" align="center"></el-table-column>
                 <el-table-column label="试听时间" prop="timetable" align="center">
                   <template slot-scope="scope">
-                    {{scope.row.timetable.begin_time | date('MM-dd')}}　 {{scope.row.timetable.begin_time | date('hh:mm:ss')}}-{{scope.row.timetable.end_time | date('hh:mm')}}
+                    {{scope.row.timetable.begin_time | date('MM-dd')}}　 {{scope.row.timetable.begin_time | date('hh:mm')}}-{{scope.row.timetable.end_time | date('hh:mm')}}
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
@@ -313,277 +333,37 @@
       </el-col>
     </el-row>
 
+    <!-- 备忘录弹窗 -->
+    <el-dialog class="memo" 
+    :close-on-click-modal="false" 
+    :close-on-press-escape="false" 
+    :visible.sync="memo_info.show" 
+    title="备忘录" 
+    :show-close="true" 
+    width="800px" 
+    center>
+      <el-input type="textarea" :readonly="memo_info.readonly" placeholder="内容(不超过五百字)" resize="none" :autosize="{ minRows: 15, maxRows: 30}" :maxlength="500" v-model.trim="memo_info.content">
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
+        <el-button type="primary" v-if="!memo_info.readonly" @click="add_memo();">提交</el-button>
+        <el-button type="primary" v-if="memo_info.readonly" @click="memo_info.show = false;">确定</el-button>
+        <el-button v-if="memo_info.readonly" @click="delete_memo(memo_info.id)">删除</el-button>
+      </span>
+    </el-dialog>
+
     <!-- 登记学员弹窗 -->
-    <el-dialog title="学员登记" width="800px" center :visible.sync="show_register_dialog" :close-on-click-modal="false" @close="dialogClose('addStudent')">
-      <el-form :model="register_info" label-width="120px" size="small" ref="addStudent" :rules="rules">
-        <div class="form-box">
-          <h3>家长信息</h3>
-          <el-row>
-            <el-col :span="13">
-              <el-form-item label="家长姓名：" prop="parent_name">
-                <el-input v-model.trim="register_info.parent_name"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="4" :offset="1">
-              <el-form-item prop="relation" label-width="0">
-                <el-select v-model="register_info.relation" placeholder="请选择">
-                  <el-option v-for="(item, index) in relationArr" :key="index" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row class="mt-10">
-            <el-col :span="13">
-              <el-form-item label="手机号码：" prop="mobile">
-                <el-input v-model.trim="register_info.mobile" ref="mobileObj"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-form-item label="家庭住址：" class="mt-10">
-            <el-col :span="20">
-              <el-input v-model.trim="register_info.address" placeholder="选填"></el-input>
-            </el-col>
-          </el-form-item>
-
-          <h3>学员信息</h3>
-
-          <el-row>
-            <el-col :span="13">
-              <el-form-item label="学员姓名：" prop="student_name">
-                <el-input v-model.trim="register_info.student_name"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="4" :offset="1">
-              <el-form-item prop="sex" label-width="0">
-                <el-select v-model="register_info.sex" placeholder="选择性别">
-                  <el-option label="男" :value="1"></el-option>
-                  <el-option label="女" :value="0"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row class="mt-10">
-            <el-col :span="13">
-              <el-form-item label="出生日期：">
-                <el-date-picker v-model="register_info.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-form-item label="就读学校：" class="mt-10">
-            <el-col :span="20">
-              <el-input v-model.trim="register_info.school_name" placeholder="选填"></el-input>
-            </el-col>
-          </el-form-item>
-
-          <el-row class="mt-10">
-            <el-col :span="12">
-              <el-form-item label="意向课程：">
-                <el-select v-model="register_info.like_course" placeholder="选择课程">
-                  <el-option v-for="(item, index) in fillInfo.course" :key="index" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8" :offset="1">
-              <el-form-item label-width="0">
-                <el-select v-model="register_info.like_grade" placeholder="选择意向度">
-                  <el-option v-for="(item, index) in likeGrade" :key="index" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row class="mt-10">
-            <el-col :span="12">
-              <el-form-item label="渠道信息：" prop="source_id">
-                <el-select v-model="register_info.source_id" placeholder="请选择">
-                  <el-option v-for="(item, index) in fillInfo.source" :key="index" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2" class="add-source cursor-pointer ml-20" @click.native="addSource">
-              <img src="../../images/common/add.png" alt="">
-            </el-col>
-          </el-row>
-
-          <el-row class="mt-10">
-            <el-col :span="12">
-              <el-form-item label="分配顾问：">
-                <el-select v-model="register_info.advisor_id" placeholder="选择顾问">
-                  <el-option v-for="(item, index) in fillInfo.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-form-item label="备注：" prop="remark" class="mt-10 textarea-cls">
-            <el-col :span="20">
-              <el-input type="textarea" resize="none" :rows="4" placeholder="请输入备注信息" v-model.trim="register_info.remark"></el-input>
-            </el-col>
-          </el-form-item>
-
-          <div class="d-f f-j-c mt-50">
-            <MyButton @click.native="confirm('addStudent')">确定</MyButton>
-          </div>
-        </div>
-      </el-form>
-
-      <el-dialog title="添加渠道" width="500px" center :visible.sync="show_source_dialog" :close-on-click-modal="false" @close="dialogClose('sourseForm')" append-to-body>
-        <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm">
-          <div class="form-box">
-            <el-form-item label="渠道来源：" prop="name">
-              <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
-            </el-form-item>
-            <div class="d-f f-j-c mt-40">
-              <MyButton @click.native="confirm('sourseForm')">确定</MyButton>
-            </div>
-          </div>
-        </el-form>
-      </el-dialog>
-    </el-dialog>
-
+    <AddStudentDialog  :dialogStatus="dialogStatus.student" 
+        @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
+    </AddStudentDialog>
+    
     <!-- 购买课程弹窗 -->
-    <el-dialog title="购买课程" width="1100px" center :visible.sync="show_buy_course_dialog" :close-on-click-modal="false" @close="dialogClose('courseForm')">
-      <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm">
-            <div class="form-box">
-                <p class="head-info">购买信息</p>
-                <el-row class="mt-10">
-                    <el-col :span="7">
-                        <el-form-item label="选择课程：" prop="course_id">
-                            <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
-                                <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="购课日期：" prop="pay_at">
-                            <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="课程有效期：" prop="expire" label-width="110px">
-                            <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">月</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <p class="head-info">课程信息</p>
-                <el-row class="mt-10 course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="购买课时：" prop="lesson_num">
-                            <el-input-number v-model="courseForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8" :offset="1">
-                        <el-form-item label="课时单价：" prop="unit_price">
-                            <el-input-number v-model="courseForm.unit_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元/课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
-                            <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row class="course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="已扣课时：" prop="lesson_num_already">
-                            <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <p class="head-info">购课优惠及费用</p>
-                <el-row class="mt-10 course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="赠送课时：" prop="given_num">
-                            <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8" :offset="1">
-                        <el-form-item label="优惠金额：" prop="preferential_price">
-                            <el-input-number v-model="courseForm.preferential_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                        <el-form-item label="付款方式：" prop="pay_way" label-width="110px">
-                            <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                                <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-form-item label="购买说明：" class="mt-10 textarea-cls" prop="explain">
-                    <el-col :span="21">
-                        <el-input type="textarea" :rows="4" placeholder="购买说明" v-model.trim="courseForm.explain"></el-input>
-                    </el-col>
-                </el-form-item>
-
-                <div class="pl-90">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
-
-                <div class="mt-10 pl-10">总金额：<span class="fc-m fs-22">￥{{courseForm.unit_price * courseForm.lesson_num - courseForm.preferential_price}}</span></div>
-
-                <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="confirm('courseForm')">提交生成合约</MyButton>
-                </div>
-            </div>
-        </el-form>
-    </el-dialog>
-
+    <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+        @CB-contract="CB_contract">
+    </BuyCourseDialog>
+    
     <!-- 购课合约弹窗 -->
-    <el-dialog title="购课合约" width="800px" center :visible.sync="show_course_contract_dialog" :close-on-click-modal="false" id="contract">
-      <div class="contract-box" v-if="Object.keys(contractData).length">
-        <p>
-            <span>甲方：<i>{{contractData.institution.name}}</i></span>
-            <span>签约校区：<i>{{contractData.school.name}}</i></span>
-            <span>签约人：<i>{{contractData.user.name}}</i></span>
-        </p>
-        <p v-if="contractData.parent">
-            <span>乙方(学员)：<i>{{contractData.student.name}}</i></span>
-            <span>乙方家长：<i>{{contractData.parent.name}}</i></span>
-            <span>电话：<i>{{contractData.parent.mobile}}</i></span>
-        </p>
-        <p><span>签约日期：<i>{{$$tools.format(contractData.pay_at)}}</i></span></p>
-
-        <p>购买课程详情：</p>
-        <table class="course-table">
-            <tr>
-                <td>课程名称</td>
-                <td>购买课时</td>
-                <td>课时单价</td>
-                <td>优惠金额</td>
-                <td>赠送课时</td>
-                <td>已扣课时</td>
-                <td>合同金额</td>
-            </tr>
-            <tr>
-                <td>{{contractData.course.name}}</td>
-                <td>{{contractData.lesson_num}}</td>
-                <td>{{contractData.unit_price}}</td>
-                <td>{{contractData.preferential_price}}</td>
-                <td>{{contractData.given_num}}</td>
-                <td>{{contractData.lesson_num_already}}</td>
-                <td>{{contractData.real_price}}</td>
-            </tr>
-        </table>
-
-        <p>课程有效期：<i>{{contractData.expire}}</i>个月</p>
-        <p>购买日期：<i>{{$$tools.format(contractData.pay_at)}}</i></p>
-        <p>购买说明：<i>{{contractData.explain}}</i></p>
-        <p>
-            <img :src="`data:image/png;base64,${contractData.qr}`" /><br/>
-            <span>扫码获取合约信息</span>
-        </p>
-        <div class="d-f f-j-e">
-          <MyButton @click.native="goSignedLists">确定</MyButton>
-          <MyButton @click.native="printCompact" class="ml-20">打印合同</MyButton>
-        </div>
-      </div>
-    </el-dialog>
+    <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
 
     <!-- 拒绝请假弹窗 -->
     <el-dialog :visible.sync="leave_info.show_refuse_dialog" :show-close="false" width="400px">
@@ -629,7 +409,7 @@
                     <li><MyButton @click.native="search_leave_record" :radius="false">搜索</MyButton></li>
                 </ul>
             </div>
-      <el-table class="student-table" :data="all_leave_record.data" v-loading="leave_record_loading" :show-header="true">
+      <el-table stripe class="student-table" :data="all_leave_record.data" v-loading="leave_record_loading" :show-header="true">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="student.name" align="center"></el-table-column>
         <el-table-column label="请假课时" align="center" width="300">
@@ -661,7 +441,7 @@
     <!-- 全部学员弹窗 -->
     <el-dialog :title="all_student_info.title" width="880px" center :visible.sync="all_student_info.show" :close-on-click-modal="false">
       <div v-if="all_student_info.data.length>0" class="fc-7">上课学员：{{all_student_info.data.length}}人</div>
-      <el-table class="student-table" :data="all_student_info.data" v-loading="all_student_info.loading" :show-header="true">
+      <el-table stripe class="student-table" :data="all_student_info.data" v-loading="all_student_info.loading" :show-header="true">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="student.name" align="center"></el-table-column>
         <el-table-column label="上课类型" prop="type_describe" align="center"></el-table-column>
@@ -672,8 +452,8 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2)" :class="[scope.row.status2 === 5 && all_student_info.sign ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
+              <span @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>
@@ -697,8 +477,11 @@
 <script>
 import TableHeader from "../../components/common/TableHeader";
 import MyButton from "../../components/common/MyButton";
-import { StudentStatic } from "../../script/static";
 import echarts from "echarts";
+
+import AddStudentDialog from '../../components/dialog/AddStudent'
+import BuyCourseDialog from '../../components/dialog/BuyCourse'
+import ContractDialog from '../../components/dialog/Contract'
 
 export default {
   data() {
@@ -706,55 +489,11 @@ export default {
       activeName: "leave",
       follow_up_activeName: "visit",
       notice_activeName: "receive",
-      paymentMethod: StudentStatic.paymentMethod, //付款方式
-      contractData: {}, //合约数据
-      courseLists: [],
-      studentId: "",
-      fillInfo: {},
 
-        show_register_dialog: false, //学员登记弹窗
-        show_source_dialog: false, //添加渠道弹窗
-        show_buy_course_dialog: false, //购买课程弹窗
-        show_course_contract_dialog: false, //购课合约弹窗
+        dialogStatus: {student: false, course: false, contract: false},
+        buyCourseData: {},
+        contractData: {}, //合约数据
 
-
-      register_info: {
-        id: "",
-        student_name: "",
-        parent_name: "",
-        relation: "",
-        mobile: "",
-        address: "",
-        sex: "",
-        birthday: "",
-        like_course: "",
-        like_grade: "",
-        source_id: "", //渠道id
-        advisor_id: "", //顾问id
-        remark: "", //备注信息
-        school_name: ""
-      },
-      sourceForm: { name: "" },
-      courseForm: {
-        student_id: '', //学员id
-        parent_id: '',  //家长id
-        advisor_id: '', //顾问id
-        advisor_name: '',   //顾问
-        course_id: '',  //课程id
-        lesson_num: '',   //购买课时
-        given_num: '',  //赠送课时
-        lesson_num_already: '',  //已扣课时数
-        expire: '',   //有效期
-        leave_num: '',   //请假次数 
-        pay_at: '',   //购课日期
-        pay_way: '',   //付款方式
-        unit_price: '',   //课时单价
-        preferential_price: '',  //优惠价格
-        explain: ''   //说明
-      },
-      studentLists: [],
-      relationArr: StudentStatic.relation,
-      likeGrade: StudentStatic.likeGrade,
       rules: {
         parent_name: [
           { required: true, message: "请输入家长姓名" },
@@ -778,41 +517,6 @@ export default {
           { required: true, message: "请选择渠道信息", trigger: "change" }
         ],
         remark: [{ max: 50, message: "长度不能超过50个字符" }]
-      },
-      sourceRules: {
-        name: [
-          { required: true, message: "请输入渠道", trigger: "none" },
-          { max: 20, message: "长度不能超过20个字符" }
-        ]
-      },
-      courseRules: {
-        course_id: [
-            {required: true, message: '请选择课程', trigger: 'change'}
-        ],
-        lesson_num: [
-            {required: true, message: '请输入购买课时数'}
-        ],
-        given_num: [
-            {required: true, message: '请输入赠送课时数'}
-        ],
-        expire: [
-            {required: true, message: '请输入课程有效期'}
-        ],
-        pay_at: [
-            {required: true, message: '请选择购课日期', trigger: 'change'}
-        ],
-        pay_way: [
-            {required: true, message: '请选择付款方式', trigger: 'change'}
-        ],
-        preferential_price: [
-            {required: true, message: '请输入优惠金额'}
-        ],
-        unit_price: [
-            {required: true, message: '请输入课时单价'}
-        ],
-        explain: [
-            {max: 200,  message: '长度不能超过200个字符'}
-        ]
       },
       //今日待办
       leave_info: {
@@ -839,6 +543,13 @@ export default {
       },
       birth_info: {
         data: []
+      },
+      memo_info: {
+        id: '',
+        data: [],
+        show: false,
+        content: '',
+        readonly: false
       },
       page_info: {
         total: 0,
@@ -913,6 +624,28 @@ export default {
     };
   },
   methods: {
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus(type) {
+        if(type == 'student') return this.dialogStatus.student = false;
+        if(type == 'course') return this.dialogStatus.course = false;
+    },
+    //登记成功，刷新列表
+    CB_addStudent() {
+        this.dialogStatus.student = false;
+    },
+    //登记成功，购课回调
+    CB_buyCourse(data) {
+        console.log(data)
+        this.buyCourseData = data;
+        this.dialogStatus.student = false;
+        this.dialogStatus.course = true;
+    },
+    //购课成功，合约回调
+    CB_contract(data) {
+        this.contractData = data;
+        this.dialogStatus.course = false;
+        this.dialogStatus.contract = true;
+    },
     //切换tab标签
     change_tab() {
       this.page_info.current_page = 1;
@@ -954,7 +687,21 @@ export default {
         case "birth":
           this.get_birth_data();
           break;
+        case "memo":
+          this.get_memo_data();
       }
+    },
+    //打开历史记录弹窗
+    open_all_leave_dialog() {
+      this.all_leave_record.show = true; 
+      this.all_leave_record.search_info = {
+        start: new Date(this.$format_date(new Date(),'yyyy/MM/01')), //默认当月第一天
+        end: new Date(new Date().getFullYear(),new Date().getMonth()+1,0,24),
+        student_name: '',
+        page: 1,
+        pageNum: 7
+      };
+      this.view_all_leave_record();
     },
     //查看全部请假记录
     view_all_leave_record() {
@@ -974,7 +721,6 @@ export default {
           this.leave_record_loading = false;
         }
       )
-      this.all_leave_record.show = true; 
     },
     //请假记录弹窗翻页
     go_leave_record_page(page) {
@@ -1040,158 +786,46 @@ export default {
     },
     //学员登记
     register() {
-      this.show_register_dialog = true;
-      this.getStudentFill();
+      this.dialogStatus.student = true;
     },
-    //合约确定按钮，跳转签约学员详情
-    goSignedLists() {
-      this.show_course_contract_dialog = false;
-      this.$router.replace({
-        path: "/student/signeddetail",
-        query: { id: this.studentId }
-      });
-    },
-    //打印合同
-    printCompact() {
-      this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: '/student/signeddetail', path_query: {id: this.studentId}}});
-    },
-    //提交表单
-    confirm(type) {
-      this.$refs[type].validate(valid => {
-        if (valid)
-          type === "addStudent"
-            ? this.submitStudentInfo()
-            : type === "sourseForm"
-              ? this.submitSourceInfo()
-              : this.submitBuyCourse();
-      });
-    },
-    //提交学员信息
-    async submitStudentInfo() {
-    //   let params = this.register_info;
-    //   this.register_info.birthday = this.register_info.birthday / 1000;
-      let params = {};
-
-      for(let key in this.register_info) {
-            if(key == 'birthday') {
-                params[key] = this.register_info[key] / 1000;
-            }else if(key != 'id') params[key] = this.register_info[key];
-        };
-
-      let result = await this.$$request.post("api/student/add", params);
-      if (!result) return 0;
-      if (result.status) {
-        this.$confirm("已存在该账号，是否将学员添加至该账号下？", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "修改手机号",
-          type: "warning"
-        })
-          .then(() => {
-            this.studentRepeat(params);
-          })
-          .catch(() => {
-            this.$refs.mobileObj.focus();
-          });
-      } else {
-        this.studentSuccessMessage(result.data);
+    //添加备忘录
+    add_memo() {
+      if(this.memo_info.content.length<1){
+        this.$message.warning('请输入内容');
+        return false;
       }
-    },
-    //登记学员重复手机号码，处理方法
-    async studentRepeat(params) {
-      let result = await this.$$request.post("api/student/add", {
-        ...params,
-        parent_this: "yes"
-      });
-      if (!result) return 0;
-      this.studentSuccessMessage(result.data);
-    },
-    //登记学员成功，二次提醒是否购课
-    studentSuccessMessage(data) {
-      this.show_register_dialog = false;
-      this.$confirm("已成功登记学员，是否选择购课?", "提示", {
-        confirmButtonText: "购买课程",
-        cancelButtonText: "暂不办理",
-        type: "success"
+      const params = {
+        content: this.memo_info.content
+      }
+      this.$$request.post('api/memorandum/add',params).then(res => {
+        this.memo_info.show = false;
+        this.get_memo_data();
+        this.$message.success('已添加');
       })
-        .then(() => {
-          this.buyCourse(data);
-          this.getCourseLits();
-        })
-        .catch(() => {
-          return 0;
-        });
-      this.studentId = data.id;
     },
-    //提交渠道信息
-    async submitSourceInfo() {
-      let result = await this.$$request.post("api/source/add", this.sourceForm);
-      if (!result) return 0;
-      this.show_source_dialog = false;
-      this.fillInfo.source.push({ id: result.data.id, name: result.data.name });
+    //删除备忘录
+    delete_memo(id) {
+      this.$confirm('确定删除该备忘录吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                const params = {
+                  id: id
+                }
+                this.$$request.post('api/memorandum/delete',params).then(res => {
+                  this.memo_info.show = false;
+                  this.get_memo_data();
+                  this.$message.success('已删除');
+                })
+            }).catch(() => {return 0});
     },
-    //提交购买课程
-    async submitBuyCourse() {
-        if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
-        if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-        if(this.courseForm.preferential_price > this.courseForm.unit_price * this.courseForm.lesson_num) return this.$message.warning('优惠不能超过总金额!');
-
-      let params = {};
-
-      for(let key in this.courseForm) {
-        if(typeof this.courseForm[key] === 'undefined') params[key] = '';
-        else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
-        else if(key != 'advisor_name') params[key] = this.courseForm[key];
-    };
-      let result = await this.$$request.post("api/studentCourse/add", params);
-      if (!result) return 0;
-      this.$set(this, "contractData", result.data);
-      this.show_buy_course_dialog = false;
-      this.show_course_contract_dialog = true;
-    },
-    //获取附件信息
-    async getStudentFill() {
-      let result = await this.$$request.post("api/student/fill");
-      if (!result) return 0;
-      this.$set(this, "fillInfo", result);
-    },
-    //添加渠道信息
-    addSource() {
-      this.sourceForm.name = "";
-      this.show_source_dialog = true;
-    },
-    //购课
-    async buyCourse(data) {
-      this.courseForm.student_name = data.name;
-      this.courseForm.student_id = data.id;
-      this.courseForm.advisor_id = data.advisor_id;
-      this.courseForm.advisor_name = data.advisor ? data.advisor.name : "";
-      this.courseForm.parent_id = data.parent_id;
-      this.courseForm.expire = 12;
-      this.courseForm.pay_at = new Date().getTime();
-      this.show_buy_course_dialog = true;
-    },
-    //获取课程列表
-    async getCourseLits() {
-      let result = await this.$$request.post("api/course/normalLists");
-      console.log(result);
-      if (!result) return 0;
-      this.courseLists = result.lists;
-    },
-    //购买课程，选择课程change
-    addCourseChange(val) {
-      this.courseLists.forEach(v => {
-        if (v.id == val) {
-            this.courseForm.expire = v.expire;
-            this.courseForm.leave_num = v.leave_num;
-            this.courseForm.unit_price = v.unit_price;
-        }
-      });
-    },
-    dialogClose(form) {
-        console.log(form)
-        this.$refs[form].resetFields();
-        if(form === 'addStudent') Object.keys(this.register_info).forEach(v =>{this.register_info[v] = ''});
-        else if(form === 'courseForm') Object.keys(this.courseForm).forEach(v =>{this.courseForm[v] = ''});
+    //查看备忘录
+    view_memo(row, event, column) {
+      this.memo_info.id = row.id;
+      this.memo_info.content = row.content;
+      this.memo_info.show = true;
+      this.memo_info.readonly = true;
     },
     //获取待处理请假列表
     get_leave_data() {
@@ -1322,6 +956,19 @@ export default {
         this.loading = false;
       });
     },
+    //获取备忘录列表
+    get_memo_data() {
+      this.loading = true;
+      const params = {
+        page_num : 6,
+        page: this.page_info.current_page
+      }
+      this.$$request.post('api/memorandum/lists',params).then(res => {
+        this.memo_info.data = res.memorandums.data;
+        this.page_info.total = res.memorandums.total;
+        this.loading = false;
+      })
+    },
     merge_data(data) {
       for (let i = 0; i < data.length; i++) {
                 if (!this.row_span_num.get(data[i].student_id)) {
@@ -1425,22 +1072,24 @@ export default {
       })
     },
     //学员签到
-    sign_student(s_id,t_id,status) {
+    sign_student(s_id,t_id,status,item) {
       if(status === 5 && this.all_student_info.sign){
-      const params = {
-              timetable_id: t_id,
-              student_id: s_id
-            }
-      this.$$request.post('api/signRecord/add',params).then(res => {
-        this.$message.success("已签到");
-        this.get_all_student_list(t_id);
-      })
+        item.status2 = 6;
+        const params = {
+                timetable_id: t_id,
+                student_id: s_id
+              }
+        this.$$request.post('api/signRecord/add',params).then(res => {
+          this.$message.success("已签到");
+          this.get_all_student_list(t_id);
+        })
       }
       
     },
     //学员请假
-    leave_student(s_id,t_id,status) {
+    leave_student(s_id,t_id,status,item) {
       if(status === 5 && this.all_student_info.leave){
+        item.status2 = 6;
         const params = {
           grade_id: this.all_student_info.grade_id,
           timetable_id: t_id,
@@ -1701,7 +1350,7 @@ export default {
   mounted() {
     this.get_course_info();
   },
-  components: { TableHeader, MyButton }
+  components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog }
 };
 </script>
 
@@ -1756,7 +1405,7 @@ export default {
   }
   .icon_people {
     &::after {
-      background-image: url("../../images/common/people_icon.png");
+      background-image: url("../../images/common/address-icon.png");
     }
   }
   .icon_teacher {
@@ -1778,8 +1427,8 @@ export default {
     margin-top: 20px;
   }
   .text_num {
-    display: inline-block;
-    float: left;
+    position: absolute;
+    left: 50px;
     height: 32px;
     line-height: 32px;
   }
@@ -1877,6 +1526,18 @@ export default {
     }
   }
 }
+.t_button{
+  background-color: #fff;
+  color: #45dad5;
+  border: 1px solid #45dad5;
+  box-sizing: border-box;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 18px;
+  border-radius: 3px;
+  margin-left: 22px;
+  cursor: pointer;
+}
 .unread {
   color: #45dad5 !important;
 }
@@ -1902,8 +1563,8 @@ export default {
 .student_handle{
     display: inline-block;
     width: 50px;
-    height: 30px;
-    line-height: 30px;
+    height: 24px;
+    line-height: 24px;
     border-radius: 4px;
     cursor: pointer;
 }
@@ -1920,18 +1581,30 @@ export default {
   right: 20px;
   bottom: 15px;
 }
+.el-button {
+  color: #45dad5;
+  border-color: #45dad5;
+}
 .el-button--primary {
   background-color: #45dad5;
   border-color: #45dad5;
+  color: #fff;
 }
 .workbench_container /deep/ .is-fullscreen {
   height: 80% !important;
 }
-// .workbench_container /deep/ .el-dialog__body {
-//   padding: 10px 20px 10px;
-// }
 .workbench_container /deep/ .el-dialog__footer {
   padding: 0 20px 10px;
+}
+.memo /deep/ .el-dialog__body {
+  padding: 25px 50px 30px;
+}
+.memo /deep/ .el-dialog__footer {
+  padding: 0 20px 20px;
+}
+.memo /deep/ .el-textarea__inner {
+  background-color: #F4F4F4;
+  border: none;
 }
 .workbench_container /deep/ .el-button {
   padding: 0 18px;
@@ -1943,7 +1616,7 @@ export default {
   .el-tab-pane {
     height: 100%;
     .el-row {
-      height: 100%;
+      // height: 100%;
     }
   }
 }

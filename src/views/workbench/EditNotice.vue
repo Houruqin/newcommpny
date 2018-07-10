@@ -131,11 +131,15 @@ export default {
       this.show_notice_person.splice(i, 1);
     },
     publish() {
+      console.log(this.$refs.ueditor.get_content_text_length())
       if (this.title.length < 1) {
         this.$message.warning("请输入标题");
         return false;
       } else if (this.$refs.ueditor.get_content_length() < 1) {
         this.$message.warning("请输入通知内容");
+        return false;
+      } else if (this.$refs.ueditor.get_content_text_length() > 10000) {
+        this.$message.warning("内容已超过最大限制，请删减部分内容");
         return false;
       } else if (this.notice_person.length < 1) {
         this.$message.warning("请选择被通知人");

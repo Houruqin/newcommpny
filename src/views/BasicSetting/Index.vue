@@ -194,6 +194,7 @@ export default {
                 this.classMaskStatus = false;
             }else {
                 this.getSourceLists();
+                this.$store.dispatch('geySource');   //更新渠道信息
                 this.sourceForm.name = '';
                 this.sourceMaskStatus = false;
             }

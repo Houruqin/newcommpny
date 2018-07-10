@@ -12,10 +12,12 @@
                                 <i class="fc-5">{{course.name}}</i>
                                 <i @click="editCourse(course)" class="cursor-pointer ml-10"><img src="../../images/common/edit-icon.png"></i>
                             </span>
-                            <span class="fc-9">课时：<i>{{course.lesson_num}}课时</i></span>
+                            <span class="fc-9 course_type">{{course.type === 1 ? '普通课程' : '一对一课程'}}</span>
+                            <!-- <span class="fc-9">课时：<i>{{course.lesson_num}}课时</i></span>
                             <span class="fc-9">上课时长：<i>{{course.lesson_time}}分钟</i></span>
-                            <span class="fc-9">学费标准：<i>{{course.unit_price}}元/课时</i></span>
-                            <MyButton class="p-a" @click.native="addClassRoom(course.id)" type="border" fontColor="fc-m">添加班级</MyButton>
+                            <span class="fc-9">学费标准：<i>{{course.unit_price}}元/课时</i></span> -->
+                            <span></span>
+                            <MyButton class="p-a" @click.native="addClassRoom(course.id, course.type)" type="border" fontColor="fc-m">添加班级</MyButton>
                         </div>
                         <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" stripe>
                             <el-table-column label="序号" type="index" align="center"></el-table-column>
@@ -100,7 +102,8 @@
                             </el-table-column>
                             <el-table-column label="上课学员" align="center">
                                 <template slot-scope="scope">
-                                    <div class="d-f f-a-c f-j-c">
+                                    <div v-if="course.type === 2">{{scope.row.student.length}}</div>
+                                    <div v-else class="d-f f-a-c f-j-c">
                                         <div :class="scope.row.student.length < scope.row.limit_num ? 'fc-5' : scope.row.student.length == scope.row.limit_num ? 'fc-m' : 'fc-r'">{{scope.row.student.length}}/{{scope.row.limit_num}}</div>
                                         <el-popover v-if="scope.row.student.length > scope.row.limit_num" popper-class="grade-student-popver" placement="right" width="325" trigger="click" content="该班级人数已经超过最大上限，请给多余学员另外分班！">
                                             <div slot="reference" class="ml-5 cursor-pointer"><img src="../../images/common/zhuyi.png" alt=""></div>
@@ -139,12 +142,12 @@
 
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
-                                                        <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num}" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                        <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
                                                     </template>
 
                                                     <!--正常开课-->
                                                     <template v-else>
-                                                        <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num}" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                        <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
                                                     </template>
                                                 </template>
                                             </el-dropdown-item>
@@ -159,54 +162,17 @@
             </div>
         </el-card>
         <!-- 添加、修改课程弹窗 -->
-        <el-dialog :title="courseEdit ? '修改课程' : '添加课程'" width="800px" center :visible.sync="maskCourse" :close-on-click-modal="false" @close="dialogClose('courseForm')">
-            <el-form :model="courseForm" label-width="125px" size="small" ref="courseForm" :rules="courseRules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="课程名字：" prop="name">
-                                <el-input v-model.trim="courseForm.name" placeholder="课程名称"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-row class="mt-10">
-                        <el-col :span="11">
-                            <el-form-item label="学费标准：" prop="unit_price">
-                                <el-input-number v-model="courseForm.unit_price" controls-position="right" :min="1" :max="9999"></el-input-number><span class="pl-10">元/课时</span>
-                            </el-form-item>
-                            <el-form-item label="课节时长：" prop="lesson_time" class="mt-30">
-                                <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
-                            </el-form-item>
-                        </el-col>
-
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="课程有效期：" prop="expire">
-                                <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">个月</span>
-                            </el-form-item>
-                            <el-form-item label="允许请假次数：" prop="leave_num" class="mt-30">
-                                <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="99"></el-input-number><span class="pl-10">次</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </div>
-            </el-form>
-            
-            <div class="d-f f-j-c mt-20">
-                <MyButton class="mr-20" @click.native="doneHandle('courseForm')">提交</MyButton>
-                <MyButton v-if="courseEdit" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
-            </div>
-        </el-dialog>
+        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" 
+            @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
+        </AddCourseDialog>
 
         <!-- 添加/修改班级弹窗 -->
-        <el-dialog :title="classEdit ? '修改班级' : '添加班级'" width="800px" center :visible.sync="maskClassRoom" :close-on-click-modal="false" @close="dialogClose('classRoomForm')">
+        <el-dialog :title="classEdit ? '修改班级' : '添加班级'" width="800px" center :visible.sync="dialogStatus.grade" :close-on-click-modal="false" @close="dialogClose('classRoomForm')">
             <div class="form-box">
                 <el-form :model="classForm" label-width="120px" size="small" ref="classRoomForm" :rules="classRules">
                     <el-row class="add-lesson-top">
                         <el-col :span="11">
-                            <el-form-item label="课程名称：">
-                                <span>{{classForm.course_name}}</span>
-                            </el-form-item>
+                            <el-form-item label="课程名称："><span>{{classForm.course_name}}</span></el-form-item>
                             <el-form-item label="班级名称：" prop="name" class="mt-30">
                                 <el-input v-model.trim="classForm.name"></el-input>
                             </el-form-item>
@@ -220,10 +186,20 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="开课日期：" prop="start_time" class="mt-30">
+                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType === 1">
                                 <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
-                            <el-form-item label="可否试听：" prop="is_listen" class="mt-30">
+                            <el-form-item label="上课教室：" prop="room_id" class="mt-30"  v-if="courseType !== 1">
+                                <el-select v-model="classForm.room_id" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in classSelectInfo.room  "
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="可否试听：" prop="is_listen" class="mt-30" v-if="courseType === 1">
                                 <el-select v-model="classForm.is_listen" placeholder="请选择">
                                     <el-option label="是" :value="1"></el-option>
                                     <el-option label="否" :value="0"></el-option>
@@ -232,11 +208,15 @@
                         </el-col>
 
                         <el-col :span="11" :offset="1">
-                            <el-form-item label="班级课时：" prop="lesson_num">
+                            <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
+                            <el-form-item label="班级课时：" prop="lesson_num" class="mt-30" v-if="courseType === 1">
                                 <el-input-number v-model="classForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
                             </el-form-item>
-                            <el-form-item label="人数上限：" prop="limit_num" class="mt-30">
+                            <el-form-item label="人数上限：" prop="limit_num" class="mt-30" v-if="courseType === 1">
                                 <el-input-number v-model="classForm.limit_num" controls-position="right" :min="1" :max="99"></el-input-number>
+                            </el-form-item>
+                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType !== 1">
+                                <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
                             <el-form-item label="辅助老师：" class="mt-30" prop="counselor_ids">
                                 <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
@@ -248,7 +228,7 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="上课教室：" prop="room_id" class="mt-30">
+                            <el-form-item label="上课教室：" prop="room_id" class="mt-30"  v-if="courseType === 1">
                                 <el-select v-model="classForm.room_id" placeholder="请选择">
                                     <el-option
                                         v-for="item in classSelectInfo.room  "
@@ -274,112 +254,131 @@
                 </el-form>
             </div>
         </el-dialog>
-
-        <!-- 新增排课弹窗 -->
-        <el-dialog title="添加排课" width="800px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
+        <!-- 排课弹窗 -->
+        <el-dialog title="批量排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
                 <div class="form-box">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="排课班级：" >{{timetableForm.class_name}}</el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="课节时长："><span v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span></el-form-item>
-                        </el-col>
-                    </el-row>
 
-                    <el-row class="mt-10">
-                        <el-col :span="11">
-                            <el-form-item label="上课老师：" prop="teacher_ids">
+                            <el-form-item label="开课日期：" prop="start_time" class="mt-30">
+                                <el-date-picker v-model="timetableForm.start_time" @change="startTimeChange" type="date" :editable="false" :picker-options="pickerBeginDateAfter" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                            </el-form-item>
+
+                            <el-form-item label="上课老师：" prop="teacher_ids" class="mt-30">
                                 <el-select placeholder="请选择" v-model="timetableForm.teacher_ids">
                                     <el-option v-for="(item, index) in classSelectInfo.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="未排课时："><span v-if="classSelectInfo.course && timetableForm.all_lesson_num">{{timetableForm.all_lesson_num - (+classSelectInfo.scheduled)}}节课</span></el-form-item>
-                        </el-col>
-                    </el-row>
 
-                    <el-row class="mt-10">
-                        <el-col :span="11">
-                            <el-form-item label="辅助老师：" prop="counselor_ids">
-                                <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
-                                    <el-option v-for="(item, index) in classSelectInfo.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="扣课时数：" prop="lesson_num">
-                                <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">节课</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    
-                    <el-row class="mt-10">
-                        <el-col :span="11">
-                            <el-form-item label="上课教室：" prop="room_id">
+                            <el-form-item label="上课教室：" prop="room_id" class="mt-30">
                                 <el-select placeholder="请选择"  v-model="timetableForm.room_id" multiple>
                                     <el-option v-for="(item, index) in classSelectInfo.room" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="开课日期：" prop="start_time">
-                                <el-date-picker v-model="timetableForm.start_time" type="date" :editable="false" @change="startTimeChange" :picker-options="pickerBeginDateAfter" placeholder="选择日期"  value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
 
-                    <el-row class="mt-10">
-                        <el-col :span="11">
-                            <el-form-item label="重复规则：" prop="loop">
+                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="courseType !== 1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
+
+                        <el-col :span="11" :offset="1">
+                            <el-form-item label="课程属性：">
+                                <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
+                                <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
+                                <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
+                            </el-form-item>
+
+                            <el-form-item label="扣课时数：" prop="lesson_num" class="mt-30">
+                                <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+
+                            <el-form-item label="辅助老师：" prop="counselor_ids" class="mt-30">
+                                <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
+                                    <el-option v-for="(item, index) in classSelectInfo.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="courseType === 1">
+                                <el-select placeholder="请选择" v-model="timetableForm.loop">
+                                    <el-option label="无" value="no"></el-option>
+                                    <el-option label="按周循环" value="yes"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="上课学员：" prop="counselor_ids" class="mt-30 addtimetable-student" v-if="courseType !== 1">
+                                <div class="d-f">
+                                    <div class="d-f">
+                                        <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
+                                            {{addStudentBtnChange()}}
+                                        </MyButton>
+                                    </div>
+                                    <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}</span>
+                                </div>
+                            </el-form-item>
+
+                            <el-form-item label="排课次数：" prop="loop_time" class="mt-30" v-if="courseType !== 1">
+                                <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
+                            </el-form-item>
+                        </el-col>                    
                     </el-row>
 
-                    <el-row class="mt-10 add-date-box">
-                        <el-col class="title">上课时间：</el-col>
-                        <el-col :span="19" class="list">
-                            <el-form label-width="120px" :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
-                                <el-row :class="{'mt-10': num}">
-                                    <el-col :span="5">
-                                        <el-form-item label-width="0" prop="week">
-                                            <el-select placeholder="选择某天" v-model="addDate.week" @change="formWeekChange">
-                                                <el-option v-for="(item, index) in weekList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </el-col>
-
-                                    <el-col :span="8" class="p-r ml-20">
-                                        <el-form-item  label-width="0" prop="begin_time">
-                                            <el-time-select 
-                                                :editable="false"
-                                                v-model="addDate.begin_time" 
-                                                :picker-options="timePicker" 
-                                                placeholder="开始时间">
-                                            </el-time-select>
-                                        </el-form-item>
-
-                                        <div class="add-date cursor-pointer" v-if="num == formAddDate.length - 1" @click="addDateHandle"><img src="../../images/common/add.png" alt=""></div>
-                                        <div class="add-date cursor-pointer" v-else @click="deleteDateHandle(num)"><img src="../../images/common/deleteSchool.png" alt=""></div>
-                                    </el-col>
-                                </el-row>
-                            </el-form>
-                        </el-col>
-                    </el-row>
 
                     <el-row class="mt-10">
-                        <el-form-item label="选择学员：">
-                            <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange">全选</el-checkbox>
-                            <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length">
-                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index">{{item.student_name}}</el-checkbox>
-                            </el-checkbox-group>
-                        </el-form-item>
+                        <el-col :span="12">
+                            <el-row class="add-date-box d-f">
+                                <el-col class="title">上课时间：</el-col>
+                                <el-col class="flex1">
+                                    <div class="list">
+                                        <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
+                                            <el-row class="p-r">
+                                                <el-col :span="8">
+                                                    <el-form-item label-width="0" prop="week">
+                                                        <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
+                                                            <el-option v-for="(item, index) in weekList" :key="index" :label="item.name" :value="item.id"></el-option>
+                                                        </el-select>
+                                                    </el-form-item>
+                                                </el-col>
+
+                                                <el-col :span="12" class="p-r" :offset="1">
+                                                    <el-form-item  label-width="0" prop="begin_time" class="p-r">
+                                                        <el-time-select 
+                                                            :editable="false"
+                                                            v-model="addDate.begin_time" 
+                                                            :picker-options="timePicker" 
+                                                            placeholder="时间">
+                                                        </el-time-select>
+                                                    </el-form-item>
+                                                </el-col>
+
+                                                <el-col :span="2" class="p-r delete-time ml-5" @click.native="deleteDateHandle(num)"><i class="el-tag__close el-icon-close"></i></el-col>
+                                            </el-row>
+                                        </el-form>
+                                    </div>
+                                    <div class="d-f mt-10"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
+                                </el-col>
+                            </el-row>
+                        </el-col>
+
+                        <el-col :span="11" class="d-f f-a-s addtimetable-student" v-if="courseType === 1">
+                            <div class="label"><span>上课学员：</span></div>
+                            <div class="flex1">
+                                <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
+                                    <li v-for="(item, index) in checkStudentForm" :key="index" :class="{'ml-10': index}" class="mb-10">
+                                        <span>{{getStudentName(item)}}</span>
+                                    </li>
+                                </ul>
+                                <div class="d-f">
+                                    <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
+                                        {{addStudentBtnChange()}}
+                                    </MyButton>
+                                </div>
+                            </div>
+                        </el-col>
                     </el-row>
                 </div>
 
@@ -387,10 +386,26 @@
                     <MyButton @click.native="addTimeTableDone">确定</MyButton>
                 </div>
             </el-form>
+
+            <el-dialog :title="courseType === 1 ? '选择普通上课学员' : '选择一对一上课学员'" width="600px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
+                <div class="form-box">
+                    <template v-if="courseType === 1">
+                        <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange">全选</el-checkbox>
+                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length">
+                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
+                        </el-checkbox-group>
+                    </template>
+                    <el-radio-group v-model="studentRadio" v-else>
+                        <el-radio v-for="(item, index) in allStudentLists" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
+                    </el-radio-group>
+
+                    <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
+                </div>
+            </el-dialog>
         </el-dialog>
 
         <!-- 冲突弹窗 -->
-        <el-dialog width="1020px" center :visible.sync="conflictMask" :close-on-click-modal="false">
+        <el-dialog width="1020px" center :visible.sync="dialogStatus.conflict" :close-on-click-modal="false">
             <div class="conflict-box">
                 <h3>排课冲突提醒</h3>
                 <p>班级：{{timetableForm.class_name}}</p>
@@ -427,7 +442,7 @@
                 </el-table>
 
                 <div class="d-f f-j-c mt-30">
-                    <MyButton type="gray" @click.native="conflictMask = false">返回编辑</MyButton>
+                    <MyButton type="gray" @click.native="dialogStatus.conflict = false">返回编辑</MyButton>
                     <MyButton type="subm" class="ml-30" @click.native="doneModify">确认修改</MyButton>
                 </div>
             </div>
@@ -440,6 +455,9 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import {courseStatic} from '../../script/static'
+import AddCourseDialog from '../../components/dialog/AddCourse'
+import Bus from '../../script/bus'
+import Vue from 'vue';
 
 export default {
     data() {
@@ -455,22 +473,32 @@ export default {
             conflict_room: [],
 
             other_lists: [],   //正常排课列表
-            addTimetableMask: false,   //排课弹窗
-            conflictMask: false,   //排课冲突弹窗
+
+            dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
+            addStudentDialog: false,
+
+            editDetail: {},
+
+
             classSelectInfo: {},
-            maskCourse: false,
-            maskClassRoom: false,
-            courseEdit: false,
             classEdit: false,
+            courseOperate: 'add',
+
+            courseType: 1,  //课程类型  普通课程、一对一课程
 
             allStudentLists: [],   //所有学员列表    编辑是，等于班级学员+未分班学员
             studentCheckAll: false,   //添加班级，学员全选状态
             timetable_studentCheckAll: false,   //添加排课，学员全选状态
+
+            studentRadio: '',   //一对一排课 radio选中的学员
             studentLists: [],    //添加班级，选择的学员列表
+
+            checkStudentForm: [],  //form展示选中的学员
+            radioStudentForm: '',  //form展示选中的学员
             timetable_studentLists: [],  //添加排课，选择的学员列表
 
             operationLists: courseStatic.classRoomStatus,
-            timePicker: {start: '09:00', step: '00:15', end: '21:45', minTime: 0},
+            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
             weekList: [
                 {id: 1, name: '周一', day: {}}, 
                 {id: 2, name: '周二', day: {}}, 
@@ -489,17 +517,10 @@ export default {
                 teacher_ids: '',
                 counselor_ids: '',
                 room_id: [],
-                loop: 'no'
+                loop: 'no',
+                loop_time: ''
             },
             formAddDate: [],
-            courseForm: {
-                id: '',
-                name: '',  //名字
-                unit_price: '',  //课程费用（单价）
-                expire: '', //有效期
-                leave_num: '', //请假次数
-                lesson_time: ''  //课时时长
-            },
             classForm: {
                 id: '',
                 course_name: '',   //课程名称
@@ -576,6 +597,9 @@ export default {
                     {required: true, message: '请输入课时数'},
                 ],
                 loop: [],
+                loop_time: [
+                    {required: true, message: '请输入排课次数'},
+                ],
                 start_time: [
                     {required: true, message: '请输入开课时间', trigger: 'change'}
                 ]
@@ -596,13 +620,19 @@ export default {
                 this.studentLists = [];
                 this.studentCheckAll = false;
                 for(let key in this.classForm) this.classForm[key] = '';
-            }else if(type == 'addTimeTable') {
-                this.timetable_studentLists = [];
-                this.timetable_studentCheckAll = false;
             }else {
-                for(let key in this.courseForm) this.courseForm[key] = '';
-            }
+                Object.keys(this.timetableForm).forEach(v => {
+                    if(v == 'room_id') this.timetableForm[v] = [];
+                    else if(v == 'loop') this.timetableForm[v] = 'no';
+                    else this.timetableForm[v] = '';
+                });
 
+
+                this.formAddDate.splice(0, this.formAddDate.length);
+                this.timetable_studentCheckAll = false;
+                this.studentRadio = '';
+                this.timetable_studentLists = [];
+            }
             this.allStudentLists = [];
         },
         gradeStatus(data) {
@@ -616,13 +646,23 @@ export default {
             }
             return result;
         },
+        //弹窗变比，改变dialog状态回调
+        CB_dialogStatus(type) {
+            console.log(type)
+            if(type == 'add_course')  this.dialogStatus.course = false;
+            console.log(this.dialogStatus)
+        },
+        CB_addCourse() {
+            this.getCourseLists();
+            this.dialogStatus.course = false;
+        },
         //创建班级学员checkbox，全选
         studentCheckAllChange(val) {
             this.studentLists = val ? this.allStudentLists : [];
         },
         //排课学员checkbox，全选
         timetable_studentCheckAllChange(val) {
-            this.timetable_studentLists = val ? this.allStudentLists : [];
+            this.timetable_studentLists = val ? this.allStudentLists.map(v => {return v.student_id}) : [];
         },
         //学员checkbox，多选
         studentCheckChange(val) {
@@ -632,8 +672,46 @@ export default {
         timetable_studentCheckChange(val) {
             let checkedCount = val.length;
             this.timetable_studentCheckAll = checkedCount === this.allStudentLists.length;
-            console.log(checkedCount)
-            console.log(this.allStudentLists.length)
+        },
+
+        //排课弹窗通过选中的student_id获取student_name
+        getStudentName(student_id) {
+            let name = '';
+            this.allStudentLists.forEach(v => {if(student_id == v.student_id) name = v.student_name});
+            return name;
+        },
+        addStudentClick() {
+            if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
+            this.addStudentDialog = true;
+
+            if(this.courseType === 1) {
+                this.timetable_studentLists = this.checkStudentForm;
+                this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.length;
+            }else {
+                this.studentRadio = this.radioStudentForm;
+            }
+        },
+        //选学员按钮判断变化
+        addStudentBtnChange() {
+            let text = '';
+            if(this.courseType === 1) {
+                text = this.checkStudentForm.length ? '重新选择' : '选择学员';
+            }else {
+                text = this.radioStudentForm ? this.getStudentName(this.radioStudentForm) : '选择学员';
+            }
+            return text;
+        },
+        checkStudentDone() {
+            if(this.courseType === 1) {
+                this.checkStudentForm = this.timetable_studentLists;
+            }else {
+                this.radioStudentForm = this.studentRadio;
+                this.allStudentLists.forEach(v =>{
+                    if(v.student_id == this.studentRadio) this.timetableForm.no_timetable = v.buy_lesson_num - v.scheduled;
+                });
+            }
+            this.addStudentDialog = false;
+            
         },
         //排课，开课日期改变
         startTimeChange(val) {
@@ -648,46 +726,27 @@ export default {
         },
         //新增课程
         addCourse() {
-            this.maskCourse = true;
-            this.courseEdit = false;
-            this.courseForm.expire = 12;    //有效期默认12月
-            this.courseForm.lesson_time = 30;    //时长默认30分钟
+            this.dialogStatus.course = true;
+            this.courseOperate = 'add';
+            console.log(this.dialogStatus)
         },
         //编辑课程
         editCourse(course) {
-            for(let key in this.courseForm) this.courseForm[key] = course[key];
-            this.maskCourse = true;
-            this.courseEdit = true;
-        },
-        //删除课程
-        deleteCourse(course_id) {
-            this.$confirm('确定删除课程吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(course_id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(course_id) {
-            if(!course_id) return this.$message.warning('操作失败');
-            
-            let result = await this.$$request.post('api/course/delete', {id: course_id});
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('删除成功');
-            this.getCourseLists(); 
-            this.maskCourse = false;
+            this.editDetail = course;
+            this.dialogStatus.course = true;
+            this.courseOperate = 'edit';
         },
          //新增班级，获取form相关西数据
-        async addClassRoom(id) {
-            this.maskClassRoom = true;
+        async addClassRoom(id, type) {
+            this.dialogStatus.grade = true;
             this.classEdit = false;
+            this.courseType = type;
             this.getGradeFill(id, null, 'add');
         },
         //修改班级
-        async editClassRoom(data) {
+        async editClassRoom(data, type) {
             console.log(data);
+            this.courseType = type;
             this.getGradeFill(data.course_id, data.id, 'edit');
             
             for(let key in this.classForm) {
@@ -701,19 +760,16 @@ export default {
                 }else if(key == 'limit_num') this.classForm[key] = `${data[key]}`;
                 else this.classForm[key] = data[key];
             }
-            this.maskClassRoom = true;
+            this.dialogStatus.grade = true;
             this.classEdit = true;
         },
         //form表单确定按钮
         doneHandle(formName) {
-            this.$refs[formName].validate(valid => {
-                if(valid) formName == 'courseForm' ? this.submitCourse() : this.submitClassRoom();
-                else return 0;
-            });
+            this.$refs.classRoomForm.validate(valid => {if(valid) this.submitClassRoom()});
         },
         //班级操作列表点击回调
         handleCommand(option) {
-            console.log(option.type)
+            console.log(option)
             switch(option.type) {
                 case 'plan':
                     this.addTimetable(option);
@@ -728,7 +784,7 @@ export default {
                     this.classCourseState(option);
                     break;
                 case 'edit':
-                    this.editClassRoom(option.grade_info);
+                    this.editClassRoom(option.grade_info, option.course_info.type);
                     break;
                 case 'delete':
                     this.$confirm('确定删除班级吗?', '提示', {
@@ -744,12 +800,12 @@ export default {
         //新增排课  type: single / multiple
         addTimetable(option) {
             console.log(option);
-            if(option.grade_info.timetable.length == option.grade_info.lesson_num) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
+            this.courseType = option.course_info.type;
+            if(option.course_info.type === 1 && option.grade_info.timetable.length == option.grade_info.lesson_num) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
 
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
             this.getGradeFill(option.grade_info.course_id, option.grade_info.id, 'timetable');
-            
-            this.timetableForm.all_lesson_num = option.grade_info.lesson_num;
+
             this.timetableForm.class_name = `${option.course_info.name}/${option.grade_info.name}`;
             this.timetableForm.lesson_time = option.course_info.lesson_time;
             this.timetableForm.teacher_ids = option.grade_info.teacher_lists.length ? option.grade_info.teacher_lists[0].id : '';  //任课老师
@@ -768,7 +824,7 @@ export default {
                 this.timetableForm.start_time = new Date().setHours(0, 0, 0, 0);
             }
             
-            this.addTimetableMask = true;
+            this.dialogStatus.timetable = true;
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
@@ -787,6 +843,8 @@ export default {
         },
          //排课参数整理
         addTimeTableParams() {
+            if(this.courseType !== 1 && !this.radioStudentForm) return this.$message.warning('请选择学员！');
+
             let params = {
                 commit_type: 'multiple',
                 loop: this.timetableForm.loop,
@@ -796,7 +854,8 @@ export default {
                 lesson_num: this.timetableForm.lesson_num,
                 teacher_ids: `,${this.timetableForm.teacher_ids},`,
                 counselor_ids: `,${this.timetableForm.counselor_ids},`,
-                student_lists: this.timetable_studentLists.map(v => {return {student_id: v.student_id}})
+                loop_time: this.timetableForm.loop_time,
+                student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {return {student_id: v}}) : [{student_id: this.radioStudentForm}]
             }
 
             let time_lists = this.formAddDate.map(d => {
@@ -871,13 +930,10 @@ export default {
                 return item;
             });
 
-            console.log(lists);
-
             lists = lists.concat(this.other_lists);
 
             let params = {lists: lists, commit_type: 'conflict'};
 
-            console.log(params);
             this.getConflictLists(params);
         },
         //检测是否有冲突，获取冲突数据列表
@@ -890,8 +946,8 @@ export default {
             if(result.status === 1) {
                 this.getCourseLists();
                 this.$message.success('添加排课成功');
-                this.addTimetableMask = false;
-                this.conflictMask = false;
+                this.dialogStatus.timetable = false;
+                this.dialogStatus.conflict = false;
                 this.conflict_room = [];
             }else if(result.status === -1) {
                 result.conflict_lists.forEach(v => {
@@ -903,7 +959,7 @@ export default {
                 
                 this.conflictLists = result.conflict_lists;   //冲突列表
                 this.other_lists = result.lists;    //正常列表
-                this.conflictMask = true;
+                this.dialogStatus.conflict = true;
             }
         },
         //获取老师列表、上课教室等附加信息
@@ -924,11 +980,12 @@ export default {
                     this.studentLists = result.lists.student_grade;
                     if(!result.lists.student_course.length && result.lists.student_grade.length) this.studentCheckAll = true;
                 }else {
-                    this.timetable_studentLists = result.lists.student_grade;
+                    this.timetable_studentLists = result.lists.student_grade.map(v => {return v.student_id});
                     if(!result.lists.student_course.length && result.lists.student_grade.length) this.timetable_studentCheckAll = true;
                 }
             }
-
+            
+            this.timetableForm.no_timetable = result.lists.unscheduled;
             this.classForm.course_name = result.lists.course.name;
             this.classForm.course_id = result.lists.course.id;
         },
@@ -957,32 +1014,13 @@ export default {
         },
         //删除班级
         async deleteClassRoom(data) {
-            // if(data.status != -2 && data.status != -3) return this.$message.warning('没有结课/停课，不能删除');
             let result = await this.$$request.post('api/grade/delete', {id: data.id});
             if(!result) return 0;
             this.$message.success('已删除');
             this.getCourseLists();
         },
-        //新增、编辑课程提交数据
-        async submitCourse() {
-            let url = this.courseEdit ? 'api/course/edit' : 'api/course/add';
-            let params = {};
-            for(let key in this.courseForm) {if(key != 'id') params[key] = this.courseForm[key]};
-            if(this.courseEdit) params.id = this.courseForm.id;
-            console.log(params);
-
-            let result = await this.$$request.post(url, params);
-            console.log(result);
-
-            if(!result) return 0;
-            this.$message.success(this.courseEdit ? '修改成功' : '添加成功');
-            this.getCourseLists();
-            this.maskCourse = false;
-        },
         //新增、编辑班级提交数据
         submitClassRoom() {
-            console.log(this.classForm)
-            
             if(this.classForm.limit_num < this.studentLists.length) {
                 this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
                     confirmButtonText: '确定',
@@ -1016,7 +1054,7 @@ export default {
             this.$message.success(this.classEdit ? '修改成功' : '添加成功');
 
             this.getCourseLists();
-            this.maskClassRoom = false;
+            this.dialogStatus.grade = false;
             this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
         },
         //获取课程列表
@@ -1062,8 +1100,9 @@ export default {
     created() {
         this.getCourseLists();
         this.getWeek();
+        Bus.$on('refreshCourseLists', () => {this.getCourseLists()});
     },
-    components: {TableHeader, MyButton}
+    components: {TableHeader, MyButton, AddCourseDialog}
 }
 </script>
 
@@ -1155,7 +1194,7 @@ export default {
     }
 
     .form-box {
-        padding: 0 30px;
+        padding: 0 10px;
         .add-lesson-top {
             padding-bottom: 20px;
         }
@@ -1188,6 +1227,34 @@ export default {
                 overflow: hidden;
                 overflow-y: auto;
             }
+            .delete-time {
+                top: 5px;
+                cursor: pointer;
+            }
+        }
+        .addtimetable-student {
+            .label {
+                line-height: 32px;
+                width: 120px;
+                text-align: right;
+                span {
+                    padding-right: 12px;
+                }
+            }
+            li {
+                background-color: #f0f2f5;
+                border-radius: 3px;
+                padding: 0 5px;
+            }
         }
     }
+    .course_type{
+        display: inline-block;
+        border: 1px solid #a9a9a9;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        border-radius: 4px;
+    }
+    
 </style>

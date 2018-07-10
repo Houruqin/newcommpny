@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pb-50">
     <el-menu
       :default-active="$store.state.guide ? '' : $route.meta.menu ? $route.meta.menu : $route.path"
       class="left-menu"
@@ -32,19 +32,24 @@ export default {
     data() {
         return {
             menuLists: [
-                {id: "/home/workbench", text: "工作台", item: false, icon: "icon-gongzuotai"},
+                {id: "/home/workbench", text: "工作台", item: false, icon: "icon-zhuye-copy"},
                 {id: "/student/signed", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
                     { id: "/student/nosign", text: "未签约学员" }, { id: "/student/signed", text: "签约学员" }
                 ]},
-                {id: "/home/timetable/index", text: "排课管理", item: true, icon: "icon-kebiao", itemList: [
-                    { id: "/timetable/index", text: "课程表" },
+                {id: "/home/timetable/index", text: "排课管理", item: true, icon: "icon-paike", itemList: [
+                    { id: "/timetable/index", text: "班级课表" },
                     { id: "/timetable/teacher", text: "老师课表" },
                     { id: "/timetable/class", text: "教室课表" }
                 ]},
-                {id: "/home/course", text: "课程管理", item: false, icon: "icon-kechengbiao"},
+                {id: "/home/academic/classElimination", text: "教务统计", item: true, icon: "icon-jiaowuguanli", itemList: [
+                    { id: "/academic/classElimination", text: "学员消课记录" },
+                    { id: "/academic/audition", text: "试听课记录" },
+                    { id: "/academic/buy", text: "购课记录" }
+                ]},
+                {id: "/home/course", text: "课程管理", item: false, icon: "icon-kecheng-"},
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
-                {id: "/home/setting", text: "基础设置", item: false, icon: "icon-set"},
-                {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xiaoqutongji"}
+                {id: "/home/setting", text: "基础设置", item: false, icon: "icon-shezhi"},
+                {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
                 // {
                 //   id: '/home/statistics',
                 //   text: '更新日志',

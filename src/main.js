@@ -17,7 +17,7 @@ import './script/Blob.js'
 import './script/Export2Excel.js'
 
 import 'element-ui/lib/theme-chalk/index.css'
-import './font/iconfont.css'
+// import './font/iconfont.css'
 
 import '!style-loader!css-loader!less-loader!./styles/common'    //公共样式
 import '!style-loader!css-loader!less-loader!./styles/cover'    //覆盖elementUI组件的样式

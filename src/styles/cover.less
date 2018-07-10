@@ -117,9 +117,6 @@
 
 
 //dropdown覆盖样式
-// .el-select-dropdown, .el-dropdown-menu {
-//     z-index: 900 !important;
-// }
 .el-dropdown-menu .el-dropdown-menu__item:hover {
     color: #45DAD5;
 }
@@ -150,6 +147,14 @@
 textarea {
     &:focus {
         border-color: #45DAD5 !important;
+    }
+}
+.price-input .el-form-item__content {
+    display: flex;
+    display: -webkit-flex;
+    .el-input {
+        -webkit-flex: 1;
+        flex: 1;
     }
 }
 
@@ -258,6 +263,12 @@ textarea {
     }
 }
 
+// 意向学员列表 顾问新增
+.timetable-gradecheckbox {
+    // width: 150px;
+    // height: 160px;
+}
+
 
 //区域滚动
 .my-scrollbar {
@@ -292,6 +303,7 @@ textarea {
         &.active {
             color: #45DAD5;
         }
+        
     }
     .popper__arrow {
         border-bottom-color: #2A3C50 !important;
@@ -315,4 +327,20 @@ textarea {
 //loading
 .el-loading-mask {
     z-index: 300;
+}
+
+
+//首页悬浮
+.speedy-lists {
+    .el-dropdown-menu__item {
+        padding: 0 40px;
+        &:not(:first-child) {
+            border-top: 1px #e6e6e6 solid;
+        }
+    }
+}
+
+
+.time-select-item.disabled {
+    color: #c0cdcc;
 }
