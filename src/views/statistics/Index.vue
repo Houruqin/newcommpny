@@ -3,7 +3,13 @@
         <!-- 年龄及性别统计 -->
         <el-card shadow="hover">
             <TableHeader title="校区统计"></TableHeader>
-            <h4>年龄及性别统计</h4>
+            <div class="d-f f-a-c">
+                <h4>年龄及性别统计</h4>
+                <el-select v-model="sex.student_type" placeholder="请选择" size="small" class="ml-20" @change="sexStudentTypeChange">
+                    <el-option label="已签约学员" value="sign"></el-option>
+                    <el-option label="未签约学员" value="unsign"></el-option>
+                </el-select>
+            </div>
             <p>
                 <span>时间颗粒度：</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
@@ -27,35 +33,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="right-chart flex1" ref="ageChart"></div>
+                <div class="right-chart flex1 ml-50" ref="ageChart"></div>
             </div>
         </el-card>
 
-        <!-- 学员统计 -->
+        <!-- 签约学员统计 -->
         <el-card class="mt-20" shadow="hover">
-            <h4>学员统计</h4>
+            <h4>签约学员统计</h4>
             <span>年份：</span>
             <el-date-picker v-model="student.year" size="small" type="year" @change="studentDateChange" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <div class="echart-box d-f">
-                <div class="left-chart p-r flex1">
+                <div class="left-chart p-r">
                     <div ref="studentLeft" class="left-chart"></div>
                     <div class="student-total p-a t-a-c">
                         <p class="fs-30" v-if="student.total_lists">{{student.total_lists.total_num}}</p><span class="fs-12">学员总数</span>
                     </div>
                 </div>
-                <div class="flex1">
-                    <ul class="d-f ml-50">
-                        <li v-for="(item, index) in student.student_type" 
-                            :key="index" 
-                            class="cursor-pointer d-f f-a-c" 
-                            :class="{'ml-30': index > 0}" 
-                            @click="chartTypeCheck('student', item)">
-                            <span class="bg d-f f-j-c f-a-c" :style="{'backgroundColor': item.color}"><img v-if="item.check" src="../../images/common/draw-icon.png" alt=""></span>
-                            <span class="ml-10">{{item.name}}</span>
-                        </li>
-                    </ul>
-                    <div class="right-chart" ref="studentRight"></div>
-                </div>
+                <div class="right-chart flex1 ml-50" ref="studentRight"></div>
             </div>
         </el-card>
 
@@ -64,24 +58,57 @@
             <h4>课程及考勤统计</h4>
             <span>年份：</span>
             <el-date-picker v-model="course.year" size="small" @change="courseDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box">
-                <ul class="d-f ml-50 mt-20">
-                    <li v-for="(item, index) in course.course_type" 
-                        :key="index" 
-                        class="cursor-pointer d-f f-a-c" 
-                        :class="{'ml-30': index > 0}" 
-                        @click="chartTypeCheck('course', item)">
-                        <span class="bg d-f f-j-c f-a-c" :style="{'backgroundColor': item.color}"><img v-if="item.check" src="../../images/common/draw-icon.png" alt=""></span>
-                        <span class="ml-10">{{item.name}}</span>
-                    </li>
-                </ul>
+            <div class="echart-box mt-30">
                 <div class="right-chart" ref="courseChart"></div>
+            </div>
+        </el-card>
+        
+        <!-- 渠道统计 -->
+        <el-card class="mt-20" shadow="hover">
+            <div class="d-f f-a-c">
+                <h4>渠道统计</h4>
+                <el-select v-model="source.student_type" placeholder="请选择" size="small" class="ml-20" @change="sourceStudentTypeChange">
+                    <el-option label="已签约学员" value="sign"></el-option>
+                    <el-option label="未签约学员" value="unsign"></el-option>
+                </el-select>
+            </div>
+            <span>年份：</span>
+            <el-date-picker v-model="source.what_time" size="small" @change="sourceDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <div class="echart-box d-f">
+                <div class="left-chart p-r">
+                    <div ref="sourceLeft" class="left-chart"></div>
+                    <div class="student-total p-a t-a-c">
+                        <p class="fs-30" v-if="source.total_num">{{source.total_num}}</p><span class="fs-12">渠道总数</span>
+                    </div>
+                </div>
+                <div class="flex1 p-r ml-50">
+                    <el-popover placement="bottom" width="150" trigger="click" popper-class="source-filter-popover">
+                        <div class="my-scrollbar">
+                            <el-scrollbar style="height: 100%;">
+                                <ul>
+                                    <li class="fc-7 cursor-pointer" :class="{'checked': item.checked}" 
+                                        v-for="(item, index) in source.data" :key="index"
+                                        @click="sourceFilterClick(item)">{{item.source_name}}
+                                    </li>
+                                </ul>
+                            </el-scrollbar>
+                        </div>
+                        <MyButton slot="reference" class="p-a source-filter-btn">自定义筛选</MyButton>
+                    </el-popover>
+                    <div class="right-chart" ref="sourceRight"></div>
+                </div>
             </div>
         </el-card>
 
         <!-- 销售统计 -->
         <el-card class="mt-20" shadow="hover">
-            <h4>销售统计</h4>
+            <div class="d-f f-a-c">
+                <h4>销售统计</h4>
+                <el-select v-model="sell.advisor_id" placeholder="请选择" size="small" class="ml-20" @change="sellAdvisorChange">
+                    <el-option label="全部顾问" value=""></el-option>
+                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                </el-select>
+            </div>
             <span>时间颗粒度：</span>
             <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <span>-</span>
@@ -122,6 +149,7 @@
                     </div>
                 </div>
             </div>
+            <p class="fc-7">注：已沟通（包括已沟通和未接通学员）</p>
         </el-card>
     </div>
 </template>
@@ -140,23 +168,30 @@ export default {
             monthArr: [],
             boyIcon: boyIcon,
             girlIcon: girlIcon,
+
             sexChartObj: null,   //性别图表对象
             ageChartObj: null,   //年龄折线图表对象
+
             studentLeftObj: null,  //学员统计饼图
             studentRightObj: null,   //学员统计折线图对象
+
             courseChartObj: null,   //课程及考勤折线图对象
+
+            sourceLeftObj: null,    //渠道统计饼图
+            sourceRightObj: null,    //渠道统计折线图
 
             sex: {
                 start_time: new Date().getTime() -  60*60*24*365*1000,
                 end_time: new Date().getTime(),
+                student_type: 'sign',
                 data: {}
             },
             student: {
                 year: new Date().getTime(),
                 student_type: [
                     {id: 'new', name: '新增学员', color: '#E94848', check: true}, 
-                    {id: 'course', name: '上课学员', color: '#45DAB2', check: true}, 
-                    {id: 'expired', name: '结业学员', color: '#FF7D50', check: true}
+                    {id: 'renew', name: '续约学员', color: '#45DAB2', check: true}, 
+                    {id: 'quit', name: '退费学员', color: '#FF7D50', check: true}
                 ],
                 data: {},
                 total_lists: {},
@@ -173,21 +208,22 @@ export default {
                 data: {},
                 colors: ['#45DAB2', '#FF7D50', '#6880E5', '#E94848']
             },
+            source: {
+                what_time: new Date().getTime(),
+                student_type: 'sign',
+                data: [],
+                total_num: 0,
+                colors: [
+                    '#B858D0', '#1C769B', '#EA27AD', '#73B2F1', '#4ED5B1', '#70E08D', '#AFE162', '#ECEE5D', '#E09C60', '#D15D5D',
+                    '#E56DAB', '#114355', '#153E7C', '#F5B4E8', '#CB8381', '#B9CB81', '#A2A540', '#793BB2', '#F5587E', '#F01C50'
+                ],
+                showCheckBox: []    //渠道自定义的checkbox选项
+            },
             sell: {
                 start_time: new Date().getTime() -  60*60*24*365*1000,
                 end_time: new Date().getTime(),
-                // sell_type: [
-                //     {id: 'total', name: '全部咨询', color: '#45DAB2', data: 0},
-                //     {id: 'to', name: '待跟进', color: '#BDD74E', data: 0},
-                //     {id: 'have', name: '跟进中', color: '#FDDE3B', data: 0},
-                //     {id: 'invited', name: '已邀约', color: '#A3B4DA', data: 0},
-                //     {id: 'listen', name: '已试听', color: '#838A99', data: 0},
-                //     {id: 'visited', name: '已到访', color: '#114355', data: 0},
-                //     {id: 'sign', name: '已成交', color: '#E94848', data: 0}
-                // ],
-                // colors: ['#45DAB2', '#BDD74E', '#FDDE3B', '#A3B4DA', '#838A99', '#114355', '#E94848'],
-                // data: {},
                 sell_lists: [],
+                advisor_id: ''
             },
             colors: {
                 sex: ['#FFCC50', '#45DAD5'],
@@ -208,16 +244,6 @@ export default {
                     borderRadius: 0,
                     selectedMode: false
                 }
-            },
-            lineOptions: {
-                tooltip: {trigger: 'axis'},
-                grid: {  
-                    left: '100',  
-                    right: '60',
-                    top: '40',  
-                    bottom: '20',  
-                    containLabel: true  
-                }
             }
         }
     },
@@ -225,6 +251,10 @@ export default {
         //性别时间change
         sexDateChange(val) {
             if(this.sex.end_time < this.sex.start_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            this.getSexLists();
+        },
+        //性别学员类型
+        sexStudentTypeChange() {
             this.getSexLists();
         },
         //学员
@@ -235,16 +265,44 @@ export default {
         courseDateChange(val) {
             this.getCourseLists();
         },
+        //渠道
+        sourceDateChange() {
+            this.getSourseLists();
+        },
+        //渠道学员类型change
+        sourceStudentTypeChange() {
+            this.getSourseLists();
+        },
         //销售
         sellDateChange() {
             if(this.sell.end_time < this.sell.start_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
             this.getSellLists();
         },
+        //销售顾问change
+        sellAdvisorChange() {
+            this.getSellLists();
+        },
+        //sourceFilter自定义筛选
+        sourceFilterClick(item) {
+            if(!item.checked) {
+                if(this.source.showCheckBox.length == 7) return this.$message.warning('最多展示7条');
+                this.source.showCheckBox.push(item);
+                item.checked = true;
+            }else {
+                this.source.showCheckBox.forEach((v, num) => {if(v.source_id == item.source_id) this.source.showCheckBox.splice(num, 1)});
+                item.checked = false;
+            }
+            console.log(this.source.showCheckBox);
+            this.sourceRightInit();
+        },
         //折线图参数整理
         lineChartOptions(type, colors) {
             let options = {
-                tooltip: this.lineOptions.tooltip,
-                legend: {show: false},
+                tooltip: {trigger: 'axis'},
+                legend: {
+                    left: 50,
+                    data: this[type][`${type}_type`].map(v => {return v.name})
+                },
                 color: colors ? colors : this[type].colors,
                 xAxis: {
                     type: 'category',
@@ -254,115 +312,19 @@ export default {
                     type: 'value',
                     minInterval: 3
                 },
-                grid: this.lineOptions.grid
+                grid: {left: '50', right: '50', top: '50', bottom: '20', containLabel: true}
             };
 
-            if(type === 'course') {
-                options.grid.left = '30';
-                // options.tooltip.formatter = '{b0}<br/>{a0}量:{c0}<br/>{a1}量:{c1}<br/>{a2}量:{c2}<br/>{a3}量:{c3}'
-            }
-
+            if(type === 'course') options.grid.left = '30';
             return options;
         },
-        //学员性别图表
+        //年龄及性别统计 left
         sexChartInit() {
-            this.sexChartObj = Echart.init(this.$refs.sexChart);
             let options = {
                 tooltip: this.pieOptions.tooltip,
                 color: this.colors.sex,
                 legend: this.pieOptions.legend,
-                textStyle: {color: '#555' }
-            };
-            options.legend.formatter = (params) => {
-                if(params == '女') return `${params}：${this.sex.data.woman_num}`;
-                if(params == '男') return `${params}：${this.sex.data.man_num}`;
-            };
-            this.sexChartObj.setOption(options);
-        },
-        //学员年龄图表
-        ageChartInit() {
-            this.ageChartObj = Echart.init(this.$refs.ageChart);
-            let xaxisText = {fontSize: 12, color: '#555'};            
-            let options = {
-                color: this.colors.sex,
-                tooltip: this.lineOptions.tooltip,
-                legend: {show: false},
-                label: {show: false},
-                xAxis: {
-                    type: 'category',
-                    data: [
-                        {value: '3-5岁', textStyle: xaxisText}, 
-                        {value: '5-7岁', textStyle: xaxisText}, 
-                        {value: '7-9岁', textStyle: xaxisText}, 
-                        {value: '9-11岁', textStyle: xaxisText},
-                        {value: '11-12岁及以上', textStyle: xaxisText},
-                        {value: '其他', textStyle: xaxisText}
-                    ]
-                },
-                yAxis: {type: 'value', minInterval: 10},
-                grid: this.lineOptions.grid               
-            };
-            
-            this.ageChartObj.setOption(options);
-        },
-        //学员上课情况图表
-        studentChartInit() {
-            this.studentLeftObj = Echart.init(this.$refs.studentLeft);
-
-            let options = {
-                tooltip: this.pieOptions.tooltip,
-                color: this.colors.student,
-                legend: this.pieOptions.legend,
-                textStyle: {color: '#555' }
-            };
-            options.legend.formatter = (params) => {
-                if(params == '上课学员') return `${params}：${this.student.total_lists.course_num}`;
-                if(params == '结业学员') return `${params}：${this.student.total_lists.expired_num}`;
-            };
-
-            this.studentLeftObj.setOption(options);
-        },
-        //学员上课情况折线图
-        studentRightInit() {
-            this.studentRightObj = Echart.init(this.$refs.studentRight);
-            this.studentRightObj.setOption(this.lineChartOptions('student'));
-        },
-        //课程及考勤图表初始化
-        courseChartInit() {
-            this.courseChartObj = Echart.init(this.$refs.courseChart);
-            this.courseChartObj.setOption(this.lineChartOptions('course'));
-        },
-        //折线图切换显示
-        chartTypeCheck(type, item) {
-            item.check = !item.check;
-
-            let grid_lists = [], colors = [];
-
-            this[type][`${type}_type`].forEach(v => {if(v.check) {
-                grid_lists.push({type: 'line', name: v.name, data: this[type].data[`${v.id}_lists`]});
-                colors.push(v.color);
-            }});
-
-            let obj = type == 'student' ? this.studentRightObj : this.courseChartObj;
-
-            let options = this.lineChartOptions(type, colors);
-
-            options.series = grid_lists;
-
-            obj.setOption(options, true);
-        },
-        //获取性别、年龄学员列表
-        async getSexLists() {
-            let result = await this.$$request.post('api/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000});
-            console.log(result);
-            if(!result) return 0;
-            result.total_num = result.woman_num + result.man_num;
-            result.man_percentage = result.man_num == 0 ? '0%' : `${(result.man_num / result.total_num * 100).toFixed(1)}%`;
-            result.woman_percentage = result.woman_num == 0 ? '0%' : `${(result.woman_num / result.total_num * 100).toFixed(1)}%`;
-
-            this.sex.data = result;
-
-            this.sexChartObj.setOption({
+                textStyle: {color: '#555'},
                 series: [
                     {
                         name:'性别',
@@ -376,24 +338,47 @@ export default {
                         data:[{value: this.sex.data.woman_num, name: '女'}, {value: this.sex.data.man_num, name: '男'}]
                     }
                 ]
-            });
-
-            this.ageChartObj.setOption({
+            };
+            options.legend.formatter = (params) => {
+                if(params == '女') return `${params}：${this.sex.data.woman_num}`;
+                if(params == '男') return `${params}：${this.sex.data.man_num}`;
+            };
+            this.sexChartObj.setOption(options, true);
+        },
+        //年龄及性别统计 right
+        ageChartInit() {
+            let xaxisText = {fontSize: 12, color: '#555'};            
+            let options = {
+                color: this.colors.sex,
+                tooltip: {trigger: 'axis'},
+                legend: {left: 50, data: ['女', '男']},
+                xAxis: {
+                    type: 'category',
+                    data: [
+                        {value: '3-5岁', textStyle: xaxisText}, 
+                        {value: '5-7岁', textStyle: xaxisText}, 
+                        {value: '7-9岁', textStyle: xaxisText}, 
+                        {value: '9-11岁', textStyle: xaxisText},
+                        {value: '11-12岁及以上', textStyle: xaxisText},
+                        {value: '其他', textStyle: xaxisText}
+                    ]
+                },
+                yAxis: {type: 'value', minInterval: 10},
+                grid: {left: '50', right: '50', top: '50', bottom: '20', containLabel: true},
                 series: [
                     {name: '女', type: 'bar', label: {show: true}, barWidth: 30, data: this.sex.data.lists.map(v => {return v.woman_num})},
                     {name: '男', type: 'bar', label: {show: true}, barWidth: 30, barGap: 0, data: this.sex.data.lists.map(v => {return v.man_num})}
-                ]
-            });
+                ]              
+            };
+            this.ageChartObj.setOption(options, true);
         },
-        //上课情况，获取学员列表
-        async getStudentLists() {
-            let result = await this.$$request.post('api/collect/signLists', {what_time: this.student.year / 1000});
-            console.log(result);
-            if(!result) return 0;
-
-            result.lists.total_lists.total_num = result.lists.total_lists.course_num + result.lists.total_lists.expired_num;  //学员总数
-            this.student.total_lists = result.lists.total_lists;
-            this.studentLeftObj.setOption({
+        //签约学员统计 left
+        studentChartInit() {
+            let options = {
+                tooltip: this.pieOptions.tooltip,
+                color: this.colors.student,
+                legend: this.pieOptions.legend,
+                textStyle: {color: '#555'},
                 series: [
                     {
                         name:'学员',
@@ -404,24 +389,131 @@ export default {
                         avoidLabelOverlap: false,
                         legendHoverLink: false,
                         label: {show: false},
-                        data:[{value: result.lists.total_lists.course_num || 0, name: '上课学员'}, {value: result.lists.total_lists.expired_num || 0, name: '结业学员'}]
+                        data:[{value: this.student.total_lists.course_num || 0, name: '在校学员'}, {value: this.student.total_lists.expired_num || 0, name: '结业学员'}]
                     }
                 ]
-            });
+            };
+            options.legend.formatter = (params) => {
+                if(params == '在校学员') return `${params}：${this.student.total_lists.course_num}`;
+                if(params == '结业学员') return `${params}：${this.student.total_lists.expired_num}`;
+            };
 
-            this.student.data = result.lists;
+            this.studentLeftObj.setOption(options, true);
+        },
+        //签约学员统计 right
+        studentRightInit() {
+            let options = this.lineChartOptions('student');
 
             let grid_lists = [];
             this.student.student_type.forEach(v => {
-                if(v.check) grid_lists.push({type: 'line', name: v.name, data: result.lists[`${v.id}_lists`]});
+                if(v.check) grid_lists.push({type: 'line', name: v.name, data: this.student.data[`${v.id}_lists`]});
             });
 
-            let options = this.lineChartOptions('student')
             options.series = grid_lists;
-
             this.studentRightObj.setOption(options, true);
         },
-        //课程及考勤统计
+        //课程及考勤
+        courseChartInit() {
+            let options = this.lineChartOptions('course');
+
+            let grid_lists = [];
+            this.course.course_type.forEach(v => {
+                if(v.check) grid_lists.push({type: 'line', name: v.name, data: this.course.data[`${v.id}_lists`]});
+            });
+
+            options.series = grid_lists;
+            this.courseChartObj.setOption(options, true);
+        },
+        //渠道统计 left
+        sourceChartInit() {
+            let options = {
+                tooltip: this.pieOptions.tooltip,
+                color: this.source.colors.slice(0, this.source.data.length),
+                legend: this.pieOptions.legend,
+                textStyle: {color: '#555' }
+            };
+            
+            options.legend.formatter = (params) => {return `${params}：${this.getSourceItemNum(params)}`};
+            options.series = [{
+                name:'渠道',
+                type:'pie',
+                startAngle: 90,
+                radius: ['35%', '50%'],
+                center: ['60%', '50%'],
+                avoidLabelOverlap: false,
+                legendHoverLink: false,
+                label: {show: false},
+                data: this.source.data.map(v => {return {value: v.total, name: v.source_name}})
+            }]
+
+            this.sourceLeftObj.setOption(options, true);
+        },
+        getSourceItemNum(text) {
+            let num = 0;
+            this.source.data.forEach(v => {
+                if(v.source_name == text) num = v.total;
+            });
+            return num;
+        },
+        //渠道统计 right
+        sourceRightInit() {
+            let options = {
+                tooltip: {trigger: 'axis'},
+                legend: {
+                    left: 50,
+                    data: this.source.showCheckBox.map(v => {return v.source_name})
+                },
+                color: this.source.colors.slice(0, this.source.showCheckBox.length),
+                grid: {left: '50', right: '50', top: '50', bottom: '20', containLabel: true},
+                xAxis: {
+                    type: 'category',
+                    data: this.monthArr
+                },
+                yAxis: {
+                    type: 'value',
+                    minInterval: 3
+                },
+                series: this.source.showCheckBox.map(v => {
+                    return {
+                        name: v.source_name,
+                        type: 'line',
+                        data: v.data
+                    }
+                })
+            };
+
+            this.sourceRightObj.setOption(options, true);
+        },
+        //获取性别、年龄学员列表
+        async getSexLists() {
+            let result = await this.$$request.post('api/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000, type: this.sex.student_type});
+            console.log(result);
+            if(!result) return 0;
+            
+            result.total_num = result.woman_num + result.man_num;
+            result.man_percentage = result.man_num == 0 ? '0%' : `${(result.man_num / result.total_num * 100).toFixed(1)}%`;
+            result.woman_percentage = result.woman_num == 0 ? '0%' : `${(result.woman_num / result.total_num * 100).toFixed(1)}%`;
+
+            this.sex.data = result;
+
+            this.sexChartInit();
+            this.ageChartInit();
+        },
+        //获取签约学员列表
+        async getStudentLists() {
+            let result = await this.$$request.post('api/collect/signLists', {what_time: this.student.year / 1000});
+            console.log(result);
+            if(!result) return 0;
+
+            result.lists.total_lists.total_num = result.lists.total_lists.course_num + result.lists.total_lists.expired_num;  //学员总数
+            this.student.total_lists = result.lists.total_lists;
+
+            this.student.data = result.lists;
+
+            this.studentChartInit();
+            this.studentRightInit();
+        },
+        //课程及考勤统计列表
         async getCourseLists() {
             let result = await this.$$request.post('api/collect/courseLists', {what_time: this.course.year / 1000});
             console.log(result);
@@ -429,33 +521,48 @@ export default {
             
             this.course.data = result.lists;
 
-            let grid_lists = [];
-            this.course.course_type.forEach(v => {
-                if(v.check) grid_lists.push({type: 'line', name: v.name, data: result.lists[`${v.id}_lists`]});
-            });
-
-            let options = this.lineChartOptions('course')
-            options.series = grid_lists;
-
-            console.log(options)
-
-            this.courseChartObj.setOption(options, true);
+            this.courseChartInit();
         },
         //销售统计列表
         async getSellLists() {
-            let result = await this.$$request.post('api/collect/sellLists', {start: this.sell.start_time / 1000, end: this.sell.end_time / 1000});
+            let result = await this.$$request.post('api/collect/sellLists', {start: this.sell.start_time / 1000, end: this.sell.end_time / 1000, advisor_id: this.sell.advisor_id});
             console.log(result);
             if(!result) return 0;
 
             this.sell.sell_lists = result.lists;
+        },
+        //渠道统计列表
+        async getSourseLists() {
+            let result = await this.$$request.post('api/collect/sourceLists', {what_time: this.source.what_time / 1000, type: this.source.student_type});
+            console.log(result);
+            if(!result) return 0;
 
-            // this.sell.sell_type.forEach(v => {v.data = result.lists[`${v.id}_num`]});
+            this.source.showCheckBox.splice(0, this.source.showCheckBox.length);
 
-            // result.lists.sign_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.sign_num / result.lists.total_num * 100).toFixed() + '%';
-            // result.lists.wait_ratio = result.lists.total_num === 0 ? '0%' : (result.lists.to_num / result.lists.total_num * 100).toFixed() + '%';
+            result.lists.forEach((v, num) => {
+                v.checked = num < 7 ? true : false;
+                if(num < 7) this.source.showCheckBox.push(v);
+            });
 
-            // this.sell.data = result.lists;
-            // this.sell.sell_type.sort((a, b) => {return b.data - a.data});
+            this.source.data = result.lists;
+
+            let total_num = result.lists.map(v => {return v.total}).reduce((a, b) => {return a + b});
+            this.source.total_num = total_num;
+
+            this.sourceChartInit();
+            this.sourceRightInit();
+        },
+        allEChartInit() {
+            this.sexChartObj = Echart.init(this.$refs.sexChart);
+            this.ageChartObj = Echart.init(this.$refs.ageChart);
+
+            this.studentLeftObj = Echart.init(this.$refs.studentLeft);
+            this.studentRightObj = Echart.init(this.$refs.studentRight);
+
+            this.courseChartObj = Echart.init(this.$refs.courseChart);
+
+            this.sourceLeftObj = Echart.init(this.$refs.sourceLeft);
+            this.sourceRightObj = Echart.init(this.$refs.sourceRight);
         }   
     },
     created() {
@@ -463,21 +570,25 @@ export default {
         for(let i = 1; i <= 12; i++) {this.monthArr.push(`${i}月`)};
     },
     mounted() {
-        this.sexChartInit();
-        this.ageChartInit();
+        //定义所有图表对象
+        this.allEChartInit();
+
+        //年龄性别统计
         this.getSexLists();
 
-        
-        this.studentChartInit();
-        this.studentRightInit();
+        //签约学员统计
         this.getStudentLists();
 
-        this.courseChartInit();
+        //课程考勤统计
         this.getCourseLists();
 
+        //销售统计
         this.getSellLists();
+
+        //渠道统计
+        this.getSourseLists();
     },
-    components: {TableHeader}
+    components: {TableHeader, MyButton}
 }
 </script>
 
@@ -606,6 +717,38 @@ export default {
                 }
             }
         }
+    }
+    .source-filter-popover {
+        .my-scrollbar {
+            width: 100%;
+            height: 200px;
+        }
+        ul {
+            li {
+                border-bottom: 1px #e3e3e3 solid;
+                position: relative;
+                height: 36px;
+                line-height: 36px;
+                &.checked {
+                    color: #45DAD5;
+                    &::after {
+                        position: absolute;
+                        right: 20px;
+                        font-family: element-icons;
+                        content: "\E611";
+                        font-size: 12px;
+                        font-weight: 700;
+                        -webkit-font-smoothing: antialiased;
+                    }
+                }
+            }
+        }
+    }
+    .source-filter-btn {
+        position: absolute;
+        z-index: 50;
+        top: 0;
+        right: 40px;
     }
 </style>
 

@@ -1,113 +1,85 @@
 <template>
-    <el-dialog :title="type == 'add' ? '学员登记' : '学员修改'" width="800px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+    <el-dialog :title="type == 'add' ? '学员登记' : '学员修改'" width="950px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
         <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
-            <div class="form-box">
-                <h3>家长信息</h3>
+            <div class="form-box mt-30">
                 <el-row>
-                    <el-col :span="13">
-                        <el-form-item label="家长姓名：" prop="parent_name">
-                            <el-input v-model.trim="studentForm.parent_name"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="4" :offset="1">
-                        <el-form-item prop="relation" label-width="0">
-                            <el-select v-model="studentForm.relation" placeholder="请选择">
-                                <el-option v-for="(item, index) in relationArr" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                
-                <el-row class="mt-10">
-                    <el-col :span="13">
-                        <el-form-item label="手机号码：" prop="mobile">
-                            <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-form-item label="家庭住址：" prop="address" class="mt-10">
-                    <el-col :span="20"><el-input v-model.trim="studentForm.address" placeholder="选填"></el-input></el-col>
-                </el-form-item>
-
-                <h3>学员信息</h3>
-                
-                <el-row>
-                    <el-col :span="13">
+                    <el-col :span="10">
                         <el-form-item label="学员姓名：" prop="student_name">
                             <el-input v-model.trim="studentForm.student_name"></el-input>
                         </el-form-item>
+
+                        <el-form-item label="联系电话：" prop="mobile">
+                            <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="就读学校：" prop="school_name">
+                            <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="家长姓名：" prop="parent_name">
+                            <el-input v-model.trim="studentForm.parent_name"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="意向课程：" class="mt-50">
+                            <el-select v-model="studentForm.like_course" placeholder="选择课程" clearable>
+                                <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+
+                        <el-form-item label="渠道信息：" prop="source_id" class="p-r">
+                            <el-select v-model="studentForm.source_id" placeholder="请选择">
+                                <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                            <div class="p-a add-source ver-c cursor-pointer" @click="addSource"><img src="../../images/common/add.png" alt=""></div>
+                        </el-form-item>
                     </el-col>
-                    <el-col :span="4" :offset="1">
-                        <el-form-item prop="sex" label-width="0">
+
+                    <el-col :span="10" :offset="2">
+                        <el-form-item label="性别：" prop="sex" >
                             <el-select v-model="studentForm.sex" placeholder="选择性别">
                                 <el-option label="男" :value="1"></el-option>
                                 <el-option label="女" :value="0"></el-option>
                             </el-select>
                         </el-form-item>
-                    </el-col>
-                </el-row>
 
-                <el-row class="mt-10">
-                    <el-col :span="13">
                         <el-form-item label="出生日期：">
                             <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                         </el-form-item>
-                    </el-col>
-                </el-row>
-                
 
-                <el-form-item label="就读学校：" class="mt-10" prop="school_name">
-                    <el-col :span="20"><el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input></el-col>
-                </el-form-item>
+                        <el-form-item label="家庭住址：" prop="address">
+                            <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
+                        </el-form-item>
 
-                <el-row class="mt-10">
-                    <el-col :span="12">
-                        <el-form-item label="意向课程：">
-                            <el-select v-model="studentForm.like_course" placeholder="选择课程" clearable>
-                                <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
+                        <el-form-item label="家长关系：" prop="relation">
+                            <el-select v-model="studentForm.relation" placeholder="请选择">
+                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
                             </el-select>
                         </el-form-item>
-                    </el-col>
-                    <el-col :span="8" :offset="1">
-                        <el-form-item label-width="0">
+
+                        <el-form-item label="课程意向：" class="mt-50">
                             <el-select v-model="studentForm.like_grade" placeholder="选择意向度" clearable>
-                            <el-option v-for="(item, index) in likeGrade" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-row class="mt-10">
-                    <el-col :span="12">
-                        <el-form-item label="渠道信息：" prop="source_id">
-                            <el-select v-model="studentForm.source_id" placeholder="请选择">
-                                <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
+                                <el-option v-for="(item, index) in likeGrade" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
-                    </el-col>
-                    <el-col :span="2"  class="add-source cursor-pointer ml-20" @click.native="addSource">
-                        <img src="../../images/common/add.png" alt="">
-                    </el-col>
-                </el-row>
 
-                <el-row class="mt-10">
-                    <el-col :span="12">
                         <el-form-item label="分配顾问：">
                             <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
+                                <el-option label="暂不分配" value=""></el-option>
                                 <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
-
-                <el-form-item label="备注：" prop="remark" class="mt-10 textarea-cls">
-                    <el-col :span="20">
-                        <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
+                
+                <el-row class="mt-10">
+                    <el-col :span="22">
+                        <el-form-item label="备注：" class="textarea-cls">
+                            <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
+                        </el-form-item>
                     </el-col>
-                </el-form-item>
+                </el-row>
 
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('addStudent')">确定</MyButton></div>
+                <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('addStudent')">确定</MyButton></div>
             </div>
         </el-form>
 
@@ -117,7 +89,7 @@
                     <el-form-item label="渠道来源：" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('sourseForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('sourseForm')">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -165,7 +137,6 @@ export default {
     },
     data() {
         return {
-            relationArr: StudentStatic.relation,
             likeGrade: StudentStatic.likeGrade,
             studentForm: {
                 id: '',
@@ -189,11 +160,7 @@ export default {
             sourceDialogStatus: false,
             rules: {
                 parent_name: [
-                    {required: true, message: '请输入家长姓名'},
                     {max: 7, message: '长度不能超过7个字符'}
-                ],
-                relation: [
-                    {required: true, message: '请选择关系', trigger: 'change'}
                 ],
                 address: [
                     {max: 50, message: '长度不能超过50个字符'}
@@ -235,9 +202,10 @@ export default {
     methods: {
         dialogClose(form) {
             this.$refs[form].resetFields();
-            if(form === 'addStudent') Object.keys(this.studentForm).forEach(v =>{this.studentForm[v] = ''});
-            else this.sourceForm.name = '';
-            this.$emit('CB-dialogStatus', 'student');
+            if(form === 'addStudent') {
+                this.$emit('CB-dialogStatus', 'student');
+                Object.keys(this.studentForm).forEach(v =>{this.studentForm[v] = ''});
+            }else this.sourceForm.name = '';
         },
         //添加渠道信息
         addSource() {
@@ -325,20 +293,14 @@ export default {
 
 <style lang="less" scoped>
     .form-box {
-        padding: 0 20px;
+        padding: 0 40px;
         .el-select, .el-date-editor {
             width: 100%;
         }
-        h3 {
-            font-weight: normal;
-            font-size: 14px;
-            padding-left: 38px;
-            margin-bottom: 15px;
-        }
         .add-source {
+            right: -40px;
             img {
-                position: relative;
-                top: 3px;
+                display: block;
             }
         }
     }

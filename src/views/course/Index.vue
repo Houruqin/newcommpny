@@ -13,9 +13,6 @@
                                 <i @click="editCourse(course)" class="cursor-pointer ml-10"><img src="../../images/common/edit-icon.png"></i>
                             </span>
                             <span class="fc-9 course_type">{{course.type === 1 ? '普通课程' : '一对一课程'}}</span>
-                            <!-- <span class="fc-9">课时：<i>{{course.lesson_num}}课时</i></span>
-                            <span class="fc-9">上课时长：<i>{{course.lesson_time}}分钟</i></span>
-                            <span class="fc-9">学费标准：<i>{{course.unit_price}}元/课时</i></span> -->
                             <span></span>
                             <MyButton class="p-a" @click.native="addClassRoom(course.id, course.type)" type="border" fontColor="fc-m">添加班级</MyButton>
                         </div>
@@ -79,8 +76,8 @@
                                                         </el-table-column>
                                                         <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
                                                         <el-table-column label="扣课时数" prop="lesson_num" align="center"></el-table-column>
-                                                        <el-table-column label="消课状态" align="center">
-                                                            <template slot-scope="item">{{item.row.is_eliminate ? '已消课' : '未消课'}}</template>
+                                                        <el-table-column label="结课状态" align="center">
+                                                            <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
                                                         </el-table-column>
                                                     </el-table>
                                                 </div>
@@ -212,12 +209,6 @@
                             <el-form-item label="班级课时：" prop="lesson_num" class="mt-30" v-if="courseType === 1">
                                 <el-input-number v-model="classForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
                             </el-form-item>
-                            <el-form-item label="人数上限：" prop="limit_num" class="mt-30" v-if="courseType === 1">
-                                <el-input-number v-model="classForm.limit_num" controls-position="right" :min="1" :max="99"></el-input-number>
-                            </el-form-item>
-                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType !== 1">
-                                <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
                             <el-form-item label="辅助老师：" class="mt-30" prop="counselor_ids">
                                 <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
                                     <el-option
@@ -228,6 +219,15 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
+                            
+                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType !== 1">
+                                <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                            </el-form-item>
+                            
+                            <el-form-item label="人数上限：" prop="limit_num" class="mt-30" v-if="courseType === 1">
+                                <el-input-number v-model="classForm.limit_num" controls-position="right" :min="1" :max="99"></el-input-number>
+                            </el-form-item>
+
                             <el-form-item label="上课教室：" prop="room_id" class="mt-30"  v-if="courseType === 1">
                                 <el-select v-model="classForm.room_id" placeholder="请选择">
                                     <el-option
@@ -331,7 +331,7 @@
                     <el-row class="mt-10">
                         <el-col :span="12">
                             <el-row class="add-date-box d-f">
-                                <el-col class="title">上课时间：</el-col>
+                                <el-col class="title p-r is-required">上课时间：</el-col>
                                 <el-col class="flex1">
                                     <div class="list">
                                         <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
@@ -355,7 +355,7 @@
                                                     </el-form-item>
                                                 </el-col>
 
-                                                <el-col :span="2" class="p-r delete-time ml-5" @click.native="deleteDateHandle(num)"><i class="el-tag__close el-icon-close"></i></el-col>
+                                                <el-col :span="2" v-if="formAddDate.length > 1" class="p-r delete-time ml-5" @click.native="deleteDateHandle(num)"><i class="el-tag__close el-icon-close"></i></el-col>
                                             </el-row>
                                         </el-form>
                                     </div>
@@ -408,7 +408,7 @@
         <el-dialog width="1020px" center :visible.sync="dialogStatus.conflict" :close-on-click-modal="false">
             <div class="conflict-box">
                 <h3>排课冲突提醒</h3>
-                <p>班级：{{timetableForm.class_name}}</p>
+                <p class="mb-20">班级：{{timetableForm.class_name}}</p>
 
                 <el-table class="student-table" border :data="conflictLists" height="400" header-row-class-name="row-header">
                     <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
@@ -648,9 +648,10 @@ export default {
         },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
-            console.log(type)
-            if(type == 'add_course')  this.dialogStatus.course = false;
-            console.log(this.dialogStatus)
+            if(type == 'add_course')  {
+                this.editDetail = {};
+                this.dialogStatus.course = false;
+            }
         },
         CB_addCourse() {
             this.getCourseLists();
@@ -814,6 +815,12 @@ export default {
             this.timetableForm.course_id = option.grade_info.course_id;
             this.timetableForm.grade_id = option.grade_info.id;
 
+            // if(this.courseType === 1) {
+            //     this.timetable_studentLists = option.grade_info.student.map(v => {return v.id});
+            //     this.checkStudentForm = this.timetable_studentLists;
+            //     this.timetable_studentCheckAll = (!this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length);
+            // }
+
             if(option.grade_info.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
                 //若开课时间大于五年 则显示当前日期
                 this.timetableForm.start_time = option.grade_info.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? new Date().setHours(0, 0, 0, 0) : option.grade_info.start_time * 1000;
@@ -828,9 +835,7 @@ export default {
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
-            this.formAddDate.forEach(d => {if(d.week == val) d.begin_time = ''});
-            if(val == new Date().getDay()) this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-            else this.timePicker.minTime = 0;
+            this.timePicker.minTime = 0;
         },
         //新增排课确定
         addTimeTableDone() {
@@ -917,7 +922,7 @@ export default {
                 for(let key in v) {
                     if(key != 'begin_hours' && key != 'conflict_data') {
                         if(key == 'begin_time') {
-                            item[key] = new Date(`${this.$$tools.format(v[key] / 1000)}.replace(/\-/g, "/") ${v.begin_hours}`).getTime() / 1000;
+                            item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, "/")} ${v.begin_hours}`).getTime() / 1000;
                         }else if(key == 'end_time'){
                             item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
                         }else if(key == 'room_id'){
@@ -929,11 +934,12 @@ export default {
                 };
                 return item;
             });
-
+            
             lists = lists.concat(this.other_lists);
 
             let params = {lists: lists, commit_type: 'conflict'};
 
+            console.log(params)
             this.getConflictLists(params);
         },
         //检测是否有冲突，获取冲突数据列表
@@ -1202,8 +1208,11 @@ export default {
             padding-top: 30px;
             border-top: 1px #e3e3e3 solid;
         }
-        .el-date-editor.el-input {
+        .el-select, .el-date-editor {
             width: 100%;
+        }
+        .el-cascader {
+            display: block;
         }
         .form-unit {
             position: absolute;
@@ -1221,6 +1230,13 @@ export default {
                 width: 120px;
                 padding-right: 13px;
                 padding-top: 3px;
+                &.is-required {
+                    &:before {
+                        content: '*';
+                        color: #f56c6c;
+                        margin-right: 4px;
+                    }
+                }
             }
             .list {
                 max-height: 370px;
@@ -1255,6 +1271,21 @@ export default {
         line-height: 24px;
         padding: 0 5px;
         border-radius: 4px;
+    }
+
+    .conflict-box {
+        .el-select, .el-date-editor {
+            width: 100%;
+        }
+        h3 {
+            color: #E72E2E;
+            font-size: 17px;
+            text-align: center;
+            font-weight: normal;
+        }
+        .row-header {
+            background-color: #EEEEEE !important;
+        }
     }
     
 </style>

@@ -166,6 +166,8 @@ export default {
         },
         //删除
         deleteList(scope) {
+            if(scope.school_id === this.$$cache.getMemberInfo().school_id) return this.$message.warning('不能删除当前所在校区');
+
             this.$confirm('确定删除该校区吗?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -179,9 +181,9 @@ export default {
             console.log(result);
             if(!result) return 0;
 
-            // let memberInfo = this.$$cache.getMemberInfo();
-            // memberInfo.school_id = result.user.school_id;
-            // this.$$cache.setMemberInfo(memberInfo);
+            let memberInfo = this.$$cache.getMemberInfo();
+            memberInfo.school_id = result.user.school_id;
+            this.$$cache.setMemberInfo(memberInfo);
 
             this.getSchoolLists();
             Bus.$emit('refreshSchoolLists');

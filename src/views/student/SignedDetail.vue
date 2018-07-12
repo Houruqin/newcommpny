@@ -1,16 +1,22 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader :title="studentDetail.name" :icon="true" @clicked="editDetail">
-                <template>
+            <div class="table-header d-f f-a-c f-j-b fc-5">
+                <div class="d-f">
+                    <span class="fs-16">{{studentDetail.name}}</span>
+                    <div class="ml-10 d-f f-a-c f-j-c cursor-pointer" @click="editDetail"><img src="../../images/common/edit-icon.png"></div>
+                    <span class="ml-20">学员编号：<i>0{{studentDetail.id}}</i></span>
+                    <span class="ml-20">课堂评分：<i>{{studentDetail.score}}</i></span>
+                </div>
+                <div class="d-f">
                     <MyButton type="subm" @click.native="gradeDivideClick('add')">添加分班</MyButton>
                     <MyButton class="ml-20" @click.native="addListenHandle">试听</MyButton>
                     <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
-                </template>
-            </TableHeader>
+                </div>
+            </div>
+
             <div class="detail-box fc-9">
                 <p>
-                    <span>学员编号：<i>0{{studentDetail.id}}</i></span>
                     <span>性别：<i>{{studentDetail.sex ? '男' : '女'}}</i></span>
                     <span>出生日期：<i>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</i></span>
                 </p>
@@ -43,7 +49,11 @@
                                 <span>{{$$tools.format(scope.row.expired_at)}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="所有课时" prop="lesson_num" align="center"></el-table-column>
+                        <el-table-column label="所有课时" align="center">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="剩余课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num_remain}}</span>
@@ -500,8 +510,8 @@
                         </el-table-column>
                         <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
                         <el-table-column label="扣课时数" prop="lesson_num" align="center"></el-table-column>
-                        <el-table-column label="消课状态" align="center">
-                            <template slot-scope="item">{{item.row.is_eliminate ? '已消课' : '未消课'}}</template>
+                        <el-table-column label="结课状态" align="center">
+                            <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
                         </el-table-column>
                     </el-table>
                     <div v-else class="d-f f-a-c f-j-c fc-7 course-lits-nothing"><span>暂无数据</span></div>
@@ -743,12 +753,16 @@ export default {
         },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
-            if(type == 'course') return this.dialogStatus.course = false;
+            if(type == 'course') {
+                this.buyCourseData = {};
+                this.dialogStatus.course = false;
+                return 0;
+            };
             if(type == 'contract') {
                 this.contractData = {};
                 this.dialogStatus.contract = false;
                 return 0;
-            }
+            };
         },
         //购课成功，合约回调
         CB_contract(data) {
@@ -1142,6 +1156,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
+    .table-header {
+        height: 50px;
+        border-bottom: 1px #e3e3e3 solid;
+        img {
+            display: block;
+        }
+    }
     .detail-box {
         padding: 20px;
         p:not(:first-child){

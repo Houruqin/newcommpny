@@ -32,8 +32,7 @@
                     </el-col>
                     <el-col :span="7" :offset="1">
                         <el-form-item label="课时单价：" prop="unit_price" class="price-input">
-                            <el-input placeholder="课时单价" v-model="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
-                            <!-- <el-input-number v-model="courseForm.unit_price" controls-position="right" :min="0" :max="9999"></el-input-number><span class="pl-10">元/课时</span> -->
+                            <el-input placeholder="课时单价" v-model.number="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
@@ -48,18 +47,23 @@
                             <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
                         </el-form-item>
                     </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="教材费用：" prop="textbook_price" class="price-input">
+                            <el-input placeholder="教材费用" v-model.number="courseForm.textbook_price"></el-input><span class="pl-10">元</span>
+                        </el-form-item>
+                    </el-col>
                 </el-row>
 
                 <p class="head-info">购课优惠及费用</p>
                 <el-row class="mt-10 course-form-box">
                     <el-col :span="7">
-                        <el-form-item label="赠送课时：" prop="given_num">
+                        <el-form-item label="赠送课时：">
                             <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
                         <el-form-item label="优惠金额：" prop="preferential_price" class="price-input">
-                            <el-input placeholder="优惠金额" v-model="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
+                            <el-input placeholder="优惠金额" v-model.number="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
@@ -80,8 +84,8 @@
                 <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
 
                 <div class="mt-10">
-                    <el-form-item label="总金额：" prop="pay_way" label-width="95px">
-                        <span class="fc-m fs-22">￥{{(courseForm.unit_price * courseForm.lesson_num - courseForm.preferential_price).toFixed(2)}}</span>
+                    <el-form-item label="总金额：" label-width="95px">
+                        <span class="fc-m fs-22">￥{{getTotalMoney()}}</span>
                     </el-form-item>
                 </div>
                 <div class="d-f f-j-c mt-30">
@@ -139,7 +143,8 @@ export default {
                 pay_way: '',   //付款方式
                 unit_price: '',   //课时单价
                 preferential_price: '',  //优惠价格
-                explain: ''   //说明
+                textbook_price: '',   //教材费用
+                explain: ''  //说明
             },
             courseRules: {
                 course_id: [
@@ -150,7 +155,6 @@ export default {
                     {validator: this.$$tools.formOtherValidate('int')}
                 ],
                 given_num: [
-                    {required: true, message: '请输入赠送课时数'},
                     {validator: this.$$tools.formOtherValidate('int')}
                 ],
                 expire: [
@@ -164,7 +168,9 @@ export default {
                     {required: true, message: '请选择付款方式', trigger: 'change'}
                 ],
                 preferential_price: [
-                    {required: true, message: '请输入优惠金额'},
+                    {validator: this.$$tools.formOtherValidate('price')}
+                ],
+                textbook_price: [
                     {validator: this.$$tools.formOtherValidate('price')}
                 ],
                 lesson_num_already: [
@@ -205,11 +211,12 @@ export default {
         async submitBuyCourse() {
             if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
             if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-            if(this.courseForm.preferential_price > this.courseForm.unit_price * this.courseForm.lesson_num) return this.$message.warning('优惠不能超过总金额!');
+            if(this.courseForm.preferential_price > (this.courseForm.unit_price * this.courseForm.lesson_num + this.courseForm.textbook_price)) return this.$message.warning('优惠不能超过总金额!');
 
             let params = {};
+
             for(let key in this.courseForm) {
-                if(typeof this.courseForm[key] === 'undefined') params[key] = '';
+                if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
                 else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
                 else if(key != 'advisor_name') params[key] = this.courseForm[key];
             };
@@ -221,6 +228,12 @@ export default {
             if(!result) return 0;
 
             this.$emit('CB-contract', result.data);
+        },
+        getTotalMoney() {
+            let money = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_price) + Number(this.courseForm.textbook_price);
+            let b;
+            b =  money.toFixed(2);
+            return isNaN(b) ? '--' : b;
         }
     }
 }

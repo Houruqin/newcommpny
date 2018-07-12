@@ -51,6 +51,7 @@ export default {
             if(this.courseDialogStatus) {
                 this.courseForm.expire = 12;   //有效期默认12月
                 this.courseForm.lesson_time = 30;   //时长默认30分钟
+                this.courseForm.type = 1;   //课程性质默认普通排课
             }
         },
         type(newVal, oldVal) {
@@ -92,7 +93,7 @@ export default {
     methods: {
         dialogClose() {
             this.$refs.courseForm.resetFields();
-            for(let key in this.courseForm) this.courseForm[key] = key !== 'type' ? '' : 1;
+            for(let key in this.courseForm) this.courseForm[key] = '';
             this.$emit('CB-dialogStatus', 'add_course');
         },
         //form表单确定按钮

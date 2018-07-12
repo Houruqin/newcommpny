@@ -89,14 +89,22 @@
                 <div class="step-two" v-show="stepActive === 2" v-loading="loading">
                     <el-table class="student-table" :data="tableData" height="500" stripe>
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
-                        <el-table-column label="学员姓名" prop="school_name" align="center"></el-table-column>
+                        <el-table-column label="学员姓名" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': scope.row.school_name.trim().length > 7}">{{scope.row.school_name}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="学员性别" align="center">
                             <template slot-scope="scope">
                                 <span :class="{'error': !['男', '女'].includes(scope.row.sex)}">{{scope.row.sex}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="学员生日" prop="birthday" align="center"></el-table-column>
-                        <el-table-column label="家长姓名" prop="parent_name" align="center"></el-table-column>
+                        <el-table-column label="家长姓名" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': scope.row.parent_name.trim().length > 7}">{{scope.row.parent_name}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="家长手机号" align="center">
                             <template slot-scope="scope">
                                 <span :class="{'error': validate('phone', scope.row.mobile)}">{{scope.row.mobile}}</span>
@@ -104,27 +112,39 @@
                         </el-table-column>
                         <el-table-column label="家长称呼" align="center">
                             <template slot-scope="scope">
-                                <span :class="{'error': !['母亲', '父亲', '其他'].includes(scope.row.relation)}">{{scope.row.relation}}</span>
+                                <span :class="{'error': !$store.state.familyRelations.includes(scope.row.relation)}">{{scope.row.relation}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="渠道来源" prop="source" align="center"></el-table-column>
-                        <el-table-column v-if="uploadType === 'nosign'" :label="uploadType === 'nosign' ? '意向课程' : '签约课程'" prop="course_name" align="center"></el-table-column>
-                        <el-table-column v-if="uploadType === 'nosign'" label="跟进顾问" prop="advisor_name" align="center"></el-table-column>
+                        <el-table-column label="渠道来源" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': scope.row.source.trim().length > 20}">{{scope.row.source}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column :label="uploadType === 'nosign' ? '意向课程' : '签约课程'" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': validate('course_name', scope.row.course_name)}">{{scope.row.course_name}}</span>
+                            </template>
+                        </el-table-column>
                         
-                        <el-table-column v-if="uploadType === 'signed'" label="所在班级" prop="grade_name" align="center"></el-table-column>
+                        <el-table-column v-if="uploadType === 'signed'" label="所在班级" prop="grade_name" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': validate('grade_name', scope.row)}">{{scope.row.grade_name}}</span>
+                            </template>
+                        </el-table-column>
+
                         <el-table-column v-if="uploadType === 'signed'" label="购课时数" align="center">
                             <template slot-scope="scope">
-                                <span :class="{'error': isNaN(scope.row.lesson_num)}">{{scope.row.lesson_num}}</span>
+                                <span :class="{'error': validate('int', scope.row.lesson_num)}">{{scope.row.lesson_num}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="uploadType === 'signed'" label="剩余课时" align="center">
                             <template slot-scope="scope">
-                                <span :class="{'error': isNaN(scope.row.remain_num)}">{{scope.row.remain_num}}</span>
+                                <span :class="{'error': validate('int', scope.row.remain_num)}">{{scope.row.remain_num}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="uploadType === 'signed'" label="赠送课时" prop="given_num" align="center">
                             <template slot-scope="scope">
-                                <span :class="{'error': isNaN(scope.row.given_num)}">{{scope.row.given_num}}</span>
+                                <span :class="{'error': validate('int', scope.row.given_num)}">{{scope.row.given_num}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="uploadType === 'signed'" label="签约日期" prop="created_at" align="center"></el-table-column>
@@ -134,7 +154,11 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="课程顾问" prop="course_advisor" align="center"></el-table-column>
+                        <el-table-column label="课程顾问" align="center">
+                            <template slot-scope="scope">
+                                <span :class="{'error': validate('course_advisor', scope.row.course_advisor)}">{{scope.row.course_advisor}}</span>
+                            </template>
+                        </el-table-column>
                     </el-table>
 
                     <div class="d-f f-a-c error mt-20">
@@ -190,7 +214,7 @@ export default {
                 {text: '下载模板', step: 1}, {text: '预览名单', step: 2}, {text: '上传结果', step: 3}
             ],
             tableAllHeader: {
-                nosign: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'advisor_name', 'course_advisor'],
+                nosign: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'course_advisor'],
                 signed: ['school_name', 'sex', 'birthday', 'parent_name', 'mobile', 'relation', 'source', 'course_name', 'grade_name',
                     'lesson_num', 'remain_num', 'given_num', 'leave_num', 'real_price', 'created_at', 'course_advisor']
             },
@@ -203,10 +227,37 @@ export default {
         }
     },
     methods: {
+        //table验证
         validate(type, value) {
             if(type === 'phone') return !/^(1[34578]\d{9})?$/.test(value);
 
-            if(type === 'price') return (isNaN(value) || String(value).indexOf('.') > -1 || value > 99999);
+            if(type === 'price') {
+                if(!value || isNaN(value)) return true;
+                else if(value < 0) return true;
+				else if(String(value).split('.')[1] && String(value).split('.')[1].length > 2) return true;
+				else if(value > 99999) return true;
+                else return false
+            };
+
+            if(type === 'course_name') return !this.$store.state.course.some(v => {return v.name == value});
+
+            if(type === 'course_advisor') return !this.$store.state.advisor.some(v => {return v.name == value});
+
+            if(type === 'grade_name') {
+                if(!value.grade_name) return true;
+                let isError;
+                this.$store.state.course.forEach(v => {
+                    isError = value.course_name == v.name ? !v.grades.some(k => {return k.name == value.grade_name}) : true;
+                });
+                return isError;
+            };
+
+            if(type == 'int') {
+                if(isNaN(value)) return true;
+                else if(Number(value) < 0) return true;
+                else if(String(value).indexOf('.') > -1) return true;
+                else return false;
+            };
         },
         //下载模板
         downloadExcel(type) {

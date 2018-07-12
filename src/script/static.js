@@ -80,7 +80,6 @@ const excelHeader = {
         '家长称呼': 'relation', 
         '渠道来源': 'source',
         '意向课程': 'course_name',
-        '跟进顾问': 'advisor_name',
         '课程顾问': 'course_advisor'
     },
     signed: {
@@ -101,7 +100,7 @@ const excelHeader = {
         '课程顾问': 'course_advisor'
     },
     nosign_request: [
-        '学员姓名', '学员性别', '家长姓名', '家长手机号', '家长称呼', '渠道来源'
+        '学员姓名', '学员性别', '家长手机号', '渠道来源'
     ],
     sign_request: [
         '学员姓名', '学员性别', '家长姓名', '家长手机号', '家长称呼', '签约课程', '购课时数', '剩余课时', '合约金额'

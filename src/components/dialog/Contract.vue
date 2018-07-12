@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="购课合约" width="800px" center :visible.sync="contractDialogStatus" :close-on-click-modal="false" id="contract" @close="dialogClose('contract')">
+    <el-dialog title="购课合约" width="850px" center :visible.sync="contractDialogStatus" :close-on-click-modal="false" id="contract" @close="dialogClose('contract')">
         <div class="contract-box" v-if="Object.keys(contractData).length">
             <p>
                 <span>甲方：<i>{{contractData.institution.name}}</i></span>
@@ -19,6 +19,7 @@
                     <td>课程名称</td>
                     <td>购买课时</td>
                     <td>课时单价</td>
+                    <td>教材费用</td>
                     <td>优惠金额</td>
                     <td>赠送课时</td>
                     <td>已扣课时</td>
@@ -28,6 +29,7 @@
                     <td>{{contractData.course.name}}</td>
                     <td>{{contractData.lesson_num}}</td>
                     <td>{{contractData.unit_price}}</td>
+                    <td>{{contractData.textbook_price}}</td>
                     <td>{{contractData.preferential_price}}</td>
                     <td>{{contractData.given_num}}</td>
                     <td>{{contractData.lesson_num_already}}</td>

@@ -297,8 +297,12 @@ export default {
                 this.dialogStatus.student = false;
                 this.editDetail = {};
                 return 0;
-            }
-            if(type == 'course') return this.dialogStatus.course = false;
+            };
+            if(type == 'course') {
+                this.dialogStatus.course = false;
+                this.buyCourseData = {};
+                return 0;
+            };
         },
         //修改详情成功，刷新列表
         CB_addStudent() {
@@ -361,7 +365,6 @@ export default {
         },
         //购课
         buyCourse() {
-            console.log(this.detail)
             this.dialogStatus.course = true;
             this.buyCourseData = this.detail;
         },

@@ -2,7 +2,6 @@
     <div class="flex1">
         <el-card shadow="hover" class="tabletime-card">
             <TableHeader title="课程表">
-                <!-- <MyButton class="mr-20">导出课表</MyButton> -->
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
             </TableHeader>
 
@@ -12,19 +11,25 @@
                         <div id="myCalendar" class="mt-20"></div>
                     </div>
                     <div class="mt-30">
+                        <!-- 班级课表 -->
                         <div v-if="showType == 'default'" key="default">
                             <p class="fc-5 fs-16 t-a-c pr-20">本<span>{{tableType == 'week' ? '周' : '日'}}</span>班级课表</p>
+                            <el-radio-group v-model="gradeTimeTableRadio" class="mt-20 grade-radio" @change="gradeRadioChange">
+                                <el-radio :label="0">全部</el-radio>
+                                <el-radio :label="1">普通课程</el-radio>
+                                <el-radio :label="2">一对一课程</el-radio>
+                            </el-radio-group>
                             <div class="grade-checkbox mt-20 pr-20">
                                 <div class="timetable-gradecheckbox my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
                                         <div class="check-item">
                                             <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
                                                 <span>全选</span>
-                                                <span class="p-a num">{{timeTableInfo.total_num}}</span>
+                                                <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
                                             </el-checkbox>
                                         </div>
                                         <el-checkbox-group v-model="timetable_gradeCheck" @change="gradeCheckChange">
-                                            <div v-for="(item, index) in timeTableInfo.grade_info" :key="index" class="check-item">
+                                            <div v-for="(item, index) in gradeInfoCheckLists.lists" :key="index" class="check-item">
                                                 <el-checkbox :label="item" class="p-r">
                                                     <span>{{item.name}}</span>
                                                     <span class="p-a num">{{item.num}}</span>
@@ -35,6 +40,7 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- 老师课表 -->
                         <div v-else-if="showType == 'teacher'" key="teacher">
                             <p class="fc-5 fs-16 t-a-c pr-20">本<span>{{tableType == 'week' ? '周' : '日'}}</span>老师课表</p>
 
@@ -59,6 +65,7 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- 教室课表 -->
                         <div v-else key="class">
                             <p class="fc-5 fs-16 t-a-c pr-20">本<span>{{tableType == 'week' ? '周' : '日'}}</span>教室课表</p>
 
@@ -137,12 +144,18 @@
                                                         </div>
                                                         <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
                                                         <p class="mt-5"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
-                                                        <p class="mt-20 fc-9">课时:<span class="fc-5 ml-10">{{item.lesson_num}}课时</span></p>
-                                                        <p class="mt-10 fc-9">教室:<span class="fc-5 ml-10">{{item.room_name}}</span></p>
+                                                        <p class="mt-20 fc-9">课时：<span class="fc-5">{{item.lesson_num}}课时</span></p>
+                                                        <p class="mt-10 fc-9">教室：<span class="fc-5">{{item.room_name}}</span></p>
                                                         <p class="mt-10 d-f fc-9">
-                                                            学员:
+                                                            上课学员：
                                                             <span class="d-f flex1 fc-5 f-w-w">
-                                                                <i v-for="(student, m) in item.student_grades" :key="m">{{student.name}}</i>
+                                                                <i v-for="(student, m) in item.student_grades" :key="m" class="pr-10">{{student.name}}</i>
+                                                            </span>
+                                                        </p>
+                                                        <p class="mt-10 d-f fc-9" v-if="item.student_audition.length">
+                                                            试听学员：
+                                                            <span class="d-f flex1 fc-5 f-w-w">
+                                                                <i v-for="(student, m) in item.student_audition" :key="m" class="pr-10">{{student.name}}</i>
                                                             </span>
                                                         </p>
                                                     </div>
@@ -321,7 +334,7 @@
                     <el-row class="mt-10">
                         <el-col :span="12">
                             <el-row class="add-date-box d-f">
-                                <el-col class="title">上课时间：</el-col>
+                                <el-col class="title p-r is-required">上课时间：</el-col>
                                 <el-col class="flex1">
                                     <div class="list">
                                         <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
@@ -356,7 +369,7 @@
 
                         <el-col :span="11" class="d-f f-a-s addtimetable-student" v-if="addTableType == 'single' || addTableType == 'edit' || (addTableType == 'multiple' && courseType === 1)">
                             <div class="label"><span>上课学员：</span></div>
-                            <div class="flex1">
+                            <div class="flex1" :class="{'d-f f-a-c': courseType === 2}">
                                 <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
                                     <li v-for="(item, index) in checkStudentForm" :key="index" :class="{'ml-10': index}" class="mb-10">
                                         <span>{{getStudentName(item)}}</span>
@@ -367,6 +380,8 @@
                                         {{addStudentBtnChange()}}
                                     </MyButton>
                                 </div>
+
+                                <span class="fc-m ml-10" v-if="courseType === 2 && timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}  </span>
                             </div>
                         </el-col>
                     </el-row>
@@ -414,7 +429,7 @@
                     </el-table-column>
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" multiple :multiple-limit="addTableType == 'multiple' ? 0 : 1">
+                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" :multiple="addTableType == 'multiple'">
                                 <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
@@ -459,6 +474,9 @@ export default {
             },
 
             nowTime: new Date().getTime(),//时间选择器，选中的当天日期
+
+            gradeTimeTableRadio: 0,    //班级课表，radio筛选
+            gradeInfoCheckLists: {total_num: 0, lists: []},
 
             loading: true,
             addTimetableMask: false,  //新增排课弹窗
@@ -515,7 +533,6 @@ export default {
             timetableWeekList: [],   //排课下拉选择周数据
 
             courseType: 1,  //课程类型  普通课程、一对一课程
-
 
             hourData: [],
             timetableForm: {
@@ -581,7 +598,6 @@ export default {
     },
     methods: {
         dialogClose() {
-            this.$refs.addTimeTable.resetFields();
             this.formAddDate.splice(0, this.formAddDate.length);
             // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
             
@@ -602,17 +618,34 @@ export default {
             this.timetableForm.no_timetable = '';
             this.checkStudentForm = [];
             this.radioStudentForm = '';
-        },
 
+            this.$refs.addTimeTable.resetFields();
+        },
+        //班级课表radio
+        gradeRadioChange() {
+            this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
+            let num = 0;
+            this.timeTableInfo.grade_info.forEach(v => {
+                if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
+                    this.gradeInfoCheckLists.lists.push(v);
+                    num+= v.num;
+                }
+            });       
+            this.gradeInfoCheckLists.total_num = num;
+
+            this.timetable_gradeAll = true;
+            this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
+            this.getGradeTableLists();
+        },
         //排课班级全选
         gradeCheckAllChange(val) {
-            this.timetable_gradeCheck = val ? this.timeTableInfo.grade_info : [];
+            this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
             this.getGradeTableLists();
         },
         //排课班级多选
         gradeCheckChange(val) {
             let checkedCount = val.length;
-            this.timetable_gradeAll = checkedCount === this.timeTableInfo.grade_info.length;
+            this.timetable_gradeAll = checkedCount === this.gradeInfoCheckLists.lists.length;
             this.getGradeTableLists();
         },
         //排课老师全选
@@ -749,7 +782,7 @@ export default {
             this.checkStudentForm = [];
             this.radioStudentForm = '';
             this.timetableForm.no_timetable = '';
-            this.$refs.addTimeTable.resetFields();
+            // this.$refs.addTimeTable.resetFields();
             
             this.timetableFull.course.forEach(v => {
                 if(v.id === val[0]) {
@@ -789,6 +822,8 @@ export default {
 
             if(this.addTableType == 'multiple') this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);  //上课教室
             else this.timetableForm.room_id = this.gradeInfo.room_id;
+
+            console.log(this.timetableForm)
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
@@ -876,7 +911,7 @@ export default {
                             if(this.addTableType == 'multiple') {
                                 item[key] = this.conflict_room.length ? this.conflict_room : this.timetableForm.room_id;
                             }else {
-                                item[key] = this.conflict_room.length ? this.conflict_room[0] : this.timetableForm.room_id[0];
+                                item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
                             }
                         }else {
                             item[key] = v[key];
@@ -973,7 +1008,7 @@ export default {
 
             if(result.status === 1) {
                 this.getAllTableLists();
-                this.conflict_room = [];
+                this.conflict_room = this.addTableType == 'multiple' ? [] : '';
                 let message = this.addTableType == 'edit' ? '修改' : '添加';
                 this.$message.success(`${message}排课成功`);
                 this.addTimetableMask = false;
@@ -987,7 +1022,7 @@ export default {
                         if(v.conflict_data.data.constructor === Array) {
                             this.conflict_room = v.conflict_data.data.map(k => {return k.id});
                         }else {
-                            this.conflict_room = [v.conflict_data.data.id];
+                            this.conflict_room = v.conflict_data.data.id;
                         }
                     }
                 });
@@ -1033,12 +1068,13 @@ export default {
 
             this.resultDispose(result.lists.timetable_lists);
             this.timeTableInfo = result.lists;
-
+            this.gradeInfoCheckLists.lists = result.lists.grade_info.map(v => {return v});
+            this.gradeInfoCheckLists.total_num = result.lists.total_num;
 
             this.timetable_gradeAll = true;
             this.timetable_teacherAll = true;
             this.timetable_roomAll = true;
-            this.timetable_gradeCheck = result.lists.grade_info;
+            this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
         },
@@ -1245,6 +1281,11 @@ export default {
     .content-box {
         overflow: hidden;
         overflow-x: auto;
+        .grade-radio {
+            .el-radio+.el-radio {
+                margin-left: 25px;
+            }
+        }
     }
     .content-left {
         width: 300px;
@@ -1335,7 +1376,7 @@ export default {
                 .today {
                     position: absolute;
                     left: 50px;
-                    top: 2px;
+                    top: 0;
                     padding: 3px 2px;
                 }
             }
@@ -1420,7 +1461,6 @@ export default {
             }
         }
         i {
-            margin: 0 10px;
             margin-bottom: 5px;
         }
     }
@@ -1489,12 +1529,22 @@ export default {
             right: -35px;
             top: 5px;
         }
+        .el-cascader {
+            display: block;
+        }
         .add-date-box {
             .title {
                 text-align: right;
                 width: 120px;
                 padding-right: 13px;
                 padding-top: 3px;
+                &.is-required {
+                    &:before {
+                        content: '*';
+                        color: #f56c6c;
+                        margin-right: 4px;
+                    }
+                }
             }
             .list {
                 max-height: 370px;

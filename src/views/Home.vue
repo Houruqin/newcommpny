@@ -323,7 +323,6 @@ export default {
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
             if(type == 'student') return this.dialogStatus.student = false;
-            if(type == 'course') return this.dialogStatus.course = false;
             if(type == 'add_course') return this.dialogStatus.addCourse = false;
         },
         //登记成功，刷新列表
@@ -559,6 +558,7 @@ export default {
         this.$store.dispatch('geySource');
         this.$store.dispatch('geyCourse');
         this.$store.dispatch('getGrade');
+        this.$store.dispatch('getRelation');
     },
     created() {
         this.getSchoolLists();

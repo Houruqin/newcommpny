@@ -6,7 +6,14 @@ import Request from '../script/request'
 Vue.use(Vuex);
 
 const state = { 
-    guide: false, advisor: [], source: [], course: [], grade: [], listen_grade: [], status: []
+    guide: false,     //是否引导页
+    advisor: [],    //顾问列表
+    source: [],   //渠道列表
+    course: [],   //课程列表
+    grade: [],    //班级列表
+    listen_grade: [],    //试听班级列表
+    listen_status: [],    //试听状态
+    familyRelations: []   //家长关系
 };
 
 const mutations = {
@@ -21,34 +28,39 @@ const mutations = {
 
         state.advisor = result.lists;
     },
-    async geySource() {
+    async geySource(state) {
         let result = await Request.post('api/source/lists');
         console.log(result)
         if(!result) return 0;
 
         state.source = result.lists;
     },
-    async geyCourse() {
+    async geyCourse(state) {
         let result = await Request.post('api/course/normalLists');
         console.log(result)
         if(!result) return 0;
 
         state.course = result.lists;
     },
-    async getGrade() {
+    async getGrade(state) {
         let result = await Request.post('api/eduCount/gradeLists',{is_listen: 0});
         if(!result) return 0;
         state.grade = result.grades;
     },
-    async getListenGrade() {
+    async getListenGrade(state) {
         let result = await Request.post('api/eduCount/gradeLists',{is_listen: 1});
         if(!result) return 0;
         state.listen_grade = result.grades;
     },
-    async getStatus() {
+    async getStatus(state) {
         let result = await Request.post('api/eduCount/listenStatus');
         if(!result) return 0;
-        state.status = result.status;
+        state.listen_status = result.status;
+    },
+    async getRelation(state) {
+        let result = await Request.post('api/student/familyRelations');
+        console.log(result);
+        state.familyRelations = result.relations;
     }
 };
 
@@ -79,6 +91,10 @@ const actions = {
     
     getStatus(context) {
         context.commit('getStatus');
+    },
+
+    getRelation(context) {
+        context.commit('getRelation');
     }
 };
 

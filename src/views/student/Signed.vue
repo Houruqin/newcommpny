@@ -33,7 +33,6 @@
                             <el-option label="全部签约" value=""></el-option>
                             <el-option label="本周签约" value="week"></el-option>
                             <el-option label="本月签约" value="month"></el-option>
-                            <!-- <el-option v-for="(item, index) in fillInfo.what_time" :key="index" :value="item.id" :label="item.name"></el-option> -->
                         </el-select>
                     </li>
                     <template v-if="activeTab === 'birthday'">
@@ -104,7 +103,7 @@
                     </el-table-column>
                     <el-table-column label="课程有效期" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
+                            <ul class="table-item-list" :class="{'last-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
                                     {{list.expired_at && $$tools.format(list.expired_at)}}
                                 </li>
@@ -114,11 +113,7 @@
 
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
-                                <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    <a class="cursor-pointer fc-m" @click="editStudent(list)">编辑</a>
-                                </li>
-                            </ul>
+                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -215,12 +210,7 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
-                                <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    <a class="cursor-pointer fc-m" @click="editStudent(list)">编辑</a>
-                                    <!-- <a class="cursor-pointer fc-m ml-20" @click="divideClass(list)">分班</a> -->
-                                </li>
-                            </ul>
+                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -280,42 +270,7 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
-                                <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    <a class="cursor-pointer fc-m" @click="editStudent(list)">编辑</a>
-                                </li>
-                            </ul>
-                        </template>
-                    </el-table-column>
-                </el-table>
-
-                <!-- 旷课学员列表 -->
-                <el-table class="student-table" key='eTable' v-else-if="activeTab === 'absent'" :data="studentTable.data" v-loading="loading" stripe>
-                    <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
-                        <template slot-scope="scope">
-                            <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
-
-                    <el-table-column label="应上课时间" class-name="table-item" align="center">
-                        <template slot-scope="scope">
-                            <span>{{scope.row.begin_time && $$tools.formatTime(scope.row.begin_time, 'day')}}</span>
-                            <span>{{scope.row.begin_time && $$tools.formatTime(scope.row.begin_time)}} - {{scope.row.end_time && $$tools.formatTime(scope.row.end_time)}}</span>
-                        </template>
-                    </el-table-column>
-                    
-                    <el-table-column label="课程" class-name="table-item" align="center">
-                        <template slot-scope="scope">
-                            {{scope.row.course_name}} - {{scope.row.grade && scope.row.grade.name}}
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="上课老师" class-name="table-item" align="center">
-                        <template slot-scope="scope">
-                            <span>{{scope.row.teacher && scope.row.teacher.name}}</span>
-                            <span class="pl-10">{{scope.row.teacher && scope.row.teacher.mobile}}</span>
+                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -366,11 +321,7 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
-                                <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    <a class="cursor-pointer fc-subm" @click="deleteStudent(list.id)">删除</a>
-                                </li>
-                            </ul>
+                            <a class="cursor-pointer fc-m" @click="deleteStudent(scope.row.course_lists[0].id)">编辑</a>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -733,13 +684,6 @@ export default {
             this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
             this.getStudentLists();
         },
-        //获取筛选条件列表
-        // async getStudentFill() {
-        //     let result = await this.$$request.post('api/sign/fill');
-        //     console.log(result);
-        //     if(!result) return 0;
-        //     this.$set(this, 'fillInfo', result.data);
-        // },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(id) {
             let result = await this.$$request.post('api/sign/gradeLists', {id: id});
@@ -838,7 +782,6 @@ export default {
     created() {
         this.searchFilter.month = new Date().getMonth() + 1;
         this.getTabLists();
-        // this.getStudentFill();
         //监听如果详情修改，那么刷新学员列表
         Bus.$on('refreshStudentLists', () => {this.getStudentLists()});
     },
