@@ -37,6 +37,7 @@
 <script>
 
 import MyButton from '../common/MyButton'
+import Bus from '../../script/bus'
 
 export default {
     props: {
@@ -135,7 +136,9 @@ export default {
             if(!result) return 0;
             this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
             this.$store.dispatch('geyCourse');   //更新课程信息
+
             this.$emit('CB-addCourse');
+            Bus.$emit('refreshCourseLists');
         }
     }
 }

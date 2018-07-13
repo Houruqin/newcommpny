@@ -4,12 +4,12 @@
             <TableHeader title="员工管理">
                 <MyButton @click.native="addUser">添加员工</MyButton>
             </TableHeader>
-            <div class="p-r">
-                <el-tabs v-model="staffType" @tab-click="tabClick">
+            <div class="d-f f-a-c tab-box p-r mb-1">
+                <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
                     <el-tab-pane label="全部" name="all"></el-tab-pane>
                     <el-tab-pane v-for="(item, index) in roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
                 </el-tabs>
-                <el-select v-model="filterVal" placeholder="请选择" class="p-a filter-box" @change="filterChange">
+                <el-select v-model="filterVal" placeholder="请选择" class="ml-50 filter-box" @change="filterChange" size="small">
                     <el-option label="全部" value=""></el-option>
                     <el-option label="在职" :value="1"></el-option>
                     <el-option label="离职" :value="0"></el-option>
@@ -335,6 +335,31 @@ export default {
         .el-select, .el-date-editor {
             width: 100%;
         }
+    }
+    .tab-box {
+        width: 100%;
+        .tab-toolbar {
+            /deep/ .el-tabs__header {
+                margin: 0;
+            }
+            /deep/ .el-tabs__nav-wrap::after {content: none}
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #e4e7ed;
+            z-index: 1;
+        }
+    }
+    .filter-box {
+        width: 100px;
+    }
+    .filter-box /deep/ .el-input {
+
     }
 </style>
 

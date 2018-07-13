@@ -135,16 +135,16 @@
                     <div class="item p-r">
                         <span class="fs-15 fc-5">成交率（已成交/全部咨询）</span>
                         <div class="schedule-box mt-10">
-                            <a :style="{width: `${Number(sell.sell_lists.deal_ratio) * 100}%`}" :class="{'all': sell.sell_lists.deal_ratio == 1}"></a>
-                            <span class="fs-20 ratio">{{`${Number(sell.sell_lists.deal_ratio) * 100}%`}}</span>
+                            <a :style="{width: sell.sell_lists.deal_ratio_display}" :class="{'all': sell.sell_lists.deal_ratio == 1}"></a>
+                            <span class="fs-20 ratio">{{sell.sell_lists.deal_ratio_display}}</span>
                         </div>
                     </div>
 
                     <div class="item mt-40 p-r">
                         <span class="fs-15 fc-5">失效率（已失效/全部咨询）</span>
                         <div class="schedule-box mt-10">
-                            <a :style="{width: `${Number(sell.sell_lists.fail_ratio) * 100}%`}" :class="{'all': sell.sell_lists.fail_ratio == 1}"></a>
-                            <span class="fs-20 ratio">{{`${Number(sell.sell_lists.fail_ratio) * 100}%`}}</span>
+                            <a :style="{width: sell.sell_lists.fail_ratio_display}" :class="{'all': sell.sell_lists.fail_ratio == 1}"></a>
+                            <span class="fs-20 ratio">{{sell.sell_lists.fail_ratio_display}}</span>
                         </div>
                     </div>
                 </div>
@@ -214,8 +214,8 @@ export default {
                 data: [],
                 total_num: 0,
                 colors: [
-                    '#B858D0', '#1C769B', '#EA27AD', '#73B2F1', '#4ED5B1', '#70E08D', '#AFE162', '#ECEE5D', '#E09C60', '#D15D5D',
-                    '#E56DAB', '#114355', '#153E7C', '#F5B4E8', '#CB8381', '#B9CB81', '#A2A540', '#793BB2', '#F5587E', '#F01C50'
+                    '#1cbc9c', '#87d37a', '#b7dd58', '#e0da6e', '#f2ba49', '#e67e24', '#d36e46', '#d65858', '#ce677d', '#c66f97',
+                    '#a3559d', '#7f5091', '#913c8b', '#9d59b6', '#a17fcc', '#887ece', '#6a98db', '#53adc1', '#53bcc4', '#1ca4ba'
                 ],
                 showCheckBox: []    //渠道自定义的checkbox选项
             },
@@ -327,15 +327,15 @@ export default {
                 textStyle: {color: '#555'},
                 series: [
                     {
-                        name:'性别',
-                        type:'pie',
+                        name: '性别',
+                        type: 'pie',
                         startAngle: 80,
                         radius: ['35%', '50%'],
                         center: ['60%', '50%'],
                         avoidLabelOverlap: false,
                         legendHoverLink: false,
                         label: {show: false},
-                        data:[{value: this.sex.data.woman_num, name: '女'}, {value: this.sex.data.man_num, name: '男'}]
+                        data: [{value: this.sex.data.woman_num, name: '女'}, {value: this.sex.data.man_num, name: '男'}]
                     }
                 ]
             };
@@ -381,15 +381,15 @@ export default {
                 textStyle: {color: '#555'},
                 series: [
                     {
-                        name:'学员',
-                        type:'pie',
+                        name: '学员',
+                        type: 'pie',
                         startAngle: 90,
                         radius: ['35%', '50%'],
                         center: ['60%', '50%'],
                         avoidLabelOverlap: false,
                         legendHoverLink: false,
                         label: {show: false},
-                        data:[{value: this.student.total_lists.course_num || 0, name: '在校学员'}, {value: this.student.total_lists.expired_num || 0, name: '结业学员'}]
+                        data: [{value: this.student.total_lists.course_num || 0, name: '在校学员'}, {value: this.student.total_lists.expired_num || 0, name: '结业学员'}]
                     }
                 ]
             };
@@ -435,8 +435,8 @@ export default {
             
             options.legend.formatter = (params) => {return `${params}：${this.getSourceItemNum(params)}`};
             options.series = [{
-                name:'渠道',
-                type:'pie',
+                name: '渠道',
+                type: 'pie',
                 startAngle: 90,
                 radius: ['35%', '50%'],
                 center: ['60%', '50%'],

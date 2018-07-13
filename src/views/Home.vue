@@ -306,7 +306,7 @@ export default {
                     this.dialogStatus.student = true;
                     break;
                 case 'importStudent':
-                    this.$router.replace({path: '/student/importstudent'});
+                    this.$router.push({path: '/student/importstudent'});
                     break;
                 case 'addCourse':
                     this.dialogStatus.addCourse = true; 
@@ -316,7 +316,7 @@ export default {
                     this.getListenLists();
                     break;
                 case 'notice':
-                    this.$router.replace({path: '/workbench/editNotice'});
+                    this.$router.push({path: '/workbench/editNotice'});
                     break;
             }
         },
