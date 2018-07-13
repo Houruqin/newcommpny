@@ -81,7 +81,7 @@ export default {
         goSignedLists() {
             if(this.routerAble){
                 this.contractDialogStatus = false;
-                this.$router.replace({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
+                this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
             }else{
                 this.$emit('CB-dialogStatus', 'contract');
             }

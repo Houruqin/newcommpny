@@ -160,11 +160,13 @@
                                                         </p>
                                                     </div>
                                                     <div class="course-item pl-13 pr-10 pt-8 p-r" 
-                                                            :class="{'green': item.course_type === 1 && item.status == 1 && !col.past_due && item.begin_time > new Date().getTime() / 1000 && item.student_grades.length < item.grade_limit_num,
-                                                                'yellow': item.course_type !== 1 || (item.status == 1 && !col.past_due && item.begin_time > new Date().getTime() / 1000 && item.student_grades.length == item.grade_limit_num),
-                                                                'red': item.course_type === 1 && item.status == 1 && !col.past_due && item.begin_time > new Date().getTime() / 1000 && item.student_grades.length > item.grade_limit_num}" 
+                                                            :class="{
+                                                                'gray': item.lesson_end_time,
+                                                                'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
+                                                                'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                                'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
                                                                 slot="reference">
-                                                        <div class="proportion-box p-a" v-if="item.status == 1 && !col.past_due && item.begin_time > new Date().getTime() / 1000 && item.student_grades.length < item.grade_limit_num">
+                                                        <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                                                             <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
                                                         </div>
 
@@ -203,11 +205,12 @@
                                             <div v-if="row.course.length" v-for="(item, num) in row.course" :key="num"
                                                 @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
-                                                :class="{'mt-5' : num > 0, 'green': item.course_type === 1 && item.status == 1 && !row.past_due && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': item.course_type !== 1 || (item.status == 1 && !row.past_due && item.student_grades.length == item.grade_limit_num),
-                                                        'red': item.course_type === 1 && item.status == 1 && !row.past_due && item.student_grades.length > item.grade_limit_num}">
+                                                :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
+                                                        'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
+                                                        'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                        'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
 
-                                                <div class="proportion-box p-a" v-if="item.status == 1 && !row.past_due && item.begin_time > new Date().getTime() / 1000 && item.student_grades.length < item.grade_limit_num">
+                                                <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                                                     <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
                                                 </div>
 
@@ -1394,9 +1397,11 @@ export default {
                     position: relative;
                     .course-item {
                         box-sizing: border-box;
-                        border: 1px #C8C8C8 solid;
-                        background-color: #f5f5f5;
                         min-height: 85px;
+                        &.gray {
+                            border: 1px #C8C8C8 solid;
+                            background-color: #f5f5f5;
+                        }
                         &.green {
                             border: 1px #3FD88A solid;
                             background-color: #fff;
@@ -1481,10 +1486,12 @@ export default {
                     width: 100%;
                     min-height: 60px;
                     .course-box {
-                        background-color: #FCFCFC;
                         height: 80px;
-                        border-left: 5px #BCBCBC solid;
-                        
+                        &.gray {
+                            border: 1px #BCBCBC solid;
+                            background-color: #FCFCFC;
+                            border-left-width: 5px !important;
+                        }
                         &.green {
                             border: 1px #3FD88A solid;
                             background-color: #fff;

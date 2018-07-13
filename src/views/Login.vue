@@ -102,18 +102,18 @@ export default {
             if(!result) return 0;
 
             if(!result.status) {
-                this.$router.replace({path: '/addschool'});
+                this.$router.push({path: '/addschool'});
                 this.$store.dispatch('guideChange', true);   //首次创建校区，进入引导页
             }else this.$router.replace({path: '/home'});
 
             this.$$cache.set('phone',this.phone.trim())
         }
     },
-    beforeRouteEnter(to, from, next) {
-        next(vm => {
-            if(cache.get('TOKEN') || cache.getSession('TOKEN')) vm.$router.replace('home/workbench');
-        });
-    },
+    // beforeRouteEnter(to, from, next) {
+    //     next(vm => {
+    //         if(cache.get('TOKEN') || cache.getSession('TOKEN')) vm.$router.replace('home/workbench');
+    //     });
+    // },
     mounted() {
         document.onkeydown = event  => {
             let e = event  || window.event;
@@ -122,6 +122,7 @@ export default {
                 if(focusDom == 'iphone' || focusDom == 'code') this.onLogin();
             }
         }
+        this.$store.dispatch('guideChange', false);
     },
     beforeDestroy() {
         document.onkeydown = null;

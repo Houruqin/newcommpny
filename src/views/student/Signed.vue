@@ -321,7 +321,7 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a class="cursor-pointer fc-m" @click="deleteStudent(scope.row.course_lists[0].id)">编辑</a>
+                            <a class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.course_lists[0].id)">删除</a>
                         </template>
                     </el-table-column>
                 </el-table>

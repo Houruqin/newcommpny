@@ -20,7 +20,7 @@ export default {
         let result = await this.$$request.post('api/school/exists');
         if(!result) this.$router.replace({path: '/login'});
         else if(result && result.status == 0) {
-            this.$router.replace({path: '/addschool'});
+            this.$router.push({path: '/addschool'});
             this.$store.dispatch('guideChange', true);   //首次创建校区，进入引导页
         }
     }

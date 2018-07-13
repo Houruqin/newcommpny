@@ -51,25 +51,26 @@ export default {
     data() {
         return {
             contractData: {},
-            replace_path: '',
-            query: null
+            // replace_path: '',
+            // query: null
         }
     },
     created() {
         if(this.$route.params.contractData) {
             this.contractData = this.$route.params.contractData;
-            this.replace_path = this.$route.params.replace_path;
-            this.query = this.$route.params.path_query ? this.$route.params.path_query : null
+            // this.replace_path = this.$route.params.replace_path;
+            // this.query = this.$route.params.path_query ? this.$route.params.path_query : null
         }
     },
     mounted() {
         window.print();
 
-        if(this.query) {
-            this.$router.replace({path: this.replace_path, query: this.query});    //详情购课，需要传参，回到学员详情
-        }else {
-            this.$router.replace(this.replace_path);     //列表购课，直接跳转列表，不需要参数
-        }
+        this.$router.go(-1);
+        // if(this.query) {
+        //     this.$router.replace({path: this.replace_path, query: this.query});    //详情购课，需要传参，回到学员详情
+        // }else {
+        //     this.$router.replace(this.replace_path);     //列表购课，直接跳转列表，不需要参数
+        // }
     }
 }
 
