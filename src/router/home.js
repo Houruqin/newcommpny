@@ -8,7 +8,7 @@ import Signed from '@/views/student/Signed'
 import NosignDetail from '@/views/student/NosignDetail'
 import SignedDetail from '@/views/student/SignedDetail'
 import ImportStudent from '@/views/student/ImportStudent'
-import StaffManage from '@/views/staffManage/StaffList'
+import StaffManage from '@/views/staffManage/Index'
 import CourseIndex from '@/views/course/Index'
 
 import Statistics from '@/views/statistics/Index'

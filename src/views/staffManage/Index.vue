@@ -4,32 +4,32 @@
             <TableHeader title="员工管理">
                 <MyButton @click.native="addUser">添加员工</MyButton>
             </TableHeader>
-            <div class="d-f f-a-c tab-box p-r mb-1">
+            <div class="d-f f-a-c tab-box p-r">
                 <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
                     <el-tab-pane label="全部" name="all"></el-tab-pane>
                     <el-tab-pane v-for="(item, index) in roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
                 </el-tabs>
                 <el-select v-model="filterVal" placeholder="请选择" class="ml-50 filter-box" @change="filterChange" size="small">
-                    <el-option label="全部" value=""></el-option>
+                    <el-option label="全部任职状态" value=""></el-option>
                     <el-option label="在职" :value="1"></el-option>
                     <el-option label="离职" :value="0"></el-option>
                 </el-select>
             </div>
             <el-table :data="staffListInfo.data" stripe v-loading="loading">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="姓名" align="center">
+                <el-table-column label="员工姓名" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
                 </el-table-column>
-                <el-table-column label="手机号" align="center">
+                <el-table-column label="手机号码" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
                 </el-table-column>
-                <el-table-column label="职位" align="center">
+                <el-table-column label="任职岗位" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.type_cn}}</span></template>
                 </el-table-column>
                 <el-table-column label="职位性质" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
                 </el-table-column>
-                <el-table-column prop="status" label="全部状态" align="center">
+                <el-table-column prop="status" label="任职状态" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.status == 1 ? '在职' : '离职'}}</span></template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
@@ -348,7 +348,7 @@ export default {
             content: "";
             position: absolute;
             left: 0;
-            bottom: 0;
+            bottom: -1px;
             width: 100%;
             height: 2px;
             background-color: #e4e7ed;
@@ -356,7 +356,7 @@ export default {
         }
     }
     .filter-box {
-        width: 100px;
+        width: 125px;
     }
     .filter-box /deep/ .el-input {
 
