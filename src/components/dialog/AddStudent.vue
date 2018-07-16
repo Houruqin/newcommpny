@@ -266,7 +266,7 @@ export default {
             
             this.$store.dispatch('geySource');   //更新渠道信息
             this.sourceDialogStatus = false;
-            // this.studentForm.source_id = result.data.id;
+            this.studentForm.source_id = result.data.id;
         }, 
         //登记学员重复手机号码，处理方法
         async studentRepeat(params) {
