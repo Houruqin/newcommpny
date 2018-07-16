@@ -854,6 +854,7 @@ export default {
             return name;
         },
         addStudentClick() {
+            console.log(this.allStudentLists)
             if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
             this.addStudentDialog = true;
             
@@ -883,9 +884,7 @@ export default {
                     if(v.student_id == this.studentRadio) this.timetableForm.no_timetable = v.buy_lesson_num - v.scheduled;
                 });
             }
-            this.addStudentDialog = false;
-
-            
+            this.addStudentDialog = false;           
         },
         //排课，开课日期改变
         startTimeChange(val) {
@@ -1011,11 +1010,12 @@ export default {
 
             if(result.status === 1) {
                 this.getAllTableLists();
+                this.getAddTimeTableFull();
                 this.conflict_room = this.addTableType == 'multiple' ? [] : '';
                 let message = this.addTableType == 'edit' ? '修改' : '添加';
                 this.$message.success(`${message}排课成功`);
                 this.addTimetableMask = false;
-                this.conflictMask = false;               
+                this.conflictMask = false;
             }else if(result.status === -1) {
                 result.conflict_lists.forEach(v => {
                     v.begin_time = v.begin_time * 1000;
@@ -1538,6 +1538,22 @@ export default {
         }
         .el-cascader {
             display: block;
+        }
+        /deep/.el-radio {
+            .el-radio__input {
+                input {
+                    border: none;
+                    outline: none;
+                    &:active {
+                        border: none;
+                        outline: none;
+                    }
+                    &:focus {
+                        border: none;
+                        outline: none;
+                    }
+                }
+            }
         }
         .add-date-box {
             .title {

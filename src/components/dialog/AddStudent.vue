@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="type == 'add' ? '学员登记' : '学员修改'" width="950px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+    <el-dialog :title="type == 'add' ? '登记学员' : '修改学员'" width="950px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
         <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
             <div class="form-box mt-30">
                 <el-row>
@@ -263,9 +263,10 @@ export default {
             console.log(result);
 
             if(!result) return 0;
-            this.sourceDialogStatus = false;
-
+            
             this.$store.dispatch('geySource');   //更新渠道信息
+            this.sourceDialogStatus = false;
+            // this.studentForm.source_id = result.data.id;
         }, 
         //登记学员重复手机号码，处理方法
         async studentRepeat(params) {

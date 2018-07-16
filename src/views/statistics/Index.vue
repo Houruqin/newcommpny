@@ -220,7 +220,7 @@ export default {
                 showCheckBox: []    //渠道自定义的checkbox选项
             },
             sell: {
-                start_time: new Date().getTime() -  60*60*24*365*1000,
+                start_time: new Date().getTime()     -  60*60*24*365*1000,
                 end_time: new Date().getTime(),
                 sell_lists: [],
                 advisor_id: ''
@@ -538,7 +538,8 @@ export default {
             if(!result) return 0;
 
             this.source.showCheckBox.splice(0, this.source.showCheckBox.length);
-
+            result.lists.sort((a, b) => {return a.total < b.total});
+            
             result.lists.forEach((v, num) => {
                 v.checked = num < 7 ? true : false;
                 if(num < 7) this.source.showCheckBox.push(v);
