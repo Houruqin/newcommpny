@@ -73,7 +73,7 @@
                 
                 <el-row class="mt-10">
                     <el-col :span="22">
-                        <el-form-item label="备注：" class="textarea-cls">
+                        <el-form-item label="备注：" class="textarea-cls" prop="remark">
                             <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
                         </el-form-item>
                     </el-col>
