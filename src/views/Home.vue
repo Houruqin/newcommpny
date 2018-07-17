@@ -71,45 +71,52 @@
             </el-container>
         </el-container>
 
+        <!-- 引导页 -->
         <div class="guide-box" :class="{'guide-end': guideSetup > 5}" v-if="$store.state.guide">
-            <div v-if="guideSetup > 5" class="p-r">
+            <div v-if="guideSetup == 5" class="guide-sex p-r">
+                <div class="guide-sex-content p-a fc-f d-f f-d-c f-a-c">
+                    <p class="fs-26 d-f f-a-c f-j-c mt-40">新手第<span class="step fs-16 t-a-c btn-m">6</span>步</p>
+                    <p class="fs-18 mt-10 pl-22 pr-20">如果在使用过程中遇到任何问题，请及时联系客服帮你解决哦！</p>
+                    <div class="next-step mt-15 btn-m fc-f t-a-c cursor-pointer" @click="nextStepHandle">下一步</div>
+                </div>
+            </div>
+            <div v-else-if="guideSetup > 5" class="p-r">
                 <img src="../images/guide/done.png" alt="">
                 <div class="guide-end-btn p-a btn-m fc-f t-a-c cursor-pointer" @click="guideEnd">立即使用</div>
             </div>
-
-            <div class="p-r" v-else>
+            <div v-else class="p-r">
                 <div class="left-tab p-a">
                     <div class="pl-20 tab-title">
-                        <i class="iconfont" :class="guideData[guideSetup - 1].icon"></i><span class="fs-16 pl-10">{{guideData[guideSetup - 1].text}}</span>
+                        <i class="iconfont" :class="guideData[guideSetup].icon"></i><span class="fs-16 pl-10">{{guideData[guideSetup].text}}</span>
                     </div>
                 </div>
                 <div class="bg-img p-a">
-                    <div class="right p-a fc-f">
-                        <p class="p1 d-f f-a-c f-j-c"><span>新手第</span><span class="step fs-16 t-a-c btn-m">{{guideSetup}}</span><span>步</span></p>
+                    <div class="right p-a fc-f d-f f-d-c f-a-c">
+                        <p class="d-f fs-26 f-a-c f-j-c"><span>新手第</span><span class="step fs-16 t-a-c btn-m">{{guideSetup + 1}}</span><span>步</span></p>
+                        <template v-if="guideSetup === 0">
+                            <p class="mt-15 p2">在基础设置里面<span class="fc-m pl-10 pr-10">"添加教室"</span>和<span class="fc-m pr-10">"渠道来源"</span>哦~</p>
+                        </template>
+
                         <template v-if="guideSetup === 1">
-                            <p class="mt-15 p2 t-a-c">在基础设置里面<span class="fc-m pl-10 pr-10">"添加教室"</span>和</p>
-                            <p class="p2 mt-5 pl-40"><span class="fc-m pr-10">"渠道来源"</span>哦~</p>
+                            <p class="mt-15 p2">在员工管理里面<span class="fc-m pl-10 pr-10">"添加员工信息"</span></p>
                         </template>
 
                         <template v-if="guideSetup === 2">
-                            <p class="mt-15 p2 t-a-c">在员工管理里面<span class="fc-m pl-10 pr-10">"添加员工信息"</span></p>
+                            <p class="mt-15 p2">在课程管理里面<span class="fc-m pl-10 pr-10">"添加课程"</span>以及<span class="fc-m pr-10">"添加课程下的班级"</span></p>
                         </template>
 
                         <template v-if="guideSetup === 3">
-                            <p class="mt-15 p2 t-a-c">在课程管理里面<span class="fc-m pl-10 pr-10">"添加课程"</span>以及</p>
-                            <p class="p2 mt-5 pl-40"><span class="fc-m pr-10">"添加课程下的班级"</span></p>
+                            <p class="mt-15 p2">
+                                在学员管理里面
+                                <span class="fc-m pl-10 pr-10">"登记学员-购课"</span>
+                                或者<span class="fc-m pr-10">"导入未签约学员"</span>和<span class="fc-m pl-10 pr-10">"导入已签约学员"</span>
+                            </p>
                         </template>
 
                         <template v-if="guideSetup === 4">
-                            <p class="mt-15 p2 t-a-c">在学员管理里面<span class="fc-m pl-10 pr-10">"登记学员-购课"</span>或者</p>
-                            <p class="p2 mt-5 pl-10"><span class="fc-m pr-10">"导入未签约学员"</span>和<span class="fc-m pl-10 pr-10">"导入已签约学员"</span></p>
+                            <p class="mt-15 p2">在排课管理里面给班级<span class="fc-m pl-10 pr-10">"批量排课"</span>，也可以在课表处添加<span class="fc-m pl-10 pr-10">"单节排课"</span>哦~</p>
                         </template>
-
-                        <template v-if="guideSetup === 5">
-                            <p class="mt-15 p2 t-a-c">在排课管理里面给班级<span class="fc-m pl-10 pr-10">"批量排课"</span>，也可</p>
-                            <p class="p2 mt-5 pl-5">以在课表处添加<span class="fc-m pl-10 pr-10">"单节排课"</span>哦~</p>
-                        </template>
-                        <div class="d-f f-j-c mt-30"><div class="next-step btn-m fc-f t-a-c cursor-pointer" @click="nextStepHandle">下一步</div></div>
+                        <div class="d-f f-j-c mt-20"><div class="next-step btn-m fc-f t-a-c cursor-pointer" @click="nextStepHandle">下一步</div></div>
                     </div>
                 </div>
             </div>
@@ -274,13 +281,13 @@ export default {
             
             schoolLists: [],
             modalObj: null,   //遮罩层modal
-            guideSetup: 1,   //引导页步骤
+            guideSetup: 0,   //引导页步骤
             guideData: [
-                {icon: 'icon-set', text: '基础设置', dom: 'mymenu-5'},
-                {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-4'},
-                {icon: 'icon-kechengbiao', text: '课程管理', dom: 'mymenu-3'},
+                {icon: 'icon-shezhi', text: '基础设置', dom: 'mymenu-6'},
+                {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
+                {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
                 {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
-                {icon: 'icon-kebiao', text: '排课管理', dom: 'mymenu-2'}
+                {icon: 'icon-paike', text: '排课管理', dom: 'mymenu-2'}
             ],
             speedyLists: [
                 {id: 'addStudent', name: '学员登记'},
@@ -291,7 +298,7 @@ export default {
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
-                    return time.getTime() < new Date().setHours(0, 0, 0, 0);
+                    return time.getTime() < new Date().setHours(0, 0, 0, 0);    
                 }
             }
         }
@@ -524,8 +531,8 @@ export default {
         settingShowHandle(isShow) {
             this.settingShow = isShow;
         },
+        //下一步
         nextStepHandle() {
-            if(this.guideSetup > 5) return 0;
             this.guideSetup = this.guideSetup +1;
             this.mymenuPosition();
         },
@@ -539,9 +546,17 @@ export default {
         },
         //计算引导tab位置
         mymenuPosition() {
-            if(this.guideSetup > 5) return 0;
-            let mymenu = document.querySelector(`.${this.guideData[this.guideSetup-1].dom}`);
-            document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight}px`;
+            if(this.guideSetup < 5) {
+                let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
+                document.querySelector('.guide-box').style.left = '0';
+                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight}px`;
+            }else if(this.guideSetup == 5){
+                document.querySelector('.guide-box').style.left = 'auto';
+                document.querySelector('.guide-box').style.top = '50px';
+                document.querySelector('.guide-box').style.right = '280px';
+            }else {
+                document.querySelector('.guide-box').removeAttribute('style');
+            }
         },
         //引导结束
         guideEnd() {
@@ -694,8 +709,6 @@ export default {
     .guide-box {
         position: fixed;
         z-index: 6000;
-        left: 0;
-        // top: 600px;
         &.guide-end {
             top: 50%;
             left: 50%;
@@ -707,11 +720,39 @@ export default {
             background-color: #2A3C50;
             color: #45DAD5;
             left: 0;
-            top: 164px;
+            top: 151px;
             .tab-title {
                 border-right: 5px #45DAD5 solid;
                 height: 100%;
                 line-height: 58px;
+            }
+        }
+        .guide-sex {
+            width: 450px;
+            height: 386px;
+            background: url(../images/guide/guide-sex.png) no-repeat;
+            background-size: 100%;
+            top: 0;
+            right: 0;
+            .guide-sex-content {
+                bottom: 0;
+                left: 0;
+                width: 410px;
+                height: 210px;
+                .step {
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    border-radius: 50%;
+                    font-weight: bold;
+                    margin: 0 5px;
+                }
+                .next-step {
+                    width: 70px;
+                    height: 30px;
+                    line-height: 30px;
+                    border-radius: 5px;
+                }
             }
         }
         .bg-img {
@@ -720,17 +761,16 @@ export default {
             background: url(../images/guide/guide-icon.png) no-repeat;
             background-size: 100%;
             left: 170px;
-            top: -5px;
+            top: -20px;
             .right {
-                width: 350px;
-                right: 13px;
+                width: 375px;
+                right: 0;
                 top: 50%;
                 transform: translateY(-50%);
-                .p1 {
-                    font-size: 26px;
-                }
                 .p2 {
                     font-size: 18px;
+                    line-height: 30px;
+                    padding: 0 20px 0 30px;
                 }
                 .step {
                     width: 25px;
