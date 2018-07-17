@@ -9,6 +9,7 @@ import NosignDetail from '@/views/student/NosignDetail'
 import SignedDetail from '@/views/student/SignedDetail'
 import ImportStudent from '@/views/student/ImportStudent'
 import StaffManage from '@/views/staffManage/Index'
+import StaffDetail from '@/views/staffManage/Detail'
 import CourseIndex from '@/views/course/Index'
 
 import Statistics from '@/views/statistics/Index'
@@ -37,6 +38,7 @@ const homeRouter = [
     {path: 'academic/audition', component: Audition, name: 'academicAudition', meta: {needlogin: true}},
     {path: 'academic/buy', component: Buy, name: 'academicBuy', meta: {needlogin: true}},
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
+    {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true}},
     {path: 'course', component: CourseIndex, meta: {needlogin: true}},
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];

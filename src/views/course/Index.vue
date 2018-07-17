@@ -1034,14 +1034,18 @@ export default {
         },
         //新增、编辑班级提交数据
         submitClassRoom() {
-            if(this.classForm.limit_num < this.studentLists.length) {
-                this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
+            if(this.courseType === 1) {
+                if(this.classForm.limit_num < this.studentLists.length) {
+                    this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.submitClassRoomHandle();
+                    }).catch(() => {return 0});
+                }else {
                     this.submitClassRoomHandle();
-                }).catch(() => {return 0});
+                }
             }else {
                 this.submitClassRoomHandle();
             }
