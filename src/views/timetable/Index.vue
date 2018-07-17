@@ -163,7 +163,7 @@
                                                             :class="{
                                                                 'gray': item.lesson_end_time,
                                                                 'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                                'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                                'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                                 'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
                                                                 slot="reference">
                                                         <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -183,6 +183,8 @@
                                                             <i class="time-icon"></i>
                                                             <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
                                                         </p>
+
+                                                        <div class="course-type p-a" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
                                                     </div>
                                                 </el-popover>
                                                 <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
@@ -207,7 +209,7 @@
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
                                                 :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
                                                         'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                         'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
 
                                                 <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -404,7 +406,7 @@
                         </el-checkbox-group>
                     </template>
                     <el-radio-group v-model="studentRadio" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
+                        <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.lesson_num - item.scheduled)" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                     </el-radio-group>
 
                     <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
@@ -1398,6 +1400,7 @@ export default {
                     .course-item {
                         box-sizing: border-box;
                         min-height: 85px;
+                        outline: none;
                         &.gray {
                             border: 1px #C8C8C8 solid;
                             background-color: #f5f5f5;
@@ -1420,6 +1423,21 @@ export default {
                         .icon {
                             position: relative;
                             top: 3px;
+                        }
+                        .course-type {
+                            right: 0;
+                            top: 0;
+                            font-size: 12px;
+                            width: 18px;
+                            line-height: 13px;
+                            text-align: center;
+                            color: #fff;
+                            &.gray {
+                                background-color: #C8C8C8;
+                            }
+                            &.yellow {
+                                background-color: #FBBF3F;
+                            }
                         }
                     }
                     .add-course {

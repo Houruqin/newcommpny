@@ -153,7 +153,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in resultArr" v-if="item.id != 3 && item.id != 5" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
