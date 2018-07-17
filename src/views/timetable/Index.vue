@@ -163,7 +163,7 @@
                                                             :class="{
                                                                 'gray': item.lesson_end_time,
                                                                 'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                                'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                                'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                                 'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
                                                                 slot="reference">
                                                         <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -207,7 +207,7 @@
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
                                                 :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
                                                         'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                         'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
 
                                                 <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
