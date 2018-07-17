@@ -211,8 +211,9 @@
                 </el-table-column>
                 <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a v-if="scope.row.status === 4" class="fc-subm">未试听</a>
-                    <span v-else class="fc-9">已试听</span>
+                    <span v-if="scope.row.status === 4" class="fc-subm">邀约未试听</span>
+                    <span v-if="scope.row.status === 5" class="fc-9">邀约已试听</span>
+                    <span v-if="scope.row.status === 7" class="fc-m">未结课</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -452,7 +453,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
+              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
               <span v-if="scope.row.type === 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
@@ -579,6 +580,7 @@ export default {
         sign: false,
         leave: false,
         grade_id: null,
+        end: false,
         loading: false
       },
       //今日跟进
@@ -1068,12 +1070,13 @@ export default {
             }
       this.$$request.get('api/timetable/studentLists',params).then(res => {
         this.all_student_info.data = res.lists;
+        this.all_student_info.end = (res.lesson_end_time > 0);
         this.all_student_info.loading = false; 
       })
     },
     //学员签到
     sign_student(s_id,t_id,status,item) {
-      if(status === 5 && this.all_student_info.sign){
+      if(status === 5 && this.all_student_info.sign && !this.all_student_info.end){
         item.status2 = 6;
         const params = {
                 timetable_id: t_id,
