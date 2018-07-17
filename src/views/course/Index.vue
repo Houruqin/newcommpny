@@ -249,7 +249,7 @@
                     </el-form-item>
 
                     <div class="d-f f-j-c">
-                        <MyButton @click.native="doneHandle('classRoomForm')">确定</MyButton>
+                        <MyButton @click.native="doneHandle('classRoomForm')" :loading="submitLoading.grade">确定</MyButton>
                     </div>
                 </el-form>
             </div>
@@ -383,7 +383,7 @@
                 </div>
 
                 <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="addTimeTableDone">确定</MyButton>
+                    <MyButton @click.native="addTimeTableDone" :loading="submitLoading.timetable">确定</MyButton>
                 </div>
             </el-form>
 
@@ -443,7 +443,7 @@
 
                 <div class="d-f f-j-c mt-30">
                     <MyButton type="gray" @click.native="dialogStatus.conflict = false">返回编辑</MyButton>
-                    <MyButton type="subm" class="ml-30" @click.native="doneModify">确认修改</MyButton>
+                    <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
                 </div>
             </div>
         </el-dialog>
@@ -462,6 +462,9 @@ import Vue from 'vue';
 export default {
     data() {
         return {
+            submitLoading: {
+                grade: false, timetable: false
+            },
             conflictType: {
                 reason1: '老师冲突 请修改时间',
                 reason2: '教室冲突 请修改时间或教室',
@@ -944,7 +947,11 @@ export default {
         },
         //检测是否有冲突，获取冲突数据列表
         async getConflictLists(params) {
+            if(this.submitLoading.timetable) return 0;
+            this.submitLoading.timetable = true;
+
             let result = await this.$$request.post('api/timetable/conflictLists', params);
+            this.submitLoading.timetable = false;
             console.log(result);
 
             if(!result || result.status === 0) return 0;
@@ -1040,6 +1047,9 @@ export default {
             }
         },
         async submitClassRoomHandle() {
+            if(this.submitLoading.grade) return 0;
+            this.submitLoading.grade = true;
+
             let url = this.classEdit ? 'api/grade/edit' : 'api/grade/add';
             let params = {};
             
@@ -1055,6 +1065,7 @@ export default {
             console.log(params)
 
             let result = await this.$$request.post(url, params);
+            this.submitLoading.grade = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success(this.classEdit ? '修改成功' : '添加成功');

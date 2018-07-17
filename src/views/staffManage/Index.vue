@@ -98,7 +98,7 @@
                 </div>
             </el-form>
             <div class="mt-50 d-f f-j-c">
-                <MyButton @click.native="doneHandle">确定</MyButton>
+                <MyButton @click.native="doneHandle" :loading="submitLoading">确定</MyButton>
                 <MyButton v-if="type == 'modify'" @click.native="dimissionClick" type="gray" class="ml-20">离职</MyButton>
             </div>
         </el-dialog>
@@ -113,6 +113,7 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            submitLoading: false,
             staffType: 'all',
             staffListInfo: {},
             filterVal: '',
@@ -247,6 +248,10 @@ export default {
         },
         //提交新增、修改员工信息
         async submitUserInfo() {
+            if(this.submitLoading) return 0;
+
+            this.submitLoading = true;
+            
             let url = this.type == 'add' ? 'api/user/add' : 'api/user/edit';
             let params = {
                 name: this.form.name,
@@ -262,6 +267,8 @@ export default {
             console.log(params)
             let result = await this.$$request.post(url, params);
             console.log(result);
+
+            if(typeof result !== 'undefined') this.submitLoading = false;
 
             if(!result) return 0;
             this.getUserLists();
