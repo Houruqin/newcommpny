@@ -71,6 +71,7 @@
             </el-container>
         </el-container>
 
+        <!-- 引导页 -->
         <div class="guide-box" :class="{'guide-end': guideSetup > 5}" v-if="$store.state.guide">
             <div v-if="guideSetup > 5" class="p-r">
                 <img src="../images/guide/done.png" alt="">
@@ -276,7 +277,7 @@ export default {
             modalObj: null,   //遮罩层modal
             guideSetup: 1,   //引导页步骤
             guideData: [
-                {icon: 'icon-set', text: '基础设置', dom: 'mymenu-5'},
+                {icon: 'icon-shezhi', text: '基础设置', dom: 'mymenu-5'},
                 {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-4'},
                 {icon: 'icon-kechengbiao', text: '课程管理', dom: 'mymenu-3'},
                 {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
@@ -524,6 +525,7 @@ export default {
         settingShowHandle(isShow) {
             this.settingShow = isShow;
         },
+        //下一步
         nextStepHandle() {
             if(this.guideSetup > 5) return 0;
             this.guideSetup = this.guideSetup +1;

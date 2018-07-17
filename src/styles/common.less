@@ -61,7 +61,7 @@ a, input, button {outline: none;}
 .fc-f {color: #fff} .fc-9 {color: #999} .fc-2 {color: #222} .fc-7 {color: #777} .fc-5 {color: #555} .fc-m {color: @color-main} .fc-subm {color: @color-sub} .fc-r {color: #E94848}
 .t-o-e {text-overflow: ellipsis}
 /* 字体大小 */
-.font-loop(@a : 14) when (@a <= 50) {
+.font-loop(@a : 12) when (@a <= 50) {
     .fs-@{a} {font-size: @a * 1px}
     .font-loop(@a + 1);
 }

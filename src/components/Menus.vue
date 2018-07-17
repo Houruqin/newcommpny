@@ -6,8 +6,7 @@
       background-color="#223243"
       text-color="#7F9CB9"
       active-text-color="#45DAD5"
-      :router="true"
-      :default-openeds="$store.state.guide ? ['/student/signed', '/home/timetable/index'] : null">
+      :router="true">
 
       <div v-for="(list, index) in menuLists" :key="index" class="menu-item" :class="'mymenu-' + index">
         <el-submenu v-if="list.item" :index="list.id">

@@ -163,7 +163,7 @@
                                                             :class="{
                                                                 'gray': item.lesson_end_time,
                                                                 'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                                'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                                'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                                 'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
                                                                 slot="reference">
                                                         <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -184,7 +184,7 @@
                                                             <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
                                                         </p>
 
-                                                        <div class="course-type p-a" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
+                                                        <div class="course-type p-a fs-12" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
                                                     </div>
                                                 </el-popover>
                                                 <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
@@ -209,7 +209,7 @@
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
                                                 :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
                                                         'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': !item.lesson_end_time && item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num),
+                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
                                                         'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
 
                                                 <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -221,6 +221,7 @@
                                                         <span class="fs-16 title">{{item.grade_name}}</span>
                                                         <span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span>
                                                         <span class="ml-40">{{item.lesson_num}}课时</span>
+                                                        <span v-if="item.course_type !== 1" class="ml-20 course-type fs-12" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</span>
                                                     </p>
                                                     <p class="mt-10 d-f f-a-c">
                                                         <span class="d-f f-a-c">
@@ -1404,7 +1405,6 @@ export default {
                         .course-type {
                             right: 0;
                             top: 0;
-                            font-size: 12px;
                             width: 18px;
                             line-height: 13px;
                             text-align: center;
@@ -1532,6 +1532,16 @@ export default {
                             // .title {
                             //     color: #FC5A5A;
                             // }
+                        }
+                    }
+                    .course-type {
+                        color: #fff;
+                        padding: 0 5px;
+                        &.gray {
+                            background-color: #BCBCBC;
+                        }
+                        &.yellow {
+                            background-color: #FBBF3F;
                         }
                     }
                 }
