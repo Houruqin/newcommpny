@@ -9,7 +9,6 @@
 export default {
   name: 'App',
   async created() {
-    this.$store.dispatch('guideChange', true);
     let result = await this.$$request.post('api/auth/index');
     if(!result) this.$router.replace({path: '/login'});
     else this.isSchoolArea();

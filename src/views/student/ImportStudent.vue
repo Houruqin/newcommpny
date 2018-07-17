@@ -330,12 +330,17 @@ export default {
         },
         //验证文件
         verifyExcelFile(data) {
+            console.log(data);
+            
             data.shift();
             if(!data.length) return this.$message.warning('不能上传空白列表，请重新上传');
             if(data.length > 500) return this.$message.warning('最多上传500条，请重新上传');
 
             let request = this.uploadType == 'nosign' ? 'nosign_request' : 'sign_request';
             
+            
+            console.log(excelHeader);
+
             let requestStatus = data.every((d, index) => {
                 let requestArr = [];
                 for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
@@ -345,9 +350,6 @@ export default {
             if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
             
             let tableHeader = excelHeader[this.uploadType];
-
-            console.log(tableHeader);
-            console.log(data);
 
             let newData = data.map(d => {
                 let newObj = {};
