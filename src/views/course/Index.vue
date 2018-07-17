@@ -249,7 +249,7 @@
                     </el-form-item>
 
                     <div class="d-f f-j-c">
-                        <MyButton @click.native="doneHandle('classRoomForm')">确定</MyButton>
+                        <MyButton @click.native="doneHandle">确定</MyButton>
                     </div>
                 </el-form>
             </div>
@@ -765,7 +765,7 @@ export default {
             this.classEdit = true;
         },
         //form表单确定按钮
-        doneHandle(formName) {
+        doneHandle() {
             this.$refs.classRoomForm.validate(valid => {if(valid) this.submitClassRoom()});
         },
         //班级操作列表点击回调
@@ -814,12 +814,6 @@ export default {
             this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, option.grade_info.room_id);  //上课教室
             this.timetableForm.course_id = option.grade_info.course_id;
             this.timetableForm.grade_id = option.grade_info.id;
-
-            // if(this.courseType === 1) {
-            //     this.timetable_studentLists = option.grade_info.student.map(v => {return v.id});
-            //     this.checkStudentForm = this.timetable_studentLists;
-            //     this.timetable_studentCheckAll = (!this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length);
-            // }
 
             if(option.grade_info.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
                 //若开课时间大于五年 则显示当前日期
@@ -1027,14 +1021,18 @@ export default {
         },
         //新增、编辑班级提交数据
         submitClassRoom() {
-            if(this.classForm.limit_num < this.studentLists.length) {
-                this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
+            if(this.courseType === 1) {
+                if(this.classForm.limit_num < this.studentLists.length) {
+                    this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.submitClassRoomHandle();
+                    }).catch(() => {return 0});
+                }else {
                     this.submitClassRoomHandle();
-                }).catch(() => {return 0});
+                }
             }else {
                 this.submitClassRoomHandle();
             }
