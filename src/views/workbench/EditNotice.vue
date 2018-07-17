@@ -53,13 +53,14 @@ export default {
       title: "",
       all_authority: false,
       authority: [],
-      auth_options: ["校长", "老师", "教务", "顾问"],
+      auth_options: ["校长", "老师", "教务", "顾问", "销售主管"],
       notice_person: [],
       show_notice_person: [],
       master_lists: [], //校长
       teacher_lists: [], //老师
       seller_lists: [], //顾问
       educate_lists: [], //教务
+      director_lists: [], //销售主管
       all_lists: []
     };
   },
@@ -90,6 +91,9 @@ export default {
           case "顾问":
             this.notice_person.push(...this.seller_lists);
             break;
+          case "销售主管":
+            this.notice_person.push(...this.director_lists);
+            break;
         }
       }
       console.log(this.notice_person);
@@ -111,11 +115,13 @@ export default {
         this.teacher_lists = [...res.teacher];
         this.seller_lists = [...res.seller];
         this.educate_lists = [...res.register];
+        this.director_lists = [...res.director];
         this.all_lists = [
           ...this.master_lists,
           ...this.teacher_lists,
           ...this.seller_lists,
-          ...this.educate_lists
+          ...this.educate_lists,
+          ...this.director_lists
         ];
       });
     },

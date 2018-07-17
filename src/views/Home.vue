@@ -162,7 +162,7 @@
                             v-model="auditionData.time" type="date" 
                             value-format="timestamp" :clearable="false" 
                             :editable="false" placeholder="选择日期" 
-                            @change="getListenLists"
+                            @change="listenDateChange"
                             :picker-options="pickListenDisable">
                         </el-date-picker>
                     </el-col>
@@ -370,6 +370,10 @@ export default {
                 this.listenTimetableId = '';
             }
         },
+        listenDateChange(val) {
+            if(new Date(val).toDateString() === new Date().toDateString()) this.auditionData.time = new Date().getTime();
+            this.getListenLists();
+        },
         //试听学员搜索
         listenStudentSearch() {
             this.listenStudentFilterLists = this.listenStudentFilter(this.studentKeyword);
@@ -435,9 +439,10 @@ export default {
             };
 
             let result = await this.$$request.post('api/listenCourse/lists', {data: params});
+            this.loading = false;
             console.log(result);
             if(!result) return 0;
-            this.loading = false;
+            
             this.listenCourseLists = result.lists;
         },
         //获取试听学员列表

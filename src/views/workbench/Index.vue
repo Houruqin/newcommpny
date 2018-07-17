@@ -209,9 +209,9 @@
                     {{scope.row.timetable.begin_time | date('MM-dd')}}　 {{scope.row.timetable.begin_time | date('hh:mm')}}-{{scope.row.timetable.end_time | date('hh:mm')}}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a v-if="scope.row.status === 4" class="cursor-pointer fc-m" @click="handle_audition(scope.row.id)">试听</a>
+                    <a v-if="scope.row.status === 4" class="fc-subm">未试听</a>
                     <span v-else class="fc-9">已试听</span>
                   </template>
                 </el-table-column>
@@ -453,7 +453,7 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
               <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span v-if="scope.row.type === 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>
@@ -1113,15 +1113,15 @@ export default {
       });
     },
     //试听确认
-    handle_audition(id) {
-      const params = {
-        follow_up_id: id
-      };
-      this.$$request.post("api/followUp/auditionSure", params).then(res => {
-        this.get_follow_up_data();
-        this.$message.success("操作成功");
-      });
-    },
+    // handle_audition(id) {
+    //   const params = {
+    //     follow_up_id: id
+    //   };
+    //   this.$$request.post("api/followUp/auditionSure", params).then(res => {
+    //     this.get_follow_up_data();
+    //     this.$message.success("操作成功");
+    //   });
+    // },
 
     //================通知模块================
 
