@@ -183,6 +183,8 @@
                                                             <i class="time-icon"></i>
                                                             <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
                                                         </p>
+
+                                                        <div class="course-type p-a" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
                                                     </div>
                                                 </el-popover>
                                                 <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
@@ -1399,6 +1401,21 @@ export default {
                     .course-item {
                         box-sizing: border-box;
                         min-height: 85px;
+                        .course-type {
+                            right: 0;
+                            top: 0;
+                            font-size: 12px;
+                            width: 18px;
+                            line-height: 13px;
+                            text-align: center;
+                            color: #fff;
+                            &.gray {
+                                background-color: #C8C8C8;
+                            }
+                            &.yellow {
+                                background-color: #FBBF3F;
+                            }
+                        }
                         &.gray {
                             border: 1px #C8C8C8 solid;
                             background-color: #f5f5f5;
