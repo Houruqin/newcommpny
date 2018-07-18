@@ -26,14 +26,69 @@
             </el-tabs>
             <div>
                 <!-- 跟进名单 -->
-                <el-table :data="followUpLists" stripe v-loading="loading" v-if="activeTab === 'followUp'">
+                <el-table :data="bottomLists.data" stripe v-loading="loading" v-if="activeTab === 'followUp'">
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="学员姓名" align="center">
+                        <template slot-scope="scope"><span>{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
+                    <el-table-column label="跟进状态" align="center">
+                        <template slot-scope="scope"><span>{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="最后跟进日期" align="center">
+                        <template slot-scope="scope"><span>{{$$tools.format(scope.row.followup_at)}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="签约人" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
                 </el-table>
                 <!-- 签约学员列表 -->
-                <el-table :data="studentLists" stripe v-loading="loading" v-if="activeTab === 'student'">
+                <el-table :data="bottomLists.data" stripe v-loading="loading" v-if="activeTab === 'student'">
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="学员姓名" align="center">
+                        <template slot-scope="scope"><span>{{scope.row.student_name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
+                    <el-table-column label="购买课程" align="center" prop="course_name"></el-table-column>
+                    <el-table-column label="购买性质" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="购买日期" align="center">
+                        <template slot-scope="scope"><span>{{$tools.format(scope.row.created_at)}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="签约人" align="center" prop="user_name"></el-table-column>
                 </el-table>
                 <!-- 任课班级列表 -->
-                <el-table :data="gradeLists" stripe v-loading="loading" v-if="activeTab === 'grade'">
+                <el-table :data="bottomLists.data" stripe v-loading="loading" v-if="activeTab === 'grade'">
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="课程名称" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="班级" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="任课老师" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="上课人数" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="开课日期" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
+                    <el-table-column label="班级状态" align="center">
+                        <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
+                    </el-table-column>
                 </el-table>
+
+                <el-pagination v-if="bottomLists.total"
+                    class="d-f f-j-c mt-50 mb-50" 
+                    :page-size="bottomLists.per_page" 
+                    background layout="total, prev, pager, next" 
+                    :total="bottomLists.total" 
+                    :current-page="bottomLists.current_page"
+                    @current-change="paginationClick">
+                </el-pagination>
             </div>
         </el-card>
     </div>
@@ -53,9 +108,7 @@ export default {
             userId: '',
             userDetail: {},
             activeTab: 'followUp',
-            followUpLists: [],
-            studentLists: [],
-            gradeLists: []
+            bottomLists: {}
         }
     },
     methods: {
@@ -63,23 +116,29 @@ export default {
 
         },
         tabClick() {
-
+            this.getBottomLists();
         },
-        getFollowUpLists() {
-
+        paginationClick(curr_page) {
+            this.getBottomLists(curr_page);
         },
-        getStudentLists() {
+        async getBottomLists(curr_page) {
+            let key = this.activeTab == 'followUp' ? 'followRoster' : this.activeTab == 'student' ? 'signRoster' : 'grade';
+            let params = {user_id: this.userId};
 
-        },
-        getGradeLists() {
-            
+            if(curr_page) params.page = curr_page;
+            let result = await this.$$request.get(`api/user/${key}`, params);
+
+            console.log(result);
+            if(!result) return 0;
+            this.bottomLists = result.lists;
         },
         async getDetail() {
             let result = await this.$$request.get('api/user/detail', {user_id: this.userId});
             console.log(result);
             if(!result) return 0;
-
             this.userDetail = result.user;
+
+            this.getBottomLists();
         }
     },
     created() {

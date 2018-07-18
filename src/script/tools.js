@@ -26,7 +26,7 @@ const Tools = {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
                 else if(value < 0) return callback(new Error('请输入正数!'))
 				else if(String(value).split('.')[1] && String(value).split('.')[1].length > 2) return callback(new Error('最多两位小数'));
-				else if(value > 99999) return callback(new Error('价格不能超过99999'));
+				else if(value > 9999) return callback(new Error('价格不能超过9999'));
 				else return callback();
             };
             

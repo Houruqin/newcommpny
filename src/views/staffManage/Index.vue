@@ -18,10 +18,7 @@
             <el-table :data="staffListInfo.data" stripe v-loading="loading">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="员工姓名" align="center">
-                    <template slot-scope="scope">
-                        <router-link :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" :class="{'list-item-gray': !scope.row.status}" class="fc-m">{{scope.row.name}}</router-link>
-                        <!-- <span class="fc-m cursor-pointer" :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span> -->
-                    </template>
+                    <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></template>
                 </el-table-column>
                 <el-table-column label="手机号码" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
@@ -101,7 +98,7 @@
                 </div>
             </el-form>
             <div class="mt-50 d-f f-j-c">
-                <MyButton @click.native="doneHandle" :loading="submitLoading">确定</MyButton>
+                <MyButton @click.native="doneHandle">确定</MyButton>
                 <MyButton v-if="type == 'modify'" @click.native="dimissionClick" type="gray" class="ml-20">离职</MyButton>
             </div>
         </el-dialog>
@@ -116,7 +113,6 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
-            submitLoading: false,
             staffType: 'all',
             staffListInfo: {},
             filterVal: '',
@@ -251,10 +247,6 @@ export default {
         },
         //提交新增、修改员工信息
         async submitUserInfo() {
-            if(this.submitLoading) return 0;
-
-            this.submitLoading = true;
-            
             let url = this.type == 'add' ? 'api/user/add' : 'api/user/edit';
             let params = {
                 name: this.form.name,
@@ -270,8 +262,6 @@ export default {
             console.log(params)
             let result = await this.$$request.post(url, params);
             console.log(result);
-
-            if(typeof result !== 'undefined') this.submitLoading = false;
 
             if(!result) return 0;
             this.getUserLists();
