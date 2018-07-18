@@ -57,7 +57,7 @@
                 </div>
             </el-form>
             <div class="mt-40 d-f f-j-c">
-                <MyButton @click.native="doneHandle('schoolForm')">确定</MyButton>
+                <MyButton @click.native="doneHandle('schoolForm')" :loading="submitLoading">确定</MyButton>
             </div>
         </el-dialog>
     </div>
@@ -76,6 +76,7 @@ export default {
             schoolNum: 3,  //可用的校区数量
             maskStatus: false,   //新增、修改form
             maskType: 'add',
+            submitLoading: false,
             schoolLists: [],
             organizationInfo: [],
             loading: true,
@@ -191,11 +192,16 @@ export default {
         },
         //提交校区信息
         async submitData() {
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
+
             let url = this.maskType == 'add' ? 'api/school/add' : 'api/school/edit';
             let postdata = this.getModifyParams();
             console.log(postdata);
             let result = await this.$$request.post(url, postdata);
-            console.log(result);           
+            this.submitLoading = false;
+            console.log(result);
+                       
             if(!result) return 0;
             this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
             this.maskStatus = false;

@@ -183,6 +183,8 @@
                                                             <i class="time-icon"></i>
                                                             <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
                                                         </p>
+
+                                                        <div class="course-type p-a fs-12" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
                                                     </div>
                                                 </el-popover>
                                                 <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
@@ -219,6 +221,7 @@
                                                         <span class="fs-16 title">{{item.grade_name}}</span>
                                                         <span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span>
                                                         <span class="ml-40">{{item.lesson_num}}课时</span>
+                                                        <span v-if="item.course_type !== 1" class="ml-20 course-type fs-12" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</span>
                                                     </p>
                                                     <p class="mt-10 d-f f-a-c">
                                                         <span class="d-f f-a-c">
@@ -404,7 +407,8 @@
                         </el-checkbox-group>
                     </template>
                     <el-radio-group v-model="studentRadio" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
+                        <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.buy_lesson_num - item.scheduled)"
+                        :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                     </el-radio-group>
 
                     <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
@@ -1398,6 +1402,20 @@ export default {
                     .course-item {
                         box-sizing: border-box;
                         min-height: 85px;
+                        .course-type {
+                            right: 0;
+                            top: 0;
+                            width: 18px;
+                            line-height: 13px;
+                            text-align: center;
+                            color: #fff;
+                            &.gray {
+                                background-color: #C8C8C8;
+                            }
+                            &.yellow {
+                                background-color: #FBBF3F;
+                            }
+                        }
                         &.gray {
                             border: 1px #C8C8C8 solid;
                             background-color: #f5f5f5;
@@ -1514,6 +1532,16 @@ export default {
                             // .title {
                             //     color: #FC5A5A;
                             // }
+                        }
+                    }
+                    .course-type {
+                        color: #fff;
+                        padding: 0 5px;
+                        &.gray {
+                            background-color: #BCBCBC;
+                        }
+                        &.yellow {
+                            background-color: #FBBF3F;
                         }
                     }
                 }

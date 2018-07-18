@@ -28,7 +28,7 @@
         </el-form>
         
         <div class="d-f f-j-c mt-20">
-            <MyButton class="mr-20" @click.native="doneHandle('courseForm')">提交</MyButton>
+            <MyButton class="mr-20" @click.native="doneHandle('courseForm')" :loading="submitLoading">提交</MyButton>
             <MyButton v-if="courseType == 'edit'" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
         </div>
     </el-dialog>
@@ -65,6 +65,7 @@ export default {
     },
     data() {
         return {
+            submitLoading: false,
             courseForm: {
                 id: '',
                 name: '',  //名字
@@ -124,6 +125,8 @@ export default {
         },
         //新增、编辑课程提交数据
         async submitCourse() {
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
             let url = this.courseType == 'edit' ? 'api/course/edit' : 'api/course/add';
             let params = {};
             for(let key in this.courseForm) {if(key != 'id') params[key] = this.courseForm[key]};
@@ -131,6 +134,7 @@ export default {
             console.log(params);
 
             let result = await this.$$request.post(url, params);
+            this.submitLoading = false;
             console.log(result);
 
             if(!result) return 0;

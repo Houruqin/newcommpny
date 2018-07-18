@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "devBaseurl": {
-        "api": "http://saas_dev.jiaoyf.com/",
+        "api": "http://saas_dev_pre.jiaoyf.com/",
         "image": "http://192.168.34.50:81/"
     },
     "prodBaseUrl": {

@@ -137,7 +137,7 @@
                 </div>
                 <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
 
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle">确定</MyButton></div>
+                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle" :loading="submitLoading">确定</MyButton></div>
             </div>
         </el-dialog>
 
@@ -153,7 +153,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in resultArr" v-if="item.id != 3 && item.id != 5" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
@@ -173,7 +173,7 @@
                         <el-date-picker type="date" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')" :loading="submitLoading">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -207,6 +207,8 @@ import ContractDialog from '../../components/dialog/Contract'
 export default {
     data() {
         return {
+            submitLoading: false,
+
             detail: {},
             studentId: '',
             loading: true,
@@ -434,6 +436,9 @@ export default {
         },
         //提交跟进
         async submitFollowUpInfo() {
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
+
             for(let key in this.followUpForm) {if((key == 'invited_at' || key == 'next_at')) this.followUpForm[key] = this.followUpForm[key] / 1000};
 
             if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
@@ -447,6 +452,7 @@ export default {
             console.log(params);
             
             let result = await this.$$request.post('api/followUp/add', params);
+            this.submitLoading = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('添加成功');

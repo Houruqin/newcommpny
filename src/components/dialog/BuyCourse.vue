@@ -89,7 +89,7 @@
                     </el-form-item>
                 </div>
                 <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="doneHandle">提交生成合约</MyButton>
+                    <MyButton @click.native="doneHandle" :loading="submitLoading">提交生成合约</MyButton>
                 </div>
             </div>
         </el-form>
@@ -126,6 +126,7 @@ export default {
     },
     data() {
         return {
+            submitLoading: false,
             courseDialogStatus: false,
             paymentMethod: StudentStatic.paymentMethod, //付款方式
             courseForm: {
@@ -209,6 +210,9 @@ export default {
         },
         //提交购买课程
         async submitBuyCourse() {
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
+
             if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
             if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
             if(this.courseForm.preferential_price > (this.courseForm.unit_price * this.courseForm.lesson_num + this.courseForm.textbook_price)) return this.$message.warning('优惠不能超过总金额!');
@@ -224,6 +228,7 @@ export default {
             console.log(params);
 
             let result = await this.$$request.post('api/studentCourse/add', params);
+            this.submitLoading = false;
             console.log(result);
             if(!result) return 0;
 

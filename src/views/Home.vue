@@ -448,13 +448,14 @@ export default {
         //获取试听学员列表
         async getListenStudentLists() {
             let result = await this.$$request.get('api/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
+            this.loading = false;
             console.log(result);
-
             if(!result) return 0;
+            
             result.lists.forEach(v => {v.active = false});
             this.listenStudentLists = result.lists;   //原始数据
             this.listenStudentFilterLists = this.listenStudentFilter();
-            this.loading = false;
+            
         },
         //试听学员列表搜索搜索筛选方法
         listenStudentFilter(text) {
