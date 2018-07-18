@@ -1,0 +1,182 @@
+<template>
+    <el-dialog :title="staffType == 'add' ? '添加员工' : '修改员工'" width="800px" center :visible.sync="staffDialogStatus" :close-on-click-modal="false" @close="formClose">
+        <el-form :model="staffForm" label-width="100px" :rules="rules" ref="userForm" size="small">
+            <div class="form-box">
+                <el-row>
+                    <el-col :span="11">
+                        <el-form-item label="姓名：" prop="name" :validate-on-rule-change="false">
+                            <el-input v-model.trim="staffForm.name" placeholder="姓名"></el-input>
+                        </el-form-item>
+                        <el-form-item label="职务：" prop="role_type"  class="mt-30">
+                            <el-select v-model="staffForm.role_type" placeholder="选择职务名称" @change="roleChange">
+                                <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="职位性质：" prop="kind"  class="mt-30">
+                            <el-select v-model="staffForm.kind" placeholder="选择职位性质">
+                                <el-option label="全职" :value="1"></el-option>
+                                <el-option label="兼职" :value="2"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="11" :offset="1">
+                        <el-form-item label="电话：" prop="mobile">
+                            <el-input v-model.number="staffForm.mobile" placeholder="电话"></el-input>
+                        </el-form-item>
+                        <el-form-item label="入职时间：" prop="entry_date"  class="mt-30">
+                            <el-date-picker
+                                v-model="staffForm.entry_date"
+                                type="date"
+                                :editable="false"
+                                placeholder="选择日期"
+                                value-format="timestamp">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <!-- <el-form-item label="权限分配：" class="mt-10">
+                    <el-checkbox v-model="authorityAll" @change="authorityCheckAllChange">全选</el-checkbox>
+                    <el-checkbox-group v-model="authorityCheckList" @change="authorityCheckChange">
+                        <el-checkbox v-for="(item, index) in authorityAllLists" :label="item" :key="index">{{item.name}}</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item> -->
+            </div>
+        </el-form>
+        <div class="mt-50 d-f f-j-c">
+            <MyButton @click.native="doneHandle">确定</MyButton>
+            <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20">离职</MyButton>
+        </div>
+    </el-dialog>
+</template>
+
+
+<script>
+import MyButton from '../../components/common/MyButton'
+
+export default {
+    props: {
+        type: {default: 'add'},
+        origin: {default: 'list'},
+        dialogStatus: '',
+        editDetail: {default: {}}
+    },
+    watch: {
+        dialogStatus(newVal, oldVal) {
+            this.staffDialogStatus = newVal;
+        },
+        type(newVal, oldVal) {
+            this.staffType = newVal;
+        },
+        editDetail(newVal, oldVal) {
+            if(!Object.keys(newVal).length) return 0;
+
+            console.log(newVal)
+            
+            for(var key in this.staffForm) {
+                if(key == 'entry_date') this.staffForm[key] = newVal.entry_at * 1000;
+                else if(key == 'role_type') this.staffForm[key] = newVal.type_en;
+                else this.staffForm[key] = newVal[key];
+            }
+            
+            this.roleLists.forEach(v => {if(v.name === newVal.type_en) this.staffForm.role_id = v.id});
+        }
+    },
+    data() {
+        return {
+            staffDialogStatus: false,
+            staffForm: {role_id: '', name: '', mobile: '', role_type: '', entry_date: '', id: '', kind: ''},
+            roleLists: [],
+            staffType: 'add',
+            rules: {
+                name: [
+                    {required: true, message: '请输入员工姓名'},
+                    {max: 7, message: '长度不能超过7个字符'}
+                ],
+                mobile: [
+                    {required: true, message: '请输入员工电话'},
+                    {validator: this.$$tools.formValidate('phone')}
+                ],
+                role_type: [
+                    {required: true, message: '请选择职务', trigger: 'change'}
+                ],
+                entry_date: [
+                    {required: true, message: '请选择入职时间', trigger: 'change'}
+                ],
+                kind: [
+                    {required: true, message: '请选择职位性质', trigger: 'change'}
+                ]
+            }
+        }
+    },
+    methods: {
+        formClose() {
+            this.$refs.userForm.resetFields();
+            Object.keys(this.staffForm).forEach(v => {this.staffForm[v] = ''});
+            this.$emit('CB-dialogStatus', 'staff');
+        },
+        //角色列表
+        async getRoleLists() {
+            let result = await this.$$request.post('api/permission/roleLists');
+            console.log(result);
+
+            if(!result) return 0;
+            this.roleLists = result.lists;
+        },
+        roleChange(val) {
+            this.roleLists.forEach(v => {if(v.name === val) this.staffForm.role_id = v.id});
+        },
+        //确定
+        doneHandle() {
+            this.$refs.userForm.validate(valid => {if(valid) this.submitUserInfo()});
+        },
+        //提交新增、修改员工信息
+        async submitUserInfo() {
+            let url = this.type == 'add' ? 'api/user/add' : 'api/user/edit';
+            let params = {
+                name: this.staffForm.name,
+                mobile: this.staffForm.mobile,
+                type: this.staffForm.role_type,
+                role_id: this.staffForm.role_id,
+                entry_at: this.staffForm.entry_date ?  this.staffForm.entry_date / 1000 : '',
+                kind: this.staffForm.kind
+            };
+
+            if(this.type == 'edit') params.id = this.staffForm.id;
+
+            console.log(params)
+            let result = await this.$$request.post(url, params);
+            console.log(result);
+
+            if(!result) return 0;
+
+            this.$emit('CB-AddStaff');
+
+            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
+            this.$message.success(this.type == 'edit' ? '修改成功' : '添加成功');
+        },
+        //离职
+        async dimissionClick() {
+            this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.dimissionHandle();
+            }).catch(() => {return 0});
+        },
+        async dimissionHandle() {
+            let result = await this.$$request.post('api/user/changeStatus', {id: this.staffForm.id});
+            console.log(result);
+            if(!result) return 0;
+            this.$emit('CB-dimission');
+
+            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
+            this.$message.success('已修改为离职状态');
+        }  
+    },
+    mounted() {
+        this.getRoleLists();
+    },
+    components: {MyButton}
+}
+</script>
