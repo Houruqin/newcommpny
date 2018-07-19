@@ -12,7 +12,7 @@
             <!-- 待处理请假 -->
             <el-tab-pane label="待处理请假" name="leave">
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -40,7 +40,7 @@
             <!-- 待分班学员 -->
             <el-tab-pane label="待分班学员" name="divide">
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
-                <el-table-column class-name="table_head" label="人员" align="left">
+                <el-table-column class-name="table_head" label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -49,7 +49,9 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="签约课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="待分班课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="剩余课时"></el-table-column>
+                <el-table-column label="签约日期"></el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a class="cursor-pointer fc-m" @click="divide_class(scope.row)">分班</a>
@@ -61,7 +63,7 @@
             <!-- 需续约学员 -->
             <el-tab-pane label="需续约学员" name="renewal">
               <el-table class="student-table" :data="renewal_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -70,15 +72,21 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="签约课程" prop="course_name" align="center"></el-table-column>
-                <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                <el-table-column label="需签约课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="课程剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                <el-table-column label="预计到期时间" align="center"></el-table-column>
+                <el-table-column label="操作" prop="operate" align="center">
+                  <template slot-scope="scope">
+                    <a class="cursor-pointer fc-m">续约</a>
+                  </template>
+                </el-table-column>
               </el-table>
             </el-tab-pane>
 
             <!-- 生日学员 -->
             <el-tab-pane label="生日学员" name="birth">
               <el-table class="student-table" :data="birth_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -87,10 +95,16 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="班级" prop="grade.name" align="center"></el-table-column>
                 <el-table-column label="生日" prop="birthday" align="center">
                   <template slot-scope="scope">
                     {{scope.row.birthday | date('yyyy-MM-dd')}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="出生日期"  align="center"></el-table-column>
+                <el-table-column label="礼品状态"  align="center"></el-table-column>
+                <el-table-column label="操作" prop="operate" align="center">
+                  <template slot-scope="scope">
+                    <a class="cursor-pointer fc-m">发放礼品</a>
                   </template>
                 </el-table-column>
               </el-table>
@@ -167,7 +181,7 @@
             <!-- 预约到访 -->
             <el-tab-pane label="预约到访" name="visit">
               <el-table class="student-table" :data="visit_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -181,7 +195,7 @@
                     {{scope.row.invited_at | date('MM-dd hh:mm')}}
                   </template>
                 </el-table-column>
-                <el-table-column label="顾问" prop="student.advisor.name" align="center"></el-table-column>
+                <el-table-column label="课程顾问" prop="student.advisor.name" align="center"></el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a v-if="scope.row.status === 2" class="cursor-pointer fc-m" @click="handle_visit(scope.row.id)">到达</a>
@@ -194,7 +208,7 @@
             <!-- 邀约试听 -->
             <el-tab-pane label="邀约试听" name="audition">
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -209,6 +223,7 @@
                     {{scope.row.timetable.begin_time | date('MM-dd')}}　 {{scope.row.timetable.begin_time | date('hh:mm')}}-{{scope.row.timetable.end_time | date('hh:mm')}}
                   </template>
                 </el-table-column>
+                <el-table-column label="课程顾问" prop="timetable.course.name" align="center"></el-table-column>
                 <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status === 4" class="fc-subm">邀约未试听</span>
@@ -222,7 +237,7 @@
             <!-- 需跟进学员 -->
             <el-tab-pane label="需跟进学员" name="follow_up">
               <el-table class="student-table" :data="follow_up_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -231,8 +246,9 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="跟进顾问" prop="student.advisor.name" align="center"></el-table-column>
-                <el-table-column label="状态" prop="today" align="center"></el-table-column>
+                <el-table-column label="课程顾问" prop="student.advisor.name" align="center"></el-table-column>
+                <el-table-column label="上次跟进时间" prop="student.advisor.name" align="center"></el-table-column>
+                <el-table-column label="预计跟进时间" prop="student.advisor.name" align="center"></el-table-column>
               </el-table>
 
             </el-tab-pane>
@@ -240,7 +256,7 @@
             <!-- 待分配意向学员 -->
             <el-tab-pane label="待分配意向学员" name="assign">
               <el-table class="student-table" :data="assign_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -249,16 +265,13 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="跟进顾问" prop="advisor_info" align="center">
+                <el-table-column label="登记时间"  align="center"></el-table-column>
+                <el-table-column label="渠道来源"  align="center"></el-table-column>
+                <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.advisor_info === null">待定</span>
+                    <a class="cursor-pointer fc-m" @click="handle_visit(scope.row.id)">分配顾问</a>
                   </template>
                 </el-table-column>
-                <!-- <el-table-column label="状态" class="fc-subm" prop="follow_cn">
-                      <template slot-scope="scope">
-                            <span class="fc-subm">{{scope.row.follow_cn}}</span>
-                        </template> 
-                    </el-table-column> -->
               </el-table>
             </el-tab-pane>
           </el-tabs>
@@ -1594,7 +1607,15 @@ export default {
   color: #fff;
 }
 .workbench_container /deep/ .is-fullscreen {
-  height: 80% !important;
+  height: 700px !important;
+  overflow: hidden;
+  .el-dialog__header{
+    border-bottom: 1px solid #e9e9e9;
+  }
+  .el-dialog__body{
+    height: 580px;
+    overflow-y: auto;
+  }
 }
 .workbench_container /deep/ .el-dialog__footer {
   padding: 0 20px 10px;
