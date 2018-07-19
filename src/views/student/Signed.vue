@@ -275,7 +275,7 @@
                     </el-table-column>
                 </el-table>
 
-                <!-- 过期学员列表 -->
+                <!-- 结业学员/流水学员列表 -->
                 <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="姓名" align="center">
@@ -321,6 +321,7 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
+                            <a v-if="activeTab === 'invalid'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].id)">流失</a>
                             <a class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.course_lists[0].id)">删除</a>
                         </template>
                     </el-table-column>
@@ -461,7 +462,6 @@ export default {
             tabLists: [],
             loading: true,
             studentTable: {},  //学员table列表  
-            headTab: ['在校学员', '当月生日学员', '待分班学员', '需续约学员', '结业学员'],
             studentMaskStatus: false,   //编辑学员信息弹窗
             classMaskStatus: false,   //分班弹窗
             searchFilter: {  //学员搜索筛选条件
@@ -616,6 +616,22 @@ export default {
             if(type === 'divideClass') return this.submitDivideClass();   //分班不做不做表单验证
             this.$refs[type].validate(valid => {if(valid) this.submitStudentInfo()});
         },
+        //流失学员
+        lossStudent() {
+            this.$confirm('确定改为流失学员吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.lossHandle(id);
+            }).catch(() => {return 0});
+        },
+        async lossHandle() {
+            let result = await this.$$request.post('api/sign/setLoss', {student_id: id});
+            if(!result) return 0;
+            this.$message.success('已改为流失学员');
+            this.getTabLists();
+        },
         //删除学员
         deleteStudent(id) {
             this.$confirm('确定删除该学员吗?', '提示', {
@@ -681,7 +697,7 @@ export default {
             let result = await this.$$request.post('api/sign/tab');
             console.log(result);
             if(!result) return 0;
-            this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
+            this.tabLists = result.lists;
             this.getStudentLists();
         },
         //课程列表，点击分班，获取班级列表

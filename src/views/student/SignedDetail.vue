@@ -289,7 +289,7 @@
                     </el-form-item>
 
                     <div class="d-f f-j-c mt-50">
-                        <MyButton @click.native="doneHandle('addStudent')">确定</MyButton>
+                        <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton>
                         <MyButton type="gray" class="ml-20" @click.native="deleteStudent">删除</MyButton>
                     </div>
                 </div>
@@ -336,7 +336,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')">确认</MyButton></div>
+                    <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')" :loading="submitLoading.quitCourse">确认</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -361,7 +361,9 @@
                 </div>
             </div>
             
-            <div class="d-f f-j-c mt-30"><MyButton :type="gradeDivideLists.disabled ? 'gray': 'main'" @click.native="divideClassDone(gradeDivideLists.disabled)">确认</MyButton></div>
+            <div class="d-f f-j-c mt-30">
+                <MyButton :type="gradeDivideLists.disabled ? 'gray': 'main'" @click.native="divideClassDone(gradeDivideLists.disabled)" :loading="submitLoading.gradeDivide">确认</MyButton>
+            </div>
         </el-dialog>
         
         <!-- 邀约试听弹窗 -->
@@ -416,7 +418,7 @@
                 </div>
                 <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-7">暂无数据</span></div>
 
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle">确定</MyButton></div>
+                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle" :loading="submitLoading.followUp">确定</MyButton></div>
             </div>
         </el-dialog>
 
@@ -453,13 +455,13 @@
                         <el-date-picker type="date" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('followUpForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('followUpForm')" :loading="submitLoading.followUp">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
 
         <!-- 班级信息列表，班级详情 -->
-        <el-dialog title="班级详情" width="1000px" center :visible.sync="gradeDetailMask" :close-on-click-modal="false" v-if="gradeDetail.grade">
+        <el-dialog title="班级详情" width="900px" center :visible.sync="gradeDetailMask" :close-on-click-modal="false" v-if="gradeDetail.grade" @close="gradeDetailDialogClose">
             <p class="fc-m fs-16 t-a-c">{{gradeDetail.grade.name}}</p>
             <div class="detail">
                 <div class="detail-top">
@@ -494,12 +496,16 @@
                     </div>
                 </div>
 
-                <div class="detail-bottom pb-30 pt-10">
-                    <p class="fc-m fs-16 t-a-c mb-20">上课信息</p>
-                    
-                    <el-table :data="gradeDetail.grade.timetable" v-if="gradeDetail.grade.timetable.length" height="250">
-                        <el-table-column label="上课时间" align="center" width="200">
+                <div class="detail-bottom mt-40 p-r">
+                    <div class="timetable-edit p-a cursor-pointer" @click="timetableEditClick">{{timetableCheckbox ? '取消' : '编辑'}}</div>
+                    <el-table :data="gradeDetail.grade.timetable" v-if="gradeDetail.grade.timetable.length" height="280" ref="multipleTable">
+                        <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
+                        <el-table-column label="序号" type="index" align="center"></el-table-column>
+                        <el-table-column label="上课日期" align="center">
                             <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
+                        </el-table-column>
+                        <el-table-column label="上课时间" align="center">
+                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
                         </el-table-column>
                         <el-table-column label="上课老师" align="center">
                             <template slot-scope="item">
@@ -509,12 +515,12 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
-                        <el-table-column label="扣课时数" prop="lesson_num" align="center"></el-table-column>
                         <el-table-column label="结课状态" align="center">
                             <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
                         </el-table-column>
                     </el-table>
-                    <div v-else class="d-f f-a-c f-j-c fc-7 course-lits-nothing"><span>暂无数据</span></div>
+
+                    <div class="d-f f-j-c mt-20" v-if="timetableCheckbox"><MyButton @click.native="deleteTimeTableHandle(gradeDetail.grade.timetable)" :type="deleteTimeTableLists.length ? 'main' : 'gray'">删除</MyButton></div>
                 </div>
             </div>
         </el-dialog>
@@ -596,10 +602,15 @@ import ContractDialog from '../../components/dialog/Contract'
 export default {
     data() {
         return {
-            title: '刘学',
+            submitLoading: {
+                student: false, gradeDivide: false, followUp: false, quitCourse: false
+            },
             studentId: '',     //学员id
             studentDetail: {},
             contractData: {},  //合约详情
+
+            deleteTimeTableLists: [],    //删除课表，选中的课表
+            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
 
             quitCourseLists: {},   //退费课程列表
             courseTimeTable: {},   //课程表
@@ -742,6 +753,40 @@ export default {
             }else if(form === 'divideGrade') {
                 this.divideClassRadio = '';
             }else this.$refs[form].resetFields();
+        },
+        gradeDetailDialogClose() {
+            this.timetableCheckbox = false;
+        },
+        timetableEditClick() {
+            this.timetableCheckbox = !this.timetableCheckbox;
+            if(this.timetableCheckbox) this.$refs.multipleTable.clearSelection();
+        },
+        handleSelectionChange(val) {
+            console.log(val);
+            this.deleteTimeTableLists = val;
+        },
+        checkboxIsDisabled(row, index) {
+            return row.lesson_end_time == 0;
+        },
+        async deleteTimeTableHandle(data) {
+            if(!this.deleteTimeTableLists.length) return 0;
+            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
+
+            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
+            console.log(result);
+            if(!result) return 0;
+    
+            if(result.status == 1) {
+                this.$message.success('删除成功');
+                timetableLists.forEach(v => {
+                    data.forEach((k, n) => {if(k.id == v) data.splice(n, 1)});
+                });
+
+                this.timetableCheckbox = false;
+                this.deleteTimeTableLists = [];
+            }else {
+                this.$message.warning('删除失败');
+            }
         },
         //课程信息列表查看合约
         async showContract(data) {
@@ -995,6 +1040,9 @@ export default {
         },
         //提交退费数据
         async submitQuitCourse() {
+            if(this.submitLoading.quitCourse) return 0;
+            this.submitLoading.quitCourse = true;
+
             let params = {
                 sc_id: this.quitCourseInfo.id,
                 student_id: this.quitCourseInfo.student_id,
@@ -1012,6 +1060,7 @@ export default {
             console.log(params)
             
             let result = await this.$$request.post('api/quitCourse/add', params);
+            this.submitLoading.quitCourse = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('退费成功');
@@ -1020,13 +1069,16 @@ export default {
         },
         //提交学员信息
         async submitStudentInfo() {
-            let params = {};
+            if(this.submitLoading.student) return 0;
+            this.submitLoading.student = true;
 
+            let params = {};
             for(let key in this.studentForm) {
                 params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
             };
 
             let result = await this.$$request.post('api/sign/edit', params);
+            this.submitLoading.student = false;
             console.log(result);
             if(!result) return 0;
 
@@ -1037,8 +1089,12 @@ export default {
         },
         //提交分班信息
         async submitDivideClass(url, params) {
+            if(this.submitLoading.gradeDivide) return 0;
+            this.submitLoading.gradeDivide = true;
+
             console.log(params)
             let result = await this.$$request.post(url, params);
+            this.submitLoading.gradeDivide = false;
             if(!result) return 0;
             
             this.getBottomTabLists('api/studentGrade/lists', 'courseTimeTable');
@@ -1051,6 +1107,10 @@ export default {
             
             if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
 
+
+            if(this.submitLoading.followUp) return 0;
+            this.submitLoading.followUp = true;
+
             let params = {...this.followUpForm, type_id: 6, student_id: this.studentId};  //type_id默认售前跟进5
 
             if(this.listenType == 'default' && this.checkListen.length) {
@@ -1060,6 +1120,7 @@ export default {
             console.log(params);
 
             let result = await this.$$request.post('api/followUp/add', params);  //type_id默认售后跟进6
+            this.submitLoading.followUp = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('添加成功');
@@ -1317,12 +1378,11 @@ export default {
         }
     }
     .detail {
-        padding: 0 60px;
         .detail-left {
             width: 400px;
         }
         .detail-top {
-            border-bottom: 1px #e3e3e3 dotted;
+            padding: 0 60px;
             ul li {
                 margin-top: 20px;
                 color: #999999;
@@ -1332,8 +1392,21 @@ export default {
             }
         }
         .detail-bottom {
+            border-top: 1px #e3e3e3 dotted;
             ul li {
                 margin-top: 20px;
+            }
+            .timetable-edit {
+                border: 1px #45DAD5 solid;
+                text-align: center;
+                width: 60px;
+                line-height: 30px;
+                height: 30px;
+                box-sizing: border-box;
+                right: 10px;
+                top: -40px;
+                color: #45DAD5;
+                border-radius: 5px;
             }
         }
     }

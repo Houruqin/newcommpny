@@ -17,8 +17,8 @@ export default {
         loading: {default: false},
         type: {default: 'main'},    //main: 绿色背景, subm: 黄色背景, gray: 灰色背景, none: 无背景， border： 边框
         icon: {default: false},    //默认按钮无图标
-        fontColor: {default: 'fc-f'},
-        radius: {default: true}   //字体颜色，默认白色
+        fontColor: {default: 'fc-f'}, //字体颜色，默认白色
+        radius: {default: true}
     },
     data() {
         return {ImportIcon: ImportIcon}
