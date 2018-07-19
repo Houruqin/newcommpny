@@ -38,7 +38,7 @@ const homeRouter = [
     {path: 'academic/audition', component: Audition, name: 'academicAudition', meta: {needlogin: true}},
     {path: 'academic/buy', component: Buy, name: 'academicBuy', meta: {needlogin: true}},
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
-    {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true}},
+    {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true, menu: '/home/staff'}},
     {path: 'course', component: CourseIndex, meta: {needlogin: true}},
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];
