@@ -394,7 +394,7 @@
                 </div>
 
                 <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="doneHandle('addTimeTable')">确定</MyButton>
+                    <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
                 </div>
             </el-form>
 
@@ -455,7 +455,7 @@
 
                 <div class="d-f f-j-c mt-30">
                     <MyButton type="gray" @click.native="conflictMask = false">返回编辑</MyButton>
-                    <MyButton type="subm" class="ml-30" @click.native="doneModify">确认修改</MyButton>
+                    <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
                 </div>
             </div>
         </el-dialog>
@@ -479,6 +479,9 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
+
+
+            submitLoading: {timetable: false},
 
             nowTime: new Date().getTime(),//时间选择器，选中的当天日期
 
@@ -749,6 +752,7 @@ export default {
             this.$message.success('删除成功');
             detail.popver = false;
             this.getAllTableLists();
+            this.getAddTimeTableFull();
         },
         //新增排课  type: single / multiple
         addTimetable(type, time, full_day, week) {
@@ -1005,9 +1009,12 @@ export default {
         },
         //检测是否有冲突，获取冲突数据列表
         async getConflictLists(params) {
+            if(this.submitLoading.timetable) return 0;
+            this.submitLoading.timetable = true;
+
             let result = await this.$$request.post('api/timetable/conflictLists', params);
             console.log(result);
-
+            this.submitLoading.timetable = false;
             if(!result) return 0;
 
             if(result.status === 0) return this.$message.warning('操作失败，请稍后再试!');
