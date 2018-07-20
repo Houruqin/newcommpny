@@ -345,15 +345,21 @@
                                     <div class="list">
                                         <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
                                             <el-row class="p-r">
-                                                <el-col :span="8">
-                                                    <el-form-item label-width="0" prop="week">
+                                                <el-col :span="addTableType == 'edit' ? 12 : 8">
+                                                    <el-form-item v-if="addTableType == 'edit'">
+                                                        <el-date-picker v-model="addDate.week" @change="formEditDateChange"
+                                                            :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
+                                                            placeholder="选择日期" value-format="yyyy-MM-dd">
+                                                        </el-date-picker>
+                                                    </el-form-item>
+                                                    <el-form-item label-width="0" prop="week" v-else>
                                                         <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
                                                             <el-option v-for="(item, index) in timetableWeekList" :key="index" :disabled="(addTableType == 'single' || addTableType == 'edit') && !item.day.past_due" :label="item.name" :value="item.id"></el-option>
                                                         </el-select>
                                                     </el-form-item>
                                                 </el-col>
 
-                                                <el-col :span="12" class="p-r" :offset="1">
+                                                <el-col :span="addTableType == 'edit' ? 8 : 12" class="p-r" :offset="1">
                                                     <el-form-item  label-width="0" prop="begin_time" class="p-r">
                                                         <el-time-select 
                                                             :editable="false"
@@ -846,6 +852,12 @@ export default {
                 else this.timePicker.minTime = 0;
             }
         },
+        //编辑课表时，时间控件选择当天，判断时刻disabled
+        formEditDateChange(val) {
+            if(new Date(val).toDateString() === new Date().toDateString()) {
+                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+            }else this.timePicker.minTime = 0;
+        },
         //学员checkbox，全选
         studentCheckAllChange(val) {
             this.studentLists = val ? this.allStudentLists.map(v => {return v.student_id}) : [];
@@ -959,14 +971,19 @@ export default {
                 student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {return {student_id: v}}) : [{student_id: this.radioStudentForm}]
             }
             //单个提交
-            if(this.addTableType == 'single' || this.addTableType == 'edit') { 
+            if(this.addTableType == 'single') { 
                 params.commit_type = 'single';
                 this.timetableWeekList.forEach(v => {if(v.id == this.formAddDate[0].week) {
                     params.begin_time = new Date(`${v.day.newFullDay} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
                     params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
                 }});
-                if(this.addTableType == 'edit') params.edit_id = this.timetableForm.timetable_id;
-            } else {
+            } else if(this.addTableType == 'edit') {
+                params.commit_type = 'single';
+                console.log(this.formAddDate)
+                params.begin_time = new Date(`${this.formAddDate[0].week} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
+                params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
+                params.edit_id = this.timetableForm.timetable_id;
+            }else{
                 //批量提交
                 params.commit_type = 'multiple',
                 params.loop = this.timetableForm.loop;
@@ -1160,7 +1177,7 @@ export default {
                             d.time_quantum = {
                                 begin_time: this.$$tools.formatTime(d.begin_time),
                                 end_time: this.$$tools.formatTime(d.end_time),
-                                week: week
+                                week: this.$$tools.format(d.begin_time)
                             };
 
                             if(hour == v.id && w.id == week) {

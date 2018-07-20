@@ -321,8 +321,8 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a v-if="activeTab === 'invalid'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].id)">流失</a>
-                            <a class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.course_lists[0].id)">删除</a>
+                            <a v-if="activeTab === 'invalid'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</a>
+                            <a v-else class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.course_lists[0].student_id)">删除</a>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -617,7 +617,7 @@ export default {
             this.$refs[type].validate(valid => {if(valid) this.submitStudentInfo()});
         },
         //流失学员
-        lossStudent() {
+        lossStudent(id) {
             this.$confirm('确定改为流失学员吗?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -626,8 +626,10 @@ export default {
                 this.lossHandle(id);
             }).catch(() => {return 0});
         },
-        async lossHandle() {
+        async lossHandle(id) {
             let result = await this.$$request.post('api/sign/setLoss', {student_id: id});
+            console.log(result);
+
             if(!result) return 0;
             this.$message.success('已改为流失学员');
             this.getTabLists();
@@ -643,7 +645,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(id) {
-            let result = await this.$$request.post('api/sign/delete', {id: id});
+            let result = await this.$$request.post('api/sign/delete', {student_id: id});
             if(!result) return 0;
             this.$message.success('已删除');
             this.getTabLists();

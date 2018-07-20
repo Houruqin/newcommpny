@@ -22,7 +22,7 @@
             </div>
         </el-card>
 
-        <el-card>
+        <el-card class="mt-20">
             <TableHeader title="员工数据"></TableHeader>
             <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
                 <el-tab-pane label="跟进名单" name="followUp"></el-tab-pane>

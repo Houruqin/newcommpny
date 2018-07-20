@@ -1,5 +1,5 @@
 <template>
-    <div class="classify-box cursor-pointer" :class="{'active': active, 'invalid': tab.type == 'invalid'}" @click="classifyHandle">
+    <div class="classify-box cursor-pointer" :class="{'active': active, 'invalid': tab.type == 'loss'}" @click="classifyHandle">
         <div class="header p-r">{{tab.name}}</div>
         <h2>{{tab.num}}</h2>
     </div>
