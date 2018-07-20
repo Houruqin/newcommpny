@@ -26,7 +26,7 @@ const Tools = {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
                 else if(value < 0) return callback(new Error('请输入正数!'))
 				else if(String(value).split('.')[1] && String(value).split('.')[1].length > 2) return callback(new Error('最多两位小数'));
-				else if(value > 99999) return callback(new Error('价格不能超过99999'));
+				else if(value > 9999) return callback(new Error('价格不能超过9999'));
 				else return callback();
             };
             
@@ -78,7 +78,7 @@ const Tools = {
 	},
 
 	//上课时间，课表时间格式转换
-	courseTime(time1, time2, type) {
+	courseTime(time1, time2, type = 'day') {
 		let date1 = new Date(time1 * 1000), date2 = new Date(time2 * 1000);
 
 		let day = [date1.getMonth() + 1, date1.getDate()].join('-').replace(/\b\d\b/g, '0$&');
@@ -88,8 +88,10 @@ const Tools = {
 		let begin = [date1.getHours(), date1.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
 		let end = [date2.getHours(), date2.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
 
-		if(type === 'timetable') return `${week}  ${begin}-${end}`;
-		return `${day}(${week})  ${begin}-${end}`;
+		// if(type === 'timetable') return `${week}  ${begin}-${end}`;
+        // return `${day}(${week})  ${begin}-${end}`;
+        if(type == 'day') return `${day}(${week})`;
+        else return `${begin}-${end}`;
 	}
 };
 

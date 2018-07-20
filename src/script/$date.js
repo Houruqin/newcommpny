@@ -1,7 +1,10 @@
 export function $date (date, fmt) {
-    if(String(date.getTime()).length === 10){
-        date = new Date(date.getTime()*1000)
+    if (typeof date === 'number' || typeof date === 'string') {
+        if (String(date).length === 10 || String(date).length === 9) {
+            date = parseInt(date) * 1000
+        }
     }
+    date = new Date(date);
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
     }

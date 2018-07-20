@@ -183,6 +183,8 @@
                                                             <i class="time-icon"></i>
                                                             <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
                                                         </p>
+
+                                                        <div class="course-type p-a fs-12" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
                                                     </div>
                                                 </el-popover>
                                                 <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
@@ -219,6 +221,7 @@
                                                         <span class="fs-16 title">{{item.grade_name}}</span>
                                                         <span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span>
                                                         <span class="ml-40">{{item.lesson_num}}课时</span>
+                                                        <span v-if="item.course_type !== 1" class="ml-20 course-type fs-12" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</span>
                                                     </p>
                                                     <p class="mt-10 d-f f-a-c">
                                                         <span class="d-f f-a-c">
@@ -391,7 +394,7 @@
                 </div>
 
                 <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="doneHandle('addTimeTable')">确定</MyButton>
+                    <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
                 </div>
             </el-form>
 
@@ -404,7 +407,8 @@
                         </el-checkbox-group>
                     </template>
                     <el-radio-group v-model="studentRadio" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
+                        <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.buy_lesson_num - item.scheduled)"
+                        :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                     </el-radio-group>
 
                     <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
@@ -451,7 +455,7 @@
 
                 <div class="d-f f-j-c mt-30">
                     <MyButton type="gray" @click.native="conflictMask = false">返回编辑</MyButton>
-                    <MyButton type="subm" class="ml-30" @click.native="doneModify">确认修改</MyButton>
+                    <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
                 </div>
             </div>
         </el-dialog>
@@ -475,6 +479,9 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
+
+
+            submitLoading: {timetable: false},
 
             nowTime: new Date().getTime(),//时间选择器，选中的当天日期
 
@@ -745,6 +752,7 @@ export default {
             this.$message.success('删除成功');
             detail.popver = false;
             this.getAllTableLists();
+            this.getAddTimeTableFull();
         },
         //新增排课  type: single / multiple
         addTimetable(type, time, full_day, week) {
@@ -1001,9 +1009,12 @@ export default {
         },
         //检测是否有冲突，获取冲突数据列表
         async getConflictLists(params) {
+            if(this.submitLoading.timetable) return 0;
+            this.submitLoading.timetable = true;
+
             let result = await this.$$request.post('api/timetable/conflictLists', params);
             console.log(result);
-
+            this.submitLoading.timetable = false;
             if(!result) return 0;
 
             if(result.status === 0) return this.$message.warning('操作失败，请稍后再试!');
@@ -1398,6 +1409,20 @@ export default {
                     .course-item {
                         box-sizing: border-box;
                         min-height: 85px;
+                        .course-type {
+                            right: 0;
+                            top: 0;
+                            width: 18px;
+                            line-height: 13px;
+                            text-align: center;
+                            color: #fff;
+                            &.gray {
+                                background-color: #C8C8C8;
+                            }
+                            &.yellow {
+                                background-color: #FBBF3F;
+                            }
+                        }
                         &.gray {
                             border: 1px #C8C8C8 solid;
                             background-color: #f5f5f5;
@@ -1514,6 +1539,16 @@ export default {
                             // .title {
                             //     color: #FC5A5A;
                             // }
+                        }
+                    }
+                    .course-type {
+                        color: #fff;
+                        padding: 0 5px;
+                        &.gray {
+                            background-color: #BCBCBC;
+                        }
+                        &.yellow {
+                            background-color: #FBBF3F;
                         }
                     }
                 }

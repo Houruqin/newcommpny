@@ -56,10 +56,29 @@
         </el-table-column>
         <el-table-column label="课程名称" prop="course_name" align="center" width="300"></el-table-column>
         <el-table-column label="购课总课时" prop="buy_total" align="center"></el-table-column>
-        <el-table-column label="签约已扣课时" prop="reduce_total" align="center"></el-table-column>
-        <el-table-column label="签到扣课时" prop="signin_total" align="center"></el-table-column>
-        <el-table-column label="请假扣课时" prop="leave_total" align="center"></el-table-column>
-        <el-table-column label="旷课扣课时" prop="absenteeism_total" align="center"></el-table-column>
+        <el-table-column label="签约前扣课时" prop="reduce_total" align="center"></el-table-column>
+        <el-table-column label="签到扣课时" align="center">
+          <template slot-scope="scope">
+            <div>
+              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row,'sign')">{{scope.row.signin_total}}</span>
+              <!-- <NameRoute :id="scope.row.student_id">{{scope.row.leave_total}}</NameRoute> -->
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="请假扣课时" align="center">
+          <template slot-scope="scope">
+            <div>
+              <span class='fc-subm cursor-pointer' @click="show_elimination(scope.row,'leave')">{{scope.row.leave_total}}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="旷课扣课时" align="center">
+          <template slot-scope="scope">
+            <div>
+              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row,'absenteeism')">{{scope.row.absenteeism_total}}</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="剩余课时" prop="remain_total" align="center"></el-table-column>
       </el-table>
       <!-- 请假模块 -->
@@ -116,9 +135,77 @@
           </template>
         </el-table-column>
       </el-table>
+
       <!-- 分页 -->
       <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
       </el-pagination>
+
+      <!-- 消课详情弹窗 -->
+      <el-dialog :title="dialog.c_record.title+'消课记录'" width="900px" center :visible.sync="dialog.c_record.show" :close-on-click-modal="false">
+        <el-row class='mb-10'>
+          <el-col :span="6">{{dialog.c_record.student_name}} -- {{dialog.c_record.course_name}}</el-col>
+          <el-col :span="3" :offset="15" class='t-r'>
+            <MyButton @click.native="elimination" :radius="false">手动消课</MyButton>
+          </el-col>
+        </el-row>
+        <el-table stripe class="student-table" :data="dialog.c_record.data" v-loading="dialog.loading" :show-header="true">
+          <el-table-column label="序号" type="index" align="center"></el-table-column>
+          <el-table-column label="上课日期"  align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.begin_time |　date('yyyy-MM-dd')}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="上课时间" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.begin_time |　date('hh:mm')}}-{{scope.row.end_time |　date('hh:mm')}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="上课老师" align="center">
+            <template slot-scope="scope">
+              <span v-for="teacher in scope.row.teacher" :key="teacher.id">{{teacher.name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="上课教室" prop="name" align="center"></el-table-column>
+          <el-table-column label="扣课时数" prop="lesson_num_actually" align="center"></el-table-column>
+          <el-table-column label="结课状态" prop="status_describe" align="center"></el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <el-pagination v-if="dialog.c_record.page_info.total > 10" class="d-f f-j-c mt-30" :page-size="10" background layout="total, prev, pager, next" :total="dialog.c_record.page_info.total" :current-page="dialog.c_record.page_info.current_page" @current-change="go_elimination_page">
+        </el-pagination>
+      </el-dialog>
+
+      <!-- 手动消课弹窗 -->
+      <el-dialog title="手动消课" width="800px" center :visible.sync="dialog.c_handle.show" :close-on-click-modal="false">
+        <el-form :model="form" label-width="100px" :rules="rules" ref="userForm" size="small">
+          <div class="form-box">
+            <el-row>
+              <el-col :span="11">
+                <el-form-item label="上课时间：" prop="class_time">
+                  <el-date-picker v-model="form.entry_date" type="date" :editable="false" placeholder="选择日期" value-format="timestamp">
+                  </el-date-picker>
+                </el-form-item>
+                <!-- <el-form-item label="上课教室：" class="mt-30" prop="class_room">
+                  <el-select v-model="form.role_type" placeholder="选择教室">
+                    <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
+                  </el-select>
+                </el-form-item> -->
+              </el-col>
+              <el-col :span="11" :offset="1">
+                <el-form-item label="上课老师：" prop="teacher">
+                  <el-input v-model.number="form.mobile" placeholder="选择老师"></el-input>
+                </el-form-item>
+                <el-form-item label="扣课时数：" class="mt-30" prop="lesson_num">
+                  <el-input-number v-model="form.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number>
+                  <span class="pl-10">课时</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
+        </el-form>
+        <div class="mt-50 d-f f-j-c">
+          <MyButton @click.native="doneHandle">确定</MyButton>
+        </div>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -162,6 +249,55 @@ export default {
         page_num: 10,
         page: 1,
         total: 0
+      },
+      //弹窗信息
+      dialog: {
+        c_record: {
+          show: false,
+          data: [],
+          title: "",
+          student_name: '',
+          course_name: '',
+          student_id: '',
+          course_id: '',
+          type: '',
+          page_info: {
+            page_num: 10,
+            page: 1,
+            total: 0,
+            current_page: 1
+          }
+        },
+        c_handle: {
+          show: false,
+          data: []
+        },
+        loading: false,
+        page_info: {
+          page_num: 10,
+          page: 1,
+          total: 0,
+          current_page: 1
+        }
+      },
+      form: {
+        class_room: [],
+        class_time: "",
+        teacher: [],
+        lesson_num: ""
+      },
+
+      rules: {
+        class_room: [
+          { required: true, message: "请选择上课教室", trigger: "change" }
+        ],
+        class_time: [
+          { required: true, message: "请选择上课时间", trigger: "change" }
+        ],
+        teacher: [
+          { required: true, message: "请选择上课老师", trigger: "change" }
+        ],
+        lesson_num: [{ required: true, message: "请输入扣课时数" }]
       },
       loading: false,
       row_span_num: new Map(),
@@ -221,6 +357,11 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
+    //课消详情页面跳转
+    go_elimination_page(page) {
+      this.dialog.c_record.page_info.page = page;
+      this.get_elimination_detail();
+    },
     //合并表格的行
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0 || columnIndex === 1) {
@@ -248,6 +389,22 @@ export default {
       if (columnIndex === 1) {
         console.log(row, column, rowIndex, columnIndex);
       }
+    },
+    //查看消课详情
+    show_elimination(info, type) {
+      this.dialog.c_record.student_name = info.student_name;
+      this.dialog.c_record.course_name = info.course_name;
+      this.dialog.c_record.student_id = info.student_id;
+      this.dialog.c_record.course_id = info.course_id;
+      this.dialog.c_record.type = type;
+      this.dialog.c_record.title = type === 'sign' ? '签到' : (type === 'leave' ? '请假' : '旷课');
+      this.dialog.c_record.show = true;
+      this.dialog.c_record.page_info.page = 1;
+      this.get_elimination_detail();
+    },
+    //消课
+    elimination() {
+      this.dialog.c_handle.show = true;
     },
     //====================获取数据方法====================
     get_data() {
@@ -310,7 +467,6 @@ export default {
           this.row_span_num.get(data[i].student_id).push(i);
         }
       }
-      // console.log(this.row_span_index)
     },
     //获取请假记录
     get_leave_data() {
@@ -347,6 +503,24 @@ export default {
         this.page_info.total = res.lists.total;
       });
     },
+    //获取消课详情
+    get_elimination_detail() {
+      const params = {
+        page: this.dialog.c_record.page_info.page,
+        start_date: this.get_seconde(this.search_info.begin),
+        end_date: this.get_seconde(this.search_info.end),
+        student_id: this.dialog.c_record.student_id,
+        course_id: this.dialog.c_record.course_id,
+        type: this.dialog.c_record.type
+      }
+      this.$$request.post('api/eduCount/studentClassEliminationLists',params)
+      .then(res => {
+        console.log(res)
+        this.dialog.c_record.data = res.lists.data;
+        this.dialog.c_record.page_info.total = res.lists.total;
+        this.dialog.c_record.page_info.current_page = res.lists.current_page;
+      })
+    },
     //将时间转换为秒数
     get_seconde(date) {
       return new Date(date).getTime() / 1000;
@@ -375,6 +549,10 @@ export default {
   height: 32px;
   line-height: 32px;
 }
+// .clear_handle{
+//   background-color: #45DAD5;
+//   padding:
+// }
 </style>
 
 

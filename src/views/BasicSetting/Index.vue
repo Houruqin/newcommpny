@@ -47,7 +47,7 @@
                     <el-form-item :label="classMask.label" prop="name">
                         <el-input v-model.trim="classForm.name" placeholder="教室名称"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('classForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('classForm')" :loading="submitLoading">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -58,7 +58,7 @@
                     <el-form-item :label="sourseMask.label" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('sourseForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('sourseForm')" :loading="submitLoading">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -73,6 +73,7 @@ export default {
     data() {
         return {
             classroomLists: [],
+            submitLoading: false,
             sourceLists: [],
             classMaskStatus: false,
             sourceMaskStatus: false,
@@ -169,6 +170,9 @@ export default {
         },
         //表单提交方法
         async submitData(formName) {
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
+
             let params = {}, url = '';
 
             if(formName == 'classForm') {
@@ -182,6 +186,7 @@ export default {
             }
 
             let result = await this.$$request.post(url, params);
+            this.submitLoading = false;
             console.log(result);
 
             if(!result) return 0;

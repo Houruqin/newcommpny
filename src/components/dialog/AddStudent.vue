@@ -79,7 +79,7 @@
                     </el-col>
                 </el-row>
 
-                <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('addStudent')">确定</MyButton></div>
+                <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
             </div>
         </el-form>
 
@@ -89,7 +89,7 @@
                     <el-form-item label="渠道来源：" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('sourseForm')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('sourseForm')" :loading="submitLoading.source">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -137,6 +137,9 @@ export default {
     },
     data() {
         return {
+            submitLoading: {
+                student: false, source: false
+            },
             likeGrade: StudentStatic.likeGrade,
             studentForm: {
                 id: '',
@@ -220,6 +223,9 @@ export default {
         },
         //提交学员信息
         async submitStudentInfo() {
+            if(this.submitLoading.student) return 0;
+            this.submitLoading.student = true;
+
             let params = {}, url = 'api/student/add';
             for(let key in this.studentForm) {
                 if(key == 'birthday') {
@@ -239,6 +245,7 @@ export default {
             if(!result) return 0;
 
             if(this.studentType == 'edit') {
+                this.submitLoading.student = false;
                 if(result.status) this.$message.success('修改成功');
                 this.$emit('CB-addStudent');
             }else {
@@ -251,6 +258,7 @@ export default {
                         this.studentRepeat(params);
                     }).catch(() => {
                         this.$refs.mobileObj.focus();
+                        this.submitLoading.student = false;
                     });
                 }else {
                     this.studentSuccessMessage(result.data);
@@ -259,18 +267,23 @@ export default {
         },
         //提交渠道信息
         async submitSourceInfo() {
+            if(this.submitLoading.source) return 0;
+            this.submitLoading.source = true;
+
             let result = await this.$$request.post('api/source/add', this.sourceForm);
+            this.submitLoading.source = false;
             console.log(result);
 
             if(!result) return 0;
             
             this.$store.dispatch('geySource');   //更新渠道信息
             this.sourceDialogStatus = false;
-            // this.studentForm.source_id = result.data.id;
+            this.studentForm.source_id = result.data.id;
         }, 
         //登记学员重复手机号码，处理方法
         async studentRepeat(params) {
             let result = await this.$$request.post('api/student/add', {...params, parent_this: 'yes'});
+            this.submitLoading.student = false;
             console.log(result)
             if(!result) return 0;
             this.studentSuccessMessage(result.data);
