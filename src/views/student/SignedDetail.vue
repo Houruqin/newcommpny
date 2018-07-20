@@ -43,26 +43,27 @@
                             <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : '续约'}}</template>
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
-                        <el-table-column label="课程总额" prop="real_price" align="center"></el-table-column>
-                        <el-table-column label="课程有效期" align="center">
+                        <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
+                        <!-- <el-table-column label="课程有效期" align="center">
                             <template slot-scope="scope">
                                 <span>{{$$tools.format(scope.row.expired_at)}}</span>
                             </template>
-                        </el-table-column>
-                        <el-table-column label="所有课时" align="center">
+                        </el-table-column> -->
+                        <el-table-column label="购买课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="剩余课时" align="center">
                             <template slot-scope="scope">
-                                <span>{{scope.row.lesson_num_remain}}</span>
+                                <span>{{scope.row.status == 2 ? '已退费' : scope.row.lesson_num_remain}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="业绩归属" prop="advisor.name" align="center"></el-table-column>
+                        <!-- <el-table-column label="业绩归属" prop="advisor.name" align="center"></el-table-column> -->
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">查看</span>
+                                <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
+                                <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
                                 <span v-if="scope.row.expired_at < new Date().getTime() / 1000">课程已经过期</span>
                                 <span v-else-if="scope.row.status == 2">已退费</span>
                                 <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
@@ -783,6 +784,22 @@ export default {
                 this.$message.warning('删除失败');
             }
         },
+        //续约，再次购买课程
+        againBuyCourse(data) {
+            // console.log(data);
+
+            let detail = {
+                id: data.student_id,
+                advisor_id: data.advisor_id,
+                advisor: data.advisor,
+                parent_id: data.parent_id,
+                expire: data.expire,
+                buy_type: 2,
+                course_id: data.course_id
+            };
+            this.buyCourseData = detail;
+            this.dialogStatus.course = true;
+        },
         //课程信息列表查看合约
         async showContract(data) {
             let result = await this.$$request.get('api/studentCourse/detail', {sc_id: data.id});
@@ -942,9 +959,8 @@ export default {
         },
         //购课
         buyCourse() {
-            console.log(this.studentDetail)
-            this.dialogStatus.course = true;
             this.buyCourseData = this.studentDetail;
+            this.dialogStatus.course = true;
         },
         //上课状态转换
         timeTableStatus(status) {
