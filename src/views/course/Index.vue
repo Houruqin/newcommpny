@@ -33,7 +33,7 @@
                                 <el-table-column label="班级" align="center">
                                     <template slot-scope="scope">
                                         <div>
-                                            <el-popover width="800" placement="right" trigger="click" ref="detailPopover" v-model="scope.row.popver" @hide="timetableCheckbox = false">
+                                            <el-popover width="800" placement="right" trigger="click" v-model="scope.row.popver" @hide="timetableCheckbox = false">
                                                 <p class="fc-m fs-16 t-a-c mt-10 p-r">
                                                     <span>{{scope.row.name}}</span>
                                                     <a class="p-a popver-close-icon mr-5 cursor-pointer" @click="scope.row.popver = false">
@@ -662,7 +662,7 @@ export default {
         },
         timetableEditClick(a, b) {
             this.timetableCheckbox = !this.timetableCheckbox;
-            if(this.timetableCheckbox) this.$refs[`multipleTable_${a}_${b}`][0].clearSelection();
+            if(!this.timetableCheckbox) this.$refs[`multipleTable_${a}_${b}`][0].clearSelection();
         },
         handleSelectionChange(val) {
             this.deleteTimeTableLists = val;

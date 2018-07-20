@@ -751,7 +751,7 @@ export default {
         },
         timetableEditClick() {
             this.timetableCheckbox = !this.timetableCheckbox;
-            if(this.timetableCheckbox) this.$refs.multipleTable.clearSelection();
+            if(!this.timetableCheckbox) this.$refs.multipleTable.clearSelection();
         },
         handleSelectionChange(val) {
             console.log(val);

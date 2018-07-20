@@ -2,7 +2,7 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader title="导入学员">
-                <MyButton class="mr-20" v-if="stepActive == 2" type="border" @click.native="errTableEdit = !errTableEdit" fontColor="fc-m">
+                <MyButton class="mr-20" v-if="stepActive == 2" type="border" @click.native="timetableEditClick" fontColor="fc-m">
                     {{errTableEdit ? '取消' : '编辑'}}
                 </MyButton>
             </TableHeader>
@@ -18,7 +18,7 @@
 
                 <div class="d-f upload-box f-a-c mt-50">
                     <span class="fc-5">选择上传文件</span>
-                    <div class="input-box ml-10"><el-input readonly="true" size="small" v-model="fileInput"></el-input></div>
+                    <div class="input-box ml-10 pl-20 pr-20 fc-7 t-o-e" :title="fileInput">{{fileInput}}</div>
                     <el-upload
                         class="ml-20"
                         ref="nosignUpload"
@@ -37,67 +37,99 @@
                 </div>
 
                 <div class="explain-box mt-50">
-                    <h4 class="fc-5 mt-50">导入须知：</h4>
-                    <p></p>
+                    <h4 class="fc-5 mt-50 fs-15 mb-10">导入须知：</h4>
+                    <p>1. 支持学员基本信息导入</p>
+                    <p>2. 输入信息请遵循模板格式添加，否则无法成功导入数据</p>
+                    <p>3. 导入课程顾问和渠道来源需要和系统信息保持一致，否则无法成功导入</p>
+                    <p>4. 导入的数据将同步到学员信息和统计信息内</p>
+                    <p>5. 一次导入数据最多不可超过200条，否则无法成功导入数据</p>
+                    <p>6. 如遇到导入问题请联系在线客服或者致电：028-85251337</p>
                 </div>
 
-                <div class="d-f f-j-s mt-50"><MyButton @click.native="submitHandle">提交</MyButton></div>
+                <div class="d-f f-j-s mt-50 mb-30"><MyButton @click.native="submitHandle">提交</MyButton></div>
             </div>
 
             <!-- 第二页预览，修改文件 -->
             <div class="preview-box" v-else-if="stepActive == 2">
-                <el-table class="student-table" :data="previewData" height="800" stripe @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="errTableEdit"></el-table-column>
+                <el-table class="student-table" :data="previewData" height="680" stripe @selection-change="handleSelectionChange" ref="previewTable">
+                    <el-table-column type="selection" width="50" v-if="errTableEdit"></el-table-column>
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
-                    <el-table-column label="错误原因" align="center">
+                    <el-table-column label="错误原因" align="center" width="350">
                         <template slot-scope="scope">
                             <span class="red">{{scope.row.error_info.data}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <el-popover ref="name-popver" placement="bottom" width="200" trigger="click">
-                                <el-input v-model="scope.row.student_name.data"></el-input>
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.student_name.data" size="small" @change="scope.row.student_name.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.student_name.error}">{{scope.row.student_name.data}}</span>
+                                </div>
                             </el-popover>
-                            <span v-popover:name-popver :class="{'red': scope.row.student_name.error}">{{scope.row.student_name.data}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="学员性别" align="center">
                         <template slot-scope="scope">
-                            <el-popover ref="sex-popver" placement="bottom" width="200" trigger="click">
-                                <el-input v-model="scope.row.sex.data"></el-input>
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.sex.data" size="small" @change="scope.row.sex.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.sex.error}">{{scope.row.sex.data}}</span>
+                                </div>
                             </el-popover>
-                            <span v-popover:sex-popver :class="{'red': scope.row.sex.error}">{{scope.row.sex.data}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="联系电话" align="center">
                         <template slot-scope="scope">
-                            <el-popover ref="mobile-popver" placement="bottom" width="200" trigger="click">
-                                <el-input v-model="scope.row.mobile.data"></el-input>
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.mobile.data" size="small" @change="scope.row.mobile.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.mobile.error}">{{scope.row.mobile.data}}</span>
+                                </div>
                             </el-popover>
-                            <span v-popover:mobile-popver :class="{'red': scope.row.mobile.error}">{{scope.row.mobile.data}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="学员生日" align="center">
                         <template slot-scope="scope">
-                            <span :class="{'red': scope.row.birthday.error}">{{scope.row.birthday.data}}</span>
+                            <el-popover placement="bottom" width="170" trigger="click" popper-class="birthday-popper">
+                                <el-date-picker 
+                                    v-model="scope.row.birthday.data" type="date" 
+                                    placeholder="选择日期" :editable="false" 
+                                    size="small" :picker-options="pickerBeginDateAfter"
+                                    value-format="yyyy-MM-dd"
+                                    @change="scope.row.birthday.error = false">
+                                </el-date-picker>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.birthday.error}">{{scope.row.birthday.data}}</span>
+                                </div>
+                            </el-popover>
                         </template>
                     </el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <span :class="{'red': scope.row.course_advisor.error}">{{scope.row.course_advisor.data}}</span>
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.course_advisor.data" size="small" @change="scope.row.course_advisor.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.course_advisor.error}">{{scope.row.course_advisor.data}}</span>
+                                </div>
+                            </el-popover>
                         </template>
                     </el-table-column>
                     <el-table-column label="渠道来源" align="center">
                         <template slot-scope="scope">
-                            <span :class="{'red': scope.row.source.error}">{{scope.row.source.data}}</span>
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.source.data" size="small" @change="scope.row.source.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.source.error}">{{scope.row.source.data}}</span>
+                                </div>
+                            </el-popover>
                         </template>
                     </el-table-column>
                 </el-table>
 
-                <div class="d-f f-j-c mt-40 mb-20">
-                    <MyButton @click.native="conflictSubmit">提交</MyButton>
-                    <!-- <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">删除</MyButton> -->
+                <div class="d-f f-j-c mt-40 mb-10">
+                    <MyButton @click.native="conflictSubmit" v-if="!errTableEdit">提交</MyButton>
+                    <MyButton @click.native="conflictDelete" v-else :type="deleteData.length ? 'subm' : 'gray'" class="ml-20">删除</MyButton>
                 </div>
             </div>
         </el-card>
@@ -127,7 +159,13 @@ export default {
             tableAllHeader: {
                 basis: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source']
             },
-            previewData: []
+            previewData: [],
+            deleteData: [],
+            pickerBeginDateAfter: {
+                disabledDate: (time) => {
+                    return time.getTime() > new Date().getTime();
+                }
+            }
         }
     },
     computed: {
@@ -143,7 +181,7 @@ export default {
         },
         //上传错误
         uploadFail(err, file, fileList) {
-            this.$message.warning('上传失败，请稍后再试');
+            this.$message.warning('请求失败，请稍后再试');
         },
         //上传成功
         uploadSuccess(response, file, fileList) {
@@ -154,12 +192,12 @@ export default {
                     this.stepActive = 3; 
                 }else {
                     this.stepActive = 2;
-                    let result = response.data.data;
+                    let list = response.data.data;
                     
-                    console.log(result);
+                    console.log(list);
 
-                    this.previewData = result.map(d => {
-                        let list = {};
+                    this.previewData = list.map((d, e) => {
+                        let list = {index: `student_${e}`};
                         this.tableAllHeader.basis.forEach((v, n) => {
                             list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                         });
@@ -169,9 +207,10 @@ export default {
                     console.log(this.previewData);
                 }
             }else {
-                this.$message.warning('上传失败，请稍后再试');
+                this.$message.warning('请求失败，请稍后再试');
             }
         },
+        //选择文件
         onChange(file, fileList) {
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
@@ -227,20 +266,66 @@ export default {
 
             this.tableData = newData;
         },
+        //提交excel
         submitHandle() {
             this.$refs.nosignUpload.submit();
         },
-
-
-        handleSelectionChange() {
-
+        //冲突预览，表格checkbox勾选change
+        handleSelectionChange(val) {
+            this.deleteData = val;
         },
-        checkboxIsDisabled() {
-
+        //右上角编辑、取消切换
+        timetableEditClick(a, b) {
+            this.errTableEdit = !this.errTableEdit;
+            if(!this.errTableEdit) this.$refs.previewTable.clearSelection();
         },
         //冲突提交
         conflictSubmit() {
+            console.log(this.previewData);
 
+            var tableList = this.previewData.map(d => {
+                let res = [];
+                this.tableAllHeader.basis.slice(1).forEach((v, n) => {res[n] = d[v].data});
+                return res;
+            });
+
+            console.log(tableList);
+            this.subSubmitHandle(tableList);
+        },
+        async subSubmitHandle(params) {
+            let result = await this.$$request.post('api/excel/upload', {excel_type: 'unsign', data: params});
+            console.log(result);
+            if(!result) return 0;
+
+            if(result.status === 1) {
+                this.total = result.success;
+                this.stepActive = 3; 
+            }else {
+                this.stepActive = 2;
+                let list = result.data;
+                
+                console.log(list);
+
+                this.previewData = list.map(d => {
+                    let list = {};
+                    this.tableAllHeader.basis.forEach((v, n) => {
+                        list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                    });
+                    return list;
+                });
+                console.log(this.previewData);
+            }
+        },
+        //冲突删除
+        conflictDelete() {
+            if(!this.deleteData.length) return this.$message.warning('请选择数据!');
+
+            this.deleteData.forEach(v => {
+                this.previewData.forEach((d, n) => {if(d.index == v.index) this.previewData.splice(n, 1)});
+            });
+
+            this.errTableEdit = false;
+            console.log(this.previewData);
         }
     },
     created() {
@@ -259,16 +344,33 @@ export default {
     .upload-box {
         .input-box {
             width: 300px;
+            height: 32px;
+            line-height: 32px;
+            border-radius: 3px;
+            border: 1px #e3e3e3 solid;
         }
     }
     .explain-box {
         border-top: 1px #e3e3e3 solid;
-        h4 {
-            font-weight: normal;
+        h4 {font-weight: normal;}
+        p {
+            margin-top: 5px;
+            color: #777;
         }
     }
     .red {
         color: red;
+    }
+    .birthday-popper {
+        .el-date-editor {
+            width: 100%;
+        }
+    }
+    .student-table {
+        .cell-box {
+            width: 100%;
+            min-height: 22px;
+        }
     }
 </style>
 
