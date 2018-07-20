@@ -349,7 +349,7 @@
                                                     <el-form-item v-if="addTableType == 'edit'">
                                                         <el-date-picker v-model="addDate.week" @change="formEditDateChange"
                                                             :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
-                                                            placeholder="选择日期" value-format="yyyy-MM-dd">
+                                                            placeholder="选择日期" value-format="yyyy/MM/dd">
                                                         </el-date-picker>
                                                     </el-form-item>
                                                     <el-form-item label-width="0" prop="week" v-else>
@@ -1253,8 +1253,8 @@ export default {
                 
                 let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
 
-                let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
-
+                // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
+                let isToday = new Date(newTime).toDateString() === new Date().toDateString();
                 if(this.isSameWeek(nowTime)) {
                     past_due = newTime >= nowTime ? true : false;  //是否过了今天
                 }else {
