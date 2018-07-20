@@ -26,7 +26,9 @@
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
                 </el-table-column>
                 <el-table-column label="任职岗位" align="center">
-                    <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.type_cn}}</span></template>
+                    <template slot-scope="scope"> 
+                        <span v-for="(type,index) in scope.row.type_all" :key="index" :class="{'list-item-gray': !scope.row.status}"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column label="职位性质" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
@@ -48,7 +50,7 @@
                 :page-size="staffListInfo.per_page" 
                 background layout="total, prev, pager, next" 
                 :total="staffListInfo.total" 
-                :current-page="staffListInfo.current_page"
+                :current-page="parseInt(staffListInfo.current_page)"
                 @current-change="paginationClick"
                 @next-click="nextClick"
                 @prev-click="prevClick">
@@ -56,7 +58,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type" 
+        <AddStaffDialog v-if="load_lazy" :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff" CB-dimission="CB_dimission">
         </AddStaffDialog>
     </div>
@@ -91,6 +93,7 @@ export default {
             ],
             authorityAll: false,
             authorityCheckList: [],   //选中的权限列表
+            load_lazy: false
         }
     },
     methods: {
@@ -146,7 +149,8 @@ export default {
         },
         //修改
         modifyHandle(data) {
-            console.log(data)
+            // this.load_com = true;
+            // console.log(data)
             this.type = 'edit';
             this.editDetail = data;
             this.dialogStatus = true;
@@ -190,6 +194,7 @@ export default {
 
             if(!result) return 0;
             this.roleLists = result.lists;
+            this.load_lazy = true;
         },
         //权限列表
         async getAuthorityLists() {

@@ -8,7 +8,7 @@
                             <el-input v-model.trim="staffForm.name" placeholder="姓名"></el-input>
                         </el-form-item>
                         <el-form-item label="职务：" prop="role_type"  class="mt-30">
-                            <el-select v-model="staffForm.role_type" placeholder="选择职务名称" @change="roleChange">
+                            <el-select v-model="staffForm.role_type" multiple  placeholder="选择职务名称">
                                 <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                             </el-select>
                         </el-form-item>
@@ -58,7 +58,7 @@ export default {
         type: {default: 'add'},
         origin: {default: 'list'},
         dialogStatus: '',
-        editDetail: {default: {}}
+        editDetail: {default: {}},
     },
     watch: {
         dialogStatus(newVal, oldVal) {
@@ -68,23 +68,21 @@ export default {
             this.staffType = newVal;
         },
         editDetail(newVal, oldVal) {
+            console.log(newVal, oldVal)
             if(!Object.keys(newVal).length) return 0;
 
-            console.log(newVal)
-            
             for(var key in this.staffForm) {
                 if(key == 'entry_date') this.staffForm[key] = newVal.entry_at * 1000;
-                else if(key == 'role_type') this.staffForm[key] = newVal.type_en;
+                else if(key == 'role_type'){this.staffForm[key] = [];for(let type of newVal.type_all){this.staffForm[key].push(type.type_en)}}
                 else this.staffForm[key] = newVal[key];
             }
             
-            this.roleLists.forEach(v => {if(v.name === newVal.type_en) this.staffForm.role_id = v.id});
         }
     },
     data() {
         return {
             staffDialogStatus: false,
-            staffForm: {role_id: '', name: '', mobile: '', role_type: '', entry_date: '', id: '', kind: ''},
+            staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
             roleLists: [],
             staffType: 'add',
             rules: {
@@ -122,9 +120,6 @@ export default {
             if(!result) return 0;
             this.roleLists = result.lists;
         },
-        roleChange(val) {
-            this.roleLists.forEach(v => {if(v.name === val) this.staffForm.role_id = v.id});
-        },
         //确定
         doneHandle() {
             this.$refs.userForm.validate(valid => {if(valid) this.submitUserInfo()});
@@ -136,7 +131,7 @@ export default {
                 name: this.staffForm.name,
                 mobile: this.staffForm.mobile,
                 type: this.staffForm.role_type,
-                role_id: this.staffForm.role_id,
+                // role_id: this.staffForm.role_id,
                 entry_at: this.staffForm.entry_date ?  this.staffForm.entry_date / 1000 : '',
                 kind: this.staffForm.kind
             };
@@ -174,7 +169,7 @@ export default {
             this.$message.success('已修改为离职状态');
         }  
     },
-    mounted() {
+    created() {
         this.getRoleLists();
     },
     components: {MyButton}

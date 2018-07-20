@@ -12,7 +12,7 @@
             <!-- 待处理请假 -->
             <el-tab-pane label="待处理请假" name="leave">
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -30,8 +30,8 @@
                 <el-table-column label="请假原因" prop="reason" align="center"></el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a class="cursor-pointer fc-m" @click="leave_handle(scope.row.id,2)">同意</a>
-                    <a class="cursor-pointer fc-m ml-20 fc-subm" @click="open_refuse_dialog(scope.row.id)">拒绝</a>
+                    <a class="student_handle able_handle" @click="leave_handle(scope.row.id,2)">同意</a>
+                    <a class="student_handle able_sub_handle" @click="open_refuse_dialog(scope.row.id)">拒绝</a>
                   </template>
                 </el-table-column>
               </el-table>
@@ -40,7 +40,7 @@
             <!-- 待分班学员 -->
             <el-tab-pane label="待分班学员" name="divide">
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
-                <el-table-column class-name="table_head" label="人员" align="left">
+                <el-table-column class-name="table_head" label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -49,10 +49,16 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="签约课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="待分班课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                <el-table-column label="签约日期" align="center">
+                  <template slot-scope="scope">
+                    <span>{{scope.row.pay_at | date('yyyy-MM-dd')}}</span>
+                  </template>
+                </el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a class="cursor-pointer fc-m" @click="divide_class(scope.row)">分班</a>
+                    <a class="student_handle able_handle" @click="divide_class(scope.row)">分班</a>
                   </template>
                 </el-table-column>
               </el-table>
@@ -61,7 +67,7 @@
             <!-- 需续约学员 -->
             <el-tab-pane label="需续约学员" name="renewal">
               <el-table class="student-table" :data="renewal_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -70,15 +76,26 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="签约课程" prop="course_name" align="center"></el-table-column>
-                <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                <el-table-column label="需续约课程" prop="course_name" align="center"></el-table-column>
+                <el-table-column label="课程剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                <el-table-column label="预计到期时间" align="center">
+                  <template slot-scope="scope">
+                    <span v-if='scope.row.may_expire_at === 0'>暂无</span>
+                    <span v-else>{{scope.row.may_expire_at | date('yyyy-MM-dd')}}</span>
+                  </template>
+                </el-table-column>
+                <!-- <el-table-column label="操作" prop="operate" align="center">
+                  <template slot-scope="scope">
+                    <a class="student_handle able_handle" @click="renew">续约</a>
+                  </template>
+                </el-table-column> -->
               </el-table>
             </el-tab-pane>
 
             <!-- 生日学员 -->
             <el-tab-pane label="生日学员" name="birth">
               <el-table class="student-table" :data="birth_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -87,10 +104,20 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="班级" prop="grade.name" align="center"></el-table-column>
-                <el-table-column label="生日" prop="birthday" align="center">
+                <el-table-column label="出生日期" align="center">
                   <template slot-scope="scope">
                     {{scope.row.birthday | date('yyyy-MM-dd')}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="礼品状态"  align="center">
+                  <template slot-scope="scope">
+                    {{scope.row.gift_send_status === 0 ? '未发放' : '已发放'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" prop="operate" align="center">
+                  <template slot-scope="scope">
+                    <a v-if="scope.row.gift_send_status === 0" class="student_handle able_handle" @click='give_gift(scope.row.id,scope.row.name)'>发放礼品</a>
+                    <span v-else>无</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -165,9 +192,9 @@
           <el-tabs v-model="follow_up_activeName" @tab-click="chage_follow_tab">
 
             <!-- 预约到访 -->
-            <el-tab-pane label="预约到访" name="visit">
+            <el-tab-pane label="邀约到访" name="visit">
               <el-table class="student-table" :data="visit_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -176,16 +203,16 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="预约时间" prop="invited_at" align="center">
+                <el-table-column label="邀约时间" prop="invited_at" align="center">
                   <template slot-scope="scope">
                     {{scope.row.invited_at | date('MM-dd hh:mm')}}
                   </template>
                 </el-table-column>
-                <el-table-column label="顾问" prop="student.advisor.name" align="center"></el-table-column>
+                <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a v-if="scope.row.status === 2" class="cursor-pointer fc-m" @click="handle_visit(scope.row.id)">到达</a>
-                    <span v-else class="fc-9">已到达</span>
+                    <a v-if="scope.row.status === 2" class="student_handle able_handle" @click="handle_visit(scope.row.id)">到访</a>
+                    <span v-else class="fc-9">已到访</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -194,7 +221,7 @@
             <!-- 邀约试听 -->
             <el-tab-pane label="邀约试听" name="audition">
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -203,12 +230,17 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="试听课程" prop="timetable.course.name" align="center"></el-table-column>
+                <el-table-column label="试听课程" align="center" width="300">
+                  <template slot-scope="scope">
+                    {{scope.row.timetable.course.name}}--{{scope.row.timetable.grade.name}}
+                  </template>
+                </el-table-column>
                 <el-table-column label="试听时间" prop="timetable" align="center">
                   <template slot-scope="scope">
                     {{scope.row.timetable.begin_time | date('MM-dd')}}　 {{scope.row.timetable.begin_time | date('hh:mm')}}-{{scope.row.timetable.end_time | date('hh:mm')}}
                   </template>
                 </el-table-column>
+                <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status === 4" class="fc-subm">邀约未试听</span>
@@ -222,7 +254,7 @@
             <!-- 需跟进学员 -->
             <el-tab-pane label="需跟进学员" name="follow_up">
               <el-table class="student-table" :data="follow_up_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -231,8 +263,17 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="跟进顾问" prop="student.advisor.name" align="center"></el-table-column>
-                <el-table-column label="状态" prop="today" align="center"></el-table-column>
+                <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
+                <el-table-column label="上次跟进时间" align="center">
+                  <template slot-scope="scope">
+                    <span>{{scope.row.invited_at | date('yyyy-MM-dd hh:mm')}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="预计跟进时间" align="center">
+                  <template slot-scope="scope">
+                    <span>{{scope.row.next_at | date('yyyy-MM-dd hh:mm')}}</span>
+                  </template>
+                </el-table-column>
               </el-table>
 
             </el-tab-pane>
@@ -240,7 +281,7 @@
             <!-- 待分配意向学员 -->
             <el-tab-pane label="待分配意向学员" name="assign">
               <el-table class="student-table" :data="assign_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="人员" align="left">
+                <el-table-column label="学员姓名" align="left" width="160">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -249,16 +290,27 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="跟进顾问" prop="advisor_info" align="center">
+                <el-table-column label="登记时间" prop="created_at" align="center">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.advisor_info === null">待定</span>
+                    <span>{{scope.row.created_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
-                <!-- <el-table-column label="状态" class="fc-subm" prop="follow_cn">
-                      <template slot-scope="scope">
-                            <span class="fc-subm">{{scope.row.follow_cn}}</span>
-                        </template> 
-                    </el-table-column> -->
+                <el-table-column label="渠道来源" prop="source_info.name"  align="center"></el-table-column>
+                <el-table-column label="操作" prop="operate" align="center">
+                  <template slot-scope="scope">
+                    <!-- <a class="cursor-pointer fc-m" @click="assign_advisor(scope.row.id)">分配顾问</a> -->
+                    <el-dropdown trigger="click" placement="left" @command="select_advisor">
+                                <span class="el-dropdown-link">
+                                    <div class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
+                                </span>
+                                <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
+                                    <el-scrollbar style="height: 100%;">
+                                        <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                    </el-scrollbar>
+                                </el-dropdown-menu>
+                            </el-dropdown>
+                  </template>
+                </el-table-column>
               </el-table>
             </el-tab-pane>
           </el-tabs>
@@ -359,7 +411,7 @@
     </AddStudentDialog>
     
     <!-- 购买课程弹窗 -->
-    <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+    <BuyCourseDialog :dialogStatus="dialogStatus.course" @CB-dialogStatus="CB_dialogStatus" :buyCourseData="buyCourseData"
         @CB-contract="CB_contract">
     </BuyCourseDialog>
     
@@ -445,7 +497,7 @@
       <el-table stripe class="student-table" :data="all_student_info.data" v-loading="all_student_info.loading" :show-header="true">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="student.name" align="center"></el-table-column>
-        <el-table-column label="上课类型" prop="type_describe" align="center"></el-table-column>
+        <el-table-column label="学员类型" prop="type_describe" align="center"></el-table-column>
         <el-table-column label="上课状态" prop="status2_describe" align="center">
           <template slot-scope="scope">
               <div :class="[scope.row.status2 === 1 ? 'signed' : (scope.row.status2 === 3 ? 'leaved' : 'no_sign'),'course_status']">{{scope.row.status2_describe}}</div>
@@ -588,6 +640,9 @@ export default {
       audition_list: [],
       follow_up_list: [],
       assign_list: [],
+      handle_student: {
+        id: ''
+      },
       //今日跟进部分分页信息
       follow_up_page_info: {
         total: 0,
@@ -735,56 +790,6 @@ export default {
       this.all_leave_record.page_info.current_page = 1;
       this.all_leave_record.search_info.page = 1;
       this.view_all_leave_record();
-    },
-    //按需获取今日跟进所有数据
-    async get_follow_up_data() {
-      this.follow_loading = true;
-      let type;
-      switch (this.follow_up_activeName) {
-        case "visit":
-          type = "invited";
-          break;
-        case "audition":
-          type = "audition";
-          break;
-        case "follow_up":
-          type = "followup";
-          break;
-        case "assign":
-          type = "no_advisor";
-          break;
-      }
-      let params;
-      if (type === "no_advisor") {
-        params = {
-          page_num: 5,
-          data: {
-            type: type,
-            name: "",
-            mobile: "",
-            advisor_id: "",
-            source_id: "",
-            follow_status: ""
-          },
-          page: this.follow_up_page_info.current_page
-        };
-        this.$$request.post("api/student/lists", params).then(res => {
-          this[`${this.follow_up_activeName}_list`] = res.lists.data;
-          this.follow_up_page_info.total = res.lists.total;
-          this.follow_loading = false;
-        });
-      } else {
-        params = {
-          page_num: 5,
-          type: type,
-          page: this.follow_up_page_info.current_page
-        };
-        this.$$request.post("api/followUp/todayLists", params).then(res => {
-          this[`${this.follow_up_activeName}_list`] = res.lists;
-          this.follow_up_page_info.total = res.total;
-          this.follow_loading = false;
-        });
-      }
     },
     //学员登记
     register() {
@@ -945,6 +950,10 @@ export default {
         this.loading = false;
       });
     },
+    //续约
+    renew() {
+      this.dialogStatus.course = true;
+    },
     //获取生日学员列表
     get_birth_data() {
       this.loading = true;
@@ -957,6 +966,22 @@ export default {
         this.page_info.total = res.total;
         this.loading = false;
       });
+    },
+    //发放礼物
+    give_gift(id,name) {
+      const params = {
+        student_id: id
+      };
+      this.$confirm('确定为 '+name+' 发放礼物吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            this.$$request.post("api/student/sendGift", params).then(res => {
+              this.get_birth_data();
+              this.$message.success("操作成功");
+            });
+        })
     },
     //获取备忘录列表
     get_memo_data() {
@@ -1036,6 +1061,56 @@ export default {
       });
     },
     //================今日课程模块================
+    //按需获取今日跟进所有数据
+    async get_follow_up_data() {
+      this.follow_loading = true;
+      let type;
+      switch (this.follow_up_activeName) {
+        case "visit":
+          type = "invited";
+          break;
+        case "audition":
+          type = "audition";
+          break;
+        case "follow_up":
+          type = "followup";
+          break;
+        case "assign":
+          type = "no_advisor";
+          break;
+      }
+      let params;
+      if (type === "no_advisor") {
+        params = {
+          page_num: 5,
+          data: {
+            type: type,
+            name: "",
+            mobile: "",
+            advisor_id: "",
+            source_id: "",
+            follow_status: ""
+          },
+          page: this.follow_up_page_info.current_page
+        };
+        this.$$request.post("api/student/lists", params).then(res => {
+          this[`${this.follow_up_activeName}_list`] = res.lists.data;
+          this.follow_up_page_info.total = res.lists.total;
+          this.follow_loading = false;
+        });
+      } else {
+        params = {
+          page_num: 5,
+          type: type,
+          page: this.follow_up_page_info.current_page
+        };
+        this.$$request.post("api/followUp/todayLists", params).then(res => {
+          this[`${this.follow_up_activeName}_list`] = res.lists;
+          this.follow_up_page_info.total = res.total;
+          this.follow_loading = false;
+        });
+      }
+    },
     //获取今日课程列表
     async get_today_course() {
       this.$$request.get("api/timetable/todayLists").then(res => {
@@ -1115,17 +1190,18 @@ export default {
         this.$message.success("操作成功");
       });
     },
-    //试听确认
-    // handle_audition(id) {
-    //   const params = {
-    //     follow_up_id: id
-    //   };
-    //   this.$$request.post("api/followUp/auditionSure", params).then(res => {
-    //     this.get_follow_up_data();
-    //     this.$message.success("操作成功");
-    //   });
-    // },
+    //分配顾问
+    assign_advisor(id) {
 
+    },
+     //列表顾问选择
+        async select_advisor(val) {
+            let result = await this.$$request.post('api/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
+            .then(res => {
+              this.get_follow_up_data();
+              this.$message.success("操作成功");
+            })
+        },
     //================通知模块================
 
     //发通知
@@ -1565,7 +1641,7 @@ export default {
 }
 .student_handle{
     display: inline-block;
-    width: 50px;
+    padding: 0px 10px;
     height: 24px;
     line-height: 24px;
     border-radius: 4px;
@@ -1574,6 +1650,10 @@ export default {
 .able_handle{
   border:1px solid #45dad5;
   color: #45dad5;
+}
+.able_sub_handle{
+  border:1px solid #ED9374;
+  color: #ED9374;
 }
 .disable_handle{
   border:1px solid #CCCCCC;
@@ -1594,7 +1674,15 @@ export default {
   color: #fff;
 }
 .workbench_container /deep/ .is-fullscreen {
-  height: 80% !important;
+  height: 700px !important;
+  overflow: hidden;
+  .el-dialog__header{
+    border-bottom: 1px solid #e9e9e9;
+  }
+  .el-dialog__body{
+    height: 580px;
+    overflow-y: auto;
+  }
 }
 .workbench_container /deep/ .el-dialog__footer {
   padding: 0 20px 10px;

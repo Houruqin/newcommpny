@@ -10,7 +10,7 @@
                     </div>
                 </div>
                 <div class="fc-7">
-                    <p class="mt-3">职位：<span>{{userDetail.type_cn}}</span></p>
+                    <p class="mt-3">职位：<span v-for="(type,index) in userDetail.type_all" :key="index"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span></p>
                     <p class="mt-10">联系电话：<span>{{userDetail.mobile}}</span></p>
                     <p class="mt-10">入职时间：<span>{{$$tools.format(userDetail.created_at)}}</span></p>
                 </div>

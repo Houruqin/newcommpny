@@ -89,35 +89,27 @@
                                 <span class="fc-m cursor-pointer" @click="gradeDetailHandle(scope.row)">{{scope.row.grade.name}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="开课日期" align="center">
-                            <template slot-scope="scope">{{$$tools.format(scope.row.grade.start_time)}}</template>
-                        </el-table-column>
+                        <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="任课老师/辅助老师" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.grade.teachers.length && scope.row.grade.teachers[0].name}}</span>
                                 <span v-if="scope.row.grade.counselors.length">/{{scope.row.grade.counselors[0].name}}</span>
                             </template>
                         </el-table-column>
-                        <!-- <el-table-column label="总课时" align="center" prop="buy_lesson_num_total"></el-table-column> -->
-                        <el-table-column label="已扣课时" align="center">
+                        <el-table-column label="上课教室" prop="grade.room.name" align="center"></el-table-column>
+                        <el-table-column label="学员未排课时" align="center">
                             <template slot-scope="scope">
-                                <span class="fc-m cursor-pointer" @click="lessonNumHandle(scope.row)">{{scope.row.lesson_num_already}}</span>
+                                <span>{{scope.row.unscheduled}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="已请假次数" align="center">
+                        <el-table-column label="学员剩余课时" align="center">
                             <template slot-scope="scope">
-                                <span class="fc-m cursor-pointer" @click="leaveNumHandle(scope.row)">{{scope.row.leave_num}}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="剩余课时" align="center">
-                            <template slot-scope="scope">
-                                <!-- <span >{{scope.row.buy_lesson_num_total - scope.row.lesson_num_already}}</span> -->
-                                <span>{{scope.row.grade.lesson_num_remain}}</span>
+                                <span>{{scope.row.lesson_num_remain}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="fc-subm cursor-pointer" @click="gradeDivideClick('change', scope.row)">重新分班</span>
+                                <span class="fc-subm cursor-pointer" @click="gradeDivideClick('change', scope.row)">转班</span>
                             </template>
                         </el-table-column>
                     </el-table>
