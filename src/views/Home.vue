@@ -34,10 +34,12 @@
         <el-container class="content-right">
             <el-header class="header">
                 <div class="d-f f-a-c header-box bgc-f">
-                    <div class="flex1"></div>
+                    <div class="pl-50 d-f f-a-c">
+                        <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student"></el-input>
+                        <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
+                    </div>
                     <div class="d-f f-a-c pr-50">
                         <a class="ml-30"><img src="../images/common/service-icon.png"></a>
-
                         <el-dropdown trigger="click" @command="helpHandleCommand" @visible-change="helpShowHandle" class="help-dropdown">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': helpShow}">在线帮助</a>
                             <el-dropdown-menu slot="dropdown">
@@ -134,6 +136,44 @@
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
+
+        <!-- 查找学员弹窗 -->
+        <el-dialog width="900px" center :visible.sync="dialogStatus.search" :close-on-click-modal="false" @close="search_student_info = ''">
+            <div class="search_student d-f f-a-c mb-20">
+                <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student"></el-input>
+                <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
+            </div>
+            <div class='fs-12 mb-10'>查询共{{page_info.total}}个学员</div>
+            <el-table class="student-table" :data="search_result" v-loading="loading" :show-header="true">
+                <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
+                <el-table-column label="学员姓名" align="center" width="160">
+                  <template slot-scope="scope">
+                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                      <span class='c_icon'>
+                        <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
+                      </span>
+                    </router-link>
+                  </template>
+                </el-table-column>
+                <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
+                <el-table-column label="出生日期" align="center">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.birthday !== 0">{{scope.row.birthday | date('yyyy-MM-dd')}}</span>
+                    <span v-else>未知</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="课程顾问" prop="advisor_name" align="center"></el-table-column>
+                <el-table-column label="登记日期" align="center">
+                  <template slot-scope="scope">
+                    {{scope.row.created_at | date('yyyy-MM-dd')}}
+                  </template>
+                </el-table-column>
+              </el-table>
+
+              <!-- 分页 -->
+                <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-30" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.current_page" @current-change="go_page">
+                </el-pagination>
+        </el-dialog>
 
         <!-- 登记学员弹窗 -->
         <AddStudentDialog  :dialogStatus="dialogStatus.student" 
@@ -257,6 +297,8 @@ export default {
     data() {
         return {
             loading: false,
+            search_student_info: '',  //搜索学员信息
+            search_result: [],     //搜索结果
             settingShow: false,
             helpShow: false,
             schoolId: '',
@@ -264,7 +306,7 @@ export default {
             schoolTitle: '',   //校区title
             speedyShow: false,
 
-            dialogStatus: {student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
+            dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
             buyCourseData: {},
             contractData: {},
 
@@ -300,12 +342,46 @@ export default {
                 disabledDate: (time) => {
                     return time.getTime() < new Date().setHours(0, 0, 0, 0);    
                 }
+            },
+            page_info: {
+                total: 0,
+                current_page: 1
             }
         }
     },
     methods: {
         speedyClick(type) {
             this.speedyShow = type;
+        },
+        //查找学员
+        search_student() {
+            if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
+                this.$message.closeAll();
+                this.$message.warning('请输入学员姓名或手机号')
+                 return false
+            };
+            this.loading = true;
+            this.page_info.current_page = 1;
+            this.get_search_student_info();
+        },
+        get_search_student_info() {
+            const params = {
+                search_data : this.search_student_info,
+                page: this.page_info.current_page
+            }
+            this.$$request.post('api/student/studentSearch',params)
+            .then(res => {
+                this.loading = false;
+                if(res.lists.data.length > 0) {
+                    this.dialogStatus.search = true;
+                    this.page_info.total = res.lists.total;
+                    this.page_info.current_page = res.lists.current_page;
+                    this.search_result = res.lists.data;
+                }else{
+                    this.$message.closeAll();
+                    this.$message.warning('未搜索到相关学员信息')
+                }
+            })
         },
         speedyChange(val) {
             switch(val) {
@@ -571,6 +647,11 @@ export default {
             this.$store.dispatch('guideChange', false);
             document.body.removeAttribute('style');
             this.$router.replace({path: '/refresh'});   //刷新工作台路由
+        },
+        //翻页
+        go_page(page) {
+            this.page_info.current_page = page;
+            this.get_search_student_info();
         }
     },
     mounted() {
@@ -657,15 +738,23 @@ export default {
         padding-left: 230px;
         padding-top: 90px;
         .header {
-            width: 100%;
+            // width: 100%;
             height: auto !important;
             padding: 0;
             position: fixed;
             z-index: 800;
             top: 0;
-            left: 0;
+            left: 230px;
+            right: 0;
             .header-box {
                 height: 70px;
+                justify-content: space-between;
+            }
+            .header-box /deep/  .el-input__inner{
+                width: 300px;
+                border-radius: 6px !important;
+                border: none !important;
+                background-color: #F2F2F2 !important;
             }
             .border-bottom {
                 width: 100%;
@@ -885,6 +974,19 @@ export default {
             }
         }
     }
+    .search_student{
+        justify-content: center;
+        width: 100%;
+    }
+    .search_student /deep/  .el-input__inner{
+                width: 300px;
+                border-radius: 6px !important;
+                border: none !important;
+                background-color: #F2F2F2 !important;
+            }
+            .search_student /deep/  .el-input{
+                width: auto;
+            }
 </style>
 
 

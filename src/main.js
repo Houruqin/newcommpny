@@ -30,9 +30,7 @@ Vue.prototype.$format_date = $date;
 
 Vue.filter('date', function (val, type) {
   if (!val) return '';
-  val = parseInt(val)
-  let date = new Date(val);
-  return $date(date, type);
+  return $date(val, type);
 });
 
 

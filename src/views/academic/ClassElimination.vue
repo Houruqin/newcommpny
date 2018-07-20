@@ -60,7 +60,7 @@
         <el-table-column label="签到扣课时" align="center">
           <template slot-scope="scope">
             <div>
-              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row.student_id,'签到')">{{scope.row.signin_total}}</span>
+              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row,'sign')">{{scope.row.signin_total}}</span>
               <!-- <NameRoute :id="scope.row.student_id">{{scope.row.leave_total}}</NameRoute> -->
             </div>
           </template>
@@ -68,14 +68,14 @@
         <el-table-column label="请假扣课时" align="center">
           <template slot-scope="scope">
             <div>
-              <span class='fc-subm cursor-pointer' @click="show_elimination(scope.row.student_id,'请假')">{{scope.row.leave_total}}</span>
+              <span class='fc-subm cursor-pointer' @click="show_elimination(scope.row,'leave')">{{scope.row.leave_total}}</span>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="旷课扣课时" align="center">
           <template slot-scope="scope">
             <div>
-              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row.student_id,'旷课')">{{scope.row.absenteeism_total}}</span>
+              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row,'absenteeism')">{{scope.row.absenteeism_total}}</span>
             </div>
           </template>
         </el-table-column>
@@ -143,35 +143,39 @@
       <!-- 消课详情弹窗 -->
       <el-dialog :title="dialog.c_record.title+'消课记录'" width="900px" center :visible.sync="dialog.c_record.show" :close-on-click-modal="false">
         <el-row class='mb-10'>
-          <el-col :span="6">王同学</el-col>
+          <el-col :span="6">{{dialog.c_record.student_name}} -- {{dialog.c_record.course_name}}</el-col>
           <el-col :span="3" :offset="15" class='t-r'>
             <MyButton @click.native="elimination" :radius="false">手动消课</MyButton>
           </el-col>
         </el-row>
         <el-table stripe class="student-table" :data="dialog.c_record.data" v-loading="dialog.loading" :show-header="true">
           <el-table-column label="序号" type="index" align="center"></el-table-column>
-          <el-table-column label="上课日期" align="center">
+          <el-table-column label="上课日期"  align="center">
             <template slot-scope="scope">
-              <div></div>
+              <div>{{scope.row.begin_time |　date('yyyy-MM-dd')}}</div>
             </template>
           </el-table-column>
           <el-table-column label="上课时间" align="center">
             <template slot-scope="scope">
-              <div></div>
+              <div>{{scope.row.begin_time |　date('hh:mm')}}-{{scope.row.end_time |　date('hh:mm')}}</div>
             </template>
           </el-table-column>
-          <el-table-column label="上课老师" align="center"></el-table-column>
-          <el-table-column label="上课教室" align="center"></el-table-column>
-          <el-table-column label="扣课时数" align="center"></el-table-column>
-          <el-table-column label="结课状态" align="center"></el-table-column>
+          <el-table-column label="上课老师" align="center">
+            <template slot-scope="scope">
+              <span v-for="teacher in scope.row.teacher" :key="teacher.id">{{teacher.name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="上课教室" prop="name" align="center"></el-table-column>
+          <el-table-column label="扣课时数" prop="lesson_num_actually" align="center"></el-table-column>
+          <el-table-column label="结课状态" prop="status_describe" align="center"></el-table-column>
         </el-table>
         <!-- 分页 -->
-        <el-pagination v-if="dialog.page_info.total > 7" class="d-f f-j-c mt-10" :page-size="7" background layout="total, prev, pager, next" :total="dialog.page_info.total" :current-page="dialog.page_info.current_page" @current-change="go_leave_record_page">
+        <el-pagination v-if="dialog.c_record.page_info.total > 10" class="d-f f-j-c mt-30" :page-size="10" background layout="total, prev, pager, next" :total="dialog.c_record.page_info.total" :current-page="dialog.c_record.page_info.current_page" @current-change="go_elimination_page">
         </el-pagination>
       </el-dialog>
 
       <!-- 手动消课弹窗 -->
-      <el-dialog title="手动消课" width="800px" center :visible.sync="dialog.c_record.show" :close-on-click-modal="false">
+      <el-dialog title="手动消课" width="800px" center :visible.sync="dialog.c_handle.show" :close-on-click-modal="false">
         <el-form :model="form" label-width="100px" :rules="rules" ref="userForm" size="small">
           <div class="form-box">
             <el-row>
@@ -180,11 +184,11 @@
                   <el-date-picker v-model="form.entry_date" type="date" :editable="false" placeholder="选择日期" value-format="timestamp">
                   </el-date-picker>
                 </el-form-item>
-                <el-form-item label="上课教室：" class="mt-30" prop="class_room">
+                <!-- <el-form-item label="上课教室：" class="mt-30" prop="class_room">
                   <el-select v-model="form.role_type" placeholder="选择教室">
                     <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                   </el-select>
-                </el-form-item>
+                </el-form-item> -->
               </el-col>
               <el-col :span="11" :offset="1">
                 <el-form-item label="上课老师：" prop="teacher">
@@ -251,7 +255,18 @@ export default {
         c_record: {
           show: false,
           data: [],
-          title: ""
+          title: "",
+          student_name: '',
+          course_name: '',
+          student_id: '',
+          course_id: '',
+          type: '',
+          page_info: {
+            page_num: 10,
+            page: 1,
+            total: 0,
+            current_page: 1
+          }
         },
         c_handle: {
           show: false,
@@ -342,6 +357,11 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
+    //课消详情页面跳转
+    go_elimination_page(page) {
+      this.dialog.c_record.page_info.page = page;
+      this.get_elimination_detail();
+    },
     //合并表格的行
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0 || columnIndex === 1) {
@@ -371,9 +391,16 @@ export default {
       }
     },
     //查看消课详情
-    show_elimination(s_id, title) {
+    show_elimination(info, type) {
+      this.dialog.c_record.student_name = info.student_name;
+      this.dialog.c_record.course_name = info.course_name;
+      this.dialog.c_record.student_id = info.student_id;
+      this.dialog.c_record.course_id = info.course_id;
+      this.dialog.c_record.type = type;
+      this.dialog.c_record.title = type === 'sign' ? '签到' : (type === 'leave' ? '请假' : '旷课');
       this.dialog.c_record.show = true;
-      this.dialog.c_record.title = title;
+      this.dialog.c_record.page_info.page = 1;
+      this.get_elimination_detail();
     },
     //消课
     elimination() {
@@ -440,7 +467,6 @@ export default {
           this.row_span_num.get(data[i].student_id).push(i);
         }
       }
-      // console.log(this.row_span_index)
     },
     //获取请假记录
     get_leave_data() {
@@ -476,6 +502,24 @@ export default {
         this.absenteeism_info.data = res.lists.data;
         this.page_info.total = res.lists.total;
       });
+    },
+    //获取消课详情
+    get_elimination_detail() {
+      const params = {
+        page: this.dialog.c_record.page_info.page,
+        start_date: this.get_seconde(this.search_info.begin),
+        end_date: this.get_seconde(this.search_info.end),
+        student_id: this.dialog.c_record.student_id,
+        course_id: this.dialog.c_record.course_id,
+        type: this.dialog.c_record.type
+      }
+      this.$$request.post('api/eduCount/studentClassEliminationLists',params)
+      .then(res => {
+        console.log(res)
+        this.dialog.c_record.data = res.lists.data;
+        this.dialog.c_record.page_info.total = res.lists.total;
+        this.dialog.c_record.page_info.current_page = res.lists.current_page;
+      })
     },
     //将时间转换为秒数
     get_seconde(date) {
