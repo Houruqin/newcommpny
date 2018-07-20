@@ -22,6 +22,16 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-col :span="7">
+                        <el-form-item label="购课类型：" prop="type">
+                            <el-select v-model="courseForm.type" placeholder="选择购课类型">
+                                <el-option label="新签约" :value="1"></el-option>
+                                <el-option label="续约" :value="2"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
 
                 <p class="head-info">课程信息</p>
                 <el-row class="mt-10 course-form-box">
@@ -118,10 +128,13 @@ export default {
             this.courseForm.advisor_id = newVal.advisor_id;
             this.courseForm.advisor_name = newVal.advisor ? newVal.advisor.name : '';
             this.courseForm.parent_id = newVal.parent_id;
-            this.courseForm.expire = 12;
+            this.courseForm.expire = newVal.expire || 12;
+            this.courseForm.type = newVal.buy_type || 1;
             this.courseForm.preferential_price = 0;
             this.courseForm.unit_price = 0;
             this.courseForm.pay_at = new Date().getTime();
+
+            if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
         }
     },
     data() {
@@ -145,7 +158,8 @@ export default {
                 unit_price: '',   //课时单价
                 preferential_price: '',  //优惠价格
                 textbook_price: '',   //教材费用
-                explain: ''  //说明
+                explain: '',  //说明
+                type: 1    //购课类型 1：新签约 2：续约
             },
             courseRules: {
                 course_id: [
@@ -186,6 +200,9 @@ export default {
                 ],
                 explain: [
                     {max: 200,  message: '长度不能超过200个字符'}
+                ],
+                type: [
+                    {required: true, message: '请选择购课类型', trigger: 'change'}
                 ]
             },
         }
@@ -200,6 +217,7 @@ export default {
         addCourseChange(val) {
             this.$store.state.course.forEach(v => {
                 if(v.id == val) {
+                    console.log(v);
                     this.courseForm.expire = v.expire;
                 }
             });
