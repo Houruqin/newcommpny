@@ -112,7 +112,10 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="fc-subm cursor-pointer" @click="gradeDivideClick('change', scope.row)">转班</span>
+                                <span class="t_button cursor-pointer" @click="gradeDivideClick('change', scope.row)">转班</span>
+                                <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                    {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
+                                </span>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -1069,6 +1072,25 @@ export default {
                 });
             }
         },
+        // 停课/开课（只针对学员停课）
+        stopCourse(s_id,g_id,type,index) {      
+            const params = {
+                student_id : s_id,
+                grade_id : g_id,
+                type: type === 0 ? 'stop' : 'start'
+            }
+            let tip = type === 0 ? '停课' : '开课';
+            this.$confirm('确定办理'+tip+'吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let result = this.$$request.post('api/studentGrade/suspend',params);
+                if(!result) return 0;
+                this.$message.success('操作成功');
+                this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
+            })
+        },
         //班级信息，班级详情
         gradeDetailHandle(data) {
             console.log(data);
@@ -1591,6 +1613,17 @@ export default {
                 border-radius: 5px;
             }
         }
+    }
+    .t_button{
+        display: inline-block;
+        padding: 4px 10px;
+        border: 1px solid #45DAD5;
+        border-radius: 4px;
+        color: #45DAD5;
+    }
+    .d_button{
+        border: 1px solid #999999;
+        color: #999999;
     }
 </style>
 
