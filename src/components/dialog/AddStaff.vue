@@ -109,7 +109,7 @@ export default {
     methods: {
         formClose() {
             this.$refs.userForm.resetFields();
-            Object.keys(this.staffForm).forEach(v => {this.staffForm[v] = ''});
+            Object.keys(this.staffForm).forEach(v => {if(v === 'role_type'){this.staffForm[v] = []}else{this.staffForm[v] = ''}});
             this.$emit('CB-dialogStatus', 'staff');
         },
         //角色列表

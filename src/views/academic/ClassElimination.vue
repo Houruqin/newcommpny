@@ -143,10 +143,10 @@
       <!-- 消课详情弹窗 -->
       <el-dialog :title="dialog.c_record.title+'消课记录'" width="900px" center :visible.sync="dialog.c_record.show" :close-on-click-modal="false">
         <el-row class='mb-10'>
-          <el-col :span="6">{{dialog.c_record.student_name}} -- {{dialog.c_record.course_name}}</el-col>
-          <el-col :span="3" :offset="15" class='t-r'>
+          <el-col>{{dialog.c_record.student_name}} -- {{dialog.c_record.course_name}}</el-col>
+          <!-- <el-col :span="3" :offset="15" class='t-r'>
             <MyButton @click.native="elimination" :radius="false">手动消课</MyButton>
-          </el-col>
+          </el-col> -->
         </el-row>
         <el-table stripe class="student-table" :data="dialog.c_record.data" v-loading="dialog.loading" :show-header="true">
           <el-table-column label="序号" type="index" align="center"></el-table-column>

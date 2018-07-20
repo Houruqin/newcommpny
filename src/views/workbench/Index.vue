@@ -117,7 +117,7 @@
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a v-if="scope.row.gift_send_status === 0" class="student_handle able_handle" @click='give_gift(scope.row.id,scope.row.name)'>发放礼品</a>
-                    <span v-else>无</span>
+                    <span v-else class='student_handle disable_handle'>发放礼品</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -266,12 +266,12 @@
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="上次跟进时间" align="center">
                   <template slot-scope="scope">
-                    <span>{{scope.row.invited_at | date('yyyy-MM-dd hh:mm')}}</span>
+                    <span>{{scope.row.created_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="预计跟进时间" align="center">
                   <template slot-scope="scope">
-                    <span>{{scope.row.next_at | date('yyyy-MM-dd hh:mm')}}</span>
+                    <span>{{scope.row.next_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -1098,7 +1098,17 @@ export default {
           this.follow_up_page_info.total = res.lists.total;
           this.follow_loading = false;
         });
-      } else {
+      }else if(type === "followup") {
+        params = {
+          page_num: 5,
+          page: this.follow_up_page_info.current_page
+        };
+        this.$$request.post("api/followUp/needFollow", params).then(res => {
+          this[`${this.follow_up_activeName}_list`] = res.followUps.data;
+          this.follow_up_page_info.total = res.followUps.total;
+          this.follow_loading = false;
+        });
+      }else{
         params = {
           page_num: 5,
           type: type,
@@ -1189,10 +1199,6 @@ export default {
         this.get_follow_up_data();
         this.$message.success("操作成功");
       });
-    },
-    //分配顾问
-    assign_advisor(id) {
-
     },
      //列表顾问选择
         async select_advisor(val) {
