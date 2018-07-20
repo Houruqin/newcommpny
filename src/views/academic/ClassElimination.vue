@@ -68,7 +68,7 @@
         <el-table-column label="请假扣课时" align="center">
           <template slot-scope="scope">
             <div>
-              <span class='fc-subm cursor-pointer' @click="show_elimination(scope.row,'leave')">{{scope.row.leave_total}}</span>
+              <span class='fc-m cursor-pointer' @click="show_elimination(scope.row,'leave')">{{scope.row.leave_total}}</span>
             </div>
           </template>
         </el-table-column>
@@ -180,19 +180,36 @@
           <div class="form-box">
             <el-row>
               <el-col :span="11">
-                <el-form-item label="上课时间：" prop="class_time">
-                  <el-date-picker v-model="form.entry_date" type="date" :editable="false" placeholder="选择日期" value-format="timestamp">
+                <el-form-item label="课程名称：" prop="course_name">
+                  <el-input v-model.number="form.course_name" placeholder="课程名称"></el-input>
+                </el-form-item>
+                <el-form-item label="上课日期：" prop="class_time">
+                  <el-date-picker v-model="form.class_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp">
                   </el-date-picker>
                 </el-form-item>
-                <!-- <el-form-item label="上课教室：" class="mt-30" prop="class_room">
-                  <el-select v-model="form.role_type" placeholder="选择教室">
+                <el-form-item label="上课教室：" class="mt-30" prop="class_room">
+                  <el-select v-model="form.class_room" placeholder="选择教室">
                     <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                   </el-select>
-                </el-form-item> -->
+                </el-form-item>
+                <el-form-item label="扣课类型：" class="mt-30" prop="type">
+                  <el-select v-model="form.type" placeholder="选择扣课类型">
+                    <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
+                  </el-select>
+                </el-form-item>
               </el-col>
               <el-col :span="11" :offset="1">
+                <el-form-item label="班级名称：" prop="grade_name">
+                  <el-input v-model.number="form.grade_name" placeholder="班级名称"></el-input>
+                </el-form-item>
+                <el-form-item label="上课时间：" prop="class_time">
+                  <el-time-select width="100px" v-model="form.class_time" :picker-options="{start: '08:30',step: '00:15',end: '18:30'}">
+                  </el-time-select>
+                  <el-time-select v-model="form.class_time" :picker-options="{start: '08:30',step: '00:15',end: '18:30'}">
+                  </el-time-select>
+                </el-form-item>
                 <el-form-item label="上课老师：" prop="teacher">
-                  <el-input v-model.number="form.mobile" placeholder="选择老师"></el-input>
+                  <el-input v-model.number="form.teacher" placeholder="选择老师"></el-input>
                 </el-form-item>
                 <el-form-item label="扣课时数：" class="mt-30" prop="lesson_num">
                   <el-input-number v-model="form.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number>
@@ -281,15 +298,26 @@ export default {
         }
       },
       form: {
+        course_name: '',
+        grade_name: '',
         class_room: [],
         class_time: "",
         teacher: [],
-        lesson_num: ""
+        lesson_num: "",
+        type: ''
       },
-
       rules: {
+        course_name: [
+          { required: true, message: "请输入课程名称", trigger: "change" }
+        ],
+        grade_name: [
+          { required: true, message: "请输入班级名称", trigger: "change" }
+        ],
         class_room: [
           { required: true, message: "请选择上课教室", trigger: "change" }
+        ],
+        type: [
+          { required: true, message: "请选择扣课类型", trigger: "change" }
         ],
         class_time: [
           { required: true, message: "请选择上课时间", trigger: "change" }
