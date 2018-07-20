@@ -159,8 +159,9 @@ export default {
             tableAllHeader: {
                 basis: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source']
             },
-            previewData: [],
-            deleteData: [],
+            previewData: [],    //错误冲突列表数据
+            deleteData: [],   //删除列表
+            tableData: [],   //excel表原始数据
             pickerBeginDateAfter: {
                 disabledDate: (time) => {
                     return time.getTime() > new Date().getTime();
@@ -214,11 +215,12 @@ export default {
         onChange(file, fileList) {
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
+            this.$refs.nosignUpload.clearFiles();
             this.readFiles(file.raw);
         },
         //读取文件
         readFiles(file) {
-            this.fileInput = file.name
+            this.fileInput = file.name;
             FileReader.prototype.readAsBinaryString = () => {
                 let binary = ""; 
                 let pt = this;  
@@ -232,7 +234,7 @@ export default {
                     }
                     wb = this.rABS ? XLSX.read(btoa(fixdata(binary)),{type: 'base64'}) : XLSX.read(binary, {type: 'binary'});
                     outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);   //outdata就是你想要的东西
-                    this.verifyExcelFile(outdata);
+                    this.tableData = outdata.slice(1);
                 }
                 reader.readAsArrayBuffer(file);   
             };
@@ -241,33 +243,26 @@ export default {
             if(this.rABS) reader.readAsArrayBuffer(file);  
             else reader.readAsBinaryString(file);
         },
+        //提交excel
+        submitHandle() {
+            console.log(this.fileInput)
+            if(!this.fileInput) return this.$message.warning('请选择文件!');
+            this.verifyExcelFile();
+        },
         //验证文件
-        verifyExcelFile(data) {
-            data.shift();
-            if(!data.length) return this.$message.warning('不能上传空白列表，请重新上传');
-            if(data.length > 500) return this.$message.warning('最多上传500条，请重新上传');
+        verifyExcelFile() {
+            console.log(this.tableData)
+            if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
+            if(this.tableData.length > 500) return this.$message.warning('最多上传500条，请重新上传');
 
-            let requestStatus = data.every((d, index) => {
+            let requestStatus = this.tableData.every((d, index) => {
                 let requestArr = [];
                 for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
                 return requestArr.length == excelHeader.basis_request.length;
             });
 
             if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
-            
-            let tableHeader = excelHeader.basis;
 
-            let newData = data.map(d => {
-                let newObj = {};
-                for(let key in d) {newObj[tableHeader[key.replace('*', '')]] = d[key]};
-                this.tableAllHeader.basis.forEach(v => {if(!newObj[v]) newObj[v] = ''});
-                return newObj;
-            });
-
-            this.tableData = newData;
-        },
-        //提交excel
-        submitHandle() {
             this.$refs.nosignUpload.submit();
         },
         //冲突预览，表格checkbox勾选change
