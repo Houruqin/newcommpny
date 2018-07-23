@@ -60,7 +60,7 @@ export default {
     props: {
         dialogStatus: '',
         contractData: {default: {}},
-        routerAble: {type: Boolean,default: () => true}
+        routerAble: {default: true}    //如果是购课流程，购完课会跳到签约学员详情页
     },
     components: {MyButton},
     watch: {
@@ -79,12 +79,8 @@ export default {
         },
         //合约确定按钮，跳转签约学员详情
         goSignedLists() {
-            if(this.routerAble){
-                this.contractDialogStatus = false;
-                this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
-            }else{
-                this.$emit('CB-dialogStatus', 'contract');
-            }
+            this.contractDialogStatus = false;
+            if(this.routerAble) this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
         },
         //打印合同
         printCompact() {

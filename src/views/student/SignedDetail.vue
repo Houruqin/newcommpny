@@ -958,7 +958,7 @@ export default {
             let result = await this.$$request.get('api/studentCourse/detail', {sc_id: data.id});
             console.log(result);
             if(!result) return 0;
-            this.contractData = result.data
+            this.contractData = result.data;
             this.dialogStatus.contract = true;
         },
         //弹窗变比，改变dialog状态回调
