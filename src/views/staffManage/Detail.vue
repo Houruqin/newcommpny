@@ -78,16 +78,16 @@
                 <el-table :data="bottomLists.data" stripe v-loading="loading" v-if="activeTab === 'grade'" key="grade" class="grade-table">
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="课程名称" align="center">
-                        <!-- <template slot-scope="scope"><span>{{scope.row.course.name}}</span></template> -->
+                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.name}}</span></template>
                     </el-table-column>
                     <el-table-column label="班级名称" align="center" prop="name"></el-table-column>
                     <el-table-column label="课程性质" align="center">
-                        <!-- <template slot-scope="scope"><span>{{scope.row.course && scope.row.course.type === 1 ? '普通课程' : '一对一课程'}}</span></template> -->
+                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '普通课程' : '一对一课程'}}</span></template>
                     </el-table-column>
                     <el-table-column label="班级人数" align="center" prop="student_num"></el-table-column>
                     <el-table-column label="班级状态" align="center">
                         <template slot-scope="scope">
-                            <div class="fc-f fs-12 course-status" v-if="scope.row.gradeStatus">
+                            <div class="fs-12 course-status" v-if="scope.row.gradeStatus">
                                 <div class="d-f f-a-c f-j-c">
                                     <span :class="{'green': scope.row.gradeStatus.id === 'yes', 'red': scope.row.gradeStatus.id === 'no', 'gray': scope.row.gradeStatus.id === 'stop'}">
                                         {{scope.row.gradeStatus.name}}
@@ -114,7 +114,7 @@
         </AddStaffDialog>
 
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog :dialogStatus="dialogStatus.contract" :routerAble="false" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
     </div>
 </template>
 
@@ -195,8 +195,8 @@ export default {
             console.log(result);
 
             if(!result) return 0;
-            if(this.activeTab == 'grade' && result.lists.length) result.lists.forEach(d => {d.gradeStatus = this.gradeStatus(d)});
-            
+            if(this.activeTab == 'grade' && result.lists.data.length) result.lists.data.forEach(d => {d.gradeStatus = this.gradeStatus(d)});
+
             this.bottomLists = result.lists;
             this.loading = false;
         },
@@ -274,6 +274,27 @@ export default {
             &.green {
                 background-color: #E4F3E8;
                 color: #347924;
+            }
+            &.gray {
+                background-color: #EDEDED;
+                color: #555555;
+            }
+        }
+    }
+    .course-status {
+        span {
+            width: 60px;
+            text-align: center;
+            height: 25px;
+            line-height: 25px;
+            border-radius: 5px;
+            &.green {
+                background-color: #E4F3E8;
+                color: #347924;
+            }
+            &.red {
+                background-color: #FFF0EA;
+                color: #aa4e2a;
             }
             &.gray {
                 background-color: #EDEDED;
