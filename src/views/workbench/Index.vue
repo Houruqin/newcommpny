@@ -84,11 +84,11 @@
                     <span v-else>{{scope.row.may_expire_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
-                <!-- <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a class="student_handle able_handle" @click="renew">续约</a>
+                    <a class="student_handle able_handle" @click="renew(scope.row)">续约</a>
                   </template>
-                </el-table-column> -->
+                </el-table-column>
               </el-table>
             </el-tab-pane>
 
@@ -266,12 +266,12 @@
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="上次跟进时间" align="center">
                   <template slot-scope="scope">
-                    <span>{{scope.row.created_at | date('yyyy-MM-dd')}}</span>
+                    <span>{{scope.row.created_at | date('yyyy-MM-dd hh:mm')}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="预计跟进时间" align="center">
                   <template slot-scope="scope">
-                    <span>{{scope.row.next_at | date('yyyy-MM-dd')}}</span>
+                    <span>{{scope.row.next_at | date('yyyy-MM-dd hh:mm')}}</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -387,7 +387,7 @@
     </el-row>
 
     <!-- 备忘录弹窗 -->
-    <el-dialog class="memo" 
+    <el-dialog v-if="memo_info.show" class="memo" 
     :close-on-click-modal="false" 
     :close-on-press-escape="false" 
     :visible.sync="memo_info.show" 
@@ -399,7 +399,7 @@
       </el-input>
       <span slot="footer" class="dialog-footer">
         <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
-        <el-button type="primary" v-if="!memo_info.readonly" @click="add_memo();">提交</el-button>
+        <el-button type="primary" v-if="!memo_info.readonly" @click.once="add_memo();">提交</el-button>
         <el-button type="primary" v-if="memo_info.readonly" @click="memo_info.show = false;">确定</el-button>
         <el-button v-if="memo_info.readonly" @click="delete_memo(memo_info.id)">删除</el-button>
       </span>
@@ -951,7 +951,15 @@ export default {
       });
     },
     //续约
-    renew() {
+    renew(student) {
+      this.buyCourseData = {
+        course_id: student.course_id,
+        id: student.student_id,
+        advisor_id: student.advisor_id,
+        advisor: {name: student.advisor_name},
+        parent_id: student.parent_id,
+        buy_type: 2
+      };
       this.dialogStatus.course = true;
     },
     //获取生日学员列表
