@@ -43,7 +43,7 @@
         <el-table-column label="序号" align="center" width="50">
           <template slot-scope="scope">
             <div>
-              <div>{{row_span_index.get(scope.row.student_id)+1}}</div>
+              <div v-if="!isNaN(row_span_index.get(scope.row.student_id))">{{parseInt(row_span_index.get(scope.row.student_id))+1}}</div>
             </div>
           </template>
         </el-table-column>
