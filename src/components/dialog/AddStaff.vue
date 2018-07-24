@@ -21,7 +21,7 @@
                     </el-col>
                     <el-col :span="11" :offset="1">
                         <el-form-item label="电话：" prop="mobile">
-                            <el-input v-model.number="staffForm.mobile" placeholder="电话"></el-input>
+                            <el-input v-model="staffForm.mobile" placeholder="电话"></el-input>
                         </el-form-item>
                         <el-form-item label="入职时间：" prop="entry_date"  class="mt-30">
                             <el-date-picker
@@ -145,7 +145,7 @@ export default {
             if(!result) return 0;
 
             this.$emit('CB-AddStaff');
-
+            this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$message.success(this.type == 'edit' ? '修改成功' : '添加成功');
         },
@@ -164,7 +164,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$emit('CB-dimission');
-
+            this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$message.success('已修改为离职状态');
         }  

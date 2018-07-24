@@ -276,7 +276,7 @@ export default {
 
             if(!result) return 0;
             
-            this.$store.dispatch('geySource');   //更新渠道信息
+            this.$store.dispatch('getSource');   //更新渠道信息
             this.sourceDialogStatus = false;
             this.studentForm.source_id = result.data.id;
         }, 

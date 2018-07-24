@@ -43,7 +43,7 @@
         <el-table-column label="序号" align="center" width="50">
           <template slot-scope="scope">
             <div>
-              <div>{{row_span_index.get(scope.row.student_id)+1}}</div>
+              <div v-if="!isNaN(row_span_index.get(scope.row.student_id))">{{parseInt(row_span_index.get(scope.row.student_id))+1}}</div>
             </div>
           </template>
         </el-table-column>
@@ -172,56 +172,6 @@
         <!-- 分页 -->
         <el-pagination v-if="dialog.c_record.page_info.total > 10" class="d-f f-j-c mt-30" :page-size="10" background layout="total, prev, pager, next" :total="dialog.c_record.page_info.total" :current-page="dialog.c_record.page_info.current_page" @current-change="go_elimination_page">
         </el-pagination>
-      </el-dialog>
-
-      <!-- 手动消课弹窗 -->
-      <el-dialog title="手动消课" width="800px" center :visible.sync="dialog.c_handle.show" :close-on-click-modal="false">
-        <el-form :model="form" label-width="100px" :rules="rules" ref="userForm" size="small">
-          <div class="form-box">
-            <el-row>
-              <el-col :span="11">
-                <el-form-item label="课程名称：" prop="course_name">
-                  <el-input v-model.number="form.course_name" placeholder="课程名称"></el-input>
-                </el-form-item>
-                <el-form-item label="上课日期：" prop="class_time">
-                  <el-date-picker v-model="form.class_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp">
-                  </el-date-picker>
-                </el-form-item>
-                <el-form-item label="上课教室：" class="mt-30" prop="class_room">
-                  <el-select v-model="form.class_room" placeholder="选择教室">
-                    <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="扣课类型：" class="mt-30" prop="type">
-                  <el-select v-model="form.type" placeholder="选择扣课类型">
-                    <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-form-item label="班级名称：" prop="grade_name">
-                  <el-input v-model.number="form.grade_name" placeholder="班级名称"></el-input>
-                </el-form-item>
-                <el-form-item label="上课时间：" prop="class_time">
-                  <el-time-select width="100px" v-model="form.class_time" :picker-options="{start: '08:30',step: '00:15',end: '18:30'}">
-                  </el-time-select>
-                  <el-time-select v-model="form.class_time" :picker-options="{start: '08:30',step: '00:15',end: '18:30'}">
-                  </el-time-select>
-                </el-form-item>
-                <el-form-item label="上课老师：" prop="teacher">
-                  <el-input v-model.number="form.teacher" placeholder="选择老师"></el-input>
-                </el-form-item>
-                <el-form-item label="扣课时数：" class="mt-30" prop="lesson_num">
-                  <el-input-number v-model="form.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number>
-                  <span class="pl-10">课时</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-        </el-form>
-        <div class="mt-50 d-f f-j-c">
-          <MyButton @click.native="doneHandle">确定</MyButton>
-        </div>
       </el-dialog>
     </el-card>
   </div>

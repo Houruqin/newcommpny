@@ -124,6 +124,13 @@
 
 
 //表单样式的覆盖
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+input[type="number"]{
+    -moz-appearance: textfield;
+}
 .el-form-item.is-success .el-input__inner, .el-form-item.is-success .el-input__inner:focus, .el-form-item.is-success .el-textarea__inner, .el-form-item.is-success .el-textarea__inner:focus {
     border-color: #dcdfe6;
 }
@@ -150,7 +157,7 @@ textarea {
         border-color: #45DAD5 !important;
     }
 }
-.price-input .el-form-item__content {
+.units-input .el-form-item__content {
     display: flex;
     display: -webkit-flex;
     .el-input {
