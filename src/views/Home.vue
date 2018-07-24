@@ -35,7 +35,7 @@
             <el-header class="header">
                 <div class="d-f f-a-c header-box bgc-f">
                     <div class="pl-50 d-f f-a-c">
-                        <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student"></el-input>
+                        <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student" clearable></el-input>
                         <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
                     </div>
                     <div class="d-f f-a-c pr-50">
@@ -140,7 +140,7 @@
         <!-- 查找学员弹窗 -->
         <el-dialog width="900px" center :visible.sync="dialogStatus.search" :close-on-click-modal="false" @close="search_student_info = ''">
             <div class="search_student d-f f-a-c mb-20">
-                <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student"></el-input>
+                <el-input :maxlength="11" v-model="search_student_info" placeholder="请输入学员姓名或手机号" @keyup.native.enter="search_student" clearable></el-input>
                 <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
             </div>
             <div class='fs-12 mb-10'>查询共{{page_info.total}}个学员</div>
@@ -148,7 +148,12 @@
                 <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
                 <el-table-column label="学员姓名" align="center" width="160">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                    <router-link v-if="scope.row.type === 'sign'" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                      <span class='c_icon'>
+                        <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
+                      </span>
+                    </router-link>
+                    <router-link v-else :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}">
                       <span class='c_icon'>
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>

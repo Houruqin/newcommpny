@@ -170,7 +170,7 @@
                     </el-form-item>
 
                     <el-form-item label="下次跟进：" class="mt-30"  >
-                        <el-date-picker type="date" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                        <el-date-picker type="datetime" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
                     <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')" :loading="submitLoading">确定</MyButton></div>
@@ -514,6 +514,13 @@ export default {
         if(this.$route.query.student_id) this.studentId = this.$route.query.student_id;
         this.getStudentDetail();
         this.getFollowUpLists();
+    },
+    watch: {
+        $route: function(val,oldval) {
+            this.studentId = val.query.student_id;
+            this.getStudentDetail();
+            this.getFollowUpLists();
+        }
     },
     components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}
 }

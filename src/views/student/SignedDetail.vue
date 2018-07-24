@@ -1406,6 +1406,12 @@ export default {
         this.getStudentDetail();
         this.getTeacherLists();    //手动消课获取老师列表
     },
+    watch: {
+        $route: function(val,oldval) {
+            this.studentId = val.query.id;
+            this.getStudentDetail();
+        }
+    },
     components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog}
 }
 </script>
