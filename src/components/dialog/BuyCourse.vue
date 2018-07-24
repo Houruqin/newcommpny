@@ -119,7 +119,7 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
-            this.$refs.courseForm && this.$refs.courseForm.resetFields();
+            // newVal && this.$refs.courseForm && this.$refs.courseForm.resetFields();
             this.courseDialogStatus = newVal;
         },
         buyCourseData(newVal, oldVal) {

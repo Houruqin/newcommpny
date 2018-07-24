@@ -30,7 +30,7 @@ const homeRouter = [
     {path: 'student/nosign', component: NoSign, meta: {keepAlive: true, needlogin: true, menu: '/student/nosign'}},
     {path: 'student/nosigndetail', component: NosignDetail, name: 'nosignDetail', meta: {needlogin: true, menu: '/student/nosign'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/signeddetail', component: SignedDetail, name: 'signedDetail', meta: {needlogin: true, menu: '/student/signed'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
-    {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/signed'}},
+    {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/nosign'}},
     {path: 'timetable/index', component: TimeTable, name: 'timetableDefault', meta: {needlogin: true}},
     {path: 'timetable/teacher', component: TimeTable, name: 'timetableTeacher', meta: {needlogin: true}},
     {path: 'timetable/class', component: TimeTable, name: 'timetableClass', meta: {needlogin: true}},

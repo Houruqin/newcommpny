@@ -921,6 +921,7 @@ export default {
         },
         //冲突页面确定修改
         doneModify() {
+            console.log(this.conflict_room)
             let lists = this.conflictLists.map(v => {
                 let item = {};
                 for(let key in v) {
@@ -1028,6 +1029,8 @@ export default {
         async getConflictLists(params) {
             if(this.submitLoading.timetable) return 0;
             this.submitLoading.timetable = true;
+
+            this.conflict_room = this.addTableType == 'multiple' ? [] : '';
 
             let result = await this.$$request.post('api/timetable/conflictLists', params);
             console.log(result);

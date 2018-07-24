@@ -48,7 +48,8 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
-            this.$refs.courseForm && this.$refs.courseForm.resetFields();
+            // newVal == true && this.$refs.courseForm && this.$refs.courseForm.resetFields();
+
             this.courseDialogStatus = newVal;
             if(this.courseDialogStatus) {
                 this.courseForm.expire = 12;   //有效期默认12月
@@ -57,6 +58,7 @@ export default {
             }
         },
         type(newVal, oldVal) {
+            console.log(newVal)
             this.courseType = newVal;
         },
         editDetail(newVal, oldVal) {
