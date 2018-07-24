@@ -38,7 +38,7 @@
                 </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <div v-if="scope.row.type_en !== 'master'">
+                        <div>
                             <a class="cursor-pointer fc-m" v-if="scope.row.status" @click="modifyHandle(scope.row)">编辑</a>
                             <a class="cursor-pointer fc-subm" v-else @click="deleteUserInfo(scope.row)">删除</a>
                         </div>
