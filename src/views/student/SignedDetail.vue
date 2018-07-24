@@ -69,7 +69,7 @@
                                 <span v-else-if="scope.row.status == 2">已退费</span>
                                 <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
                                 <span v-else class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="$$cache.getMemberInfo().type == 'master'" 
+                                <span 
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -632,7 +632,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="选择班级：" prop="grade_id">
-                                <el-select placeholder="请选择" v-model="removeTimetableForm.grade_id">
+                                <el-select placeholder="请选择" v-model="removeTimetableForm.grade_id" @change="removeTimeTableChange">
                                     <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -865,6 +865,16 @@ export default {
             this.removeTimetableForm.course_id = data.course_id;
             this.removeTimetableForm.course_name = data.course_name;
             this.removeTimetableDialog = true;
+
+            console.log(this.gradeLists)
+        },
+        removeTimeTableChange(val) {
+            this.gradeLists.forEach(v =>{
+                if(v.id == val) {
+                    this.removeTimetableForm.room_id = v.room_id;
+                    this.removeTimetableForm.teacher_id = +(v.teacher_ids.substring(1, v.teacher_ids.length-1));
+                }
+            })
         },
         //手动消课点击确定
         timetableDone() {

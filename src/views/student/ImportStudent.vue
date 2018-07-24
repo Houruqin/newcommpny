@@ -131,6 +131,19 @@
                     <MyButton @click.native="conflictDelete" v-else :type="deleteData.length ? 'subm' : 'gray'" class="ml-20">删除</MyButton>
                 </div>
             </div>
+
+            <!-- 第三页上传结果 -->
+            <div class="step-three mt-50" v-else>
+                <div class="d-f f-d-c f-a-c">
+                    <img src="../../images/common/import-success.png" alt="">
+                    <h3 class="fs-20 mt-20">导入成功</h3>
+                    <span class="mt-10 fc-5 fs-15">签约学员数据已经导入成功，合计{{total}}条！</span>
+                </div>
+                <div class="d-f f-j-c mt-50">
+                    <div class="btn border" @click="goWorkBench">回到工作台</div>
+                    <div class="btn ml-20 bgc" @click="goStudentLists">点击查看</div>
+                </div>
+            </div>
         </el-card>
     </div>
 </template>
@@ -182,6 +195,14 @@ export default {
         //上传错误
         uploadFail(err, file, fileList) {
             this.$message.warning('请求失败，请稍后再试');
+        },
+        //回到工作台
+        goWorkBench() {
+            this.$router.replace({path: '/refresh'});   //刷新工作台路由
+        },
+        //回到学员列表
+        goStudentLists() {
+            this.$router.go(-1);
         },
         //上传成功
         uploadSuccess(response, file, fileList) {
@@ -363,6 +384,27 @@ export default {
         .cell-box {
             width: 100%;
             min-height: 22px;
+        }
+    }
+    .step-three {
+        h3 {
+            color: #45C365;
+        }
+        .btn {
+            width: 130px;
+            box-sizing: border-box;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px #45DAD5 solid;
+            cursor: pointer;
+            &.border {
+                color: #45DAD5;
+            }
+            &.bgc {
+                background-color: #45DAD5;
+                color: #fff;
+            }
         }
     }
 </style>

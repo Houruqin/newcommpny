@@ -119,6 +119,7 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
+            this.$refs.courseForm && this.$refs.courseForm.resetFields();
             this.courseDialogStatus = newVal;
         },
         buyCourseData(newVal, oldVal) {
@@ -228,13 +229,13 @@ export default {
         },
         //提交购买课程
         async submitBuyCourse() {
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
-
             if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
             if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-            if(this.courseForm.preferential_price > (this.courseForm.unit_price * this.courseForm.lesson_num + this.courseForm.textbook_price)) return this.$message.warning('优惠不能超过总金额!');
+            if(+this.courseForm.preferential_price > +(this.courseForm.unit_price * this.courseForm.lesson_num + this.courseForm.textbook_price)) return this.$message.warning('优惠不能超过总金额!');
 
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
+            
             let params = {};
 
             for(let key in this.courseForm) {

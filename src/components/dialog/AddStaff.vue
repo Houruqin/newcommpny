@@ -44,8 +44,8 @@
             </div>
         </el-form>
         <div class="mt-50 d-f f-j-c">
-            <MyButton @click.native="doneHandle">确定</MyButton>
-            <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20">离职</MyButton>
+            <MyButton @click.native="doneHandle" :loading="submitLoading.add">确定</MyButton>
+            <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
         </div>
     </el-dialog>
 </template>
@@ -63,6 +63,7 @@ export default {
     },
     watch: {
         dialogStatus(newVal, oldVal) {
+            this.$refs.userForm && this.$refs.userForm.resetFields();
             this.staffDialogStatus = newVal;
         },
         type(newVal, oldVal) {
@@ -82,6 +83,9 @@ export default {
     },
     data() {
         return {
+            submitLoading: {
+                add: false, remove: false
+            },
             staffDialogStatus: false,
             staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
             roleLists: [],
@@ -127,6 +131,10 @@ export default {
         },
         //提交新增、修改员工信息
         async submitUserInfo() {
+
+            if(this.submitLoading.add) return 0;
+            this.submitLoading.add = true;
+
             let url = this.type == 'add' ? 'api/user/add' : 'api/user/edit';
             let params = {
                 name: this.staffForm.name,
@@ -141,6 +149,7 @@ export default {
 
             console.log(params)
             let result = await this.$$request.post(url, params);
+            this.submitLoading.add = false;
             console.log(result);
 
             if(!result) return 0;
@@ -161,7 +170,11 @@ export default {
             }).catch(() => {return 0});
         },
         async dimissionHandle() {
+            if(this.submitLoading.remove) return 0;
+            this.submitLoading.remove = true;
+
             let result = await this.$$request.post('api/user/changeStatus', {id: this.staffForm.id});
+            this.submitLoading.remove = false;
             console.log(result);
             if(!result) return 0;
             this.$emit('CB-dimission');

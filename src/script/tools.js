@@ -57,8 +57,6 @@ const Tools = {
     format(time, type = 'day') {
         if ('number' !== typeof +time) throw '时间格式不对！';
 
-        // let nowdate = new Date();
-        // let datesecond = nowdate.getTime() / 1000 | 0;
         let createData = new Date(time * 1000);
 		let dayData = [createData.getFullYear(), createData.getMonth() + 1, createData.getDate()].join('-').replace(/\b\d\b/g, '0$&');
 		let secondData = [createData.getHours(), createData.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
