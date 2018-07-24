@@ -111,6 +111,8 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
+            this.$refs.addStudent && this.$refs.addStudent.resetFields();
+            this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
             this.studentDialogStatus = newVal;
         },
         type(newVal, oldVal) {
@@ -242,7 +244,7 @@ export default {
             
             let result = await this.$$request.post(url, params);
             console.log(result);
-            if(!result) return 0;
+            if(!result) return this.submitLoading.student = false;
 
             if(this.studentType == 'edit') {
                 this.submitLoading.student = false;
@@ -261,6 +263,7 @@ export default {
                         this.submitLoading.student = false;
                     });
                 }else {
+                    this.submitLoading.student = false;
                     this.studentSuccessMessage(result.data);
                 }
             }

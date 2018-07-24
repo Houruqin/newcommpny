@@ -48,6 +48,7 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
+            this.$refs.courseForm && this.$refs.courseForm.resetFields();
             this.courseDialogStatus = newVal;
             if(this.courseDialogStatus) {
                 this.courseForm.expire = 12;   //有效期默认12月
@@ -127,6 +128,7 @@ export default {
         async submitCourse() {
             if(this.submitLoading) return 0;
             this.submitLoading = true;
+
             let url = this.courseType == 'edit' ? 'api/course/edit' : 'api/course/add';
             let params = {};
             for(let key in this.courseForm) {if(key != 'id') params[key] = this.courseForm[key]};
@@ -136,8 +138,9 @@ export default {
             let result = await this.$$request.post(url, params);
             this.submitLoading = false;
             console.log(result);
-
             if(!result) return 0;
+
+            this.courseDialogStatus = false;
             this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
             this.$store.dispatch('getCourse');   //更新课程信息
 

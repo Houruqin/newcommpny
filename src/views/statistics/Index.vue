@@ -538,7 +538,7 @@ export default {
             if(!result) return 0;
 
             this.source.showCheckBox.splice(0, this.source.showCheckBox.length);
-            result.lists.sort((a, b) => {return a.total < b.total});
+            // result.lists.sort((a, b) => {return a.total < b.total});
             
             result.lists.forEach((v, num) => {
                 v.checked = num < 7 ? true : false;

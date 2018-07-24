@@ -277,7 +277,7 @@
                 </el-table>
                 
                 <div class="d-f f-j-c mt-20">
-                    <MyButton class="mt-20" @click.native="listenStudentDone" :type="checkListenStudent.length ? 'main' : 'gray'">确定</MyButton>
+                    <MyButton class="mt-20" @click.native="listenStudentDone" :type="checkListenStudent.length ? 'main' : 'gray'" :loading="submitLoading">确定</MyButton>
                 </div>
             </div>
         </el-dialog>
@@ -310,6 +310,8 @@ export default {
             schoolSelect: false,    //默认校区不选择
             schoolTitle: '',   //校区title
             speedyShow: false,
+
+            submitLoading: false,
 
             dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
             buyCourseData: {},
@@ -464,6 +466,7 @@ export default {
             this.loading = true;
             this.listenTimetableId = id;
             this.getListenStudentLists();
+            this.checkListenStudent = [];
             this.dialogStatus.listenStudent = true;
         },
         //试听学员列表操作
@@ -481,21 +484,23 @@ export default {
         },
         //试听学员确定
         async listenStudentDone() {
+            
             if(!this.checkListenStudent.length) return this.$message.warning('请选择试听学员');
+
+            if(this.submitLoading) return 0;
+            this.submitLoading = true;
 
             let result = await this.$$request.post('api/listenCourse/add', {
                 timetable_id: this.listenTimetableId,
                 student_id: this.checkListenStudent
             });
-
+            this.submitLoading = false;
             console.log(result);
             if(!result) return 0;
-
-            this.$message.success('办理试听成功!');
-
+            
             this.dialogStatus.listen = false;
             this.dialogStatus.listenStudent = false;
-            this.checkListenStudent = [];
+            this.$message.success('办理试听成功!');
         },
         //获取试听填充列表
         async getListenLists() {

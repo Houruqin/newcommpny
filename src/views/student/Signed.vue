@@ -677,15 +677,12 @@ export default {
             };
 
             let result = await this.$$request.post('api/sign/edit', params);
-            this.submitLoading.student = false;
+            setTimeout(d => {this.submitLoading.student = false}, 500);
             console.log(result);
-
             if(!result) return 0;
 
             this.studentMaskStatus = false;
-
             this.$message.success('修改成功');
-
             this.getTabLists();
         },
         //提交分班信息
@@ -774,28 +771,38 @@ export default {
         mergeHandle(data) {
             var obj = {};
 
-            data.forEach((v, d) => {
-                let objArray = obj[v.student_id] || [];
-                objArray.push(v);
-                obj[v.student_id] = objArray;
-            });
+            // data.forEach((v, d) => {
+            //     let objArray = obj[v.student_id] || [];
+            //     objArray.push(v);
+            //     obj[v.student_id] = [];
+            // });
 
-            let newData = Object.keys(obj).map((v, d) => {
-                var new_obj = {};
-                
-                data.forEach((a, b) => {
-                    if(a.student_id == v) {
-                        new_obj.student_id = v;
-                        new_obj.mobile = a.mobile;
-                        new_obj.advisor_id  = a.advisor_id;
-                        new_obj.advisor_name = a.advisor_name;
-                        new_obj.student_name = a.student_name;
-                        new_obj.course_lists = obj[v];
+            let map = {}, dest = [];
+            
+            for(let i = 0, len = data.length; i < len; i++) {
+                let ai = data[i];
+                if(!map[ai.student_id]) {
+                    dest.push({
+                        student_id: ai.student_id,
+                        mobile: ai.mobile,
+                        advisor_id: ai.advisor_id,
+                        advisor_name: ai.advisor_name,
+                        student_name: ai.student_name,
+                        course_lists: [ai]
+                    });
+
+                    map[ai.student_id] = ai;
+                }else {
+                    for(let j = 0, len = dest.length; j < len; j++) {
+                        let dj = dest[j];
+                        if(dj.student_id == ai.student_id) {
+                            console.log(dj)
+                            dj.course_lists.push(ai);
+                            break;
+                        }
                     }
-                });
-                
-                return new_obj;
-            });
+                }
+            }
 
             if(this.activeTab === 'absent') {
                 data.sort((a, b) => {return a.begin_time < b.begin_time});
@@ -804,7 +811,7 @@ export default {
 
             if(this.activeTab === 'birthday') return data;
             
-            return newData;
+            return dest;
         }
     },
     created() {

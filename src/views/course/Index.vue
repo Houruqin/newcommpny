@@ -267,7 +267,7 @@
                     </el-form-item>
 
                     <div class="d-f f-j-c">
-                        <MyButton @click.native="doneHandle">确定</MyButton>
+                        <MyButton @click.native="doneHandle" :loading="submitLoading.grade">确定</MyButton>
                     </div>
                 </el-form>
             </div>
@@ -795,10 +795,12 @@ export default {
         },
          //新增班级，获取form相关西数据
         async addClassRoom(id, type) {
-            this.dialogStatus.grade = true;
+            this.$refs.classRoomForm && this.$refs.classRoomForm.resetFields();
+            
             this.classEdit = false;
             this.courseType = type;
             this.getGradeFill(id, null, 'add');
+            this.dialogStatus.grade = true;
         },
         //修改班级
         async editClassRoom(data, type) {
@@ -806,6 +808,8 @@ export default {
             this.courseType = type;
             this.getGradeFill(data.course_id, data.id, 'edit');
             
+            this.$refs.classRoomForm && this.$refs.classRoomForm.resetFields();
+
             for(let key in this.classForm) {
                 if(key == 'teacher_ids') {
                     this.classForm[key] = data['teacher_lists'].length ? data['teacher_lists'][0].id : '';
