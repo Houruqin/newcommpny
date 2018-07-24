@@ -1157,14 +1157,29 @@ export default {
         },
         //获取课程列表
         async getCourseLists(course_id) {
+            let active = '';
+
             let result = await this.$$request.post('api/course/lists');
             console.log(result);
             if(!result) return 0;
-            result.lists.forEach(d => {
-                d.collapse = (course_id && course_id == d.id);
+            result.lists.forEach((d, num) => {
+                // d.collapse = (course_id && course_id == d.id);
+                if(course_id && course_id == d.id) {
+                    d.collapse = true;
+                    active = num;
+                }else d.collapse = false;
+
                 d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)});
             });
             this.courseLists = result.lists;
+
+            this.$nextTick(v => {
+                if(active != '') {
+                    let dom = this.$refs['grade-table-content_' + active][0];
+                    let child = dom.firstChild;
+                    dom.style.height = `${child.offsetHeight}px`;
+                }
+            });
         },
         //周数据做处理
         getWeek(time) {

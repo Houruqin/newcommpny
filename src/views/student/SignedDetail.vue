@@ -69,7 +69,7 @@
                                 <span v-else-if="scope.row.status == 2">已退费</span>
                                 <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
                                 <span v-else class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span 
+                                <span v-if="$$cache.getMemberInfo().type == 'master'"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -612,7 +612,8 @@
                             <el-row class='time_select'>
                                 <el-col :span="17">
                                     <el-form-item label="上课时间：" prop="day">
-                                        <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" 
+                                        <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter" 
+                                            @change="removeTimeChange"
                                             placeholder="选择日期" value-format="yyyy/MM/dd">
                                         </el-date-picker>
                                     </el-form-item>
@@ -918,6 +919,11 @@ export default {
         //班级详情弹窗关闭
         gradeDetailDialogClose() {
             this.timetableCheckbox = false;
+        },
+        removeTimeChange(val) {
+            if(new Date(val).toDateString() === new Date().toDateString()) {
+                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+            }else this.timePicker.minTime = 0;
         },
         timetableEditClick() {
             this.timetableCheckbox = !this.timetableCheckbox;
