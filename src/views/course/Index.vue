@@ -1174,7 +1174,7 @@ export default {
             this.courseLists = result.lists;
 
             this.$nextTick(v => {
-                if(active != '') {
+                if(active !== '') {
                     let dom = this.$refs['grade-table-content_' + active][0];
                     let child = dom.firstChild;
                     dom.style.height = `${child.offsetHeight}px`;

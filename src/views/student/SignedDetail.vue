@@ -710,7 +710,7 @@ export default {
             leaveNumDetailMask: false,
 
             //消课先关字段
-            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
+            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'},
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
             teacherLists: [],   //老师列表
@@ -922,8 +922,8 @@ export default {
         },
         removeTimeChange(val) {
             if(new Date(val).toDateString() === new Date().toDateString()) {
-                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-            }else this.timePicker.minTime = 0;
+                this.timePicker.maxTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+            }else this.timePicker.maxTime = '22:00';
         },
         timetableEditClick() {
             this.timetableCheckbox = !this.timetableCheckbox;
