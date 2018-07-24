@@ -909,6 +909,7 @@ export default {
             if(!result) return 0;
             this.$message.success('手动消课成功!');
             this.removeTimetableDialog = false;
+            this.getBottomTabLists('api/studentCourse/normalLists','quitCourseLists');
         },
         //手动消课弹窗关闭
         timetableDialogClose() {
