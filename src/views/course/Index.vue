@@ -7,13 +7,13 @@
             <!-- <div class="content-box my-scrollbar"> -->
                 <!-- <el-scrollbar v-if="courseLists.length" style="height: 100%;"> -->
                     <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
-                        <div class="list-header d-f p-r f-a-c f-j-b pl-20 pr-20">
+                        <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="course.collapse = !course.collapse">
                             <div class="d-f f-a-c">
                                 <span class="fc-7 fs-16 d-f f-a-c">
                                     <i class="fc-5">{{course.name}}</i>
                                     <i @click="editCourse(course)" class="cursor-pointer ml-10"><img src="../../images/common/edit-icon.png"></i>
                                 </span>
-                                <span class="fc-9 course_type ml-20">{{course.type === 1 ? '普通课程' : '一对一课程'}}</span>
+                                <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
                             </div>
                             <div class="d-f f-a-c">
                                 <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
@@ -1350,8 +1350,8 @@ export default {
     .course_type{
         display: inline-block;
         border: 1px solid #a9a9a9;
-        height: 24px;
-        line-height: 24px;
+        height: 20px;
+        line-height: 20px;
         padding: 0 5px;
         border-radius: 4px;
     }

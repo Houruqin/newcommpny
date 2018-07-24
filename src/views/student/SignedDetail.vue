@@ -10,7 +10,7 @@
                     <!-- <span class="conversion-btn t-a-c fc-f ml-20 cursor-pointer" @click="conversionClick">兑换</span> -->
                 </div>
                 <div class="d-f">
-                    <MyButton type="subm" @click.native="gradeDivideClick('add')">添加分班</MyButton>
+                    <MyButton type="subm" @click.native="gradeDivideClick('add')">分班</MyButton>
                     <MyButton class="ml-20" @click.native="addListenHandle">试听</MyButton>
                     <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
                 </div>
