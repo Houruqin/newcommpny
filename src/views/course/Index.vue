@@ -6,7 +6,7 @@
             </TableHeader>
             <!-- <div class="content-box my-scrollbar"> -->
                 <!-- <el-scrollbar v-if="courseLists.length" style="height: 100%;"> -->
-                    <div class="course-list-box" :class="{'mt-15': index}" v-for="(course, index) in courseLists" :key="index">
+                    <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
                         <div class="list-header d-f p-r f-a-c f-j-b pl-20 pr-20">
                             <div class="d-f f-a-c">
                                 <span class="fc-7 fs-16 d-f f-a-c">
@@ -668,7 +668,8 @@ export default {
             this.deleteTimeTableLists = val;
         },
         checkboxIsDisabled(row, index) {
-            return row.lesson_end_time == 0;
+            // return row.lesson_end_time == 0;
+            return row.begin_time > new Date().getTime() / 1000;
         },
         async deleteTimeTableHandle(data) {
             if(!this.deleteTimeTableLists.length) return 0;
@@ -1069,14 +1070,14 @@ export default {
             let result = await this.$$request.post('api/grade/changeStatus', params);
             if(!result) return 0;
             this.$message.success('修改状态成功');
-            this.getCourseLists(); 
+            this.getCourseLists(option.course_info.id); 
         },
         //删除班级
         async deleteClassRoom(data) {
             let result = await this.$$request.post('api/grade/delete', {id: data.id});
             if(!result) return 0;
             this.$message.success('已删除');
-            this.getCourseLists();
+            this.getCourseLists(data.course_id);
         },
         //新增、编辑班级提交数据
         submitClassRoom() {
@@ -1120,18 +1121,18 @@ export default {
             if(!result) return 0;
             this.$message.success(this.classEdit ? '修改成功' : '添加成功');
 
-            this.getCourseLists();
+            this.getCourseLists(params.course_id);
             this.dialogStatus.grade = false;
             this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
         },
         //获取课程列表
-        async getCourseLists() {
+        async getCourseLists(course_id) {
             let result = await this.$$request.post('api/course/lists');
             console.log(result);
             if(!result) return 0;
             result.lists.forEach(d => {
-                d.collapse = false;
-                d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)})
+                d.collapse = (course_id && course_id == d.id);
+                d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)});
             });
             this.courseLists = result.lists;
         },

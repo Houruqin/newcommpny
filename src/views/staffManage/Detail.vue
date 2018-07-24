@@ -58,14 +58,11 @@
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                         </template>
                     </el-table-column>
                     <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
                     <el-table-column label="购买课程" align="center" prop="course_name"></el-table-column>
-                    <!-- <el-table-column label="购买性质" align="center">
-                        <template slot-scope="scope"><span>{{scope.row.type == 1 ? '新签' : '续约'}}</span></template>
-                    </el-table-column> -->
                     <el-table-column label="购买日期" align="center">
                         <template slot-scope="scope"><span>{{scope.row.created_at}}</span></template>
                     </el-table-column>

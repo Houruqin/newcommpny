@@ -10,6 +10,14 @@ const VALIDATE_RULE = {
 };
 
 
+// const NUMBER_RULE = {
+//     num: {validate: val => {return isNaN(val)}, message: '请输入数字'},
+//     positive: {validate: val => {return val < 0}, message: '请输入正数'},
+//     float: {validate: val => {return String(val).split('.')[1] && String(val).split('.')[1].length > 2}, message: '最多两位小数'},
+//     int: {validate: val => {return String(val).indexOf('.') > -1}, message: '不能输入小数'},
+//     price: {validate: val => {return val > 9999}, message: '价格不能超过9999'}
+// };
+
 const Tools = {
 	//表单验证
     formValidate(type) {
@@ -22,6 +30,10 @@ const Tools = {
 	//表单非正则验证
 	formOtherValidate(type) {
 		return (rule, value, callback, event, e, d) => {
+            // rules.forEach(v => {
+            //     if(NUMBER_RULE[v].validate(value)) return callback(new Error(NUMBER_RULE[v].message));
+            //     else return callback();
+            // });
 			if(type == 'price') {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
                 else if(value < 0) return callback(new Error('请输入正数!'))

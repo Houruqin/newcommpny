@@ -597,7 +597,7 @@
                             
                             <el-form-item label="上课教室：" prop="room_id">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.room_id">
-                                    <el-option v-for="(item, index) in roomLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
 
@@ -648,7 +648,7 @@
                     </el-row>
 
                     <div class="d-f f-j-c mt-30">
-                        <MyButton @click.native="timetableDone">确定</MyButton>
+                        <MyButton @click.native="timetableDone" :loading="submitLoading.removeTimetable">确定</MyButton>
                     </div>
                 </div>
             </el-form>
@@ -669,7 +669,7 @@ export default {
     data() {
         return {
             submitLoading: {
-                student: false, gradeDivide: false, followUp: false, quitCourse: false
+                student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
             },
             studentId: '',     //学员id
             studentDetail: {},
@@ -713,7 +713,6 @@ export default {
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
             teacherLists: [],   //老师列表
-            roomLists: [],   //教室列表
 
             activeTab: 'course_info',  //tab列表选中key
 
@@ -875,6 +874,8 @@ export default {
         },
         //手动消课提交数据
         async submitTimetable() {
+            if(submitLoading.removeTimetable) return 0;
+            this.submitLoading.removeTimetable = true;
             let params = {
                 student_id: this.studentId,
                 course_id: this.removeTimetableForm.course_id,
@@ -893,6 +894,7 @@ export default {
             console.log(params);
 
             let result = await this.$$request.post('api/eduCount/manualElimination', params);
+            submitLoading.removeTimetable = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('手动消课成功!');
@@ -915,7 +917,8 @@ export default {
             this.deleteTimeTableLists = val;
         },
         checkboxIsDisabled(row, index) {
-            return row.lesson_end_time == 0;
+            // return row.lesson_end_time == 0;
+            return row.begin_time > new Date().getTime() / 1000;
         },
         async deleteTimeTableHandle(data) {
             if(!this.deleteTimeTableLists.length) return 0;
@@ -1396,20 +1399,12 @@ export default {
 
             if(!result) return 0;
             this.teacherLists = result.lists;
-        },
-        async getRoomLists() {
-            let result = await this.$$request.post('api/classRoom/lists');
-            console.log(result);
-
-            if(!result) return 0;
-            this.roomLists = result.lists;
         }
     },
     created() {
         this.studentId = this.$route.query.id;
         this.getStudentDetail();
         this.getTeacherLists();    //手动消课获取老师列表
-        this.getRoomLists();
     },
     watch: {
         $route: function(val,oldval) {

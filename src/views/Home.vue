@@ -662,8 +662,9 @@ export default {
     mounted() {
         if(this.$store.state.guide) this.showModal();
         this.$store.dispatch('getAdvisor');
-        this.$store.dispatch('geySource');
-        this.$store.dispatch('geyCourse');
+        this.$store.dispatch('getCourse');
+        this.$store.dispatch('getSource');
+        this.$store.dispatch('getClassRoom');
         this.$store.dispatch('getGrade');
         this.$store.dispatch('getRelation');
     },
