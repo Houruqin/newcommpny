@@ -4,6 +4,7 @@ import axios from 'axios'
 import qs from 'qs'
 import cache from './cache'
 import config from '../config.json'
+import Bus from '../script/bus'
 import { Message } from 'element-ui';
 
 //全局配置baseURL和超时时间  根据当前环境 development开发/ production生产正式,申明不同的baseURL
@@ -29,9 +30,11 @@ axios.interceptors.response.use(res => {
             if(result.data.token) {
                 if(cache.get('isRemember')) cache.set('TOKEN', result.data.token);    //是否记住密码，保存不同的位置
                 else cache.setSession('TOKEN', result.data.token);
+                cache.setMemberInfo(result.data.user);
+                Bus.$emit('refreshSchoolLists');
             };
 
-            if(result.data.user) cache.setMemberInfo(result.data.user);
+            // if(result.data.user) cache.setMemberInfo(result.data.user);
 
             return result.data;
         // case 3:

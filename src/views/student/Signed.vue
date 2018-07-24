@@ -354,7 +354,7 @@
                         <el-col :span="4" :offset="1">
                             <el-form-item prop="relation" label-width="0">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in relationArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -412,7 +412,7 @@
                         <el-col :span="20"><el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input></el-col>
                     </el-form-item>
 
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('addStudent')">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -430,7 +430,7 @@
                         </li>
                     </ul>
                 </el-radio-group>
-                <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('divideClass')">确认</MyButton></div>
+                <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('divideClass')" :loading="submitLoading.divideClass">确认</MyButton></div>
             </div>
         </el-dialog>
     </div>
@@ -451,6 +451,10 @@ export default {
             hasContact: true,
             contactDot: 0,
 
+            submitLoading: {
+                student: false, divideClass: false
+            },
+
             listStudentId: '',
             
             monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
@@ -467,7 +471,6 @@ export default {
             searchFilter: {  //学员搜索筛选条件
                 course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
             },
-            relationArr: StudentStatic.relation,
             studentForm: {id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
             rules: {
                 parent_name: [
@@ -665,13 +668,16 @@ export default {
         },
         //提交学员信息
         async submitStudentInfo() {
-            let params = {};
+            if(this.submitLoading.student) return 0;
+            this.submitLoading.student = true;
 
+            let params = {};
             for(let key in this.studentForm) {
                 params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
             };
 
             let result = await this.$$request.post('api/sign/edit', params);
+            this.submitLoading.student = false;
             console.log(result);
 
             if(!result) return 0;
@@ -684,12 +690,16 @@ export default {
         },
         //提交分班信息
         async submitDivideClass() {
+            if(this.submitLoading.divideClass) return 0;
+            this.submitLoading.divideClass = true;
+
             let params = {
                 sc_id: this.classRoomInfo.sc_id,
                 grade_id: this.divideClassRadio,
                 student_id: this.classRoomInfo.student_id
             }
             let result = await this.$$request.post('api/studentGrade/add', params);
+            this.submitLoading.divideClass = false;
             if(!result) return 0;
             this.$message.success('分班成功');
             this.classMaskStatus = false;

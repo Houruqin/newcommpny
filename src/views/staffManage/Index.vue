@@ -59,7 +59,7 @@
 
         <!-- 新增员工弹窗 -->
         <AddStaffDialog v-if="load_lazy" :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
-            @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff" CB-dimission="CB_dimission">
+            @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff" @CB-dimission="CB_dimission">
         </AddStaffDialog>
     </div>
 </template>

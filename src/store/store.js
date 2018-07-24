@@ -9,6 +9,7 @@ const state = {
     guide: false,     //是否引导页
     advisor: [],    //顾问列表
     source: [],   //渠道列表
+    classRoom: [],   //教室列表
     course: [],   //课程列表
     grade: [],    //班级列表
     listen_grade: [],    //试听班级列表
@@ -28,14 +29,21 @@ const mutations = {
 
         state.advisor = result.lists;
     },
-    async geySource(state) {
+    async getSource(state) {
         let result = await Request.post('api/source/lists');
         console.log(result)
         if(!result) return 0;
 
         state.source = result.lists;
     },
-    async geyCourse(state) {
+    async getClassRoom() {
+        let result = await Request.post('api/classRoom/lists');
+        console.log(result)
+        if(!result) return 0;
+
+        state.classRoom = result.lists;
+    },
+    async getCourse(state) {
         let result = await Request.post('api/course/normalLists');
         console.log(result)
         if(!result) return 0;
@@ -43,12 +51,12 @@ const mutations = {
         state.course = result.lists;
     },
     async getGrade(state) {
-        let result = await Request.post('api/eduCount/gradeLists',{is_listen: 0});
+        let result = await Request.post('api/eduCount/gradeLists', {is_listen: 0});
         if(!result) return 0;
         state.grade = result.grades;
     },
     async getListenGrade(state) {
-        let result = await Request.post('api/eduCount/gradeLists',{is_listen: 1});
+        let result = await Request.post('api/eduCount/gradeLists', {is_listen: 1});
         if(!result) return 0;
         state.listen_grade = result.grades;
     },
@@ -73,12 +81,16 @@ const actions = {
         context.commit('getAdvisor');
     },
 
-    geySource(context) {
-        context.commit('geySource');
+    getSource(context) {
+        context.commit('getSource');
     },
     
-    geyCourse(context) {
-        context.commit('geyCourse');
+    getClassRoom(context) {
+        context.commit('getClassRoom');
+    },
+
+    getCourse(context) {
+        context.commit('getCourse');
     },
     
     getGrade(context) {

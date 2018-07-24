@@ -29,7 +29,6 @@
                         :data="uploadParams"
                         :on-error="uploadFail"
                         :on-change="onChange"
-                        :limit="1"
                         :show-file-list="false"
                         :on-success="uploadSuccess">
                         <MyButton>浏览</MyButton>
@@ -213,9 +212,9 @@ export default {
         },
         //选择文件
         onChange(file, fileList) {
+            if(fileList.length > 1) fileList.shift();
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
-            this.$refs.nosignUpload.clearFiles();
             this.readFiles(file.raw);
         },
         //读取文件
@@ -245,7 +244,6 @@ export default {
         },
         //提交excel
         submitHandle() {
-            console.log(this.fileInput)
             if(!this.fileInput) return this.$message.warning('请选择文件!');
             this.verifyExcelFile();
         },

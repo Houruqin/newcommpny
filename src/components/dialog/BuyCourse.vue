@@ -41,8 +41,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
-                        <el-form-item label="课时单价：" prop="unit_price" class="price-input">
-                            <el-input placeholder="课时单价" v-model.number="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
+                        <el-form-item label="课时单价：" prop="unit_price" class="units-input">
+                            <el-input placeholder="课时单价" v-model="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
@@ -58,8 +58,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
-                        <el-form-item label="教材费用：" prop="textbook_price" class="price-input">
-                            <el-input placeholder="教材费用" v-model.number="courseForm.textbook_price"></el-input><span class="pl-10">元</span>
+                        <el-form-item label="教材费用：" prop="textbook_price" class="units-input">
+                            <el-input placeholder="教材费用" v-model="courseForm.textbook_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -72,8 +72,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
-                        <el-form-item label="优惠金额：" prop="preferential_price" class="price-input">
-                            <el-input placeholder="优惠金额" v-model.number="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
+                        <el-form-item label="优惠金额：" prop="preferential_price" class="units-input">
+                            <el-input placeholder="优惠金额" v-model="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
@@ -130,8 +130,8 @@ export default {
             this.courseForm.parent_id = newVal.parent_id;
             this.courseForm.expire = newVal.expire || 12;
             this.courseForm.type = newVal.buy_type || 1;
-            this.courseForm.preferential_price = 0;
-            this.courseForm.unit_price = 0;
+            // this.courseForm.preferential_price = 0;
+            // this.courseForm.unit_price = 0;
             this.courseForm.pay_at = new Date().getTime();
 
             if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
