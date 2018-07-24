@@ -778,7 +778,7 @@ export default {
             // });
 
             let map = {}, dest = [];
-            
+
             for(let i = 0, len = data.length; i < len; i++) {
                 let ai = data[i];
                 if(!map[ai.student_id]) {
@@ -796,7 +796,6 @@ export default {
                     for(let j = 0, len = dest.length; j < len; j++) {
                         let dj = dest[j];
                         if(dj.student_id == ai.student_id) {
-                            console.log(dj)
                             dj.course_lists.push(ai);
                             break;
                         }
