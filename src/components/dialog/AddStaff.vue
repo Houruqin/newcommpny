@@ -9,7 +9,7 @@
                         </el-form-item>
                         <el-form-item label="职务：" prop="role_type"  class="mt-30">
                             <el-select v-model="staffForm.role_type" multiple  placeholder="选择职务名称" @remove-tag="remove_tag">
-                                <el-option value="master" label="校长" :disabled="true"></el-option>
+                                <!-- <el-option value="master" label="校长" :disabled="true"></el-option> -->
                                 <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                             </el-select>
                         </el-form-item>

@@ -609,7 +609,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-row>
+                            <el-row classd='time_select'>
                                 <el-col :span="17">
                                     <el-form-item label="上课时间：" prop="day">
                                         <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" 
@@ -1614,6 +1614,9 @@ export default {
                 border-radius: 5px;
             }
         }
+    }
+    .time_select /deep/ .el-input--suffix .el-input__inner{
+        padding-right: 10px;
     }
     .t_button{
         display: inline-block;
