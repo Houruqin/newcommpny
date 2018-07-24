@@ -8,7 +8,8 @@
                             <el-input v-model.trim="staffForm.name" placeholder="姓名"></el-input>
                         </el-form-item>
                         <el-form-item label="职务：" prop="role_type"  class="mt-30">
-                            <el-select v-model="staffForm.role_type" multiple  placeholder="选择职务名称">
+                            <el-select v-model="staffForm.role_type" multiple  placeholder="选择职务名称" @remove-tag="remove_tag">
+                                <el-option v-if="staffForm.role_type.indexOf('master') !== -1" value="master" label="校长" :disabled="true"></el-option>
                                 <el-option v-for="(item, index) in roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                             </el-select>
                         </el-form-item>
@@ -180,6 +181,15 @@ export default {
             this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$message.success('已修改为离职状态');
+        },
+        remove_tag(tag) {
+            console.log(tag)
+            if(tag === 'master') {
+                this.staffForm.role_type.unshift('master')
+                this.$message.closeAll();
+                this.$message.warning('不能删除校长职务！')
+            };
+            
         }  
     },
     created() {
