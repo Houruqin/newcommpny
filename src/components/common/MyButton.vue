@@ -37,8 +37,8 @@ export default {
             border: 1px #45DAD5 solid;
         }
         &.loading {
-            background-color: #e3e3e3;
-            color: #999;
+            background-color: #cbcbcb;
+            color: #fff;
         }
         img {
             margin-right: 5px;

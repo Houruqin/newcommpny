@@ -955,7 +955,7 @@ export default {
       this.buyCourseData = {
         course_id: student.course_id,
         id: student.student_id,
-        advisor_id: student.advisor_id,
+        advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
         advisor: {name: student.advisor_name},
         parent_id: student.parent_id,
         buy_type: 2

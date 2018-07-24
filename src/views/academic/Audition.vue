@@ -199,6 +199,9 @@ export default {
   height: 32px;
   line-height: 32px;
 }
+.toolbar /deep/ .el-input__icon {
+  line-height: 32px;
+}
 </style>
 
 
