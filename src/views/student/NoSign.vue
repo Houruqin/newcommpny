@@ -137,7 +137,7 @@ export default {
             followUp: StudentStatic.followUp.status,
 
             dialogStatus: {student: false, course: false, contract: false},
-            studentType: 'add',
+            studentType: '',
             
             buyCourseData: {},
             editDetail: {},
@@ -210,6 +210,7 @@ export default {
             if(type == 'student') {
                 this.dialogStatus.student = false;
                 this.editDetail = {};
+                this.studentType = '';
                 return 0;
             }
             if(type == 'course') return this.dialogStatus.course = false;

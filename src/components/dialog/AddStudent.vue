@@ -111,8 +111,8 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
-            this.$refs.addStudent && this.$refs.addStudent.resetFields();
-            this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
+            // newVal == true && this.$refs.addStudent && this.$refs.addStudent.resetFields();
+            // newVal == true && this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
             this.studentDialogStatus = newVal;
         },
         type(newVal, oldVal) {
@@ -159,7 +159,7 @@ export default {
                 remark: '',   //备注信息
                 school_name: ''
             },
-            studentType: '',
+            studentType: 'add',
             sourceForm: {name: ''},
             studentDialogStatus: false,
             sourceDialogStatus: false,

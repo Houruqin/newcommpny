@@ -58,7 +58,7 @@
                             <span class="red">{{scope.row.error_info.data}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="学员姓名" align="center">
+                    <el-table-column align="center" :render-header="nameRenderHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.student_name.data" size="small" @change="scope.row.student_name.error = false"></el-input>
@@ -68,7 +68,7 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="学员性别" align="center">
+                    <el-table-column align="center" :render-header="sexRenderHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.sex.data" size="small" @change="scope.row.sex.error = false"></el-input>
@@ -78,7 +78,7 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="联系电话" align="center">
+                    <el-table-column align="center" :render-header="mobileRenderHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.mobile.data" size="small" @change="scope.row.mobile.error = false"></el-input>
@@ -224,12 +224,34 @@ export default {
                         });
                         return list;
                     });
-
-                    console.log(this.previewData);
                 }
             }else {
-                this.$message.warning('请求失败，请稍后再试');
+                this.$message.warning(response.message);
             }
+        },
+        nameRenderHeader(h, {column, $index}) {
+            return h('div', [
+                h('span', {
+                    'class': {'red': true}
+                }, '*'),
+                h('span', '学员姓名')
+            ]);
+        },
+        sexRenderHeader(h, {column, $index}) {
+            return h('div', [
+                h('span', {
+                    'class': {'red': true}
+                }, '*'),
+                h('span', '学员性别')
+            ]);
+        },
+        mobileRenderHeader(h, {column, $index}) {
+            return h('div', [
+                h('span', {
+                    'class': {'red': true}
+                }, '*'),
+                h('span', '联系电话')
+            ]);
         },
         //选择文件
         onChange(file, fileList) {
@@ -384,6 +406,11 @@ export default {
         .cell-box {
             width: 100%;
             min-height: 22px;
+        }
+        /deep/.el-table__header {
+            .red {
+                color: red
+            }
         }
     }
     .step-three {

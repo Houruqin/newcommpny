@@ -63,7 +63,7 @@ export default {
     },
     watch: {
         dialogStatus(newVal, oldVal) {
-            this.$refs.userForm && this.$refs.userForm.resetFields();
+            // newVal == true && this.$refs.userForm && this.$refs.userForm.resetFields();
             this.staffDialogStatus = newVal;
         },
         type(newVal, oldVal) {
@@ -78,7 +78,6 @@ export default {
                 else if(key == 'role_type'){this.staffForm[key] = [];for(let type of newVal.type_all){this.staffForm[key].push(type.type_en)}}
                 else this.staffForm[key] = newVal[key];
             }
-            
         }
     },
     data() {
@@ -114,7 +113,7 @@ export default {
     methods: {
         formClose() {
             this.$refs.userForm.resetFields();
-            Object.keys(this.staffForm).forEach(v => {if(v === 'role_type'){this.staffForm[v] = []}else{this.staffForm[v] = ''}});
+            Object.keys(this.staffForm).forEach(v => {this.staffForm[v] = v === 'role_type' ? [] : ''});
             this.$emit('CB-dialogStatus', 'staff');
         },
         //角色列表
@@ -140,13 +139,11 @@ export default {
                 name: this.staffForm.name,
                 mobile: this.staffForm.mobile,
                 type: this.staffForm.role_type,
-                // role_id: this.staffForm.role_id,
                 entry_at: this.staffForm.entry_date ?  this.staffForm.entry_date / 1000 : '',
                 kind: this.staffForm.kind
             };
 
             if(this.type == 'edit') params.id = this.staffForm.id;
-
             console.log(params)
             let result = await this.$$request.post(url, params);
             this.submitLoading.add = false;
