@@ -609,7 +609,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-row classd='time_select'>
+                            <el-row class='time_select'>
                                 <el-col :span="17">
                                     <el-form-item label="上课时间：" prop="day">
                                         <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" 
@@ -874,7 +874,7 @@ export default {
         },
         //手动消课提交数据
         async submitTimetable() {
-            if(submitLoading.removeTimetable) return 0;
+            if(this.submitLoading.removeTimetable) return 0;
             this.submitLoading.removeTimetable = true;
             let params = {
                 student_id: this.studentId,
@@ -894,7 +894,7 @@ export default {
             console.log(params);
 
             let result = await this.$$request.post('api/eduCount/manualElimination', params);
-            submitLoading.removeTimetable = false;
+            this.submitLoading.removeTimetable = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('手动消课成功!');

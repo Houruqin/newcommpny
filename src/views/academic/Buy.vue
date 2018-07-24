@@ -52,7 +52,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span class="t_button" @click="show_contract(scope.row.id)">详情</span>
+                <span class="fc-m" @click="show_contract(scope.row.id)">购课详情</span>
               </div>
             </div>
           </template>
@@ -194,6 +194,9 @@ export default {
 }
 .toolbar /deep/ .el-input__inner {
   height: 32px;
+  line-height: 32px;
+}
+.toolbar /deep/ .el-input__icon {
   line-height: 32px;
 }
 .t_button {
