@@ -37,9 +37,9 @@
 
                 <div class="explain-box mt-50">
                     <h4 class="fc-5 mt-50 fs-15 mb-10">导入须知：</h4>
-                    <p>1. 支持学员基本信息导入</p>
+                    <p>1. 支持学员购买课程信息导入</p>
                     <p>2. 输入信息请遵循模板格式添加，否则无法成功导入数据</p>
-                    <p>3. 导入课程顾问和渠道来源需要和系统信息保持一致，否则无法成功导入</p>
+                    <p>3. 导入学员购买的课程信息需要保持和系统的课程信息匹配，否则无法成功导入</p>
                     <p>4. 导入的数据将同步到学员信息和统计信息内</p>
                     <p>5. 一次导入数据最多不可超过200条，否则无法成功导入数据</p>
                     <p>6. 如遇到导入问题请联系在线客服或者致电：028-85251337</p>
@@ -59,7 +59,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column align="center" :render-header="nameRenderHeader">
+                    <el-table-column align="center" :render-header="nameHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.student_name.data" size="small" @change="scope.row.student_name.error = false"></el-input>
@@ -70,7 +70,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column align="center" :render-header="mobileRenderHeader">
+                    <el-table-column align="center" :render-header="mobileHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.mobile.data" size="small" @change="scope.row.mobile.error = false"></el-input>
@@ -81,7 +81,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column align="center" label="课程名称">
+                    <el-table-column align="center" :render-header="courseNameHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.course_name.data" size="small" @change="scope.row.course_name.error = false"></el-input>
@@ -92,7 +92,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column align="center" label="购买课时">
+                    <el-table-column align="center" :render-header="buyCourseHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.buy_lesson_num.data" size="small" type="number" @change="scope.row.buy_lesson_num.error = false"></el-input>
@@ -115,7 +115,7 @@
                     </el-table-column>
 
 
-                    <el-table-column align="center" label="剩余课时">
+                    <el-table-column align="center" :render-header="surplusLessonNumHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.surplus_lesson_num.data" size="small" type="number" @change="scope.row.surplus_lesson_num.error = false"></el-input>
@@ -137,7 +137,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column align="center" label="购课总额">
+                    <el-table-column align="center" :render-header="totalPriceHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
                                 <el-input v-model="scope.row.total_price.data" size="small" @change="scope.row.total_price.error = false"></el-input>
@@ -148,7 +148,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="合约到期时间" align="center">
+                    <el-table-column align="center" :render-header="expireHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click" popper-class="expire-popper">
                                 <el-date-picker 
@@ -255,7 +255,8 @@ export default {
         },
         //回到学员列表
         goStudentLists() {
-            this.$router.go(-1);
+            // this.$router.go(-1);
+            this.$router.replace({path: '/student/signed'});   //刷新工作台路由
         },
         //*表格头部必填项
         requestTableHeader(elem, text) {
@@ -266,22 +267,26 @@ export default {
                 elem('span', text)
             ]);
         },
-        nameRenderHeader(h, {column, $index}) {
-            // return h('div', [
-            //     h('span', {
-            //         'class': {'red': true}
-            //     }, '*'),
-            //     h('span', '学员姓名')
-            // ]);
+        nameHeader(h, {column, $index}) {
             return this.requestTableHeader(h, '学员姓名');
         },
-        mobileRenderHeader(h, {column, $index}) {
-            return h('div', [
-                h('span', {
-                    'class': {'red': true}
-                }, '*'),
-                h('span', '联系电话')
-            ]);
+        mobileHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '联系电话');
+        },
+        courseNameHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '课程名称');
+        },
+        buyCourseHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '购买课时');
+        },
+        surplusLessonNumHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '剩余课时');
+        },
+        totalPriceHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '购课总额');
+        },
+        expireHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '购课日期');
         },
         //选择文件
         onChange(file, fileList) {
@@ -325,7 +330,7 @@ export default {
             console.log(this.tableData)
             if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
             if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
-
+        
             let requestStatus = this.tableData.every((d, index) => {
                 let requestArr = [];
                 for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};

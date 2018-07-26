@@ -60,7 +60,7 @@
         <el-table-column label="试听状态" prop="status" align="center">
           <template slot-scope="scope">
             <div>
-              <div :style="{'color' : scope.row.status === 4 ? '#606266' : (scope.row.status === 2 ? '#de7b1c' : '#45DAD5')}">{{scope.row.status === 4 ? '邀约已试听' : (scope.row.status === 2 ? '邀约未试听' : '未结课')}}</div>
+              <div :style="{'color' : scope.row.status === 4 ? '#606266' : (scope.row.status === 2 ? '#de7b1c' : '#45DAD5')}">{{scope.row.status === 4 ? '已试听' : (scope.row.status === 2 ? '待试听' : '已过期')}}</div>
             </div>
           </template>
         </el-table-column>
