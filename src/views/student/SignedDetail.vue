@@ -229,7 +229,7 @@
                         <el-col :span="4" :offset="1">
                             <el-form-item prop="relation" label-width="0">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in relationArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
