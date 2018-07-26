@@ -71,7 +71,7 @@ const timeTableStatic = {
 };
 
 const excelHeader = {
-    basis: {
+    student: {
         '学员姓名': 'student_name', 
         '学员性别': 'sex',
         '联系电话': 'mobile', 
@@ -125,7 +125,7 @@ const excelHeader = {
     sign_request: [
         '学员姓名', '学员性别', '家长手机号', '签约课程', '购课时数', '剩余课时', '合约金额'
     ],
-    basis_request: [
+    student_request: [
         '学员姓名', '学员性别', '联系电话'
     ],
     course_request: [

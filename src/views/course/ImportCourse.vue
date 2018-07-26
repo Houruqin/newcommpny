@@ -256,7 +256,7 @@ export default {
         //回到学员列表
         goStudentLists() {
             // this.$router.go(-1);
-            this.$router.replace({path: '/student/signed'});   //刷新工作台路由
+            this.$router.replace({path: '/student/signed'});
         },
         //*表格头部必填项
         requestTableHeader(elem, text) {

@@ -2,7 +2,7 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader title="课程管理">
-                <router-link :to="{path: '/course/importcourse'}"><MyButton icon="import" type="border" fontColor="fc-m">课程学员导入</MyButton></router-link>
+                <!-- <router-link :to="{path: '/course/importcourse'}"><MyButton icon="import" type="border" fontColor="fc-m">课程学员导入</MyButton></router-link> -->
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
             <!-- <div class="content-box my-scrollbar"> -->

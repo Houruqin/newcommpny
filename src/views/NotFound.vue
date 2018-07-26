@@ -30,6 +30,8 @@ export default {
 <style lang="less" scoped>
     .bg-box {
         height: 100%;
+        width: 100%;
+        position: absolute;
         img {
             display: block;
         }
