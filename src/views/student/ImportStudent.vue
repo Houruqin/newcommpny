@@ -272,7 +272,7 @@ export default {
         return {
             stepActive: 1,
             activeTab: 'student',
-            tabLists: {student: '学员基础信息', course: '课程学员基础信息'},
+            tabLists: {student: '学员基础信息', course: '课程基础信息'},
             importUrl: '',
             total: 0,
             fileName: 'import_excel',
