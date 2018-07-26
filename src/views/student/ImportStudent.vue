@@ -51,7 +51,7 @@
                     <p>6. 如遇到导入问题请联系在线客服或者致电：028-85251337</p>
                 </div>
 
-                <div class="d-f f-j-s mt-50 mb-30"><MyButton @click.native="submitHandle">提交</MyButton></div>
+                <div class="d-f f-j-s mt-50 mb-30"><MyButton @click.native="submitHandle" :loading="submitLoading.submit_excel">提交</MyButton></div>
             </div>
 
             <!-- 第二页预览，修改文件 -->
@@ -91,7 +91,7 @@
                     <el-table-column align="center" :render-header="mobileHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
-                                <el-input v-model="scope.row.mobile.data" size="small" @change="scope.row.mobile.error = false"></el-input>
+                                <el-input v-model="scope.row.mobile.data" size="small" type="number" @change="scope.row.mobile.error = false"></el-input>
                                 <div class="cell-box" slot="reference">
                                     <span class="out-line" :class="{'red': scope.row.mobile.error}">{{scope.row.mobile.data}}</span>
                                 </div>
@@ -164,7 +164,7 @@
                         <el-table-column align="center" label="材料费用">
                             <template slot-scope="scope">
                                 <el-popover placement="bottom" width="170" trigger="click">
-                                    <el-input v-model="scope.row.textbook_price.data" size="small" @change="scope.row.textbook_price.error = false"></el-input>
+                                    <el-input v-model="scope.row.textbook_price.data" size="small" type="number" @change="scope.row.textbook_price.error = false"></el-input>
                                     <div class="cell-box" slot="reference">
                                         <span slot="reference" class="out-line" :class="{'red': scope.row.textbook_price.error}">{{scope.row.textbook_price.data}}</span>
                                     </div>
@@ -175,7 +175,7 @@
                         <el-table-column align="center" :render-header="totalPriceHeader">
                             <template slot-scope="scope">
                                 <el-popover placement="bottom" width="170" trigger="click">
-                                    <el-input v-model="scope.row.total_price.data" size="small" @change="scope.row.total_price.error = false"></el-input>
+                                    <el-input v-model="scope.row.total_price.data" size="small" type="number" @change="scope.row.total_price.error = false"></el-input>
                                     <div class="cell-box" slot="reference">
                                         <span slot="reference" class="out-line" :class="{'red': scope.row.total_price.error}">{{scope.row.total_price.data}}</span>
                                     </div>
@@ -237,7 +237,7 @@
                 </el-table>
 
                 <div class="d-f f-j-c mt-40 mb-10">
-                    <MyButton @click.native="conflictSubmit" v-if="!errTableEdit">提交</MyButton>
+                    <MyButton @click.native="conflictSubmit" v-if="!errTableEdit" :loading="submitLoading.submit_list">提交</MyButton>
                     <MyButton @click.native="conflictDelete" v-else :type="deleteData.length ? 'subm' : 'gray'" class="ml-20">删除</MyButton>
                 </div>
             </div>
@@ -280,6 +280,9 @@ export default {
             excelfileExtend: '.xls,.xlsx',    //文件格式
             fileInput: '',
             errTableEdit: false,
+            submitLoading: {
+                submit_excel: false, submit_list: false
+            },
             tableAllHeader: {
                 student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
                 course: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
@@ -325,35 +328,9 @@ export default {
             let path = this.activeTab == 'student' ? '/student/nosign' : '/student/signed';
             this.$router.replace({path: path});
         },
-        //上传成功
-        uploadSuccess(response, file, fileList) {
-            console.log(response)
-            if(response.code === 1) {
-                if(response.data.status === 1) {
-                    this.total = response.data.success;
-                    this.stepActive = 3;
-                    this.fileInput = ''; 
-                }else {
-                    this.stepActive = 2;
-                    let list = response.data.data;
-                    
-                    console.log(list);
-
-                    this.previewData = list.map((d, e) => {
-                        let list = {index: `student_${e}`};
-                        this.tableAllHeader[this.activeTab].forEach((v, n) => {
-                            list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
-                        });
-                        return list;
-                    });
-                }
-            }else {
-                this.$message.warning(response.message);
-            }
-        },
         //*表格头部必填项
         requestTableHeader(elem, text) {
-            return elem('div', [
+            return elem('span', [
                 elem('span', {
                     'class': {'red': true}
                 }, '*'),
@@ -436,7 +413,37 @@ export default {
 
             if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
 
+            if(this.submitLoading.submit_excel) return 0;
+            this.submitLoading.submit_excel = true;
+
             this.$refs.excelUpload.submit();
+        },
+        //上传成功
+        uploadSuccess(response, file, fileList) {
+            console.log(response)
+            this.submitLoading.submit_excel = false;
+            if(response.code === 1) {
+                if(response.data.status === 1) {
+                    this.total = response.data.success;
+                    this.stepActive = 3;
+                    this.fileInput = ''; 
+                }else {
+                    this.stepActive = 2;
+                    let list = response.data.data;
+                    
+                    console.log(list);
+
+                    this.previewData = list.map((d, e) => {
+                        let list = {index: `student_${e}`};
+                        this.tableAllHeader[this.activeTab].forEach((v, n) => {
+                            list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                        });
+                        return list;
+                    });
+                }
+            }else {
+                this.$message.warning(response.message);
+            }
         },
         //冲突预览，表格checkbox勾选change
         handleSelectionChange(val) {
@@ -458,9 +465,14 @@ export default {
             });
 
             console.log(tableList);
+            if(!tableList.length) return this.$message.warning('你已将全部信息删除，不能提交！');
             this.subSubmitHandle(tableList);
         },
         async subSubmitHandle(params) {
+            
+            if(this.submitLoading.submit_list) return 0;
+            this.submitLoading.submit_list = true;
+
             let excel_type, excel_params;
 
             if(this.activeTab == 'student') {
@@ -473,6 +485,7 @@ export default {
 
             let result = await this.$$request.post(`api/${excel_type}/upload`, excel_params);
             console.log(result);
+            this.submitLoading.submit_list = false;
             if(!result) return 0;
 
             if(result.status === 1) {
@@ -558,7 +571,8 @@ export default {
         }
         /deep/.el-table__header {
             .red {
-                color: red
+                color: red;
+                padding-right: 2px;
             }
         }
     }
