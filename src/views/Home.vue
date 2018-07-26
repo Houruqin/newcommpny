@@ -1,5 +1,5 @@
 <template>
-    <div class="home-bg bgc-m">
+    <div class="home-bg">
         <div class="aside-box">
             <div class="home-menu-box">
                 <div class="logo d-f f-d-c f-a-c">
@@ -687,8 +687,9 @@ export default {
 
 <style lang="less" scoped>
     .home-bg {
-        min-width: 1900px;
-        min-height: 100%;
+        // min-width: 1900px;
+        // min-height: 100%;
+        height: 100%;
     }
     .aside-box {
         background-color: #223243;
@@ -748,9 +749,8 @@ export default {
     .content-right {
         padding-left: 230px;
         padding-top: 90px;
+        height: 100%;
         .header {
-            // width: 100%;
-            height: auto !important;
             padding: 0;
             position: fixed;
             z-index: 800;
@@ -807,9 +807,7 @@ export default {
             }
         }
         .home-main-box {
-            padding: 0 50px 20px 20px;
-            min-width: 1300px;
-            min-height: 842px;
+            padding: 0 20px 20px;
         }
     }   
     .guide-box {

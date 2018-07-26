@@ -16,6 +16,17 @@
                 <span>-</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             </p>
+            <!-- <el-row :gutter="20" class="sex-chart-box mt-20">
+                <el-col :span="7" class="p-r">
+                    <div class="left-chart" ref="sexChart"></div>
+                    <div class="student-total p-a t-a-c">
+                        <p class="fs-30">{{sex.data.total_num}}</p><span class="fs-12">学员总数</span>
+                    </div>
+                </el-col>
+                <el-col :span="17">
+                    <div class="right-chart" ref="ageChart"></div>
+                </el-col>
+            </el-row> -->
             <div class="echart-box d-f">
                 <div class="p-r left-chart">
                     <div ref="sexChart" class="left-chart"></div>
@@ -42,7 +53,19 @@
             <h4>签约学员统计</h4>
             <span>年份：</span>
             <el-date-picker v-model="student.year" size="small" type="year" @change="studentDateChange" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box d-f">
+            <!-- <el-row :gutter="20" class="student-chart-box mt-20">
+                <el-col :span="7" class="p-r">
+                    <div class="left-chart" ref="studentLeft"></div>
+                    <div class="student-total p-a t-a-c">
+                        <p class="fs-30" v-if="student.total_lists">{{student.total_lists.total_num}}</p><span class="fs-12">学员总数</span>
+                    </div>
+                </el-col>
+                <el-col :span="17">
+                    <div class="right-chart" ref="studentRight"></div>
+                </el-col>
+            </el-row> -->
+
+            <div class="echart-box d-f mt-20">
                 <div class="left-chart p-r">
                     <div ref="studentLeft" class="left-chart"></div>
                     <div class="student-total p-a t-a-c">
@@ -58,7 +81,7 @@
             <h4>课程及考勤统计</h4>
             <span>年份：</span>
             <el-date-picker v-model="course.year" size="small" @change="courseDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box mt-30">
+            <div class="echart-box mt-20">
                 <div class="right-chart" ref="courseChart"></div>
             </div>
         </el-card>
@@ -74,7 +97,7 @@
             </div>
             <span>年份：</span>
             <el-date-picker v-model="source.what_time" size="small" @change="sourceDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box d-f">
+            <div class="echart-box d-f mt-20">
                 <div class="left-chart p-r">
                     <div ref="sourceLeft" class="left-chart"></div>
                     <div class="student-total p-a t-a-c">
@@ -237,7 +260,7 @@ export default {
                 legend : {
                     orient: 'vertical',
                     x: 'left',
-                    top: 20,
+                    top: 0,
                     itemGap: 15,
                     itemWidth: 15,
                     itemHeight: 8,
@@ -603,13 +626,30 @@ export default {
     .date-select {
         width: 150px;
     }
+    .sex-chart-box {
+        .left-chart {
+            height: 350px;
+        }
+        .right-chart {
+            height: 350px;
+        }
+        .student-total {
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+
+
+
     .echart-box {
         .left-chart {
-            width: 520px;
+            width: 400px;
             height: 350px;
             .student-total, .sex-num {
                 top: 50%;
-                left: 60%;
+                left: 59%;
                 transform: translate(-50%, -50%);
             }
             .sex-num {
@@ -617,7 +657,7 @@ export default {
             }
         }
         .right-chart {
-            min-width: 1040px;
+            // min-width: 1040px;
             height: 350px;
         }
         ul {

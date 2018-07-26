@@ -1,7 +1,7 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="导入学员">
+            <TableHeader title="导入课程学员">
                 <MyButton class="mr-20" v-if="stepActive == 2" type="border" @click.native="timetableEditClick" fontColor="fc-m">
                     {{errTableEdit ? '取消' : '编辑'}}
                 </MyButton>
@@ -9,11 +9,11 @@
 
             <!-- 第一页选择文件 -->
             <div class="mt-30 pl-20" v-if="stepActive == 1">
-                <p class="fs-16 fc-5">导入学员基础信息</p>
+                <p class="fs-16 fc-5">导入课程学员基础信息</p>
 
                 <div class="d-f f-a-c f-j-c f-d-c download-box mt-20 cursor-pointer" @click="downloadExcel">
                     <img src="../../images/common/signed-excel.png" alt="">
-                    <span class="mt-15 fc-5">学员名单下载</span>
+                    <span class="mt-15 fc-5">课程学员名单下载</span>
                 </div>
 
                 <div class="d-f upload-box f-a-c mt-50">
@@ -58,6 +58,7 @@
                             <span class="red">{{scope.row.error_info.data}}</span>
                         </template>
                     </el-table-column>
+
                     <el-table-column align="center" :render-header="nameRenderHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
@@ -68,16 +69,7 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column align="center" :render-header="sexRenderHeader">
-                        <template slot-scope="scope">
-                            <el-popover placement="bottom" width="170" trigger="click">
-                                <el-input v-model="scope.row.sex.data" size="small" @change="scope.row.sex.error = false"></el-input>
-                                <div class="cell-box" slot="reference">
-                                    <span slot="reference" class="out-line" :class="{'red': scope.row.sex.error}">{{scope.row.sex.data}}</span>
-                                </div>
-                            </el-popover>
-                        </template>
-                    </el-table-column>
+
                     <el-table-column align="center" :render-header="mobileRenderHeader">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
@@ -88,38 +80,97 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="学员生日" align="center">
+
+                    <el-table-column align="center" label="课程名称">
                         <template slot-scope="scope">
-                            <el-popover placement="bottom" width="170" trigger="click" popper-class="birthday-popper">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.course_name.data" size="small" @change="scope.row.course_name.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.course_name.error}">{{scope.row.course_name.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column align="center" label="购买课时">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.buy_lesson_num.data" size="small" type="number" @change="scope.row.buy_lesson_num.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.buy_lesson_num.error}">{{scope.row.buy_lesson_num.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column align="center" label="赠送课时">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.given_lesson_num.data" size="small" type="number" @change="scope.row.given_lesson_num.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.given_lesson_num.error}">{{scope.row.given_lesson_num.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column align="center" label="剩余课时">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.surplus_lesson_num.data" size="small" type="number" @change="scope.row.surplus_lesson_num.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.surplus_lesson_num.error}">{{scope.row.surplus_lesson_num.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column align="center" label="材料费用">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.textbook_price.data" size="small" @change="scope.row.textbook_price.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.textbook_price.error}">{{scope.row.textbook_price.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column align="center" label="购课总额">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.total_price.data" size="small" @change="scope.row.total_price.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span slot="reference" class="out-line" :class="{'red': scope.row.total_price.error}">{{scope.row.total_price.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="合约到期时间" align="center">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click" popper-class="expire-popper">
                                 <el-date-picker 
-                                    v-model="scope.row.birthday.data" type="date" 
+                                    v-model="scope.row.expire.data" type="date" 
                                     placeholder="选择日期" :editable="false" 
                                     size="small" :picker-options="pickerBeginDateAfter"
                                     value-format="yyyy-MM-dd"
-                                    @change="scope.row.birthday.error = false">
+                                    @change="scope.row.expire.error = false">
                                 </el-date-picker>
                                 <div class="cell-box" slot="reference">
-                                    <span class="out-line" :class="{'red': scope.row.birthday.error}">{{scope.row.birthday.data}}</span>
+                                    <span class="out-line" :class="{'red': scope.row.expire.error}">{{scope.row.expire.data}}</span>
                                 </div>
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="课程顾问" align="center">
+
+                    <el-table-column label="业绩归属" align="center">
                         <template slot-scope="scope">
                             <el-popover placement="bottom" width="170" trigger="click">
-                                <el-input v-model="scope.row.course_advisor.data" size="small" @change="scope.row.course_advisor.error = false"></el-input>
+                                <el-input v-model="scope.row.advisor_name.data" size="small" @change="scope.row.advisor_name.error = false"></el-input>
                                 <div class="cell-box" slot="reference">
-                                    <span class="out-line" :class="{'red': scope.row.course_advisor.error}">{{scope.row.course_advisor.data}}</span>
-                                </div>
-                            </el-popover>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="渠道来源" align="center">
-                        <template slot-scope="scope">
-                            <el-popover placement="bottom" width="170" trigger="click">
-                                <el-input v-model="scope.row.source.data" size="small" @change="scope.row.source.error = false"></el-input>
-                                <div class="cell-box" slot="reference">
-                                    <span class="out-line" :class="{'red': scope.row.source.error}">{{scope.row.source.data}}</span>
+                                    <span class="out-line" :class="{'red': scope.row.advisor_name.error}">{{scope.row.advisor_name.data}}</span>
                                 </div>
                             </el-popover>
                         </template>
@@ -164,12 +215,14 @@ export default {
             importUrl: '',
             total: 0,
             fileName: 'import_excel',
-            uploadParams:{excel_type: 'unsign_new'},
+            uploadParams: {is_limit_course_repeat: -1, is_limit_student_repeat: -1},
             excelfileExtend: '.xls,.xlsx',    //文件格式
             fileInput: '',
             errTableEdit: false,
             tableAllHeader: {
-                basis: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source']
+                course: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
+                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
+                ]
             },
             previewData: [],    //错误冲突列表数据
             deleteData: [],   //删除列表
@@ -190,7 +243,7 @@ export default {
         //下载模板
         downloadExcel() {
             let baseUrl = process.env.NODE_ENV  == 'development' ?  config.devBaseurl.api : config.prodBaseUrl.api;
-            window.location.href = `${baseUrl}api/excel/download?excel_type=unsign_new`;
+            window.location.href = `${baseUrl}api/excel/download?excel_type=sign_new`;
         },
         //上传错误
         uploadFail(err, file, fileList) {
@@ -204,46 +257,23 @@ export default {
         goStudentLists() {
             this.$router.go(-1);
         },
-        //上传成功
-        uploadSuccess(response, file, fileList) {
-            console.log(response)
-            if(response.code === 1) {
-                if(response.data.status === 1) {
-                    this.total = response.data.success;
-                    this.stepActive = 3; 
-                }else {
-                    this.stepActive = 2;
-                    let list = response.data.data;
-                    
-                    console.log(list);
-
-                    this.previewData = list.map((d, e) => {
-                        let list = {index: `student_${e}`};
-                        this.tableAllHeader.basis.forEach((v, n) => {
-                            list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
-                        });
-                        return list;
-                    });
-                }
-            }else {
-                this.$message.warning(response.message);
-            }
+        //*表格头部必填项
+        requestTableHeader(elem, text) {
+            return elem('div', [
+                elem('span', {
+                    'class': {'red': true}
+                }, '*'),
+                elem('span', text)
+            ]);
         },
         nameRenderHeader(h, {column, $index}) {
-            return h('div', [
-                h('span', {
-                    'class': {'red': true}
-                }, '*'),
-                h('span', '学员姓名')
-            ]);
-        },
-        sexRenderHeader(h, {column, $index}) {
-            return h('div', [
-                h('span', {
-                    'class': {'red': true}
-                }, '*'),
-                h('span', '学员性别')
-            ]);
+            // return h('div', [
+            //     h('span', {
+            //         'class': {'red': true}
+            //     }, '*'),
+            //     h('span', '学员姓名')
+            // ]);
+            return this.requestTableHeader(h, '学员姓名');
         },
         mobileRenderHeader(h, {column, $index}) {
             return h('div', [
@@ -299,12 +329,35 @@ export default {
             let requestStatus = this.tableData.every((d, index) => {
                 let requestArr = [];
                 for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
-                return requestArr.length == excelHeader.basis_request.length;
+                return requestArr.length == excelHeader.course_request.length;
             });
 
             if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
 
             this.$refs.nosignUpload.submit();
+        },
+        //上传成功
+        uploadSuccess(response, file, fileList) {
+            console.log(response)
+            if(response.code === 1) {
+                if(response.data.status === 1) {
+                    this.total = response.data.success;
+                    this.stepActive = 3; 
+                }else {
+                    this.stepActive = 2;
+                    let list = response.data.data;
+
+                    this.previewData = list.map((d, e) => {
+                        let list = {index: `student_${e}`};
+                        this.tableAllHeader.course.forEach((v, n) => {
+                            list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                        });
+                        return list;
+                    });
+                }
+            }else {
+                this.$message.warning(response.message);
+            }
         },
         //冲突预览，表格checkbox勾选change
         handleSelectionChange(val) {
@@ -321,7 +374,7 @@ export default {
 
             var tableList = this.previewData.map(d => {
                 let res = [];
-                this.tableAllHeader.basis.slice(1).forEach((v, n) => {res[n] = d[v].data});
+                this.tableAllHeader.course.slice(1).forEach((v, n) => {res[n] = d[v].data});
                 return res;
             });
 
@@ -329,7 +382,7 @@ export default {
             this.subSubmitHandle(tableList);
         },
         async subSubmitHandle(params) {
-            let result = await this.$$request.post('api/excel/upload', {excel_type: 'unsign_new', data: params});
+            let result = await this.$$request.post('api/courseExcel/upload', {...this.uploadParams, data: params});
             console.log(result);
             if(!result) return 0;
 
@@ -344,7 +397,7 @@ export default {
 
                 this.previewData = list.map(d => {
                     let list = {};
-                    this.tableAllHeader.basis.forEach((v, n) => {
+                    this.tableAllHeader.course.forEach((v, n) => {
                         list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                     });
                     return list;
@@ -366,7 +419,7 @@ export default {
     },
     created() {
         let baseUrl = process.env.NODE_ENV  == 'development' ?  config.devBaseurl.api : config.prodBaseUrl.api;
-        this.importUrl = `${baseUrl}api/excel/upload`;
+        this.importUrl = `${baseUrl}api/courseExcel/upload`;
     }
 }
 </script>
@@ -397,7 +450,7 @@ export default {
     .red {
         color: red;
     }
-    .birthday-popper {
+    .expire-popper {
         .el-date-editor {
             width: 100%;
         }

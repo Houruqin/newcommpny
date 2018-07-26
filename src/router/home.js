@@ -7,7 +7,10 @@ import NoSign from '@/views/student/NoSign'
 import Signed from '@/views/student/Signed'
 import NosignDetail from '@/views/student/NosignDetail'
 import SignedDetail from '@/views/student/SignedDetail'
+
 import ImportStudent from '@/views/student/ImportStudent'
+import ImportCourse from '@/views/course/ImportCourse'
+
 import StaffManage from '@/views/staffManage/Index'
 import StaffDetail from '@/views/staffManage/Detail'
 import CourseIndex from '@/views/course/Index'
@@ -40,6 +43,7 @@ const homeRouter = [
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
     {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true, menu: '/home/staff'}},
     {path: 'course', component: CourseIndex, meta: {needlogin: true}},
+    {path: 'course/importcourse', component: ImportCourse, meta: {needlogin: true, menu: '/home/course'}},
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];
 
