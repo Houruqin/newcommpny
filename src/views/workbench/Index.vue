@@ -1,6 +1,6 @@
 <template>
   <div class="content flex1 workbench_container">
-    <el-row :gutter="20" class="head_content">
+    <el-row class="head_content" :gutter="20">
       <el-col :span="17">
         <el-card shadow="hover">
           <TableHeader title="今日待办">
@@ -185,7 +185,7 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" class="card-box">
+    <el-row class="card-box" :gutter="20">
       <el-col :span="17">
         <el-card shadow="hover">
           <TableHeader title="今日跟进管理"></TableHeader>

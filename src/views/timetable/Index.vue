@@ -1102,8 +1102,10 @@ export default {
 
             this.resultDispose(result.lists.timetable_lists);
             this.timeTableInfo = result.lists;
+
             this.gradeInfoCheckLists.lists = result.lists.grade_info.map(v => {return v});
             this.gradeInfoCheckLists.total_num = result.lists.total_num;
+            this.gradeTimeTableRadio = 0;
 
             this.timetable_gradeAll = true;
             this.timetable_teacherAll = true;

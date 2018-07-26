@@ -107,6 +107,18 @@ const excelHeader = {
         '签约日期': 'created_at',
         '课程顾问': 'course_advisor'
     },
+    course: {
+        '学员姓名': 'student_name',
+        '联系电话': 'mobile',
+        '课程名称': 'course_name',
+        '购买课时': 'buy_lesson_num',
+        '赠送课时': 'given_lesson_num',
+        '剩余课时': 'surplus_lesson_num',
+        '材料费用': 'textbook_price',
+        '购课总额': 'total_price',
+        '购课日期': 'expire',
+        '业绩归属': 'advisor_name'
+    },
     nosign_request: [
         '学员姓名', '学员性别', '家长手机号', '渠道来源'
     ],
@@ -115,6 +127,9 @@ const excelHeader = {
     ],
     basis_request: [
         '学员姓名', '学员性别', '联系电话'
+    ],
+    course_request: [
+        '学员姓名', '联系电话', '课程名称', '购买课时', '剩余课时', '购课日期', '购课总额', '业绩归属'
     ]
 };
 

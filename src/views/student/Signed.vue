@@ -474,11 +474,11 @@ export default {
             studentForm: {id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
             rules: {
                 parent_name: [
-                    {required: true, message: '请输入家长姓名'},
+                    // {required: true, message: '请输入家长姓名'},
                     {max: 7, message: '长度不能超过7个字符'}
                 ],
                 relation: [
-                    {required: true, message: '请选择关系', trigger: 'change'}
+                    // {required: true, message: '请选择关系', trigger: 'change'}
                 ],
                 mobile: [
                     {required: true, message: '请输入家长电话'},
@@ -557,6 +557,7 @@ export default {
         //关闭弹窗
         dialogClose(form) {
             this.$refs[form].resetFields();
+            Object.keys(this.studentForm).forEach(v => {this.studentForm[v] = ''});
         },
         //生日筛选点击
         birthdayChange() {

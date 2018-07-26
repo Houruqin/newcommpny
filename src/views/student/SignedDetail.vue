@@ -783,11 +783,11 @@ export default {
             },
             detailRules: {
                 parent_name: [
-                    {required: true, message: '请输入家长姓名'},
+                    // {required: true, message: '请输入家长姓名'},
                     {max: 7, message: '长度不能超过7个字符'}
                 ],
                 relation: [
-                    {required: true, message: '请选择关系', trigger: 'change'}
+                    // {required: true, message: '请选择关系', trigger: 'change'}
                 ],
                 mobile: [
                     {required: true, message: '请输入家长电话'},
@@ -851,7 +851,12 @@ export default {
                 this.$refs[form].resetFields();
             }else if(form === 'divideGrade') {
                 this.divideClassRadio = '';
-            }else this.$refs[form].resetFields();
+            }else if(form === 'addStudent'){
+                this.$refs[form].resetFields();
+                Object.keys(this.studentForm).forEach(v => {this.studentForm[v] = ''});
+            }else {
+                this.$refs[form].resetFields();
+            }
         },
         //评分兑换
         conversionClick() {

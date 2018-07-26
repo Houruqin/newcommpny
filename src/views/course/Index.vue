@@ -2,7 +2,8 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader title="课程管理">
-                <MyButton @click.native="addCourse">添加课程</MyButton>
+                <router-link :to="{path: '/course/importcourse'}"><MyButton icon="import" type="border" fontColor="fc-m">课程学员导入</MyButton></router-link>
+                <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
             <!-- <div class="content-box my-scrollbar"> -->
                 <!-- <el-scrollbar v-if="courseLists.length" style="height: 100%;"> -->
@@ -1152,6 +1153,7 @@ export default {
             this.$message.success(this.classEdit ? '修改成功' : '添加成功');
 
             this.getCourseLists(params.course_id);
+            this.$store.dispatch('getCourse');
             this.dialogStatus.grade = false;
             this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
         },
