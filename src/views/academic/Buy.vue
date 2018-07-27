@@ -52,7 +52,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span class="fc-m" @click="show_contract(scope.row.id)">购课详情</span>
+                <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
               </div>
             </div>
           </template>

@@ -3,10 +3,10 @@
         <el-card shadow="hover">
             <div class="d-f ml-20 mt-40 mb-20 p-r mr-20">
                 <div class="mr-40">
-                    <img src="../../images/staff/teacher.png" alt="">
+                    <a class="t-a-c"><img src="../../images/staff/teacher.png" alt=""></a>
                     <div class="d-f f-a-c f-j-c cursor-pointer">
-                        <span class="pr-10">{{userDetail.name}}</span>
-                        <img src="../../images/common/edit-icon.png" @click="editHandle">
+                        <span class="mr-10">{{userDetail.name}}</span>
+                        <i class="iconfont icon-bianji" @click="editHandle"></i>
                     </div>
                 </div>
                 <div class="fc-7">

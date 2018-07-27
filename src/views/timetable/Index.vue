@@ -116,9 +116,11 @@
                                 <ul class="d-f flex1">
                                     <!-- <li class="d-f f-a-c f-j-c">时间</li> -->
                                     <li v-for="(item, index) in defaultWeekList" :key="index" class="d-f f-a-c f-j-c flex1">
-                                        <div class="p-r t-a-c">
-                                            <p :class="{'fc-m': item.day.isToday}">{{item.name}}</p>
-                                            <p class="mt-5" :class="{'fc-m': item.day.isToday}">{{item.day.date}}</p>
+                                        <div class="t-a-c d-f f-a-c">
+                                            <div>
+                                                <p :class="{'fc-m': item.day.isToday}">{{item.name}}</p>
+                                                <p class="mt-5" :class="{'fc-m': item.day.isToday}">{{item.day.date}}</p>
+                                            </div>
                                             <div class="today btn-m fc-f fs-12" v-if="item.day.isToday">今日</div>
                                         </div>
                                     </li>
@@ -1312,7 +1314,7 @@ export default {
 
 <style lang="less" scoped>
     .tabletime-card {
-        min-width: 1600px;
+        // min-width: 1600px;
     }
     .content-box {
         overflow: hidden;
@@ -1326,10 +1328,11 @@ export default {
     .content-left {
         width: 300px;
         border-right: 1px #e3e3e3 solid;
+        // display: none;
     }
     .content-right {
         .timetable-header {
-            height: 80px;
+            height: 50px;
         }
         .grade-checkbox {
             .timetable-gradecheckbox {
@@ -1402,24 +1405,27 @@ export default {
     }
 
     .week-table {
+        border-left: 1px #e3e3e3 solid;
         .week-ul {
             border-top: 2px #e3e3e3 solid;
             border-bottom: 2px #e3e3e3 solid;
-            .first-li {width: 80px; border-right: 1px #e3e3e3 solid;}
+            .first-li {width: 50px; border-right: 1px #e3e3e3 solid;}
             li {
                 height: 56px;
                 border-right: 1px #e3e3e3 solid;
                 .today {
-                    position: absolute;
-                    left: 50px;
-                    top: 0;
-                    padding: 3px 2px;
+                    // left: 50px;
+                    // top: 0;
+                    // padding: 3px 2px;
+                    width: 15px;
+                    text-align: center;
+                    margin-left: 5px;
                 }
             }
         }
         .week-timetable-box {
             height: 600px;
-            .first-li {width: 80px; border-right: 1px #e3e3e3 solid;}
+            .first-li {width: 50px; border-right: 1px #e3e3e3 solid;}
             ul {
                 li {
                     background-color: #f8f8f8;
@@ -1521,7 +1527,7 @@ export default {
         height: 660px;
         ul {
             li {
-                width: 1260px;
+                // width: 1260px;
                 .left {
                     width: 80px;
                     border-right: 1px #e3e3e3 solid;
