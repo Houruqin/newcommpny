@@ -50,7 +50,7 @@
                                 <span>{{$$tools.format(scope.row.expired_at)}}</span>
                             </template>
                         </el-table-column> -->
-                        <el-table-column label="购买课时" align="center">
+                        <el-table-column label="总课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
                             </template>

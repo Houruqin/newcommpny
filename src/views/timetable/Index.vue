@@ -716,7 +716,7 @@ export default {
 
             this.courseType = detail.course_type;
             if(this.courseType !== 1 && detail.student_grades.length) this.studentRadio = detail.student_grades[0].student_id;
-            
+
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: detail.time_quantum.begin_time, end_time: '', week: detail.time_quantum.week});
 
             this.timetableForm.timetable_id = detail.id;
@@ -1222,7 +1222,7 @@ export default {
                         d.time_quantum = {
                             begin_time: this.$$tools.formatTime(d.begin_time),
                             end_time: this.$$tools.formatTime(d.end_time),
-                            week: week
+                            week: this.$$tools.format(d.begin_time)
                         };
                         if(hour == v.id) {
                             newData.course.push(d);
