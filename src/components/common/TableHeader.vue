@@ -1,15 +1,14 @@
 <template> 
     <div class="table-header d-f f-a-c f-j-b fc-5">
-        <div class="d-f">
+        <div class="d-f f-a-c">
             <span class="fs-16">{{title}}</span>
-            <div v-if="icon" class="ml-10 d-f f-a-c f-j-c cursor-pointer" @click="imgClick"><img :src="modifyIcon"></div>
+            <i v-if="icon" class="iconfont icon-bianji ml-10 cursor-pointer" @click="imgClick"></i>
         </div>
         <div class="d-f"><slot></slot></div>
     </div>
 </template>
 
 <script>
-import modifyIcon from '../../images/common/edit-icon.png'
 
 export default {
     props: {
@@ -17,7 +16,7 @@ export default {
         icon: {default: false}
     },
     data() {
-        return {modifyIcon: modifyIcon}
+        return {}
     },
     methods: {
         imgClick() {

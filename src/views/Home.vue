@@ -40,16 +40,16 @@
                     </div>
                     <div class="d-f f-a-c pr-50">
                         <a class="ml-30"><img src="../images/common/service-icon.png"></a>
-                        <el-dropdown trigger="click" @command="helpHandleCommand" @visible-change="helpShowHandle" class="help-dropdown">
+                        <el-dropdown trigger="click" @command="helpHandleCommand" @visible-change="helpShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': helpShow}">在线帮助</a>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item command="helpCenter" class="d-f f-a-c">
-                                    <i class="help-icon"></i>
-                                    <span class="pl-5">帮助中心</span>
+                                    <i class="iconfont icon-icon fc-9"></i>
+                                    <span class="pl-10">帮助中心</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="lineQQ" class="d-f f-a-c">
-                                    <i class="qq-icon"></i>
-                                    <span class="pl-5">在线客服</span>
+                                    <i class="iconfont icon-QQ fc-9"></i>
+                                    <span class="pl-10">在线客服</span>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
@@ -59,8 +59,14 @@
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'"><span>校区设置</span></el-dropdown-item>
-                                <el-dropdown-item command="loginOut"><span>安全退出</span></el-dropdown-item>
+                                <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
+                                    <i @click="search_student" class="iconfont icon-shezhi1 cursor-pointer"></i>
+                                    <span class="pl-5">校区设置</span>
+                                </el-dropdown-item>
+                                <el-dropdown-item command="loginOut">
+                                    <i @click="search_student" class="iconfont icon-tuichu cursor-pointer"></i>
+                                    <span class="pl-5">安全退出</span>
+                                </el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
@@ -131,7 +137,8 @@
                 </div>
                 <el-dropdown-menu slot="dropdown" class="speedy-lists">
                     <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index">
-                        <div class="t-o-e">{{item.name}}</div>
+                        <i class="iconfont" :class="item.icon"></i>
+                        <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -339,11 +346,11 @@ export default {
                 {icon: 'icon-paike', text: '排课管理', dom: 'mymenu-2'}
             ],
             speedyLists: [
-                {id: 'addStudent', name: '学员登记'},
-                {id: 'importStudent', name: '导入学员'},
-                {id: 'addCourse', name: '添加课程'},
-                {id: 'notice', name: '发布通知'},
-                {id: 'addListen', name: '办理试听'}
+                {id: 'addStudent', name: '学员登记', icon: 'icon-iconwogzydj'},
+                {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
+                {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
+                {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
+                {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
@@ -913,7 +920,7 @@ export default {
     .speedy-btn {
         position: fixed;
         right: 50px;
-        bottom: 100px;
+        bottom: 50px;
         z-index: 500;
         img {display: block;}
         .speedy-img {
@@ -988,14 +995,24 @@ export default {
         width: 100%;
     }
     .search_student /deep/  .el-input__inner{
-                width: 300px;
-                border-radius: 6px !important;
-                border: none !important;
-                background-color: #F2F2F2 !important;
-            }
-            .search_student /deep/  .el-input{
-                width: auto;
-            }
+        width: 300px;
+        border-radius: 6px !important;
+        border: none !important;
+        background-color: #F2F2F2 !important;
+    }
+    .search_student /deep/  .el-input{
+        width: auto;
+    }
+
+    //首页悬浮
+    .speedy-lists {
+        /deep/ .el-dropdown-menu__item {
+            padding: 0 30px;
+            // &:not(:first-child) {
+            //     border-top: 1px #e6e6e6 solid;
+            // }
+        }
+    }
 </style>
 
 

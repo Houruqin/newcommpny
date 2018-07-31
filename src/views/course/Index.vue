@@ -12,7 +12,7 @@
                             <div class="d-f f-a-c">
                                 <span class="fc-7 fs-16 d-f f-a-c">
                                     <i class="fc-5">{{course.name}}</i>
-                                    <i @click="editCourse(course)" class="cursor-pointer ml-10"><img src="../../images/common/edit-icon.png"></i>
+                                    <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                                 </span>
                                 <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
                             </div>
@@ -21,11 +21,10 @@
                                     <img src="../../images/common/add.png" alt="">
                                     <i class="pl-10">添加班级</i>
                                 </span>
-                                <span class="ml-40 cursor-pointer" @click="listHeaderClick(course, index)">
-                                    <img v-if="!course.collapse" src="../../images/common/collapse-false.png" alt="">
-                                    <img v-else src="../../images/common/collapse-true.png" alt="">
+                                
+                                <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
+                                    <i class="iconfont icon-zhankai"></i>
                                 </span>
-                                <!-- <MyButton @click.native="addClassRoom(course.id, course.type)" type="border" fontColor="fc-m">添加班级</MyButton> -->
                             </div>
                         </div>
                         
@@ -142,29 +141,45 @@
                                     </el-table-column>
                                     <el-table-column label="操作" align="center">
                                         <template slot-scope="scope">
-                                            <el-dropdown trigger="click" @command="handleCommand" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
-                                                <a class="unfold-icon cursor-pointer el-dropdown-link" :class="{'rotate': scope.row.operationStatus}"><img src="../../images/common/drop-up.png"></a>
-                                                <el-dropdown-menu slot="dropdown">
+                                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
+                                                <a class="unfold-icon cursor-pointer el-dropdown-link">
+                                                    <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
+                                                </a>
+                                                <el-dropdown-menu slot="dropdown" class="operation-lists">
                                                     <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type:item.type, grade_info: scope.row, course_info: course}">
                                                         <!--未开课-->
-                                                        <template v-if="scope.row.begin_status == 0">                            
-                                                            <span v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                        <template v-if="scope.row.begin_status == 0">
+                                                            <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">
+                                                                <i class="iconfont" :class="item.icon"></i>                         
+                                                                <span>{{item.text}}</span>
+                                                            </div>
                                                         </template>
                                                         <!--已开课-->
                                                         <template v-else>
                                                             <!--停课-->
                                                             <template v-if="scope.row.status == -3">
-                                                                <span v-if="item.type == 'begin' || item.type == 'over' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                                <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'over' || item.type == 'edit' || item.type == 'delete'">
+                                                                    <i class="iconfont" :class="item.icon"></i>                         
+                                                                    <span>{{item.text}}</span>
+                                                                </div>
                                                             </template>
 
                                                             <!--结课-->
                                                             <template v-else-if="scope.row.status == -2">
-                                                                <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                                <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'" 
+                                                                    :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                                    <i class="iconfont" :class="item.icon"></i>                         
+                                                                    <span>{{item.text}}</span>
+                                                                </div>
                                                             </template>
 
                                                             <!--正常开课-->
                                                             <template v-else>
-                                                                <span :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'">{{item.text}}</span>
+                                                                <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
+                                                                    :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                                    <i class="iconfont" :class="item.icon"></i>    
+                                                                    <span>{{item.text}}</span>
+                                                                </div>
                                                             </template>
                                                         </template>
                                                     </el-dropdown-item>
@@ -265,7 +280,7 @@
 
                     <el-form-item label="班级学员：">
                         <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length">
+                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length" class="grade-student-check">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </el-form-item>
@@ -390,7 +405,7 @@
                             <div class="label"><span>上课学员：</span></div>
                             <div class="flex1">
                                 <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
-                                    <li v-for="(item, index) in checkStudentForm" :key="index" :class="{'ml-10': index}" class="mb-10">
+                                    <li v-for="(item, index) in checkStudentForm" :key="index" class="mb-10 ml-10">
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
@@ -413,7 +428,7 @@
                 <div class="form-box">
                     <template v-if="courseType === 1">
                         <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length">
+                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length" class="time-table-student-check">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
@@ -1262,6 +1277,14 @@ export default {
                     display: block;
                 }
             }
+            .zhankai-icon {
+                -webkit-transition: transform 300ms;
+                transition: transform 300ms;
+                &.rotate {
+                    -webkit-transform :rotate(180deg);
+                    transform: rotate(180deg);
+                }
+            }
         }
         .grade-table-box {
             height: 0;
@@ -1275,15 +1298,14 @@ export default {
             border-right: 1px #eeeeee solid;
         }
         .unfold-icon {
-            -webkit-transition: transform 300ms;
-            transition: transform 300ms;
-            display: block;
-            img {
+            .iconfont {
+                -webkit-transition: transform 300ms;
+                transition: transform 300ms;
                 display: block;
-            }
-            &.rotate {
-                -webkit-transform :rotate(180deg);
-                transform: rotate(180deg);
+                &.rotate {
+                    -webkit-transform :rotate(180deg);
+                    transform: rotate(180deg);
+                }
             }
         }
     }
@@ -1381,10 +1403,30 @@ export default {
                     padding-right: 12px;
                 }
             }
-            li {
-                background-color: #f0f2f5;
-                border-radius: 3px;
-                padding: 0 5px;
+            ul {
+                max-height: 100px;
+                overflow-y: scroll;
+                li {
+                    background-color: #f0f2f5;
+                    border-radius: 3px;
+                    padding: 0 5px;
+                }
+            }
+        }
+        .grade-student-check {
+            max-height: 200px;
+            overflow-y: scroll;
+            .el-checkbox {
+                margin-left: 0;
+                margin-right: 30px;
+            }
+        }
+        .time-table-student-check {
+            max-height: 200px;
+            overflow-y: scroll;
+            .el-checkbox {
+                margin-left: 0;
+                margin-right: 30px;
             }
         }
     }
@@ -1412,4 +1454,10 @@ export default {
         }
     }
     
+    .operation-lists {
+        width: 110px;
+        /deep/ .el-dropdown-menu__item {
+            padding: 0 27px;
+        }
+    }
 </style>

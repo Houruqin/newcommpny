@@ -195,3 +195,13 @@ export default {
     components: {MyButton}
 }
 </script>
+
+<style lang="less" scoped>
+    .form-box {
+        padding: 0 30px;
+        /deep/ .el-select, .el-date-editor {
+            width: 100%;
+        }
+    }
+</style>
+

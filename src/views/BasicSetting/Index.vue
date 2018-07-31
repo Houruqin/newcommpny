@@ -86,13 +86,13 @@ export default {
             sourceRules: {  
                 name: [
                     {required: true, message: '请输入渠道'},
-                    {max: 20, message: '长度不能超过20个字符'}
+                    {max: 10, message: '长度不能超过10个字符'}
                 ]
             },
             classRules: {
                 name: [
                     {required: true, message: '请输入教室'},
-                    {max: 20, message: '长度不能超过20个字符'}
+                    {max: 10, message: '长度不能超过10个字符'}
                 ]
             }
         }

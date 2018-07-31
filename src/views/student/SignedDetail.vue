@@ -4,7 +4,7 @@
             <div class="table-header d-f f-a-c f-j-b fc-5">
                 <div class="d-f f-a-c">
                     <span class="fs-16">{{studentDetail.name}}</span>
-                    <div class="ml-10 d-f f-a-c f-j-c cursor-pointer" @click="editDetail"><img src="../../images/common/edit-icon.png"></div>
+                    <span><i class="iconfont icon-bianji ml-10 cursor-pointer" @click="editDetail"></i></span>
                     <span class="ml-20">学员编号：<i>0{{studentDetail.id}}</i></span>
                     <span class="ml-20">课堂评分：<i>{{studentDetail.score}}</i></span>
                     <!-- <span class="conversion-btn t-a-c fc-f ml-20 cursor-pointer" @click="conversionClick">兑换</span> -->
@@ -50,7 +50,7 @@
                                 <span>{{$$tools.format(scope.row.expired_at)}}</span>
                             </template>
                         </el-table-column> -->
-                        <el-table-column label="购买课时" align="center">
+                        <el-table-column label="总课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
                             </template>
@@ -61,7 +61,7 @@
                             </template>
                         </el-table-column>
                         <!-- <el-table-column label="业绩归属" prop="advisor.name" align="center"></el-table-column> -->
-                        <el-table-column label="操作" align="center">
+                        <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
@@ -69,7 +69,7 @@
                                 <span v-else-if="scope.row.status == 2">已退费</span>
                                 <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
                                 <span v-else class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="$$cache.getMemberInfo().type == 'master'"
+                                <span v-if="$$cache.getMemberInfo().remove"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -497,7 +497,7 @@
 
                 <div class="detail-bottom mt-40 p-r">
                     <div class="timetable-edit p-a cursor-pointer" @click="timetableEditClick">{{timetableCheckbox ? '取消' : '编辑'}}</div>
-                    <el-table :data="gradeDetail.grade.timetable" v-if="gradeDetail.grade.timetable.length" height="280" ref="multipleTable">
+                    <el-table :data="gradeDetail.grade.timetable" stripe v-if="gradeDetail.grade.timetable.length" height="280" ref="multipleTable" @selection-change="handleSelectionChange">
                         <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="上课日期" align="center">

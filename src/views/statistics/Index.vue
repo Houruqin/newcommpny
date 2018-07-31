@@ -16,7 +16,7 @@
                 <span>-</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             </p>
-            <!-- <el-row :gutter="20" class="sex-chart-box mt-20">
+            <el-row :gutter="20" class="sex-chart-box echart-box mt-20">
                 <el-col :span="7" class="p-r">
                     <div class="left-chart" ref="sexChart"></div>
                     <div class="student-total p-a t-a-c">
@@ -26,8 +26,8 @@
                 <el-col :span="17">
                     <div class="right-chart" ref="ageChart"></div>
                 </el-col>
-            </el-row> -->
-            <div class="echart-box d-f">
+            </el-row>
+            <!-- <div class="echart-box d-f">
                 <div class="p-r left-chart">
                     <div ref="sexChart" class="left-chart"></div>
                     <div class="student-total p-a t-a-c">
@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class="right-chart flex1 ml-50" ref="ageChart"></div>
-            </div>
+            </div> -->
         </el-card>
 
         <!-- 签约学员统计 -->
@@ -53,7 +53,7 @@
             <h4>签约学员统计</h4>
             <span>年份：</span>
             <el-date-picker v-model="student.year" size="small" type="year" @change="studentDateChange" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <!-- <el-row :gutter="20" class="student-chart-box mt-20">
+            <el-row :gutter="20" class="student-chart-box echart-box mt-20">
                 <el-col :span="7" class="p-r">
                     <div class="left-chart" ref="studentLeft"></div>
                     <div class="student-total p-a t-a-c">
@@ -63,17 +63,7 @@
                 <el-col :span="17">
                     <div class="right-chart" ref="studentRight"></div>
                 </el-col>
-            </el-row> -->
-
-            <div class="echart-box d-f mt-20">
-                <div class="left-chart p-r">
-                    <div ref="studentLeft" class="left-chart"></div>
-                    <div class="student-total p-a t-a-c">
-                        <p class="fs-30" v-if="student.total_lists">{{student.total_lists.total_num}}</p><span class="fs-12">学员总数</span>
-                    </div>
-                </div>
-                <div class="right-chart flex1 ml-50" ref="studentRight"></div>
-            </div>
+            </el-row>
         </el-card>
 
         <!-- 课程及考勤统计 -->
@@ -97,14 +87,14 @@
             </div>
             <span>年份：</span>
             <el-date-picker v-model="source.what_time" size="small" @change="sourceDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box d-f mt-20">
-                <div class="left-chart p-r">
-                    <div ref="sourceLeft" class="left-chart"></div>
+            <el-row :gutter="20" class="echart-box mt-20">
+                <el-col :span="9" class="p-r">
+                    <div class="left-chart" ref="sourceLeft"></div>
                     <div class="student-total p-a t-a-c">
                         <p class="fs-30" v-if="source.total_num">{{source.total_num}}</p><span class="fs-12">渠道总数</span>
                     </div>
-                </div>
-                <div class="flex1 p-r ml-50">
+                </el-col>
+                <el-col :span="15" class="p-r">
                     <el-popover placement="bottom" width="150" trigger="click" popper-class="source-filter-popover">
                         <div class="my-scrollbar">
                             <el-scrollbar style="height: 100%;">
@@ -119,8 +109,8 @@
                         <MyButton slot="reference" class="p-a source-filter-btn">自定义筛选</MyButton>
                     </el-popover>
                     <div class="right-chart" ref="sourceRight"></div>
-                </div>
-            </div>
+                </el-col>
+            </el-row>
         </el-card>
 
         <!-- 销售统计 -->
@@ -136,8 +126,8 @@
             <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <span>-</span>
             <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box sell-box d-f pb-40" v-if="Object.keys(sell.sell_lists).length">
-                <div class="funnel-chart flex1 pl-100 d-f mt-50">
+            <div class="echart-box sell-box d-f pb-40 f-j-b mt-50" v-if="Object.keys(sell.sell_lists).length">
+                <div class="funnel-chart flex1 pl-50 d-f">
                     <div class="model-box p-r">
                         <ul>
                             <li v-for="(item, index) in sell.sell_lists.data" :key="index" :style="{backgroundColor: item.color}" :class="{'mt-5': index > 0}"></li>
@@ -154,7 +144,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="sell-right mt-60 flex1 ml-60">
+                <div class="sell-right flex1 pt-40">
                     <div class="item p-r">
                         <span class="fs-15 fc-5">成交率（已成交/全部咨询）</span>
                         <div class="schedule-box mt-10">
@@ -261,16 +251,21 @@ export default {
                     orient: 'vertical',
                     x: 'left',
                     top: 0,
+                    right: 20,
                     itemGap: 15,
                     itemWidth: 15,
                     itemHeight: 8,
                     borderRadius: 0,
                     selectedMode: false
                 }
-            }
+            },
+            mytext: ''
         }
     },
     methods: {
+        aaaa(val) {
+            console.log(val)
+        },
         //性别时间change
         sexDateChange(val) {
             if(this.sex.end_time < this.sex.start_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
@@ -484,10 +479,11 @@ export default {
                 tooltip: {trigger: 'axis'},
                 legend: {
                     left: 50,
+                    padding: [5, 150, 5, 5],
                     data: this.source.showCheckBox.map(v => {return v.source_name})
                 },
                 color: this.source.colors.slice(0, this.source.showCheckBox.length),
-                grid: {left: '50', right: '50', top: '50', bottom: '20', containLabel: true},
+                grid: {left: '50', right: '50', top: '60', bottom: '20', containLabel: true},
                 xAxis: {
                     type: 'category',
                     data: this.monthArr
@@ -626,7 +622,8 @@ export default {
     .date-select {
         width: 150px;
     }
-    .sex-chart-box {
+
+    .echart-box {
         .left-chart {
             height: 350px;
         }
@@ -640,35 +637,6 @@ export default {
         }
     }
 
-
-
-
-    .echart-box {
-        .left-chart {
-            width: 400px;
-            height: 350px;
-            .student-total, .sex-num {
-                top: 50%;
-                left: 59%;
-                transform: translate(-50%, -50%);
-            }
-            .sex-num {
-                width: 350px;
-            }
-        }
-        .right-chart {
-            // min-width: 1040px;
-            height: 350px;
-        }
-        ul {
-            li {
-                .bg {
-                    width: 12px;
-                    height: 12px;
-                }
-            }
-        }
-    }
     .sell-box {
         .funnel-chart {
             .model-box {
@@ -725,7 +693,7 @@ export default {
         }
         .sell-right {
             .item {
-                width: 390px;
+                width: 360px;
                 .schedule-box {
                     position: relative;
                     width: 100%;

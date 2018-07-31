@@ -2,7 +2,8 @@
     <div class="my-btn d-f f-a-c f-j-c cursor-pointer" 
     :class="{'b-radius': radius, 'fc-f': fontColor == 'fc-f', 'fc-m': fontColor == 'fc-m', 'border': type == 'border', 
             'btn-m': type == 'main', 'btn-subm': type == 'subm', 'btn-gray': type == 'gray', 'loading': loading}">
-        <img class="mr-5" v-if="icon" :src="ImportIcon">
+        <!-- <img class="mr-5" v-if="icon" :src="ImportIcon"> -->
+        <i class="iconfont icon-daoruexcel mr-5" v-if="icon"></i>
         <span v-if="loading">提交中...</span>
         <span v-else><slot></slot></span>
     </div>
@@ -10,7 +11,7 @@
 
 <script>
 
-import ImportIcon from '../../images/common/import-icon.png'
+// import ImportIcon from '../../images/common/import-icon.png'
 
 export default {
     props: {
@@ -21,7 +22,9 @@ export default {
         radius: {default: true}
     },
     data() {
-        return {ImportIcon: ImportIcon}
+        return {
+            // ImportIcon: ImportIcon
+        }
     }
 }
 </script>
