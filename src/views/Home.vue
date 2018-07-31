@@ -920,7 +920,7 @@ export default {
     .speedy-btn {
         position: fixed;
         right: 50px;
-        bottom: 100px;
+        bottom: 50px;
         z-index: 500;
         img {display: block;}
         .speedy-img {

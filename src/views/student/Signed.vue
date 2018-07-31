@@ -836,7 +836,7 @@ export default {
 <style lang="less" scoped>
     .header-tab-box {
         margin-top: 50px;
-        padding: 0 80px;
+        padding: 0 20px;
     }
     .fifter-toolbar {
         margin-top: 50px;

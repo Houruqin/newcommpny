@@ -69,7 +69,7 @@
                                 <span v-else-if="scope.row.status == 2">已退费</span>
                                 <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
                                 <span v-else class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="$$cache.getMemberInfo().type == 'master'"
+                                <span v-if="$$cache.getMemberInfo().remove"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>

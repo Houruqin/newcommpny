@@ -25,7 +25,7 @@ export default {
 
 <style lang="less" scoped>
     .classify-box {
-        width: 160px;
+        width: 140px;
         height: 95px;
         border: 1px #e3e3e3 solid;
         border-left-width: 5px;

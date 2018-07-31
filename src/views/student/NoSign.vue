@@ -45,7 +45,7 @@
                 <el-table-column label="学员顾问" align="center">
                     <template slot-scope="scope">
                         <div v-if="scope.row.advisor_info">{{scope.row.advisor_info.name}}</div>
-                        <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor'" class="d-f f-a-c f-j-c"> 
+                        <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor' || activeTab == 'following'" class="d-f f-a-c f-j-c"> 
                             <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                 <span class="el-dropdown-link">
                                     <div class="allocation-advisor-btn" slot="reference" @click="listStudentId = scope.row.id">分配</div>
@@ -339,7 +339,7 @@ export default {
 
 <style lang="less" scoped>
     .header-tab-box {
-        padding: 0 200px;
+        padding: 0 100px;
     }
     .fifter-toolbar {
         ul li {

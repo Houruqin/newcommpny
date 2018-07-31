@@ -280,7 +280,7 @@
 
                     <el-form-item label="班级学员：">
                         <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length">
+                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length" class="grade-student-check">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </el-form-item>
@@ -405,7 +405,7 @@
                             <div class="label"><span>上课学员：</span></div>
                             <div class="flex1">
                                 <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
-                                    <li v-for="(item, index) in checkStudentForm" :key="index" :class="{'ml-10': index}" class="mb-10">
+                                    <li v-for="(item, index) in checkStudentForm" :key="index" class="mb-10 ml-10">
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
@@ -428,7 +428,7 @@
                 <div class="form-box">
                     <template v-if="courseType === 1">
                         <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length">
+                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length" class="time-table-student-check">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
@@ -1403,10 +1403,30 @@ export default {
                     padding-right: 12px;
                 }
             }
-            li {
-                background-color: #f0f2f5;
-                border-radius: 3px;
-                padding: 0 5px;
+            ul {
+                max-height: 100px;
+                overflow-y: scroll;
+                li {
+                    background-color: #f0f2f5;
+                    border-radius: 3px;
+                    padding: 0 5px;
+                }
+            }
+        }
+        .grade-student-check {
+            max-height: 200px;
+            overflow-y: scroll;
+            .el-checkbox {
+                margin-left: 0;
+                margin-right: 30px;
+            }
+        }
+        .time-table-student-check {
+            max-height: 200px;
+            overflow-y: scroll;
+            .el-checkbox {
+                margin-left: 0;
+                margin-right: 30px;
             }
         }
     }

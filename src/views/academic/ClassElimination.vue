@@ -47,14 +47,14 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="姓名" align="center" width="200">
+        <el-table-column label="姓名" align="center">
           <template slot-scope="scope">
             <div>
               <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="课程名称" prop="course_name" align="center" width="300"></el-table-column>
+        <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
         <el-table-column label="购课总课时" prop="buy_total" align="center"></el-table-column>
         <el-table-column label="签约前扣课时" prop="reduce_total" align="center"></el-table-column>
         <el-table-column label="签到扣课时" align="center">

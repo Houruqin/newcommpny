@@ -217,12 +217,6 @@ export default {
     .list-item-gray{
         color: #c0c4cc
     }
-    .form-box {
-        padding: 0 30px;
-        .el-select, .el-date-editor {
-            width: 100%;
-        }
-    }
     .tab-box {
         width: 100%;
         .tab-toolbar {
