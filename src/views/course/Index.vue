@@ -294,7 +294,7 @@
         <!-- 排课弹窗 -->
         <el-dialog title="批量排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
-                <div class="form-box">
+                <div class="form-box" id="form-box">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="排课班级：" >{{timetableForm.class_name}}</el-form-item>
@@ -819,6 +819,7 @@ export default {
         //批量排课，新增多个时间段
         addDateHandle() {
             this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+            setTimeout(v => {document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight)}, 10);
         },
         deleteDateHandle(index) {
             this.formAddDate.splice(index, 1);
