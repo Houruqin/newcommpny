@@ -520,7 +520,7 @@ export default {
 
             other_lists: [],   //正常排课列表
 
-            dialogStatus: {timetable: true, conflict: false, course: false, grade: false},
+            dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
             addStudentDialog: false,
 
             editDetail: {},
