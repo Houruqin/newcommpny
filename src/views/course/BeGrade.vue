@@ -4,7 +4,7 @@
             <TableHeader title="班课管理">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
-            <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
+            <div class="course-list-box mt-20" v-for="(course, index) in courseLists" :key="index">
                 <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
                     <div class="d-f f-a-c">
                         <span class="fc-7 fs-16 d-f f-a-c">
@@ -1199,6 +1199,14 @@ export default {
                 }
             }
         }
+        .course_type{
+        display: inline-block;
+        border: 1px solid #a9a9a9;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 5px;
+        border-radius: 4px;
+    }
     }
     .course-lits-nothing {
         height: 100%;
@@ -1288,14 +1296,6 @@ export default {
                 margin-right: 30px;
             }
         }
-    }
-    .course_type{
-        display: inline-block;
-        border: 1px solid #a9a9a9;
-        height: 20px;
-        line-height: 20px;
-        padding: 0 5px;
-        border-radius: 4px;
     }
 
     .conflict-box {
