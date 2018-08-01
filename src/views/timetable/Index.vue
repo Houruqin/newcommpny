@@ -270,7 +270,7 @@
         <!-- 新增排课弹窗 -->
         <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="900px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
-                <div class="form-box" v-if="Object.keys(timetableFull).length">
+                <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="选择班级：" prop="grade_info">
@@ -414,7 +414,6 @@
                         </el-col>
                     </el-row>
                 </div>
-
                 <div class="d-f f-j-c mt-30">
                     <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
                 </div>
@@ -728,6 +727,7 @@ export default {
         //批量排课，新增多个时间段
         addDateHandle() {
             this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+            setTimeout(v => {document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight)});
         },
         //删除时间段
         deleteDateHandle(index) {

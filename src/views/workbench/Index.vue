@@ -395,7 +395,7 @@
     :show-close="true" 
     width="800px" 
     center>
-      <el-input type="textarea" :readonly="memo_info.readonly" placeholder="内容(不超过五百字)" resize="none" :autosize="{ minRows: 15, maxRows: 30}" :maxlength="500" v-model.trim="memo_info.content">
+      <el-input type="textarea" :readonly="memo_info.readonly" placeholder="内容(不超过500字)" resize="none" :autosize="{ minRows: 15, maxRows: 30}" :maxlength="500" v-model.trim="memo_info.content">
       </el-input>
       <span slot="footer" class="dialog-footer">
         <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
