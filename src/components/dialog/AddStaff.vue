@@ -154,6 +154,7 @@ export default {
             this.$emit('CB-AddStaff');
             this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
+            this.$store.dispatch('getTeacher');
             this.$message.success(this.type == 'edit' ? '修改成功' : '添加成功');
         },
         //离职
@@ -177,6 +178,7 @@ export default {
             this.$emit('CB-dimission');
             this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
+            this.$store.dispatch('getTeacher');
             this.$message.success('已修改为离职状态');
         },
         remove_tag(tag) {

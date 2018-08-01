@@ -30,78 +30,7 @@
                         <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" strip>
                             <el-table-column label="序号" type="index" align="center"></el-table-column>
                             <el-table-column label="班级" align="center">
-                                <template slot-scope="scope">
-                                    <div>
-                                        <el-popover width="800" placement="right" trigger="click" v-model="scope.row.popver" @hide="timetableCheckbox = false">
-                                            <p class="fc-m fs-16 t-a-c mt-10 p-r">
-                                                <span>{{scope.row.name}}</span>
-                                                <a class="p-a popver-close-icon mr-5 cursor-pointer" @click="scope.row.popver = false">
-                                                    <img src="../../images/common/close-icon.png" alt="">
-                                                </a>
-                                            </p>
-                                            <div class="detail">
-                                                <div class="detail-top">
-                                                    <div class="d-f">
-                                                        <ul class="detail-left">
-                                                            <li>课程：<span>{{course.name}}</span></li>
-                                                            <li>课时：<span>{{scope.row.lesson_num}}课时</span></li>
-                                                            <li>
-                                                                任课老师：<span v-if="scope.row.teacher_lists.length">
-                                                                    <i v-for="(teacher, index) in scope.row.teacher_lists" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </li>
-                                                            <li>开课日期：<span>{{$$tools.format(scope.row.start_time)}}</span></li>
-                                                            <li>可否试听：<span>{{scope.row.is_listen ? '是' : '否'}}</span></li>                                                   
-                                                        </ul>
-                                                        <ul class="flex1">
-                                                            <li>人数上限：<span>{{scope.row.limit_num}}</span></li>
-                                                            <li>剩余课时：<span>{{scope.row.lesson_num_remain}}</span></li>
-                                                            <li>
-                                                                辅助老师：<span v-if="scope.row.counselor_lists.length">
-                                                                    <i v-for="(teacher, index) in scope.row.counselor_lists" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </li>
-                                                            <li>上课教室：<span>{{scope.row.room && scope.row.room.name}}</span></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="mt-20 d-f">
-                                                        <span class="fc-9">班级学员：</span>
-                                                        <span class="d-f f-w-w flex1" v-if="scope.row.student.length">
-                                                            <i v-for="(student, index) in scope.row.student" class="pb-5 pr-20" :key="index">{{student.name}}</i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="detail-bottom pb-30 p-r mt-50">
-                                                    <div class="timetable-edit p-a cursor-pointer" @click="timetableEditClick(course.id, scope.$index)">{{timetableCheckbox ? '取消' : '编辑'}}</div>
-                                                    <el-table :data="scope.row.timetable" height="280" stripe @selection-change="handleSelectionChange" :ref="'multipleTable_' + course.id + '_' + scope.$index">
-                                                        <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
-                                                        <el-table-column label="序号" type="index" align="center"></el-table-column>
-                                                        <el-table-column label="上课日期" align="center">
-                                                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课时间" align="center">
-                                                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课老师" align="center">
-                                                            <template slot-scope="item">
-                                                                <span v-if="item.row.teacher.length">
-                                                                    <i v-for="(teacher, index) in item.row.teacher" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
-                                                        <el-table-column label="结课状态" align="center">
-                                                            <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
-                                                        </el-table-column>
-                                                    </el-table>
-
-                                                    <div class="d-f f-j-c mt-20" v-if="timetableCheckbox"><MyButton @click.native="deleteTimeTableHandle(scope.row.timetable)" :type="deleteTimeTableLists.length ? 'main' : 'gray'">删除</MyButton></div>
-                                                </div>
-                                            </div>
-                                            <a slot="reference" class="cursor-pointer fc-m t-a-c">{{scope.row.name}}</a>
-                                        </el-popover>
-                                    </div>
-                                </template>
+                                <template slot-scope="scope"></template>
                             </el-table-column>
                             <el-table-column label="开课日期" align="center">
                                 <template slot-scope="scope">

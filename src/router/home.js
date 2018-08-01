@@ -9,7 +9,9 @@ import NosignDetail from '@/views/student/NosignDetail'
 import SignedDetail from '@/views/student/SignedDetail'
 
 import ImportStudent from '@/views/student/ImportStudent'
-// import ImportCourse from '@/views/course/ImportCourse'
+import BeGradeCourse from '@/views/course/BeGrade'
+import NoGradeCourse from '@/views/course/NoGrade'
+import GradeDetail from '@/views/course/Detail'
 
 import StaffManage from '@/views/staffManage/Index'
 import StaffDetail from '@/views/staffManage/Detail'
@@ -42,8 +44,12 @@ const homeRouter = [
     {path: 'academic/buy', component: Buy, name: 'academicBuy', meta: {needlogin: true}},
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
     {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true, menu: '/home/staff'}},
-    {path: 'course', component: CourseIndex, meta: {needlogin: true}},
-    // {path: 'course/importcourse', component: ImportCourse, meta: {needlogin: true, menu: '/home/course'}},
+
+    {path: 'course', component: BeGradeCourse, meta: {needlogin: true}},
+    {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
+    {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
+    {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
+
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];
 

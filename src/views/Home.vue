@@ -679,6 +679,7 @@ export default {
         this.$store.dispatch('getClassRoom');
         this.$store.dispatch('getGrade');
         this.$store.dispatch('getRelation');
+        this.$store.dispatch('getTeacher');
     },
     created() {
         this.getSchoolLists();

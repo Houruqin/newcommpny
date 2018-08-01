@@ -621,7 +621,7 @@
                             </el-form-item>
                             <el-form-item label="上课老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
-                                    <el-option v-for="(item, index) in teacherLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="扣课时数：" prop="lesson_num">
@@ -695,7 +695,6 @@ export default {
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'},
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
-            teacherLists: [],   //老师列表
 
             activeTab: 'course_info',  //tab列表选中key
 
@@ -1396,13 +1395,6 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.listenCourseLists = result.lists;
-        },
-        async getTeacherLists() {
-            let result = await this.$$request.post('api/user/normalLists', {type: 'teacher'});
-            console.log(result);
-
-            if(!result) return 0;
-            this.teacherLists = result.lists;
         }
     },
     created() {
