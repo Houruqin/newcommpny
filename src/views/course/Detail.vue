@@ -28,7 +28,42 @@
         </el-card>
 
         <el-card shadow="hover" class="mt-20">
-            <TableHeader title="班级课表"></TableHeader>
+            <TableHeader title="班级课表">
+                <div class="delete-btn fc-f t-a-c">删除</div>
+                <div class="edit-btn fc-m t-a-c ml-10">编辑</div>
+            </TableHeader>
+
+            <el-table :data="timeTableLists.data" strip>
+                <el-table-column label="序号" type="index" align="center"></el-table-column>
+                <el-table-column label="上课日期" align="center">
+                    <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
+                </el-table-column>
+                <el-table-column label="上课时间" align="center">
+                    <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
+                </el-table-column>
+                <el-table-column label="上课老师" align="center">
+                    <template slot-scope="item">
+                        <span v-if="item.row.teacher.length">
+                            <i v-for="(teacher, index) in item.row.teacher" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="上课学员" align="center" prop="students"></el-table-column>
+                <el-table-column label="上课状态" align="center">
+                    <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
+                </el-table-column>
+            </el-table>
+
+            <el-pagination v-if="timeTableLists.total"
+                class="d-f f-j-c mt-50 mb-50" 
+                :page-size="timeTableLists.per_page" 
+                background layout="total, prev, pager, next" 
+                :total="timeTableLists.total" 
+                :current-page="timeTableLists.current_page" 
+                @current-change="paginationClick"
+                @next-click="nextClick"
+                @prev-click="prevClick">
+            </el-pagination>
         </el-card>
     </div>
 </template>
@@ -43,7 +78,8 @@ export default {
     data() {
         return {
             gradeId: 167,
-            gradeDetail: {}
+            gradeDetail: {},
+            timeTableLists: []
         }
     },
     methods: {
@@ -60,6 +96,17 @@ export default {
 
             if(!result) return 0;
             this.gradeDetail = result.grade;
+            this.getTimeTableLists();
+        },
+        async getTimeTableLists(curr_page) {
+            let params = {grade_id: this.gradeId};
+            if(curr_page) params.page = curr_page;
+
+            let result = await this.$$request.get('api/grade/timetableList', params);
+            console.log(result);
+
+            if(!result) return 0;
+            this.timeTableLists = result.timetable;
         }
     },
     created() {
@@ -71,7 +118,6 @@ export default {
 
 <style lang="less" scoped>
     .detail-header-box {
-
         p {
             color: #999;
             margin-top: 15px;
@@ -79,6 +125,21 @@ export default {
                 color: #222;
             }
         }
+    }
+    .delete-btn {
+        width: 70px;
+        height: 35px;
+        line-height: 35px;
+        background-color: #D6D6D6;
+        border-radius: 5px;
+    }
+    .edit-btn {
+        width: 70px;
+        height: 35px;
+        box-sizing: border-box;
+        border: 1px #45DAD5 solid;
+        line-height: 35px;
+        border-radius: 5px;
     }
 </style>
 

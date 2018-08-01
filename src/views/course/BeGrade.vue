@@ -30,7 +30,9 @@
                         <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" strip>
                             <el-table-column label="序号" type="index" align="center"></el-table-column>
                             <el-table-column label="班级" align="center">
-                                <template slot-scope="scope"></template>
+                                <template slot-scope="scope">
+                                    <router-link :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                                </template>
                             </el-table-column>
                             <el-table-column label="开课日期" align="center">
                                 <template slot-scope="scope">
@@ -93,7 +95,7 @@
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'" 
-                                                            :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>                         
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -102,7 +104,7 @@
                                                     <!--正常开课-->
                                                     <template v-else>
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
-                                                            :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>    
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -433,10 +435,6 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
-
-            deleteTimeTableLists: [],    //删除课表，选中的课表
-            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
-
             courseLists: [],  
             
             conflictLists: [],   //冲突列表
@@ -621,37 +619,6 @@ export default {
             }else {
                 dom.style.height = 0;
                 course.collapse = false;
-            }
-        },
-        timetableEditClick(a, b) {
-            this.timetableCheckbox = !this.timetableCheckbox;
-            if(!this.timetableCheckbox) this.$refs[`multipleTable_${a}_${b}`][0].clearSelection();
-        },
-        handleSelectionChange(val) {
-            this.deleteTimeTableLists = val;
-        },
-        checkboxIsDisabled(row, index) {
-            // return row.lesson_end_time == 0;
-            return row.begin_time > new Date().getTime() / 1000;
-        },
-        async deleteTimeTableHandle(data) {
-            if(!this.deleteTimeTableLists.length) return 0;
-            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
-
-            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
-            console.log(result);
-            if(!result) return 0;
-    
-            if(result.status == 1) {
-                this.$message.success('删除成功');
-                timetableLists.forEach(v => {
-                    data.forEach((k, n) => {if(k.id == v) data.splice(n, 1)});
-                });
-
-                this.timetableCheckbox = false;
-                this.deleteTimeTableLists = [];
-            }else {
-                this.$message.warning('删除失败');
             }
         },
         gradeStatus(data) {

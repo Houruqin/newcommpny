@@ -1,6 +1,6 @@
 <template>
     <div class="login-bg">
-        <div class="d-f f-j-c pt-80"><img :src="logo"></div>
+        <div class="login-logo pt-80"><img :src="logo"></div>
         <div class="login-content pt-60">
             <div class="login-box fc-f">
                 <h3 class="t-a-c">手机登录</h3>
@@ -134,16 +134,24 @@ export default {
     .login-bg {
         width: 100%;
         height: 100%;
+        min-width: 800px;
+        min-height: 940px;
         background: url(../images/common/login-bg.png) no-repeat;
-        background-size: 100% 100%;
+        background-size: cover;
         position: absolute;
-        left: 0;
         top: 0;
+        left: 0;
+        bottom: 0;
+        zoom: 1;
+        background-position: center 0;
+    }
+    .login-logo {
+        width: 120px;
+        margin: 0 auto;
     }
     .login-content {
-        // width: 800px;
-        // margin: 0 auto;
-        // padding-top: 60px;
+        width: 800px;
+        margin: 0 auto;
     }
     .login-box {
         margin: 0 auto;
