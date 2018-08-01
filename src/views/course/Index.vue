@@ -520,7 +520,7 @@ export default {
 
             other_lists: [],   //正常排课列表
 
-            dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
+            dialogStatus: {timetable: true, conflict: false, course: false, grade: false},
             addStudentDialog: false,
 
             editDetail: {},
@@ -1347,6 +1347,9 @@ export default {
 
     .form-box {
         padding: 0 10px;
+        max-height: 450px;
+        overflow: hidden;
+        overflow-y: auto;
         .add-lesson-top {
             padding-bottom: 20px;
         }
@@ -1384,11 +1387,11 @@ export default {
                     }
                 }
             }
-            .list {
-                max-height: 370px;
-                overflow: hidden;
-                overflow-y: auto;
-            }
+            // .list {
+            //     max-height: 370px;
+            //     overflow: hidden;
+            //     overflow-y: auto;
+            // }
             .delete-time {
                 top: 5px;
                 cursor: pointer;
@@ -1405,7 +1408,8 @@ export default {
             }
             ul {
                 max-height: 100px;
-                overflow-y: scroll;
+                overflow: hidden;
+                overflow-y: auto;
                 li {
                     background-color: #f0f2f5;
                     border-radius: 3px;
@@ -1415,7 +1419,8 @@ export default {
         }
         .grade-student-check {
             max-height: 200px;
-            overflow-y: scroll;
+            overflow: hidden;
+            overflow-y: auto;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
@@ -1423,7 +1428,8 @@ export default {
         }
         .time-table-student-check {
             max-height: 200px;
-            overflow-y: scroll;
+            overflow: hidden;
+            overflow-y: auto;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
