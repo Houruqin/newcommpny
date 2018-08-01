@@ -344,75 +344,57 @@
         <el-dialog title="学员修改" width="800px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
             <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
                 <div class="form-box">
-                    <h3>家长信息</h3>
                     <el-row>
-                        <el-col :span="13">
+                        <el-col :span="11">
+                            <el-form-item label="学员姓名：" prop="student_name">
+                                <el-input v-model.trim="studentForm.student_name"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="联系电话：" prop="mobile">
+                                <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="就读学校：" prop="school_name">
+                                <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
+                            </el-form-item>
+
                             <el-form-item label="家长姓名：" prop="parent_name">
                                 <el-input v-model.trim="studentForm.parent_name"></el-input>
                             </el-form-item>
+
+                            <el-form-item label="分配顾问：">
+                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
+                                    <el-option label="暂不分配" value=""></el-option>
+                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
                         </el-col>
-                        <el-col :span="4" :offset="1">
-                            <el-form-item prop="relation" label-width="0">
+
+                        <el-col :span="11" class="ml-30">
+                            <el-form-item label="性别：" prop="sex" >
+                                <el-select v-model="studentForm.sex" placeholder="选择性别">
+                                    <el-option label="男" :value="1"></el-option>
+                                    <el-option label="女" :value="0"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="出生日期：">
+                                <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                            </el-form-item>
+
+                            <el-form-item label="家庭住址：" prop="address">
+                                <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="家长关系：" prop="relation">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
                                     <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    
-                    <el-row class="mt-10">
-                        <el-col :span="13">
-                            <el-form-item label="手机号码：" prop="mobile">
-                                <el-input v-model.trim="studentForm.mobile"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
 
-                    <el-form-item label="家庭住址：" class="mt-10" prop="address">
-                        <el-col :span="20"><el-input v-model.trim="studentForm.address" placeholder="选填"></el-input></el-col>
-                    </el-form-item>
-
-                    <h3>学员信息</h3>
-                    
-                    <el-row>
-                        <el-col :span="13">
-                            <el-form-item label="学员姓名：" prop="student_name">
-                                <el-input v-model.trim="studentForm.student_name"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4" :offset="1">
-                            <el-form-item prop="sex" label-width="0">
-                                <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-row class="mt-10">
-                        <el-col :span="13">
-                            <el-form-item label="出生日期：">
-                                <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    
-                    <el-row class="mt-10">
-                        <el-col :span="12">
-                            <el-form-item label="分配顾问：">
-                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="就读学校：" class="mt-10" prop="school_name">
-                        <el-col :span="20"><el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input></el-col>
-                    </el-form-item>
-
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
