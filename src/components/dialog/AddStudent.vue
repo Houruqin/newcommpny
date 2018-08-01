@@ -1,9 +1,9 @@
 <template>
-    <el-dialog :title="type == 'add' ? '登记学员' : '修改学员'" width="950px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+    <el-dialog :title="type == 'add' ? '登记学员' : '修改学员'" width="800px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
         <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
-            <div class="form-box mt-30">
+            <div class="form-box">
                 <el-row>
-                    <el-col :span="10">
+                    <el-col :span="11">
                         <el-form-item label="学员姓名：" prop="student_name">
                             <el-input v-model.trim="studentForm.student_name"></el-input>
                         </el-form-item>
@@ -20,7 +20,7 @@
                             <el-input v-model.trim="studentForm.parent_name"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="意向课程：" class="mt-50">
+                        <el-form-item label="意向课程：">
                             <el-select v-model="studentForm.like_course" placeholder="选择课程" clearable>
                                 <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
@@ -34,7 +34,7 @@
                         </el-form-item>
                     </el-col>
 
-                    <el-col :span="10" :offset="2">
+                    <el-col :span="11" class="ml-30">
                         <el-form-item label="性别：" prop="sex" >
                             <el-select v-model="studentForm.sex" placeholder="选择性别">
                                 <el-option label="男" :value="1"></el-option>
@@ -56,7 +56,7 @@
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item label="课程意向：" class="mt-50">
+                        <el-form-item label="课程意向：">
                             <el-select v-model="studentForm.like_grade" placeholder="选择意向度" clearable>
                                 <el-option v-for="(item, index) in likeGrade" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
@@ -72,14 +72,12 @@
                 </el-row>
                 
                 <el-row class="mt-10">
-                    <el-col :span="22">
-                        <el-form-item label="备注：" class="textarea-cls" prop="remark">
-                            <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
-                        </el-form-item>
-                    </el-col>
+                    <el-form-item label="备注：" class="textarea-cls pr-30" prop="remark">
+                        <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
+                    </el-form-item>
                 </el-row>
 
-                <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
+                <div class="d-f f-j-c mt-10 mb-10"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
             </div>
         </el-form>
 
@@ -89,7 +87,7 @@
                     <el-form-item label="渠道来源：" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40 mb-20"><MyButton @click.native="doneHandle('sourseForm')" :loading="submitLoading.source">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('sourseForm')" :loading="submitLoading.source">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -310,7 +308,7 @@ export default {
 
 <style lang="less" scoped>
     .form-box {
-        padding: 0 40px;
+        padding: 0 20px;
         .el-select, .el-date-editor {
             width: 100%;
         }

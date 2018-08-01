@@ -43,7 +43,7 @@
                 </el-form-item> -->
             </div>
         </el-form>
-        <div class="mt-50 d-f f-j-c">
+        <div class="mt-20 d-f f-j-c">
             <MyButton @click.native="doneHandle" :loading="submitLoading.add">确定</MyButton>
             <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
         </div>

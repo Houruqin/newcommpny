@@ -1,106 +1,106 @@
 <template>
-    <el-dialog title="购买课程" width="1100px" center :visible.sync="courseDialogStatus" :close-on-click-modal="false" @close="dialogClose">
+    <el-dialog title="购买课程" width="1000px" center :visible.sync="courseDialogStatus" :close-on-click-modal="false" @close="dialogClose">
         <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm">
-            <div class="form-box">
-                <p class="head-info">购买信息</p>
-                <el-row class="mt-10">
-                    <el-col :span="7">
-                        <el-form-item label="选择课程：" prop="course_id">
-                            <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
-                                <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="购课日期：" prop="pay_at">
-                            <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="课程有效期：" prop="expire" label-width="110px">
-                            <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">月</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="7">
-                        <el-form-item label="购课类型：" prop="type">
-                            <el-select v-model="courseForm.type" placeholder="选择购课类型">
-                                <el-option label="新签约" :value="1"></el-option>
-                                <el-option label="续约" :value="2"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+            <div class="form-box my-scrollbar">
+                <el-scrollbar style="height: 100%;">
+                    <p class="head-info">购买信息</p>
+                    <el-row class="mt-10">
+                        <el-col :span="8">
+                            <el-form-item label="选择课程：" prop="course_id">
+                                <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
+                                    <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="购课日期：" prop="pay_at">
+                                <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="课程有效期：" prop="expire" label-width="110px">
+                                <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">月</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="7">
+                            <el-form-item label="购课类型：" prop="type">
+                                <el-select v-model="courseForm.type" placeholder="选择购课类型">
+                                    <el-option label="新签约" :value="1"></el-option>
+                                    <el-option label="续约" :value="2"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-                <p class="head-info">课程信息</p>
-                <el-row class="mt-10 course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="购买课时：" prop="lesson_num">
-                            <el-input-number v-model="courseForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="课时单价：" prop="unit_price" class="units-input">
-                            <el-input placeholder="课时单价" v-model="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
-                            <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row class="course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="已扣课时：" prop="lesson_num_already">
-                            <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="教材费用：" prop="textbook_price" class="units-input">
-                            <el-input placeholder="教材费用" v-model="courseForm.textbook_price"></el-input><span class="pl-10">元</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+                    <p class="head-info">课程信息</p>
+                    <el-row class="mt-10">
+                        <el-col :span="8">
+                            <el-form-item label="购买课时：" prop="lesson_num">
+                                <el-input-number v-model="courseForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="课时单价：" prop="unit_price" class="units-input">
+                                <el-input placeholder="课时单价" v-model="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
+                                <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="已扣课时：" prop="lesson_num_already">
+                                <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="教材费用：" prop="textbook_price" class="units-input">
+                                <el-input placeholder="教材费用" v-model="courseForm.textbook_price"></el-input><span class="pl-10">元</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-                <p class="head-info">购课优惠及费用</p>
-                <el-row class="mt-10 course-form-box">
-                    <el-col :span="7">
-                        <el-form-item label="赠送课时：">
-                            <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="优惠金额：" prop="preferential_price" class="units-input">
-                            <el-input placeholder="优惠金额" v-model="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="7" :offset="1">
-                        <el-form-item label="付款方式：" prop="pay_way" label-width="110px">
-                            <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                                <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+                    <p class="head-info">购课优惠及费用</p>
+                    <el-row class="mt-10">
+                        <el-col :span="8">
+                            <el-form-item label="赠送课时：">
+                                <el-input-number v-model="courseForm.given_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="优惠金额：" prop="preferential_price" class="units-input">
+                                <el-input placeholder="优惠金额" v-model="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="付款方式：" prop="pay_way" label-width="110px">
+                                <el-select v-model="courseForm.pay_way" placeholder="付款方式">
+                                    <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-                <el-form-item label="购买说明：" class="mt-10 textarea-cls" prop="explain">
-                    <el-col :span="21">
+                    <el-form-item label="购买说明：" class="mt-10 textarea-cls pr-50" prop="explain">
                         <el-input type="textarea" :rows="4" placeholder="购买说明" v-model.trim="courseForm.explain"></el-input>
-                    </el-col>
-                </el-form-item>
-
-                <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
-
-                <div class="mt-10">
-                    <el-form-item label="总金额：" label-width="95px">
-                        <span class="fc-m fs-22">￥{{getTotalMoney()}}</span>
                     </el-form-item>
-                </div>
-                <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="doneHandle" :loading="submitLoading">提交生成合约</MyButton>
-                </div>
+
+                    <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
+
+                    <div class="mt-10">
+                        <el-form-item label="总金额：" label-width="95px">
+                            <span class="fc-m fs-22">￥{{getTotalMoney()}}</span>
+                        </el-form-item>
+                    </div>
+                    <div class="d-f f-j-c mt-30">
+                        <MyButton @click.native="doneHandle" :loading="submitLoading">提交生成合约</MyButton>
+                    </div>
+                </el-scrollbar>
             </div>
         </el-form>
     </el-dialog>
@@ -265,7 +265,8 @@ export default {
 
 <style lang="less" scoped>
     .form-box {
-        padding: 0 20px;
+        padding: 0 0 0 20px;
+        height: 480px;
         .el-select, .el-date-editor {
             width: 100%;
         }
@@ -275,8 +276,11 @@ export default {
             padding-left: 38px;
             margin-bottom: 15px;
         }
-        input {
-            width: 175px !important;
+        /deep/ .el-input-number {
+            width: 150px;
+        }
+        /deep/ .el-input {
+            width: 150px;
         }
     }
 </style>
