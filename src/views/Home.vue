@@ -60,11 +60,11 @@
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
-                                    <i @click="search_student" class="iconfont icon-shezhi1 cursor-pointer"></i>
+                                    <i @click="search_student" class="iconfont icon-shezhi3 cursor-pointer fc-9"></i>
                                     <span class="pl-5">校区设置</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="loginOut">
-                                    <i @click="search_student" class="iconfont icon-tuichu cursor-pointer"></i>
+                                    <i @click="search_student" class="iconfont icon-tuichu cursor-pointer fc-9"></i>
                                     <span class="pl-5">安全退出</span>
                                 </el-dropdown-item>
                             </el-dropdown-menu>

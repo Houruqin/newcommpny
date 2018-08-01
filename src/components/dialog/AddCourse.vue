@@ -1,9 +1,9 @@
 <template>
-    <el-dialog :title="type == 'edit' ? '修改课程' : '添加课程'" width="800px" center :visible.sync="courseDialogStatus" :close-on-click-modal="false" @close="dialogClose('courseForm')">
+    <el-dialog :title="type == 'edit' ? '修改课程' : '添加课程'" width="720px" center :visible.sync="courseDialogStatus" :close-on-click-modal="false" @close="dialogClose('courseForm')">
         <el-form :model="courseForm" label-width="125px" size="small" ref="courseForm" :rules="courseRules">
             <div class="form-box add_course">
                 <el-row>
-                    <el-col :span="11">
+                    <el-col :span="12">
                         <el-form-item label="课程名字：" prop="name">
                             <el-input v-model.trim="courseForm.name" placeholder="课程名称"></el-input>
                         </el-form-item>
@@ -12,7 +12,7 @@
                         </el-form-item>
                     </el-col>
 
-                    <el-col :span="11" :offset="1">
+                    <el-col :span="12">
                         <el-form-item label="课程有效期：" prop="expire">
                             <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">个月</span>
                         </el-form-item>
@@ -28,8 +28,8 @@
         </el-form>
         
         <div class="d-f f-j-c mt-20">
-            <MyButton class="mr-20" @click.native="doneHandle('courseForm')" :loading="submitLoading">提交</MyButton>
-            <MyButton v-if="courseType == 'edit'" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
+            <MyButton @click.native="doneHandle('courseForm')" :loading="submitLoading">提交</MyButton>
+            <MyButton v-if="courseType == 'edit'" class="ml-20" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
         </div>
     </el-dialog>
 </template>
@@ -156,6 +156,14 @@ export default {
 <style lang="less" scoped>
     .add_course /deep/ .el-input-number--small{
         width: 180px;
+    }
+    .form-box {
+        /deep/ .el-input-number {
+            width: 150px;
+        }
+        /deep/ .el-input {
+            width: 150px;
+        }
     }
 </style>
 
