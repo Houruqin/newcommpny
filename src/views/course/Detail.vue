@@ -6,7 +6,7 @@
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>
             <div class="d-f detail-header-box">
                 <div>
-                    <p>课　　程：<i>{{gradeDetail.course_name}}</i></p>
+                    <p>课　　程：<i>{{gradeDetail.course && gradeDetail.course.name}}</i></p>
                     <p>课　　时：<i>{{gradeDetail.lesson_num}}</i></p>
                     <p>任课老师：<i v-for="(teacher, index) in gradeDetail.teacher_lists" :key="index" class="mr-10">{{teacher.name}}</i></p>
                     <p>开课日期：<i>{{$$tools.format(gradeDetail.start_time)}}</i></p>
@@ -29,17 +29,18 @@
 
         <el-card shadow="hover" class="mt-20">
             <TableHeader title="班级课表">
-                <div class="delete-btn fc-f t-a-c">删除</div>
-                <div class="edit-btn fc-m t-a-c ml-10">编辑</div>
+                <div class="delete-btn fc-f t-a-c" @click="deleteTimeTable" :class="{'btn-subm': deleteTimeTableLists.length}">删除</div>
+                <div class="edit-btn fc-m t-a-c ml-10" @click="timetableEdit">{{timetableCheckbox ? '取消' : '编辑'}}</div>
             </TableHeader>
 
-            <el-table :data="timeTableLists.data" strip>
+            <el-table :data="timeTableLists.data" strip ref="timetable" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="上课日期" align="center">
                     <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
                 </el-table-column>
                 <el-table-column label="上课时间" align="center">
-                    <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
+                    <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
                 </el-table-column>
                 <el-table-column label="上课老师" align="center">
                     <template slot-scope="item">
@@ -60,9 +61,7 @@
                 background layout="total, prev, pager, next" 
                 :total="timeTableLists.total" 
                 :current-page="timeTableLists.current_page" 
-                @current-change="paginationClick"
-                @next-click="nextClick"
-                @prev-click="prevClick">
+                @current-change="paginationClick">
             </el-pagination>
         </el-card>
     </div>
@@ -79,7 +78,10 @@ export default {
         return {
             gradeId: 167,
             gradeDetail: {},
-            timeTableLists: []
+            timeTableLists: [],
+
+            deleteTimeTableLists: [],    //删除课表，选中的课表
+            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
         }
     },
     methods: {
@@ -89,6 +91,36 @@ export default {
                 if(this.gradeDetail.room_id == v.id) room_name = v.name; 
             });
             return room_name;
+        },
+        paginationClick(curr) {
+            this.getTimeTableLists(curr);
+        },
+        checkboxIsDisabled(row, index) {
+            return row.begin_time > new Date().getTime() / 1000;
+        },
+        handleSelectionChange(val) {
+            this.deleteTimeTableLists = val;
+        },
+        async deleteTimeTable() {
+            if(!this.deleteTimeTableLists.length) return 0;
+            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
+
+            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
+            console.log(result);
+            if(!result) return 0;
+    
+            if(result.status == 1) {
+                this.$message.success('删除成功');
+                this.getTimeTableLists();
+                this.timetableCheckbox = false;
+                this.deleteTimeTableLists = [];
+            }else {
+                this.$message.warning('删除失败');
+            }
+        },
+        timetableEdit() {
+            this.timetableCheckbox = !this.timetableCheckbox;
+            if(!this.timetableCheckbox) this.$refs.timetable.clearSelection();
         },
         async getGradeDetail() {
             let result = await this.$$request.get('api/grade/detail', {grade_id: this.gradeId});

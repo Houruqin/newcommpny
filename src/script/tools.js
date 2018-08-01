@@ -99,7 +99,7 @@ const Tools = {
 		let end = [date2.getHours(), date2.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
 
 		// if(type === 'timetable') return `${week}  ${begin}-${end}`;
-        // return `${day}(${week})  ${begin}-${end}`;
+        if(type == 'time') return `${begin}-${end}`;
         if(type == 'day') return `${day}(${week})`;
         else return `${begin}-${end}`;
 	}

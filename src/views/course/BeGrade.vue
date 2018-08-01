@@ -122,7 +122,7 @@
             </div>
         </el-card>
         <!-- 添加、修改课程弹窗 -->
-        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" 
+        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" :courseMode="0"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
@@ -1202,38 +1202,6 @@ export default {
     }
     .course-lits-nothing {
         height: 100%;
-    }
-
-    .detail {
-        padding: 0 10px;
-        .detail-left {
-            width: 400px;
-        }
-        .detail-top {
-            padding: 0 50px;
-            ul li {
-                margin-top: 20px;
-                color: #999999;
-                span {
-                    color: #222222;
-                }
-            }
-        }
-        .detail-bottom {
-            border-top: 1px #e3e3e3 dotted;
-            .timetable-edit {
-                border: 1px #45DAD5 solid;
-                text-align: center;
-                width: 60px;
-                line-height: 30px;
-                height: 30px;
-                box-sizing: border-box;
-                right: 10px;
-                top: -40px;
-                color: #45DAD5;
-                border-radius: 5px;
-            }
-        }
     }
 
     .form-box {
