@@ -277,23 +277,23 @@
                                 <el-cascader :options="timetableFull.course" v-model="timetableForm.grade_info" @change="formGradeChange" expand-trigger="hover"></el-cascader>
                             </el-form-item>
 
-                            <el-form-item label="开课日期：" prop="start_time" class="mt-30" v-if="addTableType == 'multiple'">
+                            <el-form-item label="开课日期：" prop="start_time" v-if="addTableType == 'multiple'">
                                 <el-date-picker v-model="timetableForm.start_time" @change="startTimeChange" type="date" :editable="false" :picker-options="pickerBeginDateAfter" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
 
-                            <el-form-item label="上课老师：" prop="teacher_ids" class="mt-30">
+                            <el-form-item label="上课老师：" prop="teacher_ids">
                                 <el-select placeholder="请选择" v-model="timetableForm.teacher_ids">
                                     <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课教室：" prop="room_id" class="mt-30">
+                            <el-form-item label="上课教室：" prop="room_id">
                                 <el-select placeholder="请选择"  v-model="timetableForm.room_id" :multiple="addTableType == 'multiple'">
                                     <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="addTableType == 'multiple' && courseType !== 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType !== 1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
@@ -309,34 +309,34 @@
                             </el-form-item>
 
                             <template v-if="addTableType == 'multiple'">
-                                <el-form-item label="扣课时数：" prop="lesson_num" class="mt-30">
+                                <el-form-item label="扣课时数：" prop="lesson_num">
                                     <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
                                 </el-form-item>
 
-                                <el-form-item label="辅助老师：" prop="counselor_ids" class="mt-30">
+                                <el-form-item label="辅助老师：" prop="counselor_ids">
                                     <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
                                         <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </template>
                             <template v-else>
-                                <el-form-item label="辅助老师：" prop="counselor_ids" class="mt-30">
+                                <el-form-item label="辅助老师：" prop="counselor_ids">
                                     <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
                                         <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="扣课时数：" prop="lesson_num" class="mt-30">
+                                <el-form-item label="扣课时数：" prop="lesson_num">
                                     <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
                                 </el-form-item>
                             </template>
-                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="addTableType == 'multiple' && courseType === 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课学员：" prop="counselor_ids" class="mt-30 addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
+                            <el-form-item label="上课学员：" prop="counselor_ids" class="addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
                                 <div class="d-f">
                                     <div class="d-f">
                                         <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
@@ -346,14 +346,14 @@
                                     <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}</span>
                                 </div>
                             </el-form-item>
-                            <el-form-item label="排课次数：" prop="loop_time" class="mt-30" v-if="addTableType == 'multiple' && courseType !== 1">
+                            <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1">
                                 <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
                             </el-form-item>
                         </el-col>                    
                     </el-row>
 
 
-                    <el-row class="mt-10">
+                    <el-row>
                         <el-col :span="12">
                             <el-row class="add-date-box d-f">
                                 <el-col class="title p-r is-required">上课时间：</el-col>
@@ -1624,6 +1624,9 @@ export default {
 
     .form-box {
         padding: 0 10px;
+        max-height: 450px;
+        overflow: hidden;
+        overflow-y: auto;
         .el-select, .el-date-editor {
             width: 100%;
         }
@@ -1665,11 +1668,11 @@ export default {
                     }
                 }
             }
-            .list {
-                max-height: 370px;
-                overflow: hidden;
-                overflow-y: auto;
-            }
+            // .list {
+            //     max-height: 370px;
+            //     overflow: hidden;
+            //     overflow-y: auto;
+            // }
             .delete-time {
                 top: 5px;
                 cursor: pointer;
@@ -1686,7 +1689,8 @@ export default {
             }
             ul {
                 max-height: 100px;
-                overflow-y: scroll;
+                overflow: hidden;
+                overflow-y: auto;
                 li {
                     background-color: #f0f2f5;
                     border-radius: 3px;
@@ -1696,7 +1700,8 @@ export default {
         }
         .time-table-student-check {
             max-height: 200px;
-            overflow-y: scroll;
+            overflow: hidden;
+            overflow-y: auto;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
