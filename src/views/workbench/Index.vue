@@ -12,7 +12,7 @@
             <!-- 待处理请假 -->
             <el-tab-pane label="待处理请假" name="leave">
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -40,7 +40,7 @@
             <!-- 待分班学员 -->
             <el-tab-pane label="待分班学员" name="divide">
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
-                <el-table-column class-name="table_head" label="学员姓名" align="left" width="160">
+                <el-table-column class-name="table_head" label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -67,7 +67,7 @@
             <!-- 需续约学员 -->
             <el-tab-pane label="需续约学员" name="renewal">
               <el-table class="student-table" :data="renewal_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -95,7 +95,7 @@
             <!-- 生日学员 -->
             <el-tab-pane label="生日学员" name="birth">
               <el-table class="student-table" :data="birth_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -194,7 +194,7 @@
             <!-- 预约到访 -->
             <el-tab-pane label="邀约到访" name="visit">
               <el-table class="student-table" :data="visit_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -221,7 +221,7 @@
             <!-- 邀约试听 -->
             <el-tab-pane label="邀约试听" name="audition">
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -230,7 +230,7 @@
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column label="试听课程" align="center" width="300">
+                <el-table-column label="试听课程" align="center">
                   <template slot-scope="scope">
                     {{scope.row.timetable.course.name}}--{{scope.row.timetable.grade.name}}
                   </template>
@@ -254,7 +254,7 @@
             <!-- 需跟进学员 -->
             <el-tab-pane label="需跟进学员" name="follow_up">
               <el-table class="student-table" :data="follow_up_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
@@ -281,7 +281,7 @@
             <!-- 待分配意向学员 -->
             <el-tab-pane label="待分配意向学员" name="assign">
               <el-table class="student-table" :data="assign_list" v-loading="follow_loading" :show-header="true">
-                <el-table-column label="学员姓名" align="left" width="160">
+                <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
                     <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
