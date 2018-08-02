@@ -45,7 +45,10 @@ export default {
                     { id: "/academic/audition", text: "试听课记录" },
                     { id: "/academic/buy", text: "购课记录" }
                 ]},
-                {id: "/home/course", text: "课程管理", item: false, icon: "icon-kecheng-"},
+                {id: "/home/course", text: "课程管理", item: true, icon: "icon-kecheng-", itemList: [
+                    {id: '/course/begrade', text: '班课管理'},
+                    {id: '/course/nograde', text: '无班课管理'}
+                ]},
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
                 {id: "/home/setting", text: "基础设置", item: false, icon: "icon-shezhi"},
                 {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}

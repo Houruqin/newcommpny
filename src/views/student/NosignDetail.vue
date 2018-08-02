@@ -416,24 +416,6 @@ export default {
             this.editDetail = this.detail;
             this.dialogStatus.student = true;
         },
-        //删除学员
-        deleteStudent() {
-            this.$confirm('确定删除该学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle();
-            }).catch(() => {return 0});
-        },
-        async deleteHandle() {
-            let result = await this.$$request.post('api/student/delete', {id: this.detail.id});
-            if(!result) return 0;
-            if(result.status) {
-                Bus.$emit('refreshStudentLists');
-                this.$router.go(-1);
-            }
-        },
         //提交跟进
         async submitFollowUpInfo() {
             if(this.submitLoading) return 0;

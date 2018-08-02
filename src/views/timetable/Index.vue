@@ -224,11 +224,11 @@
                                                 @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
                                                 :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
-                                                        'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
-                                                        'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
+                                                        'green': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length < item.grade_limit_num,
+                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.student_grades.length == item.grade_limit_num)),
+                                                        'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.grade_limit_num}">
 
-                                                <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
+                                                <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                                                     <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
                                                 </div>
 
@@ -252,7 +252,7 @@
                                                         </span>
                                                     </p>
                                                 </div>
-                                                <div class="d-f f-a-c mr-30" v-if="item.operate && item.status == 1 && !row.past_due">
+                                                <div class="d-f f-a-c mr-30" v-if="item.operate && !row.past_due">
                                                     <MyButton type="border" fontColor="fc-m" @click.native="detailEdit(item)">编辑</MyButton>
                                                     <MyButton type="border" fontColor="fc-m" class="ml-10" @click.native="detailDelete(item)">删除</MyButton>
                                                 </div>

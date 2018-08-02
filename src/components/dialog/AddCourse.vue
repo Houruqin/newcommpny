@@ -7,8 +7,13 @@
                         <el-form-item label="课程名字：" prop="name">
                             <el-input v-model.trim="courseForm.name" placeholder="课程名称"></el-input>
                         </el-form-item>
-                        <el-form-item label="课节时长：" prop="lesson_time" class="mt-30">
+                        <el-form-item label="课节时长：" prop="lesson_time">
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
+                        </el-form-item>
+                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 1">
+                            <el-select :disabled="courseType == 'edit'" v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
+                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
 
@@ -16,7 +21,7 @@
                         <el-form-item label="课程有效期：" prop="expire">
                             <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">个月</span>
                         </el-form-item>
-                        <el-form-item label="课程性质：" prop="type" class="mt-30">
+                        <el-form-item label="课程性质：" prop="type">
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
                                 <el-option label="普通课程" :value="1"></el-option>
                                 <el-option label="一对一课程" :value="2"></el-option>
@@ -42,6 +47,7 @@ import Bus from '../../script/bus'
 export default {
     props: {
         type: {default: 'add'},
+        courseMode: {default: 0},   //上课模式   默认有班模式
         dialogStatus: '',
         editDetail: {default: null}
     },
@@ -74,7 +80,8 @@ export default {
                 name: '',  //名字
                 expire: '', //有效期
                 lesson_time: '',  //课时时长
-                type: 1 //课程性质
+                type: 1, //课程性质
+                order_teacher_ids: []
             },
             courseDialogStatus: false,
             courseType: 'add',
@@ -91,6 +98,12 @@ export default {
                 ],
                 lesson_time: [
                     {required: true, message: '请输入课节时长'}
+                ],
+                type: [
+                    {required: true, message: '请选择课程性质', trigger: 'change'}
+                ],
+                order_teacher_ids: [
+                    {required: true, message: '请选择上课老师', trigger: 'change'}
                 ]
             },
         }
@@ -133,7 +146,15 @@ export default {
 
             let url = this.courseType == 'edit' ? 'api/course/edit' : 'api/course/add';
             let params = {};
-            for(let key in this.courseForm) {if(key != 'id') params[key] = this.courseForm[key]};
+            for(let key in this.courseForm) {
+                if(key != 'id') {
+                    if(key == 'order_teacher_ids') {
+                        if(this.courseMode == 1) params[key] = this.courseForm[key];
+                    }else params[key] = this.courseForm[key];
+                }
+            };
+            params.is_order = this.courseMode;
+
             if(this.courseType == 'edit') params.id = this.courseForm.id;
             console.log(params);
 

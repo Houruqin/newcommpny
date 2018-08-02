@@ -3,9 +3,12 @@
         <div class="course-popver">
             <div class="d-f f-j-b">
                 <span class="fs-17 fc-m">{{item.grade_name}}</span>
-                <div class="d-f btn" v-if="item.status == 1 && !pastdue && item.begin_time > new Date().getTime() / 1000">
+                <div class="d-f btn" v-if="!pastdue && item.begin_time > new Date().getTime() / 1000">
                     <a class="cursor-pointer" @click="detailEdit(item)">编辑</a>
                     <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
+                </div>
+                <div class="btn" v-else-if="!item.lesson_end_time && $$cache.getMemberInfo().lesson_end">
+                    <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
             </div>
             <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
@@ -28,11 +31,11 @@
         <div class="course-item pl-13 pr-10 pt-8 p-r" 
                 :class="{
                     'gray': item.lesson_end_time,
-                    'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                    'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
-                    'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
+                    'green': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length < item.grade_limit_num,
+                    'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.student_grades.length == item.grade_limit_num)),
+                    'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.grade_limit_num}" 
                     slot="reference">
-            <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
+            <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
             </div>
 
@@ -78,6 +81,15 @@ export default {
             }).then(() => {
                 this.deleteHandle(item.id);
             }).catch(() => {return 0});
+        },
+        //结课
+        async endTimeTable(item) {
+            let result = await this.$$request.post('timetable/lessonEnd', {timetable_id: item.id});
+            if(!result) return 0;
+
+            this.$refs.myPopver.showPopper = false;
+            this.$emit('CB-deleteTable');
+            this.$message.success('已结课');
         },
         async deleteHandle(id) {
             let result = await this.$$request.post('api/timetable/delete', {id: id});

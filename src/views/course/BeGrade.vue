@@ -4,7 +4,7 @@
             <TableHeader title="班课管理">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
-            <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
+            <div class="course-list-box mt-20" v-for="(course, index) in courseLists" :key="index">
                 <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
                     <div class="d-f f-a-c">
                         <span class="fc-7 fs-16 d-f f-a-c">
@@ -31,76 +31,7 @@
                             <el-table-column label="序号" type="index" align="center"></el-table-column>
                             <el-table-column label="班级" align="center">
                                 <template slot-scope="scope">
-                                    <div>
-                                        <el-popover width="800" placement="right" trigger="click" v-model="scope.row.popver" @hide="timetableCheckbox = false">
-                                            <p class="fc-m fs-16 t-a-c mt-10 p-r">
-                                                <span>{{scope.row.name}}</span>
-                                                <a class="p-a popver-close-icon mr-5 cursor-pointer" @click="scope.row.popver = false">
-                                                    <img src="../../images/common/close-icon.png" alt="">
-                                                </a>
-                                            </p>
-                                            <div class="detail">
-                                                <div class="detail-top">
-                                                    <div class="d-f">
-                                                        <ul class="detail-left">
-                                                            <li>课程：<span>{{course.name}}</span></li>
-                                                            <li>课时：<span>{{scope.row.lesson_num}}课时</span></li>
-                                                            <li>
-                                                                任课老师：<span v-if="scope.row.teacher_lists.length">
-                                                                    <i v-for="(teacher, index) in scope.row.teacher_lists" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </li>
-                                                            <li>开课日期：<span>{{$$tools.format(scope.row.start_time)}}</span></li>
-                                                            <li>可否试听：<span>{{scope.row.is_listen ? '是' : '否'}}</span></li>                                                   
-                                                        </ul>
-                                                        <ul class="flex1">
-                                                            <li>人数上限：<span>{{scope.row.limit_num}}</span></li>
-                                                            <li>剩余课时：<span>{{scope.row.lesson_num_remain}}</span></li>
-                                                            <li>
-                                                                辅助老师：<span v-if="scope.row.counselor_lists.length">
-                                                                    <i v-for="(teacher, index) in scope.row.counselor_lists" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </li>
-                                                            <li>上课教室：<span>{{scope.row.room && scope.row.room.name}}</span></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="mt-20 d-f">
-                                                        <span class="fc-9">班级学员：</span>
-                                                        <span class="d-f f-w-w flex1" v-if="scope.row.student.length">
-                                                            <i v-for="(student, index) in scope.row.student" class="pb-5 pr-20" :key="index">{{student.name}}</i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="detail-bottom pb-30 p-r mt-50">
-                                                    <div class="timetable-edit p-a cursor-pointer" @click="timetableEditClick(course.id, scope.$index)">{{timetableCheckbox ? '取消' : '编辑'}}</div>
-                                                    <el-table :data="scope.row.timetable" height="280" stripe @selection-change="handleSelectionChange" :ref="'multipleTable_' + course.id + '_' + scope.$index">
-                                                        <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
-                                                        <el-table-column label="序号" type="index" align="center"></el-table-column>
-                                                        <el-table-column label="上课日期" align="center">
-                                                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课时间" align="center">
-                                                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课老师" align="center">
-                                                            <template slot-scope="item">
-                                                                <span v-if="item.row.teacher.length">
-                                                                    <i v-for="(teacher, index) in item.row.teacher" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                                                </span>
-                                                            </template>
-                                                        </el-table-column>
-                                                        <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
-                                                        <el-table-column label="结课状态" align="center">
-                                                            <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
-                                                        </el-table-column>
-                                                    </el-table>
-
-                                                    <div class="d-f f-j-c mt-20" v-if="timetableCheckbox"><MyButton @click.native="deleteTimeTableHandle(scope.row.timetable)" :type="deleteTimeTableLists.length ? 'main' : 'gray'">删除</MyButton></div>
-                                                </div>
-                                            </div>
-                                            <a slot="reference" class="cursor-pointer fc-m t-a-c">{{scope.row.name}}</a>
-                                        </el-popover>
-                                    </div>
+                                    <router-link :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                                 </template>
                             </el-table-column>
                             <el-table-column label="开课日期" align="center">
@@ -164,7 +95,7 @@
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'" 
-                                                            :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>                         
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -173,7 +104,7 @@
                                                     <!--正常开课-->
                                                     <template v-else>
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
-                                                            :class="{'fc-9': item.type == 'plan' && scope.row.timetable.length == scope.row.lesson_num && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>    
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -191,7 +122,7 @@
             </div>
         </el-card>
         <!-- 添加、修改课程弹窗 -->
-        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" 
+        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" :courseMode="0"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
@@ -289,7 +220,7 @@
         <!-- 排课弹窗 -->
         <el-dialog title="批量排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
-                <div class="form-box" id="form-box">
+                <div class="form-box">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="排课班级：" >{{timetableForm.class_name}}</el-form-item>
@@ -504,10 +435,6 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
-
-            deleteTimeTableLists: [],    //删除课表，选中的课表
-            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
-
             courseLists: [],  
             
             conflictLists: [],   //冲突列表
@@ -694,37 +621,6 @@ export default {
                 course.collapse = false;
             }
         },
-        timetableEditClick(a, b) {
-            this.timetableCheckbox = !this.timetableCheckbox;
-            if(!this.timetableCheckbox) this.$refs[`multipleTable_${a}_${b}`][0].clearSelection();
-        },
-        handleSelectionChange(val) {
-            this.deleteTimeTableLists = val;
-        },
-        checkboxIsDisabled(row, index) {
-            // return row.lesson_end_time == 0;
-            return row.begin_time > new Date().getTime() / 1000;
-        },
-        async deleteTimeTableHandle(data) {
-            if(!this.deleteTimeTableLists.length) return 0;
-            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
-
-            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
-            console.log(result);
-            if(!result) return 0;
-    
-            if(result.status == 1) {
-                this.$message.success('删除成功');
-                timetableLists.forEach(v => {
-                    data.forEach((k, n) => {if(k.id == v) data.splice(n, 1)});
-                });
-
-                this.timetableCheckbox = false;
-                this.deleteTimeTableLists = [];
-            }else {
-                this.$message.warning('删除失败');
-            }
-        },
         gradeStatus(data) {
             let date = new Date().getTime() / 1000, result = {};
             if(data.status === -3) {
@@ -814,7 +710,6 @@ export default {
         //批量排课，新增多个时间段
         addDateHandle() {
             this.formAddDate.push({begin_time: '', end_time: '', week: ''});
-            setTimeout(v => {document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight)}, 10);
         },
         deleteDateHandle(index) {
             this.formAddDate.splice(index, 1);
@@ -1304,48 +1199,21 @@ export default {
                 }
             }
         }
+        .course_type{
+        display: inline-block;
+        border: 1px solid #a9a9a9;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 5px;
+        border-radius: 4px;
+    }
     }
     .course-lits-nothing {
         height: 100%;
     }
 
-    .detail {
-        padding: 0 10px;
-        .detail-left {
-            width: 400px;
-        }
-        .detail-top {
-            padding: 0 50px;
-            ul li {
-                margin-top: 20px;
-                color: #999999;
-                span {
-                    color: #222222;
-                }
-            }
-        }
-        .detail-bottom {
-            border-top: 1px #e3e3e3 dotted;
-            .timetable-edit {
-                border: 1px #45DAD5 solid;
-                text-align: center;
-                width: 60px;
-                line-height: 30px;
-                height: 30px;
-                box-sizing: border-box;
-                right: 10px;
-                top: -40px;
-                color: #45DAD5;
-                border-radius: 5px;
-            }
-        }
-    }
-
     .form-box {
         padding: 0 10px;
-        max-height: 450px;
-        overflow: hidden;
-        overflow-y: auto;
         .add-lesson-top {
             padding-bottom: 20px;
         }
@@ -1383,11 +1251,11 @@ export default {
                     }
                 }
             }
-            // .list {
-            //     max-height: 370px;
-            //     overflow: hidden;
-            //     overflow-y: auto;
-            // }
+            .list {
+                max-height: 370px;
+                overflow: hidden;
+                overflow-y: auto;
+            }
             .delete-time {
                 top: 5px;
                 cursor: pointer;
@@ -1404,8 +1272,7 @@ export default {
             }
             ul {
                 max-height: 100px;
-                overflow: hidden;
-                overflow-y: auto;
+                overflow-y: scroll;
                 li {
                     background-color: #f0f2f5;
                     border-radius: 3px;
@@ -1415,8 +1282,7 @@ export default {
         }
         .grade-student-check {
             max-height: 200px;
-            overflow: hidden;
-            overflow-y: auto;
+            overflow-y: scroll;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
@@ -1424,21 +1290,12 @@ export default {
         }
         .time-table-student-check {
             max-height: 200px;
-            overflow: hidden;
-            overflow-y: auto;
+            overflow-y: scroll;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
             }
         }
-    }
-    .course_type{
-        display: inline-block;
-        border: 1px solid #a9a9a9;
-        height: 20px;
-        line-height: 20px;
-        padding: 0 5px;
-        border-radius: 4px;
     }
 
     .conflict-box {
