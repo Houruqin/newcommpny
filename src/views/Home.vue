@@ -369,11 +369,11 @@ export default {
         },
         //查找学员
         search_student() {
-            if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
-                this.$message.closeAll();
-                this.$message.warning('请输入学员姓名或手机号')
-                 return false
-            };
+            // if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
+            //     this.$message.closeAll();
+            //     this.$message.warning('请输入学员姓名或手机号')
+            //      return false
+            // };
             this.loading = true;
             this.page_info.current_page = 1;
             this.get_search_student_info();
@@ -386,15 +386,14 @@ export default {
             this.$$request.post('api/student/studentSearch',params)
             .then(res => {
                 this.loading = false;
-                if(res.lists.data.length > 0) {
-                    this.dialogStatus.search = true;
-                    this.page_info.total = res.lists.total;
-                    this.page_info.current_page = res.lists.current_page;
-                    this.search_result = res.lists.data;
-                }else{
+                if(res.lists.data.length < 1) {
                     this.$message.closeAll();
                     this.$message.warning('未搜索到相关学员信息')
                 }
+                this.dialogStatus.search = true;
+                this.page_info.total = res.lists.total;
+                this.page_info.current_page = res.lists.current_page;
+                this.search_result = res.lists.data;
             })
         },
         speedyChange(val) {

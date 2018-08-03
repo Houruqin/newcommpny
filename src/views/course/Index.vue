@@ -202,7 +202,7 @@
 
         <!-- 添加/修改班级弹窗 -->
         <el-dialog :title="classEdit ? '修改班级' : '添加班级'" width="800px" center :visible.sync="dialogStatus.grade" :close-on-click-modal="false" @close="dialogClose('classRoomForm')">
-            <div class="form-box">
+            <div class="form-box grade_dialog">
                 <el-form :model="classForm" label-width="120px" size="small" ref="classRoomForm" :rules="classRules">
                     <el-row class="add-lesson-top">
                         <el-col :span="11">
@@ -1465,6 +1465,14 @@ export default {
         width: 110px;
         /deep/ .el-dropdown-menu__item {
             padding: 0 27px;
+        }
+    }
+    .grade_dialog {
+        /deep/ .el-input-number {
+            width: 160px;
+        }
+        /deep/ .el-input {
+            width: 160px;
         }
     }
 </style>

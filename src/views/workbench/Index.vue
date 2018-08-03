@@ -1,6 +1,54 @@
 <template>
   <div class="content flex1 workbench_container">
-    <el-row class="head_content" :gutter="20">
+    <el-row :gutter="20" class="top_content">
+      <el-card shadow="hover" >
+        <el-col :span="11" v-if="statitics_info.sign !== ''">
+          <el-row>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" :offset="6">今日</el-col>
+            <el-col :span="6">本月</el-col>
+            <el-col :span="6">上月</el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="6"> <i class="iconfont icon-renshu fs-14"></i> 签约单数(笔)</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.today.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.present_month.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.last_month.count}}</el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="6"> <i class="iconfont icon-jine"></i> 签约金额(元)</el-col>
+            <el-col :span="6">{{statitics_info.sign.today.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.sign.present_month.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.sign.last_month.sum}}元</el-col>
+          </el-row>
+        </el-col>
+        <el-col :span="2" v-if="statitics_info.sign !== '' && statitics_info.eliminate !== '' ">
+          <div class="line"></div>
+        </el-col>
+        <el-col :span="11" v-if="statitics_info.eliminate !== '' ">
+          <el-row>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" :offset="6">今日</el-col>
+            <el-col :span="6">本月</el-col>
+            <el-col :span="6">上月</el-col>
+          </el-row>
+          <el-row v-cloak>
+            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课节数(次)</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.today.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.present_month.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.last_month.count}}</el-col>
+          </el-row>
+          <el-row v-cloak>
+            <el-col :span="6"> <i class="iconfont icon-jine"></i> 消课金额(元)</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.today.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.present_month.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.last_month.sum}}元</el-col>
+          </el-row>
+        </el-col>
+      </el-card>
+    </el-row>
+
+    <el-row class="head_content card-box" :gutter="20">
       <el-col :span="17">
         <el-card shadow="hover">
           <TableHeader title="今日待办">
@@ -243,9 +291,9 @@
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.status === 4" class="fc-subm">邀约未试听</span>
-                    <span v-if="scope.row.status === 5" class="fc-9">邀约已试听</span>
-                    <span v-if="scope.row.status === 7" class="fc-m">未结课</span>
+                    <span v-if="scope.row.status === 4" class="fc-subm">待试听</span>
+                    <span v-if="scope.row.status === 5" class="fc-9">已试听</span>
+                    <span v-if="scope.row.status === 7" class="fc-m">已过期</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -329,28 +377,30 @@
 
             <!-- 已收通知 -->
             <el-tab-pane name="receive">
-              <span slot="label">
+              <div slot="label">
                 <el-badge :value="unread_num" :max="10" class="item">已收通知</el-badge>
-              </span>
+              </div>
               <el-row v-loading="notice_loading" class="content_height" v-if="notice_lists.length>0">
                 <el-row class="cursor-pointer fc-9" :class="{'unread' : notice.is_receive === 0 }" @click.native="notice_detail(notice)" v-for="(notice,index) in notice_lists" :key="index">
-                  <el-col :span="18">【{{notice.notification.type}}】{{notice.notification.title}}</el-col>
+                  <el-col :span="18" class="notice_title">【{{notice.notification.type}}】{{notice.notification.title}}</el-col>
                   <el-col :span="6">{{notice.updated_at | date('yyyy.MM.dd')}}</el-col>
                 </el-row>
               </el-row>
               <el-row v-else class="f-j-c d-f f-a-c fc-9">暂无通知</el-row>
             </el-tab-pane>
             <!-- 已发通知 -->
-            <el-tab-pane label="已发通知" name="send">
+            <el-tab-pane name="send">
+              <div slot="label">
+                已发通知
+              </div>
               <el-row v-loading="notice_loading" class="content_height" v-if="notice_send_lists.length>0">
                 <el-row class="cursor-pointer" @click.native="notice_detail(notice)" v-for="(notice,index) in notice_send_lists" :key="index">
-                  <el-col :span="18">【{{notice.type}}】{{notice.title}}</el-col>
+                  <el-col :span="18" class="notice_title">【{{notice.type}}】{{notice.title}}</el-col>
                   <el-col :span="6">{{notice.updated_at | date('yyyy.MM.dd')}}</el-col>
                 </el-row>
               </el-row>
               <el-row v-else class="f-j-c d-f f-a-c fc-9">暂无通知</el-row>
             </el-tab-pane>
-
           </el-tabs>
 
           <!-- 分页 -->
@@ -570,6 +620,11 @@ export default {
           { required: true, message: "请选择渠道信息", trigger: "change" }
         ],
         remark: [{ max: 50, message: "长度不能超过50个字符" }]
+      },
+      //财务统计
+      statitics_info: {
+        sign: '',
+        eliminate: ''
       },
       //今日待办
       leave_info: {
@@ -1068,6 +1123,14 @@ export default {
         this.get_data();
       });
     },
+    //================财务统计模块================
+    async get_finance_data() {
+      this.$$request.get('api/financial/statistics')
+      .then(res => {
+        this.statitics_info.sign = res.sign;
+        this.statitics_info.eliminate = res.eliminate;
+      })
+    },
     //================今日课程模块================
     //按需获取今日跟进所有数据
     async get_follow_up_data() {
@@ -1431,6 +1494,7 @@ export default {
   },
   created() {
     this.get_data();
+    this.get_finance_data();
     this.get_follow_up_data();
     this.get_today_course();
     this.get_notice_list();
@@ -1461,6 +1525,32 @@ export default {
                 width: auto;
             }
         }
+    }
+    .top_content{
+      margin: 0 !important;
+      /deep/ .el-card__body{
+        min-height: 0 !important;
+      }
+      .el-card{
+        padding: 20px 0;
+      }
+      .el-col {
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        color: #555555;
+      }
+      .line{
+        width: 1px;
+        height: 125px;
+        background: #cccccc;
+        margin: auto
+      }
+      .times{
+        color: #536A81;
+        font-size: 28px;
+        font-weight: bold;
+      }
     }
 .content {
   .el-row {
@@ -1634,6 +1724,13 @@ export default {
 .unread {
   color: #45dad5 !important;
 }
+.notice_title{
+  overflow: hidden;
+  height: 19px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 315px;
+}
 .course_status{
   width: 60px;
   height: 24px;
@@ -1732,6 +1829,9 @@ export default {
 //   font-size: 14px;
 //   color: #555555;
 // }
+.workbench_container /deep/ .el-badge{
+  vertical-align: inherit !important;
+}
 .workbench_container /deep/ .el-badge__content {
   top: 10px;
   right: 0px;

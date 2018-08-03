@@ -12,13 +12,13 @@
           </el-row>
           <el-row>
             <el-col :span="1.5"> 通知正文：　　</el-col>
-            <el-col :span="22" class="ueditor_content">
+            <el-col :span="21" class="ueditor_content">
               <UEditor ref="ueditor"></UEditor>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="1.5"> 通知部门：　　</el-col>
-            <el-col :span="22">
+            <el-col :span="21">
               <el-checkbox v-model="all_authority" @change="checkAll">全选</el-checkbox>
               <el-checkbox-group v-model="authority" @change="check">
                 <el-checkbox v-for="auth in auth_options" :key="auth" :label="auth">{{auth}}</el-checkbox>
@@ -27,7 +27,7 @@
           </el-row>
           <el-row>
             <el-col :span="1.5"> 被通知人：　</el-col>
-            <el-col :span="22">
+            <el-col :span="21">
               <span v-if="notice_person.length>0" v-for="(person,index) in show_notice_person" :key="person.id" class="person">
                 {{person.name}}
                 <i @click="del_person(index)" class='el-icon-circle-close del'></i>

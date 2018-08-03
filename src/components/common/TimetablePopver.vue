@@ -140,6 +140,7 @@ export default {
             a {
                 width: 60px;
                 box-sizing: border-box;
+                height: 30px;
                 line-height: 30px;
                 text-align: center;
                 border: 1px #45DAD5 solid;
