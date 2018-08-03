@@ -46,7 +46,7 @@
                         <el-col :span="8" v-if="buyCourse_type == 2">
                             <el-form-item label="选择老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="courseForm.teacher_id">
-                                    <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
