@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import cache from '@/script/cache'
+import Cache from '@/script/cache'
 import Router from 'vue-router'
 import Home from '@/views/Home'
 import Login from '@/views/Login'
@@ -30,7 +30,7 @@ const router = new Router({
 
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
-    if(to.meta.needlogin === true && !cache.get('TOKEN') && !cache.getSession('TOKEN')) return router.replace({path: '/login'});
+    if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
     next();
 });
 

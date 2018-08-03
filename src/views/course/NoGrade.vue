@@ -20,9 +20,25 @@
                         </span>
                     </div>
                 </div>
-
-                <div>
-                    
+                <div class="grade-table-box" :ref="'grade-table-content_' + index">
+                    <el-table :data="course.student_course" v-if="course.student_course.length" strip>
+                        <el-table-column label="序号" type="index" align="center"></el-table-column>
+                        <el-table-column label="学员姓名" align="center">
+                            <template slot-scope="scope">
+                                <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>
+                        <el-table-column label="课时总课程" prop="total_num" align="center"></el-table-column>
+                        <el-table-column label="未排课时" prop="no_rank_num" align="center"></el-table-column>
+                        <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <a class="fc-subm cursor-pointer">编辑</a>
+                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable">排课</a>
+                            </template>
+                        </el-table-column>
+                    </el-table>
                 </div>
             </div>
         </el-card>
@@ -31,6 +47,16 @@
         <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" :courseMode="1"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
+
+        <!-- <el-dialog title="一对一排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
+            <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
+                <el-row>
+                    <el-col :span="11">
+
+                    </el-col>
+                </el-row>
+            </div>
+        </el-dialog> -->
      </div>
 </template>
 
@@ -53,10 +79,31 @@ export default {
         }
     },
     methods: {
-        CB_dialogStatus() {
-
+        //弹窗变比，改变dialog状态回调
+        CB_dialogStatus(type) {
+            if(type == 'add_course')  {
+                this.editDetail = {};
+                this.dialogStatus.course = false;
+                this.courseOperate = '';
+            }
         },
         CB_addCourse() {
+            this.getCourseLists();
+            this.dialogStatus.course = false;
+        },
+        //新增课程
+        addCourse() {
+            this.courseOperate = 'add';
+            this.dialogStatus.course = true;
+        },
+        //编辑课程
+        editCourse(course) {
+            this.courseOperate = 'edit';
+            this.editDetail = course;
+            this.dialogStatus.course = true;
+        },
+        //排课
+        planTimeTable() {
 
         },
         //获取课程列表
@@ -66,25 +113,31 @@ export default {
             let result = await this.$$request.post('api/course/orderLists');
             console.log(result);
             if(!result) return 0;
-            // result.lists.forEach((d, num) => {
-            //     // d.collapse = (course_id && course_id == d.id);
-            //     if(course_id && course_id == d.id) {
-            //         d.collapse = true;
-            //         active = num;
-            //     }else d.collapse = false;
 
-            //     d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)});
-            // });
+            result.lists.forEach((d, num) => {d.collapse = false});
+
             this.courseLists = result.lists;
 
-            // this.$nextTick(v => {
-            //     if(active !== '') {
-            //         let dom = this.$refs['grade-table-content_' + active][0];
-            //         let child = dom.firstChild;
-            //         dom.style.height = `${child.offsetHeight}px`;
-            //     }
-            // });
+            this.$nextTick(v => {
+                if(active !== '') {
+                    let dom = this.$refs['grade-table-content_' + active][0];
+                    let child = dom.firstChild;
+                    dom.style.height = `${child.offsetHeight}px`;
+                }
+            });
         },
+        listHeaderClick(course, index) {
+            let dom = this.$refs['grade-table-content_' + index][0];
+            let child = dom.firstChild;
+
+            if(!course.collapse) {
+                dom.style.height = `${child.offsetHeight}px`;
+                course.collapse = true;
+            }else {
+                dom.style.height = 0;
+                course.collapse = false;
+            }
+        }
     },
     created() {
         this.getCourseLists();
@@ -121,17 +174,6 @@ export default {
         .el-table {
             border-left: 1px #eeeeee solid;
             border-right: 1px #eeeeee solid;
-        }
-        .unfold-icon {
-            .iconfont {
-                -webkit-transition: transform 300ms;
-                transition: transform 300ms;
-                display: block;
-                &.rotate {
-                    -webkit-transform :rotate(180deg);
-                    transform: rotate(180deg);
-                }
-            }
         }
         .course_type{
             display: inline-block;

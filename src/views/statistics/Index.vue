@@ -258,8 +258,7 @@ export default {
                     borderRadius: 0,
                     selectedMode: false
                 }
-            },
-            mytext: ''
+            }
         }
     },
     methods: {
@@ -452,6 +451,7 @@ export default {
             };
             
             options.legend.formatter = (params) => {return `${params}：${this.getSourceItemNum(params)}`};
+            options.legend.type = 'scroll';
             options.series = [{
                 name: '渠道',
                 type: 'pie',

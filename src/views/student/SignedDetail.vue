@@ -271,7 +271,6 @@
 
                     <div class="d-f f-j-c mt-50">
                         <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton>
-                        <MyButton type="gray" class="ml-20" @click.native="deleteStudent">删除</MyButton>
                     </div>
                 </div>
             </el-form>
@@ -621,7 +620,7 @@
                             </el-form-item>
                             <el-form-item label="上课老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
-                                    <el-option v-for="(item, index) in teacherLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="扣课时数：" prop="lesson_num">
@@ -695,7 +694,6 @@ export default {
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'},
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
-            teacherLists: [],   //老师列表
 
             activeTab: 'course_info',  //tab列表选中key
 
@@ -1145,24 +1143,6 @@ export default {
 
             this.studentMaskStatus = true;
         },
-        //删除学员
-        deleteStudent() {
-            this.$confirm('确定删除该学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle();
-            }).catch(() => {return 0});
-        },
-        async deleteHandle() {
-            let result = await this.$$request.post('api/sign/delete', {id: this.studentId});
-            if(!result) return 0;
-            if(result.status) {
-                Bus.$emit('refreshStudentLists');
-                this.$router.go(-1);
-            }
-        },
         //退费按钮点击
         quitCourse(data) {
             console.log(data);
@@ -1275,7 +1255,7 @@ export default {
             this.$message.success('修改成功');
             this.studentMaskStatus = false;
             this.getStudentDetail(this.studentForm.id);
-            Bus.$emit('refreshStudentLists');
+            Bus.$emit('refreshSignedStudentLists');
         },
         //提交分班信息
         async submitDivideClass(url, params) {
@@ -1396,19 +1376,11 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.listenCourseLists = result.lists;
-        },
-        async getTeacherLists() {
-            let result = await this.$$request.post('api/user/normalLists', {type: 'teacher'});
-            console.log(result);
-
-            if(!result) return 0;
-            this.teacherLists = result.lists;
         }
     },
     created() {
         this.studentId = this.$route.query.id;
         this.getStudentDetail();
-        this.getTeacherLists();    //手动消课获取老师列表
     },
     watch: {
         $route: function(val,oldval) {

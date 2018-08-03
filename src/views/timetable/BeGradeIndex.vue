@@ -1,6 +1,6 @@
 <template>
     <div class="flex1">
-        <el-card shadow="hover" class="tabletime-card">
+        <el-card shadow="hover">
             <TableHeader title="课程表">
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
             </TableHeader>
@@ -109,95 +109,109 @@
 
                     <div class="timetable-box" v-loading="loading">
                         <!-- 周课表 -->
-                        <div class="week-table fc-5" v-if="tableType === 'week'">
-                            
-                            <div class="week-ul d-f">
-                                <div class="first-li d-f f-a-c f-j-c">时间</div>
-                                <ul class="d-f flex1">
-                                    <!-- <li class="d-f f-a-c f-j-c">时间</li> -->
-                                    <li v-for="(item, index) in defaultWeekList" :key="index" class="d-f f-a-c f-j-c flex1">
-                                        <div class="t-a-c d-f f-a-c">
-                                            <div>
-                                                <p :class="{'fc-m': item.day.isToday}">{{item.name}}</p>
-                                                <p class="mt-5" :class="{'fc-m': item.day.isToday}">{{item.day.date}}</p>
+                        <div class="fc-5 week-table" v-if="tableType === 'week'" ref="myTimetable">
+                            <el-table :data="weekTableLists" border header-row-class-name="time-table-header" @cell-mouse-enter="timeTableHover" @cell-mouse-leave="timeTableleave"
+                                max-height="700" style="width: 100%">
+                                <el-table-column align="center" prop="time" width="70" fixed="left" :resizable="false"></el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_one">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_one.lists" :key="n"
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due"
+                                                :class="{'hover': scope.row.week_one.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
+                                                <div v-show="scope.row.week_one.operate"><img src="../../images/common/add.png" alt=""></div>
                                             </div>
-                                            <div class="today btn-m fc-f fs-12" v-if="item.day.isToday">今日</div>
                                         </div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="week-timetable-box my-scrollbar">
-                                <el-scrollbar style="height: 100%;">
-                                    <div v-for="(row, index) in weekTableLists" :key="index" class="d-f">
-                                        <div class="first-li d-f f-a-c f-j-c">
-                                            <span>{{hourData[index].name}}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_two">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_two.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_two.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due"
+                                                :class="{'hover': scope.row.week_two.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
+                                                <div v-show="scope.row.week_two.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
                                         </div>
-                                        <ul class="d-f flex1">
-                                            <li v-for="(col, num) in row.course" :key="num" class="cursor-pointer flex1" @mouseenter.stop="coursehover(col)" @mouseleave="courseMouseout(col)">
-                                                <el-popover v-if="col.lists.length" v-for="(item, n) in col.lists" :key="n" v-model="item.popver" placement="bottom" width="380" trigger="click">
-                                                    <div class="course-popver">
-                                                        <div class="d-f f-j-b">
-                                                            <span class="fs-17 fc-m">{{item.grade_name}}</span>
-                                                            <div class="d-f btn" v-if="item.status == 1 && !col.past_due && item.begin_time > new Date().getTime() / 1000">
-                                                                <a class="cursor-pointer" @click="detailEdit(item)">编辑</a>
-                                                                <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
-                                                            </div>
-                                                        </div>
-                                                        <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
-                                                        <p class="mt-5"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
-                                                        <p class="mt-20 fc-9">课时：<span class="fc-5">{{item.lesson_num}}课时</span></p>
-                                                        <p class="mt-10 fc-9">教室：<span class="fc-5">{{item.room_name}}</span></p>
-                                                        <p class="mt-10 d-f fc-9">
-                                                            上课学员：
-                                                            <span class="d-f flex1 fc-5 f-w-w">
-                                                                <i v-for="(student, m) in item.student_grades" :key="m" class="pr-10">{{student.name}}</i>
-                                                            </span>
-                                                        </p>
-                                                        <p class="mt-10 d-f fc-9" v-if="item.student_audition.length">
-                                                            试听学员：
-                                                            <span class="d-f flex1 fc-5 f-w-w">
-                                                                <i v-for="(student, m) in item.student_audition" :key="m" class="pr-10">{{student.name}}</i>
-                                                            </span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="course-item pl-13 pr-10 pt-8 p-r" 
-                                                            :class="{
-                                                                'gray': item.lesson_end_time,
-                                                                'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                                'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
-                                                                'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}" 
-                                                                slot="reference">
-                                                        <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
-                                                            <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
-                                                        </div>
-
-                                                        <p class="fs-16">{{item.grade_name}}</p>
-                                                        
-                                                        <p class="pt-5 d-f f-a-s">
-                                                            <i class="icon teacher-icon"></i>
-                                                            <span class="d-f f-a-c flex1 f-w-w pl-5">
-                                                                <span class="pr-10">{{item.teacher[0].name}}</span>
-                                                                <span>{{item.counselor.length ? item.counselor[0].name : ''}}</span>
-                                                            </span>
-                                                        </p>
-                                                        <p class="pt-5 pb-8 d-f f-a-c">
-                                                            <i class="time-icon"></i>
-                                                            <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
-                                                        </p>
-
-                                                        <div class="course-type p-a fs-12" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
-                                                    </div>
-                                                </el-popover>
-                                                <div class="add-course d-f f-a-c f-j-c" v-if="!col.past_due"
-                                                    :class="{'hover': col.operate == true}"  @click="addTimetable('single', col.hours_id, col.full_date, col.id)">
-                                                    <div v-show="col.operate"><img src="../../images/common/add.png" alt=""></div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </el-scrollbar>
-                            </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_three">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_three.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_three.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due"
+                                                :class="{'hover': scope.row.week_three.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
+                                                <div v-show="scope.row.week_three.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_four">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_four.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_four.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due"
+                                                :class="{'hover': scope.row.week_four.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
+                                                <div v-show="scope.row.week_four.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_five">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_five.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_five.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due"
+                                                :class="{'hover': scope.row.week_five.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
+                                                <div v-show="scope.row.week_five.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_six">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_six.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_six.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due"
+                                                :class="{'hover': scope.row.week_six.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
+                                                <div v-show="scope.row.week_six.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center" :render-header="tableHeader" min-width="150" :resizable="false">
+                                    <template slot-scope="scope">
+                                        <div class="cursor-pointer item-box" mytype="week_seven">
+                                            <TimetablePopver v-for="(item, n) in scope.row.week_seven.lists" :key="n" 
+                                                @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
+                                                :item="item" :pastdue="scope.row.week_seven.past_due"></TimetablePopver>
+                                            <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due"
+                                                :class="{'hover': scope.row.week_seven.operate == true}"  
+                                                @click="addTimetable('single', scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
+                                                <div v-show="scope.row.week_seven.operate"><img src="../../images/common/add.png" alt=""></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
                         </div>
                         <!-- 日课表 -->
                         <div class="day-table my-scrollbar fc-5" v-else>
@@ -210,11 +224,11 @@
                                                 @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
                                                 class="course-box d-f f-j-b cursor-pointer p-r" 
                                                 :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
-                                                        'green': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length < item.grade_limit_num,
-                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.status == 1 && item.student_grades.length == item.grade_limit_num)),
-                                                        'red': !item.lesson_end_time && item.course_type === 1 && item.status == 1 && item.student_grades.length > item.grade_limit_num}">
+                                                        'green': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length < item.grade_limit_num,
+                                                        'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.student_grades.length == item.grade_limit_num)),
+                                                        'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.grade_limit_num}">
 
-                                                <div class="proportion-box p-a" v-if="item.status == 1 && !item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
+                                                <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                                                     <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
                                                 </div>
 
@@ -238,7 +252,7 @@
                                                         </span>
                                                     </p>
                                                 </div>
-                                                <div class="d-f f-a-c mr-30" v-if="item.operate && item.status == 1 && !row.past_due">
+                                                <div class="d-f f-a-c mr-30" v-if="item.operate && !row.past_due">
                                                     <MyButton type="border" fontColor="fc-m" @click.native="detailEdit(item)">编辑</MyButton>
                                                     <MyButton type="border" fontColor="fc-m" class="ml-10" @click.native="detailDelete(item)">删除</MyButton>
                                                 </div>
@@ -256,30 +270,30 @@
         <!-- 新增排课弹窗 -->
         <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="900px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
-                <div class="form-box" v-if="Object.keys(timetableFull).length">
+                <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="选择班级：" prop="grade_info">
                                 <el-cascader :options="timetableFull.course" v-model="timetableForm.grade_info" @change="formGradeChange" expand-trigger="hover"></el-cascader>
                             </el-form-item>
 
-                            <el-form-item label="开课日期：" prop="start_time" class="mt-30" v-if="addTableType == 'multiple'">
+                            <el-form-item label="开课日期：" prop="start_time" v-if="addTableType == 'multiple'">
                                 <el-date-picker v-model="timetableForm.start_time" @change="startTimeChange" type="date" :editable="false" :picker-options="pickerBeginDateAfter" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
 
-                            <el-form-item label="上课老师：" prop="teacher_ids" class="mt-30">
+                            <el-form-item label="上课老师：" prop="teacher_ids">
                                 <el-select placeholder="请选择" v-model="timetableForm.teacher_ids">
                                     <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课教室：" prop="room_id" class="mt-30">
+                            <el-form-item label="上课教室：" prop="room_id">
                                 <el-select placeholder="请选择"  v-model="timetableForm.room_id" :multiple="addTableType == 'multiple'">
                                     <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="addTableType == 'multiple' && courseType !== 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType !== 1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
@@ -295,34 +309,34 @@
                             </el-form-item>
 
                             <template v-if="addTableType == 'multiple'">
-                                <el-form-item label="扣课时数：" prop="lesson_num" class="mt-30">
+                                <el-form-item label="扣课时数：" prop="lesson_num">
                                     <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
                                 </el-form-item>
 
-                                <el-form-item label="辅助老师：" prop="counselor_ids" class="mt-30">
+                                <el-form-item label="辅助老师：" prop="counselor_ids">
                                     <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
                                         <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </template>
                             <template v-else>
-                                <el-form-item label="辅助老师：" prop="counselor_ids" class="mt-30">
+                                <el-form-item label="辅助老师：" prop="counselor_ids">
                                     <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
                                         <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="扣课时数：" prop="lesson_num" class="mt-30">
+                                <el-form-item label="扣课时数：" prop="lesson_num">
                                     <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
                                 </el-form-item>
                             </template>
-                            <el-form-item label="重复规则：" prop="loop" class="mt-30" v-if="addTableType == 'multiple' && courseType === 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课学员：" prop="counselor_ids" class="mt-30 addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
+                            <el-form-item label="上课学员：" prop="counselor_ids" class="addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
                                 <div class="d-f">
                                     <div class="d-f">
                                         <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
@@ -332,14 +346,14 @@
                                     <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}</span>
                                 </div>
                             </el-form-item>
-                            <el-form-item label="排课次数：" prop="loop_time" class="mt-30" v-if="addTableType == 'multiple' && courseType !== 1">
+                            <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1">
                                 <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
                             </el-form-item>
                         </el-col>                    
                     </el-row>
 
 
-                    <el-row class="mt-10">
+                    <el-row>
                         <el-col :span="12">
                             <el-row class="add-date-box d-f">
                                 <el-col class="title p-r is-required">上课时间：</el-col>
@@ -384,8 +398,8 @@
                         <el-col :span="11" class="d-f f-a-s addtimetable-student" v-if="addTableType == 'single' || addTableType == 'edit' || (addTableType == 'multiple' && courseType === 1)">
                             <div class="label"><span>上课学员：</span></div>
                             <div class="flex1" :class="{'d-f f-a-c': courseType === 2}">
-                                <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
-                                    <li v-for="(item, index) in checkStudentForm" :key="index" :class="{'ml-10': index}" class="mb-10">
+                                <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w" >
+                                    <li v-for="(item, index) in checkStudentForm" :key="index" class="mb-10 mr-10">
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
@@ -400,7 +414,6 @@
                         </el-col>
                     </el-row>
                 </div>
-
                 <div class="d-f f-j-c mt-30">
                     <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
                 </div>
@@ -410,7 +423,7 @@
                 <div class="form-box">
                     <template v-if="courseType === 1">
                         <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange">
+                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
@@ -473,6 +486,7 @@
 <script>
 import TableHeader  from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
+import TimetablePopver from '../../components/common/TimetablePopver'
 import Jquery from 'jquery'
 import '../../plugins/calendar'
 
@@ -538,13 +552,13 @@ export default {
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
             
             weekList: [
-                {id: 1, name: '周一'}, 
-                {id: 2, name: '周二'}, 
-                {id: 3, name: '周三'}, 
-                {id: 4, name: '周四'}, 
-                {id: 5, name: '周五'}, 
-                {id: 6, name: '周六'}, 
-                {id: 0, name: '周日'}
+                {id: 1, name: '周一', type: 'week_one'}, 
+                {id: 2, name: '周二', type: 'week_two'}, 
+                {id: 3, name: '周三', type: 'week_three'}, 
+                {id: 4, name: '周四', type: 'week_four'}, 
+                {id: 5, name: '周五', type: 'week_five'}, 
+                {id: 6, name: '周六', type: 'week_six'}, 
+                {id: 0, name: '周日', type: 'week_seven'}
             ],
             
             defaultWeekList: [],    //课表头部展示周数据
@@ -610,11 +624,28 @@ export default {
     },
     watch: {
         $route(to, from) {  
+            console.log(to)
             this.showType = to.name == 'timetableDefault' ? 'default' : to.name == 'timetableTeacher' ? 'teacher' : 'class';
             this.getAllTableLists();
         } 
     },
     methods: {
+        tableHeader(elem, {column, $index}) {
+            let weekList = this.defaultWeekList;
+            return elem('div', {'class': 'header-box'}, [
+                elem('div', [
+                    elem('p', {
+                        'class': {'fc-m': weekList[$index-1].day.isToday}
+                    }, weekList[$index-1].name),
+                    elem('p', {
+                        'class': {'fc-m': weekList[$index-1].day.isToday, 'mt-5': true}
+                    }, weekList[$index-1].day.date),
+                ]),
+                elem('div', {'class': {'today fs-12': true, 'd-b': weekList[$index-1].day.isToday}}, [
+                    elem('p', {'class': 'pt-2'}, '今'), elem('p',{'class': 'pt-2'}, '日')
+                ])
+            ]);
+        },
         dialogClose() {
             this.formAddDate.splice(0, this.formAddDate.length);
             // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
@@ -697,10 +728,25 @@ export default {
         //批量排课，新增多个时间段
         addDateHandle() {
             this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+            setTimeout(v => {document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight)}, 10);
         },
         //删除时间段
         deleteDateHandle(index) {
             this.formAddDate.splice(index, 1);
+        },
+        //周课表hover事件
+        timeTableHover(row, col, elem) {
+            let item = elem.querySelector('.item-box');
+            if(!item) return 0;
+            let mytype = elem.querySelector('.item-box').getAttribute('mytype');
+            row[mytype].operate = true;
+        },
+        //周课表leave事件
+        timeTableleave(row, col, elem) {
+            let item = elem.querySelector('.item-box');
+            if(!item) return 0;
+            let mytype = elem.querySelector('.item-box').getAttribute('mytype');
+            row[mytype].operate = false;
         },
         //鼠标移入课表
         coursehover(item) {
@@ -712,7 +758,6 @@ export default {
         },
         //详情编辑
         detailEdit(detail) {
-            console.log(detail);
             this.addTableType = 'edit';
             this.getWeekList(this.calendar.time * 1000, 'timetable');
 
@@ -753,12 +798,24 @@ export default {
             this.addTimetableMask = true;
         },
         //详情删除
-        async detailDelete(detail) {
-            let result = await this.$$request.post('api/timetable/delete', {id: detail.id});
+        detailDelete(detail) {
+            this.$confirm('确定删除排课吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.deleteHandle(detail.id);
+            }).catch(() => {return 0});
+        },
+        async deleteHandle(id) {
+            let result = await this.$$request.post('api/timetable/delete', {id: id});
             if(!result || !result.status) return 0;
 
             this.$message.success('删除成功');
-            detail.popver = false;
+            this.getAllTableLists();
+            this.getAddTimeTableFull();
+        },
+        CB_deleteTable() {
             this.getAllTableLists();
             this.getAddTimeTableFull();
         },
@@ -1115,7 +1172,7 @@ export default {
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
-        },
+        },   
         //班级获取课表
         async getGradeTableLists() {
             if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
@@ -1162,20 +1219,27 @@ export default {
         resultDispose(resultData) {
             if(this.tableType == 'week') {
                 let newResult = this.hourData.map(v => {
-                    let newData = {id: v.id, course: []};
-                    newData.course = this.defaultWeekList.map(w => {
-                        let weekData = {id: w.id, full_date: w.day.newFullDay, lists: [], operate: false, hours_id: v.id};
-                        let past_due;
-                        let full_date = w.day.newFullDay;
+                    let newData = {id: v.id, time: v.name};
+                    this.defaultWeekList.forEach(w => {
+                        newData[w.type] = {
+                            full_date: w.day.newFullDay,
+                            lists: [],
+                            id: w.id,
+                            operate: false,
+                            hours_id: v.id
+                        };
+
+                        let past_due, full_date = w.day.newFullDay;
                         if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {                           
                             past_due = v.id < new Date().getHours() ? true : false;
                         }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
                             past_due = true;
                         }else {
                             past_due = false;
-                        }
-                        
-                        weekData.past_due = past_due;
+                        };
+
+                        newData[w.type].past_due = past_due;
+
                         resultData.forEach(d => {
                             let nowDate = new Date(d.begin_time * 1000);
                             let hour = nowDate.getHours();
@@ -1188,14 +1252,15 @@ export default {
                             };
 
                             if(hour == v.id && w.id == week) {
-                                weekData.lists.push(d);
+                                newData[w.type].lists.push(d);
                             }
                         });
-                        return weekData;
-                    }); 
+                    });
                     return newData;
                 });
+                console.log(this.weekTableLists)
                 this.weekTableLists = newResult;
+                
                 this.loading = false;
             } else {
                 let newResult = this.hourData.map(v => {
@@ -1273,6 +1338,7 @@ export default {
                 return {
                     id: d.id,
                     name: d.name,
+                    type: d.type,
                     day: {
                         isToday: isToday,
                         past_due:  past_due,
@@ -1307,15 +1373,19 @@ export default {
         this.getWeekList(null, 'timetable');
         this.getAllTableLists();
         this.getAddTimeTableFull();
+
+
+        this.$nextTick(v => {
+            let width = document.querySelector('.home-main-box').clientWidth;
+            if(width <= 1070) document.querySelector('.week-table').style.width = '700px';
+            else document.querySelector('.week-table').style.width = (width - 380) + 'px';
+        })
     },
-    components: {TableHeader, MyButton}
+    components: {TableHeader, MyButton, TimetablePopver}
 }
 </script>
 
 <style lang="less" scoped>
-    .tabletime-card {
-        // min-width: 1600px;
-    }
     .content-box {
         overflow: hidden;
         overflow-x: auto;
@@ -1326,9 +1396,7 @@ export default {
         }
     }
     .content-left {
-        width: 300px;
-        // border-right: 1px #e3e3e3 solid;
-        // display: none;
+        min-width: 300px;
     }
     .content-right {
         .timetable-header {
@@ -1405,82 +1473,66 @@ export default {
     }
 
     .week-table {
-        border-left: 1px #e3e3e3 solid;
-        .week-ul {
-            border-top: 2px #e3e3e3 solid;
-            border-bottom: 2px #e3e3e3 solid;
-            .first-li {width: 50px; border-right: 1px #e3e3e3 solid;}
-            li {
-                height: 56px;
-                border-right: 1px #e3e3e3 solid;
-                .today {
-                    // left: 50px;
-                    // top: 0;
-                    // padding: 3px 2px;
-                    width: 15px;
-                    text-align: center;
-                    margin-left: 5px;
+        /deep/ .el-table--border, .el-table--group {
+            border-color: #e3e3e3;
+        }
+        /deep/ .time-table-header {
+            th {
+                padding: 0;
+                &.is-leaf {
+                    border-color: #e3e3e3;
+                }
+            }
+            .header-box {
+                display: -webkit-flex;
+                display: flex;
+                justify-content: center;
+                line-height: normal;
+                font-weight: normal;
+                color: #555;
+                padding: 10px;
+                div {
+                    line-height: normal;
                 }
             }
         }
-        .week-timetable-box {
-            height: 600px;
-            .first-li {width: 50px; border-right: 1px #e3e3e3 solid;}
-            ul {
-                li {
+        /deep/ .el-table--border td {
+            border-color: #e3e3e3;
+        }
+        /deep/ .today {
+            display: none;
+            &.d-b {
+                display: block;
+                padding: 0;
+                width: 15px;
+                color: #fff;
+                background-color: #45DAD5;
+            }
+        }
+
+        /deep/ .el-table__body {
+            tr.hover-row > td {
+                &:not(:first-child) {
                     background-color: #f8f8f8;
-                    border-bottom: 1px #e3e3e3 solid;
-                    text-align: left;
+                }
+                &:first-child {
+                    background-color: #fff;
+                }
+            }
+            td {
+                padding: 0;
+                &:not(:first-child) {
+                    background-color: #f8f8f8;
+                    vertical-align: top;
+                }
+                .cell {
+                    padding: 0;
                     min-height: 30px;
-                    border-right: 1px #e3e3e3 solid;
-                    position: relative;
-                    .course-item {
-                        box-sizing: border-box;
-                        min-height: 85px;
-                        .course-type {
-                            right: 0;
-                            top: 0;
-                            width: 18px;
-                            line-height: 13px;
-                            text-align: center;
-                            color: #fff;
-                            &.gray {
-                                background-color: #C8C8C8;
-                            }
-                            &.yellow {
-                                background-color: #FBBF3F;
-                            }
-                        }
-                        &.gray {
-                            border: 1px #C8C8C8 solid;
-                            background-color: #f5f5f5;
-                        }
-                        &.green {
-                            border: 1px #3FD88A solid;
-                            background-color: #fff;
-                            padding-left: 18px;
-                        }
-                        &.yellow {
-                            border: 1px #FBBF3F solid;
-                            background-color: #fff;
-                            border-left-width: 5px !important;
-                        }
-                        &.red {
-                            border: 1px #FC5A5A solid;
-                            background-color: #fff;
-                            border-left-width: 5px !important;
-                        }
-                        .icon {
-                            position: relative;
-                            top: 3px;
-                        }
-                    }
+                    line-height: 30px;
                     .add-course {
                         width: 100%;
                         height: 30px;
-                        &.hover {
-                            background-color: #E8F9F9;
-                        }
+                        &.hover {background-color: #E8F9F9;}
                         img {
                             width: 15px;
                             height: 15px;
@@ -1502,24 +1554,6 @@ export default {
             width: 100%;
             left: 0;
             bottom: 0;
-        }
-    }
-
-    .course-popver {
-        padding: 10px;
-        .btn {
-            a {
-                width: 60px;
-                box-sizing: border-box;
-                line-height: 30px;
-                text-align: center;
-                border: 1px #45DAD5 solid;
-                color: #45DAD5;
-                border-radius: 3px;
-            }
-        }
-        i {
-            margin-bottom: 5px;
         }
     }
     
@@ -1591,6 +1625,9 @@ export default {
 
     .form-box {
         padding: 0 10px;
+        max-height: 450px;
+        overflow: hidden;
+        overflow-y: auto;
         .el-select, .el-date-editor {
             width: 100%;
         }
@@ -1632,11 +1669,11 @@ export default {
                     }
                 }
             }
-            .list {
-                max-height: 370px;
-                overflow: hidden;
-                overflow-y: auto;
-            }
+            // .list {
+            //     max-height: 370px;
+            //     overflow: hidden;
+            //     overflow-y: auto;
+            // }
             .delete-time {
                 top: 5px;
                 cursor: pointer;
@@ -1651,10 +1688,24 @@ export default {
                     padding-right: 12px;
                 }
             }
-            li {
-                background-color: #f0f2f5;
-                border-radius: 3px;
-                padding: 0 5px;
+            ul {
+                max-height: 100px;
+                overflow: hidden;
+                overflow-y: auto;
+                li {
+                    background-color: #f0f2f5;
+                    border-radius: 3px;
+                    padding: 0 5px;
+                }
+            }
+        }
+        .time-table-student-check {
+            max-height: 200px;
+            overflow: hidden;
+            overflow-y: auto;
+            .el-checkbox {
+                margin-left: 0;
+                margin-right: 30px;
             }
         }
     }

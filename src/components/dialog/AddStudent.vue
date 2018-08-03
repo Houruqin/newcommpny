@@ -300,7 +300,6 @@ export default {
             }).catch(() => {return 0});
 
             this.$emit('CB-addStudent');
-            Bus.$emit('refreshStudentLists');
         }
     }
 }
