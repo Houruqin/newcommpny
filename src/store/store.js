@@ -24,7 +24,7 @@ const mutations = {
         state.guide = type;
     },
     async getAdvisor(state) {
-        let result = await Request.post('api/user/normalLists', {type: 'seller'});
+        let result = await Request.get('api/user/normalLists', {type: 'seller'});
         console.log(result)
         if(!result) return 0;
 
@@ -72,7 +72,7 @@ const mutations = {
         state.familyRelations = result.relations;
     },
     async getTeacher(state) {
-        let result = await Request.post('api/user/normalLists', {type: 'teacher'});
+        let result = await Request.get('api/user/normalLists', {type: 'teacher'});
         console.log(result);
         state.teacherList = result.lists;
     }

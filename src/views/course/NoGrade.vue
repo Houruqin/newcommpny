@@ -79,14 +79,27 @@ export default {
         }
     },
     methods: {
-        CB_dialogStatus() {
-
+        //弹窗变比，改变dialog状态回调
+        CB_dialogStatus(type) {
+            if(type == 'add_course')  {
+                this.editDetail = {};
+                this.dialogStatus.course = false;
+                this.courseOperate = '';
+            }
         },
         CB_addCourse() {
-
+            this.getCourseLists();
+            this.dialogStatus.course = false;
         },
+        //新增课程
         addCourse() {
             this.courseOperate = 'add';
+            this.dialogStatus.course = true;
+        },
+        //编辑课程
+        editCourse(course) {
+            this.courseOperate = 'edit';
+            this.editDetail = course;
             this.dialogStatus.course = true;
         },
         //排课

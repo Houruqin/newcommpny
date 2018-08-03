@@ -34,7 +34,7 @@
                         </el-col>
 
                         <!-- 有班选择班级 -->
-                        <el-col :span="8" v-if="buyCourse_type == 0">
+                        <el-col :span="8" v-if="buyCourse_type == 1">
                             <el-form-item label="选择班级：">
                                 <el-select v-model="courseForm.grade_id" placeholder="请选择">
                                     <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
@@ -43,7 +43,7 @@
                         </el-col>
 
                         <!-- 无班选择老师 -->
-                        <el-col :span="8" v-if="buyCourse_type == 1">
+                        <el-col :span="8" v-if="buyCourse_type == 2">
                             <el-form-item label="选择老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="courseForm.teacher_id">
                                     <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -130,6 +130,9 @@ import {StudentStatic} from '../../script/static'
 import MyButton from '../common/MyButton'
 
 export default {
+    created() {
+        this.buyCourse_type = this.$$cache.getMemberInfo().class_pattern;
+    },
     props: {
         dialogStatus: '',
         buyCourseData: {default: {}}
@@ -253,10 +256,9 @@ export default {
             this.courseLists.forEach(v => {
                 if(v.id == val) {   
                     this.courseForm.expire = v.expire;
-                    this.buyCourse_type = v.is_order;
                     this.gradeLists = v.grades;
 
-                    if(this.buyCourse_type == 0) this.courseForm.grade_id = '';
+                    if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
                     else this.courseForm.teacher_id = '';
                 }
             });
@@ -282,8 +284,8 @@ export default {
                 else if(key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') params[key] = this.courseForm[key];
             };
             
-            params.is_order = this.buyCourse_type;
-            params.data_id = this.buyCourse_type == 0 ? this.courseForm.grade_id : this.courseForm.teacher_id;
+            params.is_order = this.buyCourse_type == 1 ? 0 : 1;
+            params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
 
             console.log(params);
 

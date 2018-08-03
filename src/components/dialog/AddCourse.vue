@@ -11,7 +11,7 @@
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
                         </el-form-item>
                         <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 1">
-                            <el-select :disabled="courseType == 'edit'" v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
+                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
                                 <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
@@ -68,8 +68,13 @@ export default {
             this.courseType = newVal;
         },
         editDetail(newVal, oldVal) {
+            console.log(newVal)
             if(!Object.keys(newVal).length) return 0;
-            for(let key in this.courseForm) this.courseForm[key] = newVal[key];
+            for(let key in this.courseForm) {
+                if(key == 'order_teacher_ids') this.courseForm[key] = newVal[key].substring(1, newVal[key].length-1).split(',').map(v => {return +v});
+                else this.courseForm[key] = newVal[key];
+            }
+            console.log(this.courseForm)
         }
     },
     data() {
@@ -149,12 +154,13 @@ export default {
             for(let key in this.courseForm) {
                 if(key != 'id') {
                     if(key == 'order_teacher_ids') {
-                        if(this.courseMode == 1) params[key] = this.courseForm[key];
+                        params[key] = this.courseMode == 1 ? this.courseForm[key] : [];
                     }else params[key] = this.courseForm[key];
                 }
             };
-            params.is_order = this.courseMode;
 
+            params.is_order = this.courseMode;
+            params.class_pattern = this.$$cache.getMemberInfo().class_pattern;
             if(this.courseType == 'edit') params.id = this.courseForm.id;
             console.log(params);
 

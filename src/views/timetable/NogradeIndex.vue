@@ -1,7 +1,7 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover" class="tabletime-card">
-            <TableHeader title="课程表">
+            <TableHeader title="课程表没班级">
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
             </TableHeader>
 

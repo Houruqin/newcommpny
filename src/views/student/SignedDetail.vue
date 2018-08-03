@@ -1255,7 +1255,7 @@ export default {
             this.$message.success('修改成功');
             this.studentMaskStatus = false;
             this.getStudentDetail(this.studentForm.id);
-            Bus.$emit('refreshStudentLists');
+            Bus.$emit('refreshSignedStudentLists');
         },
         //提交分班信息
         async submitDivideClass(url, params) {

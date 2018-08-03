@@ -1,3 +1,4 @@
+import Cache from '@/script/cache'
 
 import Workbench from '@/views/workbench/Index'
 import EditNotice from '@/views/workbench/EditNotice'
@@ -15,11 +16,11 @@ import GradeDetail from '@/views/course/Detail'
 
 import StaffManage from '@/views/staffManage/Index'
 import StaffDetail from '@/views/staffManage/Detail'
-import CourseIndex from '@/views/course/Index'
 
 import Statistics from '@/views/statistics/Index'
 
-import TimeTable from '@/views/timetable/Index'
+import TimeTableBeGrade from '@/views/timetable/BeGradeIndex'
+import TimeTableNoGrade from '@/views/timetable/NogradeIndex'
 
 import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'
@@ -36,16 +37,22 @@ const homeRouter = [
     {path: 'student/nosigndetail', component: NosignDetail, name: 'nosignDetail', meta: {needlogin: true, menu: '/student/nosign'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/signeddetail', component: SignedDetail, name: 'signedDetail', meta: {needlogin: true, menu: '/student/signed'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/nosign'}},
-    {path: 'timetable/index', component: TimeTable, name: 'timetableDefault', meta: {needlogin: true}},
-    {path: 'timetable/teacher', component: TimeTable, name: 'timetableTeacher', meta: {needlogin: true}},
-    {path: 'timetable/class', component: TimeTable, name: 'timetableClass', meta: {needlogin: true}},
+
+    {path: 'timetable/begrade', component: TimeTableBeGrade, name: 'timetableDefault', meta: {needlogin: true}},
+    {path: 'timetable/begrade_teacher', component: TimeTableBeGrade, name: 'timetableTeacher', meta: {needlogin: true}},
+    {path: 'timetable/begrade_class', component: TimeTableBeGrade, name: 'timetableClass', meta: {needlogin: true}},
+
+    {path: 'timetable/nograde', component: TimeTableNoGrade, name: 'timetableDefault', meta: {needlogin: true}},
+    {path: 'timetable/nograde_teacher', component: TimeTableNoGrade, name: 'timetableTeacher', meta: {needlogin: true}},
+    {path: 'timetable/nograde_class', component: TimeTableNoGrade, name: 'timetableClass', meta: {needlogin: true}},
+
+
     {path: 'academic/classElimination', component: ClassElimination, name: 'academicDefault', meta: {needlogin: true}},
     {path: 'academic/audition', component: Audition, name: 'academicAudition', meta: {needlogin: true}},
     {path: 'academic/buy', component: Buy, name: 'academicBuy', meta: {needlogin: true}},
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
     {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true, menu: '/home/staff'}},
 
-    {path: 'course', component: BeGradeCourse, meta: {needlogin: true}},
     {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},

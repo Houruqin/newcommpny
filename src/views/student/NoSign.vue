@@ -318,8 +318,6 @@ export default {
     },
     created() {
         this.getTabLists();
-        //监听如果详情修改，那么刷新学员列表
-        Bus.$on('refreshStudentLists', () => {this.getTabLists()});
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
@@ -329,9 +327,6 @@ export default {
     },
     beforeRouteLeave(to, from, next) {
         next();   //离开页面时，做判断
-    },
-    beforeDestroy() {
-        Bus.$off('refreshStudentLists');
     },
     components: {Classify, MyButton, TableHeader, AddStudentDialog, BuyCourseDialog, ContractDialog}
 }

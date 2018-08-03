@@ -624,6 +624,7 @@ export default {
     },
     watch: {
         $route(to, from) {  
+            console.log(to)
             this.showType = to.name == 'timetableDefault' ? 'default' : to.name == 'timetableTeacher' ? 'teacher' : 'class';
             this.getAllTableLists();
         } 

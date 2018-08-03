@@ -800,7 +800,7 @@ export default {
         this.searchFilter.month = new Date().getMonth() + 1;
         this.getTabLists();
         //监听如果详情修改，那么刷新学员列表
-        Bus.$on('refreshStudentLists', () => {this.getStudentLists()});
+        Bus.$on('refreshSignedStudentLists', () => {this.getStudentLists()});
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
@@ -809,7 +809,7 @@ export default {
         next();   //来到页面，包括通过返回
     },
     beforeDestroy() {
-        Bus.$off('refreshStudentLists');
+        Bus.$off('refreshSignedStudentLists');
     },
     components: {TableHeader, Classify, MyButton}
 }

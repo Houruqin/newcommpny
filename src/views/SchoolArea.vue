@@ -34,6 +34,14 @@
                             <el-form-item label="校区地址：" prop="address" class="mt-30">
                                 <el-input v-model.trim="form.address" placeholder="校区地址"></el-input>
                             </el-form-item>
+
+                            <el-form-item label="课程模式：" prop="class_pattern" class="mt-30">
+                                <el-radio-group v-model="form.class_pattern">
+                                    <!-- <el-radio :label="0" disabled>全部</el-radio> -->
+                                    <el-radio :label="1">有班课程</el-radio>
+                                    <el-radio :label="2">无班课程</el-radio>
+                                </el-radio-group>
+                            </el-form-item>
                         </div>
                     </el-form>
                 </div>
@@ -64,7 +72,8 @@ export default {
                 principalName: '',    //校长姓名
                 principalPhone: '',   //校长手机号
                 tel: '',    //联系电话
-                address: ''   //校区
+                address: '',   //校区
+                class_pattern: ''
             }],
             rules: {
                 organization_id: [
@@ -89,6 +98,9 @@ export default {
                 address: [
                     {required: true, message: '请输入校区地址'},
                     {max: 50, message: '长度不能超过50个字符'}
+                ],
+                class_pattern: [
+                    {required: true, message: '请选择课程模式', trigger: 'change'}
                 ]
             }
         }
@@ -109,7 +121,8 @@ export default {
                     principalName: '',    //校长姓名
                     principalPhone: '',   //校长手机号
                     tel: '',    //联系电话
-                    address: ''   //校区
+                    address: '',   //校区
+                    class_pattern: ''    //校区课程模式
                 });
             }
         },
@@ -140,8 +153,9 @@ export default {
                     school: {
                         institution_id: v.organization_id,
                         name: v.school,
-                        type: '艺术类',
+                        type: '',
                         contact: v.tel,
+                        class_pattern: form.class_pattern,
                         address: v.address
                     },
                     user: {
