@@ -34,8 +34,8 @@
                         <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <a class="fc-subm cursor-pointer">编辑</a>
-                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable">排课</a>
+                                <a class="fc-subm cursor-pointer" @click="editTeacher(scope.row)">编辑</a>
+                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</a>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -48,15 +48,70 @@
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
-        <!-- <el-dialog title="一对一排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
-            <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
-                <el-row>
-                    <el-col :span="11">
 
-                    </el-col>
-                </el-row>
+        <!-- 编辑，修改老师弹窗 -->
+        <el-dialog title="编辑" width="500" center :visible.sync="dialogStatus.edit" :close-on-click-modal="false">
+            <div class="form-box">
+                <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
+                    <el-form-item prop="techer_id" label="选择老师">
+                        <el-select v-model="teacherForm.techer_id" placeholder="请选择">
+                            <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                
+                <div class="d-f f-j-c mt-40"><MyButton @click.native="editTeacherDone" :loading="submitLoading.edit">确定</MyButton></div>
             </div>
-        </el-dialog> -->
+        </el-dialog>
+
+        <!-- 排课弹窗 -->
+        <el-dialog title="快速排课" width="800px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
+            <div class="form-box">
+                <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm">
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="排课课程：">{{timetableForm.course_name}}</el-form-item>
+
+                            <el-form-item label="上课教室：" prop="room_id">
+                                <el-select placeholder="请选择"  v-model="timetableForm.room_id">
+                                    <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <div class="d-f">
+                                <el-form-item label="上课时间：" prop="begin_day" class="begin-day-form">
+                                    <el-date-picker v-model="timetableForm.begin_day"
+                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
+                                        placeholder="选择日期" value-format="yyyy/MM/dd">
+                                    </el-date-picker>
+                                </el-form-item>
+
+                                <el-form-item  label-width="0" prop="begin_time" class="begin-day-time ml-10">
+                                    <el-time-select 
+                                        :editable="false" v-model="timetableForm.begin_time" 
+                                        :picker-options="timePicker" placeholder="时间">
+                                    </el-time-select>
+                                </el-form-item>
+                            </div>
+                        </el-col>
+
+                        <el-col :span="12">
+                            <el-form-item label="上课老师：">{{timetableForm.teacher_name}}</el-form-item>
+
+                            <el-form-item label="上课学员：">{{timetableForm.student_name}}</el-form-item>
+
+                            <el-form-item label="扣课时数：" prop="lesson_num">
+                                <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <div class="d-f f-j-c mt-30">
+                        <MyButton @click.native="timetableDone" :loading="submitLoading.timetable">确定</MyButton>
+                    </div>
+                </el-form>
+            </div>
+        </el-dialog>
      </div>
 </template>
 
@@ -73,12 +128,49 @@ export default {
             courseOperate: '',
             courseLists: [],
             editDetail: {},
+            editTeacherLists: [],
             dialogStatus: {
                 course: false,
+                edit: false,
+                timetable: false
+            },
+            submitLoading: {
+                edit: false,
+                timetable: false
+            },
+            teacherForm: {course_id: '', techer_id: '', student_id: ''},
+            timetableForm: {
+                course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
+            },
+            teacherRules: {
+                techer_id: [
+                    {required: true, message: '请选择老师', trigger: 'change'}
+                ]
+            },
+            timetableRules: {
+                room_id: [
+                    {required: true, message: '请选择上课教室', trigger: 'change'}
+                ],
+                begin_time: [
+                    {required: true, message: '请选择上课时间', trigger: 'change'}
+                ],
+                lesson_num: [
+                    {required: true, message: '请输入扣课时数'}
+                ]
+            },
+            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
+            disableStartTime: new Date().setHours(0, 0, 0, 0),
+            pickerBeginDateAfter: {
+                disabledDate: (time) => {
+                    return time.getTime() < this.disableStartTime;
+                }
             }
         }
     },
     methods: {
+        dialogClose() {
+
+        },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
             if(type == 'add_course')  {
@@ -101,10 +193,6 @@ export default {
             this.courseOperate = 'edit';
             this.editDetail = course;
             this.dialogStatus.course = true;
-        },
-        //排课
-        planTimeTable() {
-
         },
         //获取课程列表
         async getCourseLists(course_id) {
@@ -137,6 +225,76 @@ export default {
                 dom.style.height = 0;
                 course.collapse = false;
             }
+        },
+        //排课 click
+        planTimeTable(course, data) {
+            console.log(data);
+            this.timetableForm.course_id = course.id;
+            this.timetableForm.course_name = course.name;
+            this.timetableForm.student_id = data.student.id;
+            this.timetableForm.student_name = data.student.name;
+            this.timetableForm.teacher_id = data.teacher.id;
+            this.timetableForm.teacher_name = data.teacher.name;
+
+            this.dialogStatus.timetable = true;
+        },
+        timetableDone() {
+            this.$refs.timetableForm.validate(valid => {if(valid) this.submitTimeTable()});
+        },
+        async submitTimeTable() {
+            let params = {
+                course_id: this.timetableForm.course_id,
+                student_id: this.timetableForm.student_id,
+                teacher_id: this.timetableForm.teacher_id,
+                room_id: this.timetableForm.room_id,
+                lesson_num: this.timetableForm.lesson_num
+            };
+
+            params.begin_time = new Date(`${this.timetableForm.begin_day} ${this.timetableForm.begin_time}`).getTime() / 1000;
+
+            console.log(params);
+
+            let result = await this.$$request.post('api/timetable/order', params);
+            console.log(result);
+
+            if(!result) return 0;
+            this.$message.success('快速排课成功!');
+            this.dialogStatus.timetable = false;
+        },
+        //编辑修改老师信息 click
+        editTeacher(data) {
+            this.teacherForm.techer_id = data.teacher.id;
+            this.teacherForm.course_id = data.course_id;
+            this.teacherForm.student_id = data.id;
+
+            this.getEditTeacherLists(data.course_id);
+        },
+        //获取编辑老师列表
+        async getEditTeacherLists(id) {
+            let result = await this.$$request.post('api/course/orderTeachers', {course_id: id});
+            console.log(result);
+            if(!result) return 0;
+            this.editTeacherLists = result.teachers;
+            this.dialogStatus.edit = true;
+        },
+        //修改老师确定 click
+        editTeacherDone() {
+            this.$refs.teacherForm.validate(valid => {if(valid) this.submitEditTeacher()});
+        },
+        //提交修改老师数据
+        async submitEditTeacher() {
+            let result = await this.$$request.post('api/course/changeTeacher', {
+                course_id: this.teacherForm.course_id,
+                teacher_id: this.teacherForm.techer_id,
+                student_id: this.teacherForm.student_id
+            });
+
+            console.log(result);
+
+            if(!result) return 0;
+            this.$message.success('修改老师成功');
+            this.dialogStatus.edit = false;
+            this.getCourseLists();
         }
     },
     created() {
@@ -182,6 +340,24 @@ export default {
             line-height: 20px;
             padding: 0 5px;
             border-radius: 4px;
+        }
+    }
+    .form-box {
+        padding: 0 10px;
+        .el-select {
+            width: 100%;
+        }
+        /deep/ .begin-day-form .el-date-editor{
+            width: 130px !important;
+        }
+        /deep/ .begin-day-time .el-date-editor{
+            width: 100px !important;
+        }
+        /deep/ .el-input-number {
+            width: 150px;
+        }
+        /deep/ .el-input {
+            width: 150px;
         }
     }
 </style>

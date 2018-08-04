@@ -104,7 +104,10 @@ export default {
             if(!result.status) {
                 this.$router.push({path: '/addschool'});
                 this.$store.dispatch('guideChange', true);   //首次创建校区，进入引导页
-            }else this.$router.replace({path: '/home'});
+            }else {
+                this.$store.dispatch('getSchoolLists');
+                this.$router.replace({path: '/home'});
+            }
 
             this.$$cache.set('phone',this.phone.trim())
         }

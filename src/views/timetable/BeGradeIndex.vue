@@ -336,7 +336,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课学员：" prop="counselor_ids" class="addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
+                            <el-form-item label="上课学员：" class="addtimetable-student" v-if="courseType !== 1 && addTableType == 'multiple'">
                                 <div class="d-f">
                                     <div class="d-f">
                                         <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">

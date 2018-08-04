@@ -20,7 +20,7 @@ import StaffDetail from '@/views/staffManage/Detail'
 import Statistics from '@/views/statistics/Index'
 
 import TimeTableBeGrade from '@/views/timetable/BeGradeIndex'
-import TimeTableNoGrade from '@/views/timetable/NogradeIndex'
+import TimeTableNoGrade from '@/views/timetable/NoGradeIndex'
 
 import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'

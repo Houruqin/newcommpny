@@ -46,7 +46,7 @@ export default {
                     { id: "/academic/audition", text: "试听课记录" },
                     { id: "/academic/buy", text: "购课记录" }
                 ]},
-                {id: `/home/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}`, text: "课程管理", item: false, icon: "icon-kecheng-", 
+                {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}`, text: "课程管理", item: false, icon: "icon-kecheng-", 
                     // itemList: [
                     //     {id: '/course/begrade', text: '班课管理'},
                     //     {id: '/course/nograde', text: '无班课管理'}

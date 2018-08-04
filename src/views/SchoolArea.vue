@@ -174,6 +174,7 @@ export default {
             this.$$cache.setMemberInfo(memberInfo);
 
             this.formLists.splice(0, this.formLists.length);
+            this.$store.dispatch('getSchoolLists');
             this.$router.replace({path: '/home'});
         }
     },

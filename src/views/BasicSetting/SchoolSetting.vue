@@ -86,13 +86,13 @@ let organization_id, school_name, user_name, user_mobile, school_contact, school
 export default {
     data() {
         return {
+            loading: false,
             schoolNum: 3,  //可用的校区数量
             maskStatus: false,   //新增、修改form
             maskType: 'add',
             submitLoading: false,
             schoolLists: [],
             organizationInfo: [],
-            loading: true,
             form: {
                 organization_id: '', //机构id
                 school_name: '',    //校区名称
@@ -204,9 +204,7 @@ export default {
             let memberInfo = this.$$cache.getMemberInfo();
             memberInfo.school_id = result.user.school_id;
             this.$$cache.setMemberInfo(memberInfo);
-
-            this.getSchoolLists();
-            Bus.$emit('refreshSchoolLists');
+            Bus.$emit('refreshSchoolId');   //删了校区，更新home的schoolId
             this.$message.success('已删除');
         },
         //提交校区信息
@@ -222,10 +220,10 @@ export default {
             console.log(result);
                        
             if(!result) return 0;
+
+            this.getSchoolLists();
             this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
             this.maskStatus = false;
-            Bus.$emit('refreshSchoolLists');
-            this.getSchoolLists();
         },
         //参数处理方法
         getModifyParams() {
@@ -271,18 +269,25 @@ export default {
         //获取校区列表
         async getSchoolLists() {
             this.loading = true;
-            let result = await this.$$request.post('api/school/lists');
+            let result = await this.$$request.get('api/school/lists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;
             this.loading = false;
+        },
+        //获取机构列表
+        async getOrgLists() {
+            let orgLists = await this.$$request.post('api/user/orgLists');
+            if(!orgLists) return 0;
+            this.organizationInfo = orgLists.lists;
         }
     },
-    async created() {
-        let orgLists = await this.$$request.post('api/user/orgLists');
-        if(!orgLists) return 0;
-        this.organizationInfo = orgLists.lists;
+    created() {
+        this.getOrgLists();
         this.getSchoolLists();
+    },
+    beforeDestroy() {
+        Bus.$off('refreshSchoolId');
     },
     components: {TableHeader, MyButton}
 }

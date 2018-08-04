@@ -2,10 +2,11 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import Request from '../script/request'
+import Cache from '../script/cache'
 
 Vue.use(Vuex);
 
-const state = { 
+const state = {
     guide: false,     //是否引导页
     advisor: [],    //顾问列表
     teacherList: [],   //老师列表
@@ -82,7 +83,6 @@ const actions = {
     guideChange(context, type) {
         context.commit('guideChange', type);
     },
-
     getAdvisor(context) {
         context.commit('getAdvisor');
     },

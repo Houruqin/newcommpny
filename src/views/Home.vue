@@ -25,7 +25,9 @@
                                 </el-dropdown-menu>
                             </el-dropdown>
                         </div>
-                        <div v-else class="t-a-c t-o-e cursor-pointer" :title="schoolLists.length > 0 ? schoolLists[0].name : ''">{{schoolLists.length > 0 ? schoolLists[0].name : ''}}</div>
+                        <div v-else class="t-a-c t-o-e cursor-pointer" :title="schoolLists.length > 0 ? schoolLists[0].name : ''">
+                            {{schoolLists.length > 0 ? schoolLists[0].name : ''}}
+                        </div>
                     </div>
                 </div>
                 <Menu></Menu>
@@ -319,6 +321,7 @@ export default {
             speedyShow: false,
 
             submitLoading: false,
+            schoolLists: [],
 
             dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
             buyCourseData: {},
@@ -335,7 +338,6 @@ export default {
             role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon},
             memberInfo: {},
             
-            schoolLists: [],
             modalObj: null,   //遮罩层modal
             guideSetup: 0,   //引导页步骤
             guideData: [
@@ -593,6 +595,14 @@ export default {
             this.$$cache.loginOut();
             this.$message('已退出登录！');
         },
+        //获取校区列表
+        async getSchoolLists() {
+            let result = await this.$$request.get('api/school/lists');
+            console.log(result)
+            if(!result) return 0;
+            this.schoolLists = result.lists;
+            this.getSchoolName();
+        },
         schoolSelectShow(type) {
             this.schoolSelect = type;
         },
@@ -602,26 +612,18 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.schoolId = school_id;
+
+            let memberInfo = this.$$cache.getMemberInfo();
+            memberInfo.school_id = school_id;
+            this.$$cache.setMemberInfo(memberInfo);
+
             this.getSchoolName();
 
             this.$router.replace({path: '/refresh'});   //刷新工作台路由
         },
         //根据school_id获取校区名称
         getSchoolName() {
-            console.log(this.schoolLists)
             this.schoolLists.forEach(v => {if(v.id == this.schoolId) this.schoolTitle = v.name});
-        },
-        //获取校区列表
-        async getSchoolLists() {
-            this.memberInfo = this.$$cache.getMemberInfo();
-            console.log(this.memberInfo)
-            this.schoolId = this.memberInfo.school_id;
-
-            let result = await this.$$request.post('api/user/schoolLists');
-            console.log(result)
-            if(!result) return 0;
-            this.schoolLists = result.lists;
-            this.getSchoolName();
         },
         helpShowHandle(isShow) {
             this.helpShow = isShow;
@@ -668,10 +670,16 @@ export default {
         go_page(page) {
             this.page_info.current_page = page;
             this.get_search_student_info();
+        },
+        pageInit() {
+            this.getSchoolLists();
+            this.memberInfo = this.$$cache.getMemberInfo();
+            this.schoolId = this.$$cache.getMemberInfo().school_id;
         }
     },
     mounted() {
         if(this.$store.state.guide) this.showModal();
+
         this.$store.dispatch('getAdvisor');
         this.$store.dispatch('getCourse');
         this.$store.dispatch('getSource');
@@ -681,11 +689,10 @@ export default {
         this.$store.dispatch('getTeacher');
     },
     created() {
-        this.getSchoolLists();
-        Bus.$on('refreshSchoolLists', () => {this.getSchoolLists()});
+        this.pageInit();
+        Bus.$on('refreshSchoolId', () => {this.pageInit()});
     },
     beforeDestroy() {
-        Bus.$off('refreshSchoolLists');
         Bus.$off('refreshCourseLists');
     },
     components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
