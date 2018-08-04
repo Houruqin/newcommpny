@@ -11,9 +11,9 @@
                         <div id="myCalendar" class="mt-20"></div>
                     </div>
                     <div class="mt-30">
-                        <!-- 班级课表 -->
+                        <!-- 课程课表 -->
                         <div v-if="showType == 'default'" key="default">
-                            <p class="fc-5 fs-16 t-a-c pr-20">本<span>{{tableType == 'week' ? '周' : '日'}}</span>班级课表</p>
+                            <p class="fc-5 fs-16 t-a-c pr-20">本<span>{{tableType == 'week' ? '周' : '日'}}</span>课程课表</p>
                             <el-radio-group v-model="gradeTimeTableRadio" class="mt-20 grade-radio" @change="gradeRadioChange">
                                 <el-radio :label="0">全部</el-radio>
                                 <el-radio :label="1">普通课程</el-radio>
@@ -23,7 +23,7 @@
                                 <div class="timetable-gradecheckbox my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
                                         <div class="check-item">
-                                            <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
+                                            <el-checkbox v-model="timetable_courseAll" @change="gradeCheckAllChange" class="p-r">
                                                 <span>全选</span>
                                                 <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
                                             </el-checkbox>
@@ -453,7 +453,7 @@
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
                             <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" :multiple="addTableType == 'multiple'">
-                                <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id" ></el-option>
+                                <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
                     </el-table-column>
@@ -524,7 +524,7 @@ export default {
 
             other_lists: [],   //批量排课除开冲突，剩下正确的数据列表
 
-            timetable_gradeAll: true,
+            timetable_courseAll: true,
             timetable_gradeCheck: [],
 
             timetable_teacherAll: true,
@@ -539,8 +539,6 @@ export default {
             timeTableInfo: {},     //课表总数据
             weekTableLists: [],  //按周展示，课表列表
             dayTableLists: [],  //按天展示，课表列表
-
-            timetableFull: {},
 
             //排课相关填充数据
             planCourseLists: [],
@@ -674,16 +672,16 @@ export default {
             this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
             let num = 0;
 
-            // this.timeTableInfo.grade_info.forEach(v => {
-            //     if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
-            //         this.gradeInfoCheckLists.lists.push(v);
-            //         num+= v.num;
-            //     }
-            // });  
+            this.timeTableInfo.course_info.forEach(v => {
+                if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
+                    this.gradeInfoCheckLists.lists.push(v);
+                    num+= v.num;
+                }
+            });  
 
             this.gradeInfoCheckLists.total_num = num;
 
-            this.timetable_gradeAll = true;
+            this.timetable_courseAll = true;
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.getGradeTableLists();
         },
@@ -695,7 +693,7 @@ export default {
         //排课班级多选
         gradeCheckChange(val) {
             let checkedCount = val.length;
-            this.timetable_gradeAll = checkedCount === this.gradeInfoCheckLists.lists.length;
+            this.timetable_courseAll = checkedCount === this.gradeInfoCheckLists.lists.length;
             this.getGradeTableLists();
         },
         //排课老师全选
@@ -759,6 +757,8 @@ export default {
         },
         //详情编辑
         detailEdit(detail) {
+            console.log(detail);
+
             this.addTableType = 'edit';
             this.getWeekList(this.calendar.time * 1000, 'timetable');
 
@@ -860,7 +860,9 @@ export default {
             this.checkStudentForm = [];
             this.radioStudentForm = '';
             this.timetableForm.no_timetable = '';
-            
+            this.timetableForm.teacher_ids = '';
+            this.planTeacherLists = [];
+
             this.planCourseLists.forEach(v => {
                 if(v.id == val){
                     this.courseType = v.type;
@@ -868,9 +870,6 @@ export default {
                     this.planTeacherLists = v.teachers;
                 }
             });
-
-            // if(this.addTableType == 'multiple') this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);  //上课教室
-            // else this.timetableForm.room_id = this.gradeInfo.room_id;
         },
         //排课 选择老师确定学员列表
         planTeacherChange(val) {
@@ -972,6 +971,7 @@ export default {
                         }else if(key == 'end_time'){
                             item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
                         }else if(key == 'room_id'){
+                            console.log(this.conflict_room)
                             if(this.addTableType == 'multiple') {
                                 item[key] = this.conflict_room.length ? this.conflict_room : this.timetableForm.room_id;
                             }else {
@@ -989,7 +989,7 @@ export default {
 
             lists = lists.concat(this.other_lists);
 
-            let params = {lists: lists, commit_type: 'conflict'};
+            let params = {lists: lists};
 
             if(this.addTableType == 'edit') params.id = this.timetableForm.timetable_id;
 
@@ -1114,23 +1114,6 @@ export default {
         },
         //获取新增排课填充数据
         async getAddTimeTableFull() {
-            // let result = await this.$$request.post('api/timetable/fill');
-            // console.log(result);
-
-            // if(!result) return 0;
-
-            // result.lists.course.forEach(v => {
-            //     v.value = v.id;
-            //     v.label = v.name;
-            //     v.children = v.grade.map(d => {
-            //         d.value = d.id;
-            //         d.label = d.name;
-            //         return d;
-            //     });
-            // });
-
-            // this.timetableFull = result.lists;
-
             let result = await this.$$request.get('api/timetable/notModelFill');
             console.log(result);
             this.planCourseLists = result.course;
@@ -1138,14 +1121,14 @@ export default {
         //默认获取全部课表
         async getAllTableLists() {
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/lists', {select_time: Math.round(this.calendar.time), type: this.tableType});
+            let result = await this.$$request.post('api/timetable/notModelList', {select_time: Math.round(this.calendar.time), type: this.tableType});
             console.log(result);
             if(!result) return 0;
 
             this.resultDispose(result.lists.timetable_lists);
             this.timeTableInfo = result.lists;
 
-            // this.gradeInfoCheckLists.lists = result.lists.grade_info.map(v => {return v});
+            this.gradeInfoCheckLists.lists = result.lists.course_info.map(v => {return v});
             this.gradeInfoCheckLists.total_num = result.lists.total_num;
             this.gradeTimeTableRadio = 0;
 
@@ -1161,10 +1144,10 @@ export default {
             if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/gradeLists', {
+            let result = await this.$$request.post('api/timetable/coursesLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
-                grade_id: this.timetable_gradeCheck.map(v => {return v.id})
+                course_id: this.timetable_gradeCheck.map(v => {return v.id})
             });
 
             if(!result) return 0;
