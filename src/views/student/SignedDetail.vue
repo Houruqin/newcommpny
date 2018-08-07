@@ -22,7 +22,7 @@
                     <span>出生日期：<i>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</i></span>
                 </p>
                 <p v-if="studentDetail.parent_info">
-                    <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{studentDetail.parent_info.relation == 1 ? '母亲' : studentDetail.parent_info.relation == 2 ? '父亲' : '其他'}})</i></span>
+                    <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></span>
                     <span>联系电话：<i>{{studentDetail.parent_info.mobile}}</i></span>
                 </p>    
                 <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
@@ -263,7 +263,7 @@
 
                             <el-form-item label="家长关系：" prop="relation">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -712,7 +712,7 @@ export default {
             timeTableStatic: timeTableStatic.status,   //上课状态
             
             quitCourseInfo: {},   //退费课程详细数据
-            tabLists: [{type: 'course_info', name: '课程信息'}, {type: 'grade', name: '班级信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+            tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '上课信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
 
             quitCourseForm: {
                 rel_remain: '',
@@ -815,6 +815,14 @@ export default {
         }
     },
     methods: {
+        getRelations(id) {
+            let text = '';
+            this.$store.state.familyRelations.forEach(v => {
+                if(id == v.id) text = v.name;
+            });
+
+            return text;
+        },
         dialogClose(form) {
             if(form === 'listen') {
                 this.checkListen = [];

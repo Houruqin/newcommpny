@@ -12,13 +12,13 @@
           </el-row>
           <el-row>
             <el-col :span="1.5"> 通知正文：　　</el-col>
-            <el-col :span="21" class="ueditor_content">
+            <el-col :span="22" class="ueditor_content">
               <UEditor ref="ueditor"></UEditor>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="1.5"> 通知部门：　　</el-col>
-            <el-col :span="21">
+            <el-col :span="22">
               <el-checkbox v-model="all_authority" @change="checkAll">全选</el-checkbox>
               <el-checkbox-group v-model="authority" @change="check">
                 <el-checkbox v-for="auth in auth_options" :key="auth" :label="auth">{{auth}}</el-checkbox>
@@ -27,7 +27,7 @@
           </el-row>
           <el-row>
             <el-col :span="1.5"> 被通知人：　</el-col>
-            <el-col :span="21">
+            <el-col :span="22">
               <span v-if="notice_person.length>0" v-for="(person,index) in show_notice_person" :key="person.id" class="person">
                 {{person.name}}
                 <i @click="del_person(index)" class='el-icon-circle-close del'></i>
@@ -53,7 +53,7 @@ export default {
       title: "",
       all_authority: false,
       authority: [],
-      auth_options: ["校长", "老师", "教务", "顾问", "销售主管"],
+      auth_options: ["校长", "老师", "教务", "顾问", "销售主管", "教务主管"],
       notice_person: [],
       show_notice_person: [],
       master_lists: [], //校长
@@ -61,6 +61,7 @@ export default {
       seller_lists: [], //顾问
       educate_lists: [], //教务
       director_lists: [], //销售主管
+      dean_lists: [], //教务主管
       all_lists: []
     };
   },
@@ -94,6 +95,9 @@ export default {
           case "销售主管":
             this.notice_person.push(...this.director_lists);
             break;
+            case "教务主管":
+            this.notice_person.push(...this.dean_lists);
+            break;
         }
       }
       console.log(this.notice_person);
@@ -116,12 +120,14 @@ export default {
         this.seller_lists = [...res.seller];
         this.educate_lists = [...res.register];
         this.director_lists = [...res.director];
+        this.dean_lists = [...res.dean];
         this.all_lists = [
           ...this.master_lists,
           ...this.teacher_lists,
           ...this.seller_lists,
           ...this.educate_lists,
-          ...this.director_lists
+          ...this.director_lists,
+          ...this.dean_lists
         ];
       });
     },

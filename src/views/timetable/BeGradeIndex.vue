@@ -489,6 +489,7 @@ import MyButton from '../../components/common/MyButton'
 import TimetablePopver from '../../components/common/TimetablePopver'
 import Jquery from 'jquery'
 import '../../plugins/calendar'
+import Bus from '../../script/bus'
 
 const ONE_DAY_LONG = 24*60*60*1000;
 
@@ -1379,7 +1380,9 @@ export default {
             let width = document.querySelector('.home-main-box').clientWidth;
             if(width <= 1070) document.querySelector('.week-table').style.width = '700px';
             else document.querySelector('.week-table').style.width = (width - 380) + 'px';
-        })
+        });
+
+        Bus.$on('home_refreshTimeTable', () => {this.getAllTableLists()});
     },
     components: {TableHeader, MyButton, TimetablePopver}
 }

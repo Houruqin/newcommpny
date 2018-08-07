@@ -335,7 +335,7 @@ export default {
             checkListenStudent: [],   //选中的试听学员
             listenTimetableId: '',   //选中的试听课程
 
-            role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon},
+            role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
             memberInfo: {},
             
             modalObj: null,   //遮罩层modal
@@ -508,6 +508,11 @@ export default {
             
             this.dialogStatus.listen = false;
             this.dialogStatus.listenStudent = false;
+
+            // if(this.$route.path == '/timetable/index' || this.$route.path == '/timetable/teacher' || this.$route.path == '/timetable/class') {
+            //     Bus.$emit('home_refreshTimeTable');  //如果是在排课页面，刷新课表
+            // }
+
             this.$message.success('办理试听成功!');
         },
         //获取试听填充列表
@@ -692,9 +697,18 @@ export default {
     created() {
         this.pageInit();
         Bus.$on('refreshSchoolId', () => {this.pageInit()});
+        // Bus.$on('refreshSchoolLists', () => {this.getSchoolLists()});
     },
     beforeDestroy() {
+        // Bus.$off('refreshSchoolLists');
         Bus.$off('refreshCourseLists');
+        Bus.$off('home_refreshTimeTable');
+    },
+    beforeRouteLeave(to, from, next) {
+        //强行删除遮罩层
+        if(this.modalObj) document.body.removeChild(this.modalObj);
+        document.body.removeAttribute('style');
+        next();
     },
     components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
 }

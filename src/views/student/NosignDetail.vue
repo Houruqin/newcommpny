@@ -12,7 +12,7 @@
                     <span>出生日期：<i>{{detail.birthday > 0 ? $$tools.format(detail.birthday) : ''}}</i></span>
                 </p>
                 <p v-if="detail.parent_info">
-                    <span>家长：<i>{{detail.parent_info.name}}</i><i>({{detail.parent_info.relation == 1 ? '母亲' : detail.parent_info.relation == 2 ? '父亲' : '其他'}})</i></span>
+                    <span>家长：<i>{{detail.parent_info.name}}</i><i>({{getRelations(detail.parent_info.relation)}})</i></span>
                     <span>联系电话：<i>{{detail.parent_info.mobile}}</i></span>
                 </p>
 
@@ -277,6 +277,14 @@ export default {
         }
     },
     methods: {
+        getRelations(id) {
+            let text = '';
+            this.$store.state.familyRelations.forEach(v => {
+                if(id == v.id) text = v.name;
+            });
+
+            return text;
+        },
         dialogClose(form) {
             if(form === 'listen') {
                 this.checkListen = [];

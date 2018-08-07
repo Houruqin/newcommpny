@@ -36,10 +36,10 @@ export default {
                 {id: "/student/signed", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
                     { id: "/student/nosign", text: "未签约学员" }, { id: "/student/signed", text: "签约学员" }
                 ]},
-                {id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}`, text: "排课管理", item: true, icon: "icon-paike", itemList: [
-                    { id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}`, text: `${Cache.getMemberInfo().class_pattern == 1 ? '班级' : '课程'}课表`},
-                    { id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}_teacher`, text: "老师课表" },
-                    { id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}_class`, text: "教室课表" }
+                {id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}`, text: "排课管理", item: true, icon: "icon-paike", itemList: [
+                    { id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}`, text: '课程表'},
+                    { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_teacher`, text: "老师课表" },
+                    { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_class`, text: "教室课表" }
                 ]},
                 {id: "/home/academic/classElimination", text: "教务统计", item: true, icon: "icon-jiaowuguanli", itemList: [
                     { id: "/academic/classElimination", text: "学员消课记录" },

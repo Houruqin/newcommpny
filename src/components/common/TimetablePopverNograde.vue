@@ -7,7 +7,7 @@
                     <a class="cursor-pointer" @click="detailEdit(item)">编辑</a>
                     <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
                 </div>
-                <div class="btn" v-else-if="!item.lesson_end_time && $$cache.getMemberInfo().lesson_end">
+                <div class="btn" v-else-if="!item.lesson_end_time && $$cache.getMemberInfo().lesson_end && item.end_time < new Date().getTime() / 1000">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
             </div>
@@ -145,10 +145,11 @@ export default {
         padding: 10px;
         .btn {
             a {
-                width: 60px;
+                display: block;
+                width: 54px;
                 box-sizing: border-box;
-                height: 30px;
-                line-height: 30px;
+                height: 28px;
+                line-height: 28px;
                 text-align: center;
                 border: 1px #45DAD5 solid;
                 color: #45DAD5;
