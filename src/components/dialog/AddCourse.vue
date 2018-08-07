@@ -10,10 +10,11 @@
                         <el-form-item label="课节时长：" prop="lesson_time">
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
                         </el-form-item>
-                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 1">
-                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
-                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
+                        <el-form-item label="是否可预约：" prop="is_order">
+                            <el-radio-group v-model="courseForm.is_order">
+                                <el-radio :label="0">不可预约</el-radio>
+                                <el-radio :label="1">可预约</el-radio>
+                            </el-radio-group>
                         </el-form-item>
                     </el-col>
 
@@ -25,6 +26,11 @@
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
                                 <el-option label="普通课程" :value="1"></el-option>
                                 <el-option label="一对一课程" :value="2"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 2">
+                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
+                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -47,8 +53,8 @@ import Bus from '../../script/bus'
 export default {
     props: {
         type: {default: 'add'},
-        courseMode: {default: 0},   //上课模式   默认有班模式
         dialogStatus: '',
+        courseMode: {default: ''},
         editDetail: {default: null}
     },
     components: {MyButton},
@@ -74,7 +80,6 @@ export default {
                 if(key == 'order_teacher_ids') this.courseForm[key] = newVal[key].substring(1, newVal[key].length-1).split(',').map(v => {return +v});
                 else this.courseForm[key] = newVal[key];
             }
-            console.log(this.courseForm)
         }
     },
     data() {
@@ -86,7 +91,8 @@ export default {
                 expire: '', //有效期
                 lesson_time: '',  //课时时长
                 type: 1, //课程性质
-                order_teacher_ids: []
+                order_teacher_ids: [],
+                is_order: ''
             },
             courseDialogStatus: false,
             courseType: 'add',
@@ -109,6 +115,9 @@ export default {
                 ],
                 order_teacher_ids: [
                     {required: true, message: '请选择上课老师', trigger: 'change'}
+                ],
+                is_order: [
+                    {required: true, message: '请设置是否可预约', trigger: 'change'}
                 ]
             },
         }
@@ -116,7 +125,7 @@ export default {
     methods: {
         dialogClose() {
             this.$refs.courseForm.resetFields();
-            for(let key in this.courseForm) this.courseForm[key] = '';
+            for(let key in this.courseForm) this.courseForm[key] = key == 'order_teacher_ids' ? [] : '';
             this.$emit('CB-dialogStatus', 'add_course');
         },
         //form表单确定按钮
@@ -154,13 +163,12 @@ export default {
             for(let key in this.courseForm) {
                 if(key != 'id') {
                     if(key == 'order_teacher_ids') {
-                        params[key] = this.courseMode == 1 ? this.courseForm[key] : [];
+                        params[key] = this.courseMode == 2 ? this.courseForm[key] : [];
                     }else params[key] = this.courseForm[key];
                 }
             };
 
-            params.is_order = this.courseMode;
-            params.class_pattern = this.$$cache.getMemberInfo().class_pattern;
+            params.class_pattern = this.courseMode;
             if(this.courseType == 'edit') params.id = this.courseForm.id;
             console.log(params);
 

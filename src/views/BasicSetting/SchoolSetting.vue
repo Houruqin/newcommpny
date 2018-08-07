@@ -62,7 +62,7 @@
 
                     <el-form-item label="课程模式：" prop="class_pattern" class="mt-30">
                         <el-radio-group v-model="form.class_pattern">
-                            <!-- <el-radio :label="0" disabled>全部</el-radio> -->
+                            <el-radio :label="0">全部</el-radio>
                             <el-radio :label="1">有班课程</el-radio>
                             <el-radio :label="2">无班课程</el-radio>
                         </el-radio-group>
@@ -204,6 +204,8 @@ export default {
             let memberInfo = this.$$cache.getMemberInfo();
             memberInfo.school_id = result.user.school_id;
             this.$$cache.setMemberInfo(memberInfo);
+
+            this.getSchoolLists();
             Bus.$emit('refreshSchoolId');   //删了校区，更新home的schoolId
             this.$message.success('已删除');
         },
@@ -221,7 +223,7 @@ export default {
                        
             if(!result) return 0;
 
-            this.getSchoolLists();
+            this.getSchoolLists('edit');
             this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
             this.maskStatus = false;
         },
@@ -267,12 +269,23 @@ export default {
             return postdata;
         },
         //获取校区列表
-        async getSchoolLists() {
+        async getSchoolLists(type) {
             this.loading = true;
             let result = await this.$$request.get('api/school/lists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;
+
+            if(type === 'edit') {
+                let memberInfo = this.$$cache.getMemberInfo();
+                result.lists.forEach(v => {
+                    if(memberInfo.school_id == v.id) {
+                        memberInfo.class_pattern = v.class_pattern;
+                        this.$$cache.setMemberInfo(memberInfo);
+                    }
+                });
+            };
+
             this.loading = false;
         },
         //获取机构列表

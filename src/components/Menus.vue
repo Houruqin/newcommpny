@@ -46,11 +46,12 @@ export default {
                     { id: "/academic/audition", text: "试听课记录" },
                     { id: "/academic/buy", text: "购课记录" }
                 ]},
-                {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : 'nograde'}`, text: "课程管理", item: false, icon: "icon-kecheng-", 
-                    // itemList: [
-                    //     {id: '/course/begrade', text: '班课管理'},
-                    //     {id: '/course/nograde', text: '无班课管理'}
-                    // ]
+                {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`, 
+                    text: "课程管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-kecheng-", 
+                    itemList: [
+                        {id: '/course/begrade', text: '班课管理'},
+                        {id: '/course/nograde', text: '无班课管理'}
+                    ]
                 },
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
                 {id: "/home/setting", text: "基础设置", item: false, icon: "icon-shezhi"},

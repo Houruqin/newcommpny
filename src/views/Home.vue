@@ -350,7 +350,7 @@ export default {
             speedyLists: [
                 {id: 'addStudent', name: '学员登记', icon: 'icon-iconwogzydj'},
                 {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
-                {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
+                // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
                 {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
                 {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
@@ -648,6 +648,7 @@ export default {
         mymenuPosition() {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
+                console.log(mymenu)
                 document.querySelector('.guide-box').style.left = '0';
                 document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight}px`;
             }else if(this.guideSetup == 5){
@@ -838,7 +839,7 @@ export default {
             background-color: #2A3C50;
             color: #45DAD5;
             left: 0;
-            top: 151px;
+            top: 166px;
             .tab-title {
                 border-right: 5px #45DAD5 solid;
                 height: 100%;
@@ -879,7 +880,7 @@ export default {
             background: url(../images/guide/guide-icon.png) no-repeat;
             background-size: 100%;
             left: 170px;
-            top: -20px;
+            top: 0;
             .right {
                 width: 375px;
                 right: 0;

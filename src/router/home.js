@@ -53,6 +53,7 @@ const homeRouter = [
     {path: 'staff', component: StaffManage, meta: {needlogin: true}},
     {path: 'staff/detail', component: StaffDetail, meta: {needlogin: true, menu: '/home/staff'}},
 
+    {path: 'course/index', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},

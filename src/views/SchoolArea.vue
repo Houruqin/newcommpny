@@ -37,7 +37,7 @@
 
                             <el-form-item label="课程模式：" prop="class_pattern" class="mt-30">
                                 <el-radio-group v-model="form.class_pattern">
-                                    <!-- <el-radio :label="0" disabled>全部</el-radio> -->
+                                    <el-radio :label="0">全部</el-radio>
                                     <el-radio :label="1">有班课程</el-radio>
                                     <el-radio :label="2">无班课程</el-radio>
                                 </el-radio-group>

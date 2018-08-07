@@ -481,7 +481,7 @@
 <script>
 import TableHeader  from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
-import TimetablePopver from '../../components/common/TimetablePopver'
+import TimetablePopver from '../../components/common/TimetablePopverNograde'
 import Jquery from 'jquery'
 import '../../plugins/calendar'
 
@@ -768,22 +768,13 @@ export default {
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: detail.time_quantum.begin_time, end_time: '', week: detail.time_quantum.week});
 
             this.timetableForm.timetable_id = detail.id;
-            // this.timetableForm.course_id = detail.course_id;
+            this.timetableForm.course_id = detail.course_id;
             this.timetableForm.lesson_num = detail.lesson_num;
             this.timetableForm.lesson_time = detail.lesson_time;
-            this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : '';  //任课老师
+            this.timetableForm.teacher_ids = detail.teacher.length ? +detail.teacher[0].id : '';  //任课老师
             this.timetableForm.room_id = detail.room_id;
 
-            this.timetableFull.course.forEach(v => {
-                if(v.id === detail.course_id) {
-                    v.grade.forEach(d => {if(d.id === detail.grade_id) {
-                        if(this.courseType === 1) this.timetableForm.no_timetable = d.lesson_num - (+d.scheduled);
-                        this.gradeInfo = d;
-                    }});
-                }
-            });
-
-            this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
+            this.allStudentLists = detail.student_grades.concat(detail.student_audition);
 
             if(this.courseType === 1) {
                 this.checkStudentForm = detail.student_grades.map(v => {return v.student_id});
@@ -794,7 +785,6 @@ export default {
                 this.studentRadio = this.radioStudentForm;
             }
 
-            
             this.addTimetableMask = true;
         },
         //详情删除
@@ -1144,7 +1134,7 @@ export default {
             if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/coursesLists', {
+            let result = await this.$$request.post('api/timetable/noGradeCourseLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 course_id: this.timetable_gradeCheck.map(v => {return v.id})
@@ -1158,7 +1148,7 @@ export default {
             if(!this.timetable_teacherCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/teacherLists', {
+            let result = await this.$$request.post('api/timetable/noGradeTeacherLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 teacher_id: this.timetable_teacherCheck.map(v => {return v.id})
@@ -1172,7 +1162,7 @@ export default {
             if(!this.timetable_roomCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/roomLists', {
+            let result = await this.$$request.post('api/timetable/noGradeRoomLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 room_id: this.timetable_roomCheck.map(v => {return v.id})
@@ -1224,7 +1214,6 @@ export default {
                     });
                     return newData;
                 });
-                console.log(this.weekTableLists)
                 this.weekTableLists = newResult;
                 
                 this.loading = false;
