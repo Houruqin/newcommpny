@@ -602,7 +602,7 @@ export default {
         },
         //获取校区列表
         async getSchoolLists() {
-            let result = await this.$$request.get('api/school/lists');
+            let result = await this.$$request.post('api/user/schoolLists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;

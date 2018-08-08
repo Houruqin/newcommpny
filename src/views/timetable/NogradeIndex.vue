@@ -510,8 +510,6 @@ export default {
             conflictMask: false,   //冲突弹窗
             addStudentDialog: false,  //排课添加学员列表
             addTableType: 'single',
-            course_index: 0,
-            gradeLists: [],    //选择课程，确定课程的班级列表
             gradeInfo: {student: []},   //选择班级，确定班级详情，填充表单默认值
 
             studentLists: [],    //普通排课选择学员数据
