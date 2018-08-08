@@ -39,21 +39,23 @@
                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
             </div>
 
-            <p class="fs-16 t-a-l">{{item.grade_name}}</p>
+            <p class="t-a-l">{{item.grade_name}}</p>
             
             <p class="pt-5 d-f f-a-s">
-                <i class="icon teacher-icon"></i>
-                <span class="d-f f-a-c flex1 f-w-w pl-5">
-                    <span class="pr-10">{{item.teacher[0].name}}</span>
-                    <span>{{item.counselor.length ? item.counselor[0].name : ''}}</span>
+                <span class="fs-12">
+                    <i class="iconfont fs-13 icon-laoshi"></i>
+                    <span>{{item.teacher[0].name}}</span>
+                </span>
+
+                <span class="ml-30 fs-12">
+                    <i class="iconfont fs-13 icon-renshu"></i>
+                    <span>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
                 </span>
             </p>
-            <p class="pt-5 pb-8 d-f f-a-c">
-                <i class="time-icon"></i>
-                <span class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
+            <p class="pt-5 d-f f-a-c">
+                <i class="iconfont fs-13 icon-shijian"></i>
+                <span class="pl-5 fs-12">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
             </p>
-
-            <div class="course-type p-a fs-12" v-if="item.course_type !== 1" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div>
         </div>
     </el-popover>
 </template>
@@ -115,7 +117,7 @@ export default {
 <style lang="less" scoped>
     .course-item {
         box-sizing: border-box;
-        min-height: 85px;
+        min-height: 80px;
         line-height: normal;
         .course-type {
             right: 0;

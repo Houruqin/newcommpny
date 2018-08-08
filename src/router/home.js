@@ -38,13 +38,9 @@ const homeRouter = [
     {path: 'student/signeddetail', component: SignedDetail, name: 'signedDetail', meta: {needlogin: true, menu: '/student/signed'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/nosign'}},
 
-    {path: 'timetable/begrade', component: TimeTableBeGrade, name: 'timetableDefault', meta: {needlogin: true}},
-    {path: 'timetable/begrade_teacher', component: TimeTableBeGrade, name: 'timetableTeacher', meta: {needlogin: true}},
-    {path: 'timetable/begrade_class', component: TimeTableBeGrade, name: 'timetableClass', meta: {needlogin: true}},
-
-    {path: 'timetable/nograde', component: TimeTableNoGrade, name: 'timetableDefault', meta: {needlogin: true}},
-    {path: 'timetable/nograde_teacher', component: TimeTableNoGrade, name: 'timetableTeacher', meta: {needlogin: true}},
-    {path: 'timetable/nograde_class', component: TimeTableNoGrade, name: 'timetableClass', meta: {needlogin: true}},
+    {path: 'timetable/index', component: TimeTableBeGrade, meta: {needlogin: true}},
+    {path: 'timetable/begrade', component: TimeTableBeGrade, name: 'timetableBegrade', meta: {needlogin: true}},
+    {path: 'timetable/nograde', component: TimeTableNoGrade, name: 'timetableNograde', meta: {needlogin: true}},
 
 
     {path: 'academic/classElimination', component: ClassElimination, name: 'academicDefault', meta: {needlogin: true}},

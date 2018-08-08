@@ -11,7 +11,7 @@
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
                         </el-form-item>
                         <el-form-item label="是否可预约：" prop="is_order">
-                            <el-radio-group v-model="courseForm.is_order">
+                            <el-radio-group v-model="courseForm.is_order" :disabled="courseType == 'edit'">
                                 <el-radio :label="0">不可预约</el-radio>
                                 <el-radio :label="1">可预约</el-radio>
                             </el-radio-group>

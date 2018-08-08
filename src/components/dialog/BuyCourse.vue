@@ -259,11 +259,14 @@ export default {
                     this.courseForm.expire = v.expire;
                     this.courseForm.is_order = v.is_order;
                     this.gradeLists = v.grades;
+                    this.buyCourse_type = v.class_pattern;
 
                     if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
                     else this.courseForm.teacher_id = '';
                 }
             });
+
+            console.log(this.gradeLists)
         },
         //表单确定
         doneHandle() {
