@@ -10,13 +10,11 @@
                     <div>
                         <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
                             <div class="timetable-filter-tab">
-                                <el-tabs v-model="timetableFilter" @tab-click="timetableFilterTabClick">
-                                    <el-tab-pane label="班级" name="grade"></el-tab-pane>
-                                    <el-tab-pane label="老师" name="teacher"></el-tab-pane>
-                                    <el-tab-pane label="教室" name="room"></el-tab-pane>
-                                </el-tabs>
+                                <ul class="d-f">
+                                    <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
+                                </ul>
 
-                                <div class="grade-checkbox">
+                                <div class="grade-checkbox mb-30">
                                     <!-- 班级课表 -->
                                     <div v-if="timetableFilter == 'grade'" key="default">
                                         <div class="timetable-gradecheckbox my-scrollbar">
@@ -85,14 +83,14 @@
                         </el-radio-group>
                     </div>
                     <div>
+                        <i class="iconfont icon-icon--left fc-m cursor-pointer" @click="lastWeekLists"></i>
                         <el-popover placement="bottom" width="260" trigger="click" ref="calendarPopover" popper-class="calendar-popover">
-                            <div slot="reference" class="cursor-pointer">
-                                <i class="iconfont icon-icon--left fc-m"></i>
-                                <span>{{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}</span>
-                                <i class="iconfont icon-you fc-m"></i>
-                            </div>
+                            <span slot="reference" class="cursor-pointer ml-5 mr-5">
+                                {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
+                            </span>
                             <div id="myCalendar"></div>
                         </el-popover>
+                        <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
                     </div>
                     <div class="timetable-status d-f fc-5">
                         <span class="gray">已结课</span>
@@ -497,7 +495,11 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
-
+            timetableFilterTab: [
+                {id: 'grade', name: '班级'},
+                {id: 'teacher', name: '老师'},
+                {id: 'room', name: '教室'}
+            ],
 
             submitLoading: {timetable: false},
 
@@ -634,8 +636,22 @@ export default {
                 ])
             ]);
         },
-        timetableFilterTabClick() {
-
+        timetableFilterTabClick(item) {
+            if(this.timetableFilter != item.id) this.timetableFilter = item.id;
+        },
+        //上一周翻页
+        lastWeekLists() {
+            let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
+            this.calendar.time = last / 1000;
+            this.getAllTableLists();
+            this.getWeekList(last, 'default');
+        },
+        //下一周翻页
+        nextWeekLists() {
+            let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
+            this.calendar.time = next / 1000;
+            this.getAllTableLists();
+            this.getWeekList(next, 'default');
         },
         dialogClose() {
             this.formAddDate.splice(0, this.formAddDate.length);
@@ -1471,10 +1487,6 @@ export default {
                         &.hover {
                             background-color: #fff;
                         }
-                        img {
-                            width: 15px;
-                            height: 15px;
-                        }
                     }
                 }
             }
@@ -1652,24 +1664,36 @@ export default {
 
     .timetable-filter {
         .timetable-filter-tab {
-            /deep/ .el-tabs__active-bar {
-                background-color: #45DAD5;
-            }
-            /deep/ .el-tabs__item {
-                // padding: 0 29px !important;
-                &.is-active {
-                    color: #45DAD5;
-                }
-                &:hover {
-                    color: #45DAD5;
+            ul {
+                border-bottom: 2px #e9e9e9 solid;
+                li {
+                    text-align: center;
+                    line-height: 40px;
+                    position: relative;
+                    cursor: pointer;
+                    &.active {
+                        color: #45DAD5;
+                        &::after {
+                            content: '';
+                            display: block;
+                            width: 60%;
+                            height: 2px;
+                            position: absolute;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            bottom: -2px;
+                            background-color: #45DAD5;
+                        }
+                    }
+                    &:hover {
+                        color: #45DAD5;
+                    }
                 }
             }
             .grade-checkbox {
                 padding: 0 10px;
                 .timetable-gradecheckbox {
                     width: 100%;
-                    // height: 320px;
-                    // border: 1px #e3e3e3 solid;
                     .check-item {
                         height: 45px;
                         line-height: 45px;
