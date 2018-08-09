@@ -128,6 +128,17 @@
                             </template>
                         </el-table-column>
 
+                        <el-table-column align="center" label="任课老师">
+                            <template slot-scope="scope">
+                                <el-popover placement="bottom" width="170" trigger="click">
+                                    <el-input v-model="scope.row.course_teacher.data" size="small" @change="scope.row.course_teacher.error = false"></el-input>
+                                    <div class="cell-box" slot="reference">
+                                        <span slot="reference" class="out-line" :class="{'red': scope.row.course_teacher.error}">{{scope.row.course_teacher.data}}</span>
+                                    </div>
+                                </el-popover>
+                            </template>
+                        </el-table-column>
+
                         <el-table-column align="center" :render-header="buyCourseHeader">
                             <template slot-scope="scope">
                                 <el-popover placement="bottom" width="170" trigger="click">
@@ -285,7 +296,7 @@ export default {
             },
             tableAllHeader: {
                 student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
-                course: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
+                course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
                     'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
                 ]
             },
@@ -345,6 +356,9 @@ export default {
         },
         courseNameHeader(h, {column, $index}) {
             return this.requestTableHeader(h, '课程名称');
+        },
+        courseTeacherHeader() {
+
         },
         buyCourseHeader(h, {column, $index}) {
             return this.requestTableHeader(h, '购买课时');

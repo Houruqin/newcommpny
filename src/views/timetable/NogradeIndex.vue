@@ -215,39 +215,44 @@
                                     <div class="right fc-7 flex1">
                                         <div v-if="row.course.length" v-for="(item, num) in row.course" :key="num"
                                             @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
-                                            class="course-box d-f f-j-b cursor-pointer p-r" 
+                                            class="course-box bgc-f d-f f-j-b cursor-pointer p-r" 
                                             :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
-                                                    'green': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length < item.grade_limit_num,
-                                                    'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.student_grades.length == item.grade_limit_num)),
-                                                    'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.grade_limit_num}">
+                                                    'green': !item.lesson_end_time && item.course_type === 1,
+                                                    'yellow': !item.lesson_end_time && item.course_type == 2}">
 
                                             <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                                                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
                                             </div>
 
-                                            <div class="d-f f-d-c f-j-c pl-15">
-                                                <p>
-                                                    <span class="fs-16 title">{{item.course_name}}</span>
-                                                    <span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span>
-                                                    <span class="ml-40">{{item.lesson_num}}课时</span>
-                                                    <span v-if="item.course_type !== 1" class="ml-20 course-type fs-12" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</span>
-                                                </p>
-                                                <p class="mt-10 d-f f-a-c">
-                                                    <span class="d-f f-a-c">
-                                                        <i class="address-icon"></i><i class="pl-5">{{item.room_name}}</i>
-                                                    </span>
-                                                    <span class="ml-50 d-f f-a-c">
-                                                        <i class="time-icon mb-1"></i><i class="pl-5">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</i>
-                                                    </span>
-                                                    <span class="ml-40 d-f f-a-c">
-                                                        <i class="teacher-icon"></i><i class="pl-5">{{item.teacher[0].name}}</i>
-                                                        <i class="pl-10">{{item.counselor.length ? item.counselor[0].name : ''}}</i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                            <div class="d-f f-a-c mr-30" v-if="item.operate && !row.past_due">
-                                                <MyButton type="border" fontColor="fc-m" @click.native="detailEdit(item)">编辑</MyButton>
-                                                <MyButton type="border" fontColor="fc-m" class="ml-10" @click.native="detailDelete(item)">删除</MyButton>
+                                            <div class="d-f f-a-c pl-15 course-item-box">
+                                                <div class="d-f f-a-c flex1">
+                                                    <div class="fs-15 fc-5">{{item.course_name}}</div>
+                                                    <div class="ml-50">
+                                                        <i class="iconfont icon-dingwei"></i>
+                                                        <span>{{item.room_name}}</span>
+                                                    </div>
+                                                    <div class="ml-50">
+                                                        <i class="iconfont icon-shijian"></i>
+                                                        <span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
+                                                    </div>
+                                                    <div class="ml-50">
+                                                        <i class="iconfont icon-laoshi"></i>
+                                                        <span>{{item.teacher[0].name}}</span>
+                                                        <span class="pl-10" v-if="item.counselor.length">{{item.counselor[0].name}}</span>
+                                                    </div>
+                                                    <div class="ml-50">
+                                                        <i class="iconfont fs-13 icon-renshu"></i>
+                                                        <span>{{item.student_grades.length}}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-f f-a-c mr-30 ml-30 edit-btn" v-if="item.operate && !row.past_due">
+                                                    <a @click="detailEdit(item)">编辑</a>
+                                                    <a class="ml-20" @click="detailDelete(item)">删除</a>
+                                                    
+                                                    <!-- <MyButton type="border" fontColor="fc-m" @click.native="detailEdit(item)">编辑</MyButton>
+                                                    <MyButton type="border" fontColor="fc-m" class="ml-10" @click.native="detailDelete(item)">删除</MyButton> -->
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1286,6 +1291,7 @@ export default {
                 this.getWeekList(date.getTime(), 'default');
                 // this.nowTime = date.getTime();
                 this.getAllTableLists();
+                this.$refs.calendarPopover.showPopper = false;
             }
         });
     },
@@ -1438,9 +1444,10 @@ export default {
                     border-top: 1px #e3e3e3 solid;
                     border-right: 1px #e3e3e3 solid;
                     width: 100%;
-                    min-height: 60px;
+                    min-height: 50px;
+                    box-sizing: border-box;
                     .course-box {
-                        height: 80px;
+                        height: 48px;
                         &.gray {
                             border: 1px #BCBCBC solid;
                             background-color: #FCFCFC;
@@ -1449,25 +1456,31 @@ export default {
                         &.green {
                             border: 1px #3FD88A solid;
                             background-color: #fff;
-                            // .title {
-                            //     color: #3FD88A;
-                            // }
                         }
                         &.yellow {
                             border: 1px #FBBF3F solid;
                             background-color: #fff;
                             border-left-width: 5px !important;
-                            // .title {
-                            //     color: #FBBF3F;
-                            // }
                         }
                         &.red {
                             border: 1px #FC5A5A solid;
                             background-color: #fff;
                             border-left-width: 5px !important;
-                            // .title {
-                            //     color: #FC5A5A;
-                            // }
+                        }
+                        .course-item-box {
+                            width: 100%;
+                        }
+                        .edit-btn {
+                            a {
+                                width: 56px;
+                                height: 30px;
+                                text-align: center;
+                                line-height: 30px;
+                                box-sizing: border-box;
+                                border: 1px #45DAD5 solid;
+                                border-radius: 3px;
+                                color: #45DAD5;
+                            }
                         }
                     }
                     .course-type {

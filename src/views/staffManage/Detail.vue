@@ -77,12 +77,16 @@
                     <el-table-column label="课程名称" align="center">
                         <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.name}}</span></template>
                     </el-table-column>
-                    <el-table-column label="班级名称" align="center" prop="name"></el-table-column>
+                    <el-table-column label="班级名称" align="center">
+                        <template slot-scope="scope">
+                            {{scope.row.course.class_pattern == 1 ? scope.row.name : '无'}}
+                        </template>
+                    </el-table-column>
                     <el-table-column label="课程性质" align="center">
                         <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '普通课程' : '一对一课程'}}</span></template>
                     </el-table-column>
-                    <el-table-column label="班级人数" align="center" prop="student_num"></el-table-column>
-                    <el-table-column label="班级状态" align="center">
+                    <el-table-column label="学员人数" align="center" prop="student_num"></el-table-column>
+                    <el-table-column label="状态" align="center">
                         <template slot-scope="scope">
                             <div class="fs-12 course-status" v-if="scope.row.gradeStatus">
                                 <div class="d-f f-a-c f-j-c">

@@ -34,8 +34,27 @@
                         <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <a class="fc-subm cursor-pointer" @click="editTeacher(scope.row)">编辑</a>
-                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</a>
+                                <!-- <a class="fc-subm cursor-pointer" @click="editTeacher(course, scope.row)">编辑</a>
+                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</a> -->
+                                <el-dropdown trigger="click" @command="handleCommand" placement="bottom" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
+                                    <a class="unfold-icon cursor-pointer el-dropdown-link">
+                                        <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
+                                    </a>
+                                    <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                        <el-dropdown-item :command="{type:'edit', grade_info: scope.row, course_info: course}">
+                                            <i class="iconfont icon-xueyuanguanli"></i>
+                                            <span>分配老师</span>
+                                        </el-dropdown-item>
+                                        <el-dropdown-item :command="{type:'plan', grade_info: scope.row, course_info: course}">
+                                            <i class="iconfont icon-paike1"></i>
+                                            <span>排课</span>
+                                        </el-dropdown-item>
+                                        <el-dropdown-item :command="{type:'stop', grade_info: scope.row, course_info: course}">
+                                            <i class="iconfont icon-tingke"></i>
+                                            <span>停课</span>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -50,18 +69,15 @@
 
 
         <!-- 编辑，修改老师弹窗 -->
-        <el-dialog title="编辑" width="500" center :visible.sync="dialogStatus.edit" :close-on-click-modal="false">
-            <div class="form-box">
-                <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
-                    <el-form-item prop="techer_id" label="选择老师">
-                        <el-select v-model="teacherForm.techer_id" placeholder="请选择">
-                            <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-form>
-                
-                <div class="d-f f-j-c mt-40"><MyButton @click.native="editTeacherDone" :loading="submitLoading.edit">确定</MyButton></div>
-            </div>
+        <el-dialog title="编辑" width="400px" center :visible.sync="dialogStatus.edit" :close-on-click-modal="false">
+            <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
+                <el-form-item prop="techer_id" label="选择老师：">
+                    <el-select v-model="teacherForm.techer_id" placeholder="请选择">
+                        <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div class="d-f f-j-c mt-40"><MyButton @click.native="editTeacherDone" :loading="submitLoading.edit">确定</MyButton></div>
         </el-dialog>
 
         <!-- 排课弹窗 -->
@@ -194,6 +210,37 @@ export default {
             this.editDetail = course;
             this.dialogStatus.course = true;
         },
+        //班级操作列表点击回调
+        handleCommand(option) {
+            console.log(option)
+            switch(option.type) {
+                case 'plan':
+                    this.planTimeTable(option.course_info, option.grade_info);
+                    break;
+                case 'stop':
+                    this.$confirm('确定办理停课吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        // this.studentStop(option.grade_info);
+                    }).catch(() => {return 0});
+                    break;
+                case 'edit':
+                    this.editTeacher(option.course_info, option.grade_info);
+                    break;
+            }
+        },
+        //学员停课
+        async studentStop(student_info) {
+            let result = this.$$request.post('api/studentGrade/suspend', {
+                student_id: student_info.id,
+            });
+            if(!result) return 0;
+
+            this.$message.success('操作成功');
+            this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
+        },
         //获取课程列表
         async getCourseLists(course_id) {
             let active = '';
@@ -202,10 +249,14 @@ export default {
             console.log(result);
             if(!result) return 0;
 
-            result.lists.forEach((d, num) => {d.collapse = false});
+            result.lists.forEach((d, num) => {
+                d.collapse = false;
+
+                d.student_course.forEach(v => {v.operationStatus = false});
+            });
 
             this.courseLists = result.lists;
-
+            console.log(active);
             this.$nextTick(v => {
                 if(active !== '') {
                     let dom = this.$refs['grade-table-content_' + active][0];
@@ -262,12 +313,12 @@ export default {
             this.dialogStatus.timetable = false;
         },
         //编辑修改老师信息 click
-        editTeacher(data) {
+        editTeacher(course, data) {
             this.teacherForm.techer_id = data.teacher.id;
-            this.teacherForm.course_id = data.course_id;
-            this.teacherForm.student_id = data.id;
-
-            this.getEditTeacherLists(data.course_id);
+            this.teacherForm.course_id = course.id;
+            this.teacherForm.student_id = data.student.id;
+            console.log(data)
+            this.getEditTeacherLists(course.id);
         },
         //获取编辑老师列表
         async getEditTeacherLists(id) {
@@ -326,12 +377,23 @@ export default {
             height: 0;
             position: relative;  
             overflow: hidden;
-            -webkit-transition:  height 500ms;
-            transition:  height 500ms;
+            -webkit-transition:  height 300ms;
+            transition:  height 300ms;
         }
         .el-table {
             border-left: 1px #eeeeee solid;
             border-right: 1px #eeeeee solid;
+        }
+        .unfold-icon {
+            .iconfont {
+                -webkit-transition: transform 300ms;
+                transition: transform 300ms;
+                display: block;
+                &.rotate {
+                    -webkit-transform :rotate(180deg);
+                    transform: rotate(180deg);
+                }
+            }
         }
         .course_type{
             display: inline-block;
@@ -358,6 +420,12 @@ export default {
         }
         /deep/ .el-input {
             width: 150px;
+        }
+    }
+    .operation-lists {
+        width: 130px;
+        /deep/ .el-dropdown-menu__item {
+            padding: 0 20px;
         }
     }
 </style>

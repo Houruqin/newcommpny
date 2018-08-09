@@ -151,11 +151,11 @@ export default {
             this.courseForm.parent_id = newVal.parent_id;
             this.courseForm.expire = newVal.expire || 12;
             this.courseForm.type = newVal.buy_type || 1;
+
+            if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
             // this.courseForm.preferential_price = 0;
             // this.courseForm.unit_price = 0;
             this.courseForm.pay_at = new Date().getTime();
-
-            if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
         }
     },
     data() {
@@ -250,12 +250,21 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.courseLists = result.lists;
+
+            if(this.courseForm.course_id) {
+                console.log('续约');
+                this.getGradeLists(this.courseForm.course_id);
+            }
         },
         //购买课程，选择课程change
         addCourseChange(val) {
             this.$refs.courseForm.clearValidate();
+            this.getGradeLists(val);
+        },
+        getGradeLists(val) {
             this.courseLists.forEach(v => {
                 if(v.id == val) {   
+                    console.log(v);
                     this.courseForm.expire = v.expire;
                     this.courseForm.is_order = v.is_order;
                     this.gradeLists = v.grades;
@@ -265,8 +274,6 @@ export default {
                     else this.courseForm.teacher_id = '';
                 }
             });
-
-            console.log(this.gradeLists)
         },
         //表单确定
         doneHandle() {

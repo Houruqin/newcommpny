@@ -116,6 +116,7 @@ const excelHeader = {
         '学员姓名': 'student_name',
         '联系电话': 'mobile',
         '课程名称': 'course_name',
+        '任课老师': 'course_teacher',
         '购买课时': 'buy_lesson_num',
         '赠送课时': 'given_lesson_num',
         '剩余课时': 'surplus_lesson_num',

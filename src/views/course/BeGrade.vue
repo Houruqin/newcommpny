@@ -1080,7 +1080,6 @@ export default {
                 d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)});
             });
             this.courseLists = result.lists;
-
             this.$nextTick(v => {
                 if(active !== '') {
                     let dom = this.$refs['grade-table-content_' + active][0];
@@ -1124,7 +1123,6 @@ export default {
     created() {
         this.getCourseLists();
         this.getWeek();
-        Bus.$on('refreshCourseLists', () => {this.getCourseLists()});
     },
     components: {TableHeader, MyButton, AddCourseDialog}
 }
@@ -1181,8 +1179,8 @@ export default {
             height: 0;
             position: relative;  
             overflow: hidden;
-            -webkit-transition:  height 500ms;
-            transition:  height 500ms;
+            -webkit-transition:  height 300ms;
+            transition:  height 300ms;
         }
         .el-table {
             border-left: 1px #eeeeee solid;
@@ -1272,7 +1270,8 @@ export default {
             }
             ul {
                 max-height: 100px;
-                overflow-y: scroll;
+                overflow: hidden;
+                overflow-y: auto;
                 li {
                     background-color: #f0f2f5;
                     border-radius: 3px;
@@ -1282,7 +1281,8 @@ export default {
         }
         .grade-student-check {
             max-height: 200px;
-            overflow-y: scroll;
+            overflow: hidden;
+            overflow-y: auto;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;
@@ -1290,7 +1290,8 @@ export default {
         }
         .time-table-student-check {
             max-height: 200px;
-            overflow-y: scroll;
+            overflow: hidden;
+            overflow-y: auto;
             .el-checkbox {
                 margin-left: 0;
                 margin-right: 30px;

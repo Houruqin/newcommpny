@@ -689,7 +689,15 @@ export default {
             let result = await this.$$request.post('api/sign/tab');
             console.log(result);
             if(!result) return 0;
+
             this.tabLists = result.lists;
+
+            if(this.$$cache.getMemberInfo().class_pattern == 2) {
+                this.tabLists.forEach((v, n) => {
+                    if(v.type == 'noGrade') this.tabLists.splice(n ,1);
+                });
+            };
+
             this.getStudentLists();
         },
         //课程列表，点击分班，获取班级列表

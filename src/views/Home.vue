@@ -62,7 +62,7 @@
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
-                                    <i @click="search_student" class="iconfont icon-shezhi3 cursor-pointer fc-9"></i>
+                                    <i @click="search_student" class="iconfont icon-icon1460191753512 cursor-pointer fc-9"></i>
                                     <span class="pl-5">校区设置</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="loginOut">
@@ -341,7 +341,7 @@ export default {
             modalObj: null,   //遮罩层modal
             guideSetup: 0,   //引导页步骤
             guideData: [
-                {icon: 'icon-shezhi', text: '基础设置', dom: 'mymenu-6'},
+                {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-6'},
                 {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
                 {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
                 {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},

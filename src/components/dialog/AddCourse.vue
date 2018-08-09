@@ -180,9 +180,7 @@ export default {
             this.courseDialogStatus = false;
             this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
             this.$store.dispatch('getCourse');   //更新课程信息
-
             this.$emit('CB-addCourse');
-            Bus.$emit('refreshCourseLists');
         }
     }
 }
