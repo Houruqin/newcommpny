@@ -58,7 +58,7 @@
           <el-tabs v-model="activeName" @tab-click="change_tab">
 
             <!-- 待处理请假 -->
-            <el-tab-pane label="待处理请假" name="leave">
+            <el-tab-pane label="待处理请假" name="leave" v-if="user_info.class_pattern !== 2">
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
@@ -86,7 +86,7 @@
             </el-tab-pane>
 
             <!-- 待分班学员 -->
-            <el-tab-pane label="待分班学员" name="divide">
+            <el-tab-pane label="待分班学员" name="divide" v-if="user_info.class_pattern !== 2">
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
                 <el-table-column class-name="table_head" label="学员姓名" align="left">
                   <template slot-scope="scope">
@@ -206,10 +206,11 @@
             <el-row class="course_list mt-10" v-for="item in today_course_list" :key="item.id">
               <el-row class='fc-3'>
                 <el-col :span="11">
-                  <span class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.grade.name}}</span>
+                  <span v-if="item.grade" class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.grade.name}}</span>
+                  <span v-else class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.course.name}}</span>
                 </el-col>
                 <el-col :span="13" class="t-a-r">
-                  <span @click="view_all_student(item.id,item.begin_time,item.end_time,item.grade_id,item.grade.name)" class='fs-12 cursor-pointer'>全部学员（{{item.students}}人） >></span>
+                  <span @click="view_all_student(item)" class='fs-12 cursor-pointer'>全部学员（{{item.students}}人） >></span>
                 </el-col>
               </el-row>
               <el-row class="border_item">
@@ -556,7 +557,7 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
               <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span v-if="scope.row.type === 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>
@@ -592,6 +593,8 @@ export default {
       activeName: "leave",
       follow_up_activeName: "visit",
       notice_activeName: "receive",
+
+      user_info: '',
 
         dialogStatus: {student: false, course: false, contract: false},
         buyCourseData: {},
@@ -688,6 +691,7 @@ export default {
         leave: false,
         grade_id: null,
         end: false,
+        course_type: 0,
         loading: false
       },
       //今日跟进
@@ -1199,22 +1203,23 @@ export default {
       });
     },
     //查看全部学员
-    view_all_student(timetable_id,start,end,grade_id,grade_name) {
+    view_all_student(obj) {
       this.all_student_info.loading = true; 
       this.all_student_info.data = [];
       this.all_student_info.show = true; 
-      this.all_student_info.grade_id = grade_id;
-      this.all_student_info.title = grade_name; 
-      this.get_all_student_list(timetable_id)
+      this.all_student_info.grade_id = obj.grade_id;
+      this.all_student_info.title = obj.grade_name; 
+      this.all_student_info.course_type = obj.course.is_order;
+      this.get_all_student_list(obj.id)
       //当且仅当在上课前一小时和上课后一小时内才能签到
-      if(new Date().getTime()/1000 > start - 60*60
-       && new Date().getTime()/1000 < end + 60*60){
+      if(new Date().getTime()/1000 > obj.begin_time - 60*60
+       && new Date().getTime()/1000 < obj.end_time + 60*60){
         this.all_student_info.sign = true;
       }else{
         this.all_student_info.sign = false;
       }
       //当且仅当在上课前两个小时之前才能请假
-      if(new Date().getTime()/1000 < start - 2*60*60){
+      if(new Date().getTime()/1000 < obj.begin_time - 2*60*60){
         this.all_student_info.leave = true;
       }else{
         this.all_student_info.leave = false;
@@ -1493,6 +1498,8 @@ export default {
     }
   },
   created() {
+    this.user_info = this.$$cache.getMemberInfo();
+    this.activeName = this.user_info.class_pattern !== 2 ? "leave" : "renewal";
     this.get_data();
     this.get_finance_data();
     this.get_follow_up_data();

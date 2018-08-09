@@ -15,7 +15,7 @@
                         <el-table-column prop="school_address" label="校区地址" align="center"></el-table-column>
                         <el-table-column label="课程模式" align="center">
                             <template slot-scope="scope">
-                                <span>{{scope.row.class_pattern == 1 ? '有班课程' : '无班课程'}}</span>
+                                <span>{{scope.row.class_pattern == 1 ? '有班课程' : (scope.row.class_pattern == 0 ? '有班课程/无班课程' : '无班课程')}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" align="center">

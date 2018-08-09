@@ -6,8 +6,8 @@
       <div class="p-r">
         <el-tabs v-model="active" @tab-click="tab_change">
           <el-tab-pane label="消课记录" name="elimination"></el-tab-pane>
-          <el-tab-pane label="请假记录" name="leave"></el-tab-pane>
-          <el-tab-pane label="旷课记录" name="absenteeism"></el-tab-pane>
+          <el-tab-pane v-if="$$cache.getMemberInfo().class_pattern !== 2" label="请假记录" name="leave"></el-tab-pane>
+          <el-tab-pane v-if="$$cache.getMemberInfo().class_pattern !== 2"  label="旷课记录" name="absenteeism"></el-tab-pane>
         </el-tabs>
       </div>
 
@@ -506,11 +506,6 @@ export default {
   },
   created() {
     this.get_data();
-  },
-  mounted() {
-    console.timeEnd("page");
-    console.log(this.$store.state);
-    console.log(this.$store.state["course"]);
   },
   components: { TableHeader, MyButton, NameRoute }
 };
