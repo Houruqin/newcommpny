@@ -22,7 +22,7 @@
                     <span>出生日期：<i>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</i></span>
                 </p>
                 <p v-if="studentDetail.parent_info">
-                    <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{studentDetail.parent_info.relation == 1 ? '母亲' : studentDetail.parent_info.relation == 2 ? '父亲' : '其他'}})</i></span>
+                    <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></span>
                     <span>联系电话：<i>{{studentDetail.parent_info.mobile}}</i></span>
                 </p>    
                 <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
@@ -36,7 +36,7 @@
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
             </el-tabs>
             <div class="bottom-content-box">
-                <!-- 课程信息列表 -->
+                <!-- 订单记录列表 -->
                 <div key="course_info" v-if="activeTab == 'course_info'">
                     <el-table :data="quitCourseLists.data" stripe>
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
@@ -45,11 +45,6 @@
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
                         <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
-                        <!-- <el-table-column label="课程有效期" align="center">
-                            <template slot-scope="scope">
-                                <span>{{$$tools.format(scope.row.expired_at)}}</span>
-                            </template>
-                        </el-table-column> -->
                         <el-table-column label="总课时" align="center">
                             <template slot-scope="scope">
                                 <span>{{scope.row.lesson_num + scope.row.given_num}}</span>
@@ -60,7 +55,6 @@
                                 <span>{{scope.row.status == 2 ? '已退费' : scope.row.lesson_num_remain}}</span>
                             </template>
                         </el-table-column>
-                        <!-- <el-table-column label="业绩归属" prop="advisor.name" align="center"></el-table-column> -->
                         <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
@@ -83,13 +77,16 @@
                     </el-pagination>
                 </div>
 
-                <!-- 班级信息列表 -->
+                <!-- 上课信息列表 -->
                 <div key="grade" v-else-if="activeTab == 'grade'">
                     <el-table :data="courseTimeTable.data" stripe>
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="班级名称" align="center">
                             <template slot-scope="scope">
-                                <span class="fc-m cursor-pointer" @click="gradeDetailHandle(scope.row)">{{scope.row.grade.name}}</span>
+                                <router-link v-if="scope.row.course.class_pattern == 1" 
+                                    :to="{path: '/course/detail', query: {grade_id: scope.row.grade.id}}" class="fc-m">{{scope.row.grade.name}}</router-link>
+                                <!-- <span class="fc-m cursor-pointer" v-if="scope.row.course.class_pattern == 1" @click="gradeDetailHandle(scope.row)">{{scope.row.grade.name}}</span> -->
+                                <span v-else>无</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
@@ -112,8 +109,9 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="t_button cursor-pointer" @click="gradeDivideClick('change', scope.row)">转班</span>
-                                <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                <span class="t_button cursor-pointer fc-m" v-if="scope.row.course.class_pattern == 1" @click="gradeDivideClick('change', scope.row)">转班</span>
+                                <span class="cursor-pointer fc-m" v-else @click="editTeacher(scope.row.course, scope.row.grade, scope.row.student_id)">分配老师</span>
+                                <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                     {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                 </span>
                             </template>
@@ -263,7 +261,7 @@
 
                             <el-form-item label="家长关系：" prop="relation">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -271,7 +269,6 @@
 
                     <div class="d-f f-j-c mt-50">
                         <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton>
-                        <MyButton type="gray" class="ml-20" @click.native="deleteStudent">删除</MyButton>
                     </div>
                 </div>
             </el-form>
@@ -441,72 +438,6 @@
             </el-form>
         </el-dialog>
 
-        <!-- 班级信息列表，班级详情 -->
-        <el-dialog title="班级详情" width="900px" center :visible.sync="gradeDetailMask" :close-on-click-modal="false" v-if="gradeDetail.grade" @close="gradeDetailDialogClose">
-            <p class="fc-m fs-16 t-a-c">{{gradeDetail.grade.name}}</p>
-            <div class="detail">
-                <div class="detail-top">
-                    <div class="d-f pb-15">
-                        <ul class="detail-left">
-                            <li>课程：<span>{{gradeDetail.course && gradeDetail.course.name}}</span></li>
-                            <li>课时：<span>{{gradeDetail.grade.lesson_num}}课时</span></li>
-                            <li>
-                                任课老师：<span v-if="gradeDetail.grade.teachers && gradeDetail.grade.teachers.length">
-                                    <i v-for="(teacher, index) in gradeDetail.grade.teachers" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                </span>
-                            </li>
-                            <li>开课日期：<span>{{$$tools.format(gradeDetail.grade.start_time)}}</span></li>
-                            <li>可否试听：<span>{{gradeDetail.grade.is_listen ? '是' : '否'}}</span></li>                       
-                        </ul>
-                        <ul class="flex1">
-                            <li>人数上限：<span>{{gradeDetail.grade.limit_num}}</span></li>
-                            <li>剩余课时：<span>{{gradeDetail.grade.lesson_num_remain}}</span></li>
-                            <li>
-                                辅助老师：<span v-if="gradeDetail.grade.counselors && gradeDetail.grade.counselors.length">
-                                    <i v-for="(teacher, index) in gradeDetail.grade.counselors" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                </span>
-                            </li>
-                            <li>上课教室：<span>{{gradeDetail.grade.room && gradeDetail.grade.room.name}}</span></li>
-                        </ul>
-                    </div>
-                    <div class="mb-20 d-f">
-                        <span class="fc-9">班级学员：</span>
-                        <span class="d-f f-w-w flex1" v-if="gradeDetail.grade.student && gradeDetail.grade.student.length">
-                            <i v-for="(student, index) in gradeDetail.grade.student" :key="index" :class="{'pl-20': index > 0}">{{student.name}}</i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="detail-bottom mt-40 p-r">
-                    <div class="timetable-edit p-a cursor-pointer" @click="timetableEditClick">{{timetableCheckbox ? '取消' : '编辑'}}</div>
-                    <el-table :data="gradeDetail.grade.timetable" stripe v-if="gradeDetail.grade.timetable.length" height="280" ref="multipleTable" @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
-                        <el-table-column label="序号" type="index" align="center"></el-table-column>
-                        <el-table-column label="上课日期" align="center">
-                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
-                        </el-table-column>
-                        <el-table-column label="上课时间" align="center">
-                            <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
-                        </el-table-column>
-                        <el-table-column label="上课老师" align="center">
-                            <template slot-scope="item">
-                                <span v-if="item.row.teacher.length">
-                                    <i v-for="(teacher, index) in item.row.teacher" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
-                                </span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="上课学员" prop="students" align="center"></el-table-column>
-                        <el-table-column label="结课状态" align="center">
-                            <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
-                        </el-table-column>
-                    </el-table>
-
-                    <div class="d-f f-j-c mt-20" v-if="timetableCheckbox"><MyButton @click.native="deleteTimeTableHandle(gradeDetail.grade.timetable)" :type="deleteTimeTableLists.length ? 'main' : 'gray'">删除</MyButton></div>
-                </div>
-            </div>
-        </el-dialog>
-
-
         <!-- 班级信息列表，扣课时数弹窗 -->
         <el-dialog title="扣课详情" width="1000px" center :visible.sync="lessonNumDetailMask" :close-on-click-modal="false">
             <div class="form-box">
@@ -621,7 +552,7 @@
                             </el-form-item>
                             <el-form-item label="上课老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
-                                    <el-option v-for="(item, index) in teacherLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="扣课时数：" prop="lesson_num">
@@ -635,6 +566,18 @@
                     </div>
                 </div>
             </el-form>
+        </el-dialog>
+
+        <!-- 编辑，修改老师弹窗 -->
+        <el-dialog title="编辑" width="400px" center :visible.sync="dialogStatus.editTeacher" :close-on-click-modal="false" @close="editTeahcerDiaClose">
+            <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
+                <el-form-item prop="techer_id" label="选择老师：">
+                    <el-select v-model="teacherForm.techer_id" placeholder="请选择">
+                        <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div class="d-f f-j-c mt-40"><MyButton @click.native="editTeacherDone" :loading="submitLoading.edit">确定</MyButton></div>
         </el-dialog>
     </div>
 </template>
@@ -658,8 +601,9 @@ export default {
             studentDetail: {},
             contractData: {},  //合约详情
 
-            deleteTimeTableLists: [],    //删除课表，选中的课表
-            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
+            editTeacherLists: [],
+            teacherForm: {course_id: '', techer_id: '', student_id: ''},
+
 
             quitCourseLists: {},   //退费课程列表
             courseTimeTable: {},   //课程表
@@ -682,12 +626,10 @@ export default {
             divideClassType: 'add',    //分班类型 默认add
             original_grade_id: '',   //原本分班id
 
-            gradeDetail: {},   //班级详情
             gradeName: '',   //班级名称
             lessonNumDetail: [],   //已扣课时详情列表
             leaveNumDetail: [],   //请假详情列表
 
-            gradeDetailMask: false,
             lessonNumDetailMask: false,
             leaveNumDetailMask: false,
 
@@ -695,11 +637,10 @@ export default {
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'},
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
-            teacherLists: [],   //老师列表
 
             activeTab: 'course_info',  //tab列表选中key
 
-            dialogStatus: {student: false, course: false, contract: false},
+            dialogStatus: {student: false, course: false, contract: false, editTeacher: false},
 
             classMaskStatus: false,  //分班弹窗
             quitCourseMaskStatus: false, //退费弹窗
@@ -714,7 +655,7 @@ export default {
             timeTableStatic: timeTableStatic.status,   //上课状态
             
             quitCourseInfo: {},   //退费课程详细数据
-            tabLists: [{type: 'course_info', name: '课程信息'}, {type: 'grade', name: '班级信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+            tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '上课信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
 
             quitCourseForm: {
                 rel_remain: '',
@@ -727,6 +668,11 @@ export default {
                 ],
                 explain: [
                     {max: 200, message: '最多输入200个字符'}
+                ]
+            },
+            teacherRules: {
+                techer_id: [
+                    {required: true, message: '请选择老师', trigger: 'change'}
                 ]
             },
             studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
@@ -817,6 +763,17 @@ export default {
         }
     },
     methods: {
+        getRelations(id) {
+            let text = '';
+            this.$store.state.familyRelations.forEach(v => {
+                if(id == v.id) text = v.name;
+            });
+
+            return text;
+        },
+        editTeahcerDiaClose() {
+            this.$refs.teacherForm.resetFields();
+        },
         dialogClose(form) {
             if(form === 'listen') {
                 this.checkListen = [];
@@ -839,6 +796,43 @@ export default {
             }else {
                 this.$refs[form].resetFields();
             }
+        },
+        //编辑修改老师信息 click
+        editTeacher(course, data, student_id) {
+            console.log(course)
+            console.log(data);
+            // this.teacherForm.techer_id = data.teacher.id;   //FIX ME
+            this.teacherForm.course_id = course.id;
+            this.teacherForm.student_id = student_id;
+            this.getEditTeacherLists(course.id);
+        },
+        //获取编辑老师列表
+        async getEditTeacherLists(id) {
+            let result = await this.$$request.post('api/course/orderTeachers', {course_id: id});
+            console.log(result);
+            if(!result) return 0;
+            this.editTeacherLists = result.teachers;
+            this.dialogStatus.editTeacher = true;
+        },
+        //修改老师确定 click
+        editTeacherDone() {
+            this.$refs.teacherForm.validate(valid => {if(valid) this.submitEditTeacher()});
+        },
+        //提交修改老师数据
+        async submitEditTeacher() {
+            let result = await this.$$request.post('api/course/changeTeacher', {
+                course_id: this.teacherForm.course_id,
+                teacher_id: this.teacherForm.techer_id,
+                student_id: this.teacherForm.student_id
+            });
+
+            console.log(result);
+
+            if(!result) return 0;
+            this.$message.success('修改老师成功');
+            this.dialogStatus.edit = false;
+            // this.getCourseLists();
+            this.getBottomTabLists('api/sign/timetable', 'courseTimeTable');
         },
         //评分兑换
         conversionClick() {
@@ -903,50 +897,14 @@ export default {
         timetableDialogClose() {
             this.$refs.removeTimeTable.resetFields();
         },
-        //班级详情弹窗关闭
-        gradeDetailDialogClose() {
-            this.timetableCheckbox = false;
-        },
         removeTimeChange(val) {
             if(new Date(val).toDateString() === new Date().toDateString()) {
                 this.timePicker.maxTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
             }else this.timePicker.maxTime = '22:00';
         },
-        timetableEditClick() {
-            this.timetableCheckbox = !this.timetableCheckbox;
-            if(!this.timetableCheckbox) this.$refs.multipleTable.clearSelection();
-        },
-        handleSelectionChange(val) {
-            console.log(val);
-            this.deleteTimeTableLists = val;
-        },
-        checkboxIsDisabled(row, index) {
-            // return row.lesson_end_time == 0;
-            return row.begin_time > new Date().getTime() / 1000;
-        },
-        async deleteTimeTableHandle(data) {
-            if(!this.deleteTimeTableLists.length) return 0;
-            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
-
-            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
-            console.log(result);
-            if(!result) return 0;
-    
-            if(result.status == 1) {
-                this.$message.success('删除成功');
-                timetableLists.forEach(v => {
-                    data.forEach((k, n) => {if(k.id == v) data.splice(n, 1)});
-                });
-
-                this.timetableCheckbox = false;
-                this.deleteTimeTableLists = [];
-            }else {
-                this.$message.warning('删除失败');
-            }
-        },
         //续约，再次购买课程
         againBuyCourse(data) {
-            // console.log(data);
+            console.log(data);
 
             let detail = {
                 id: data.student_id,
@@ -955,7 +913,9 @@ export default {
                 parent_id: data.parent_id,
                 expire: data.expire,
                 buy_type: 2,
-                course_id: data.course_id
+                course_id: data.course_id,
+                is_order: data.is_order,
+                class_pattern: data.class_pattern
             };
             this.buyCourseData = detail;
             this.dialogStatus.course = true;
@@ -1101,7 +1061,6 @@ export default {
         //班级信息，班级详情
         gradeDetailHandle(data) {
             console.log(data);
-            this.gradeDetail = data;
             this.gradeDetailMask = true;
         },
         //班级信息，已扣课时点击
@@ -1144,24 +1103,6 @@ export default {
             this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
 
             this.studentMaskStatus = true;
-        },
-        //删除学员
-        deleteStudent() {
-            this.$confirm('确定删除该学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle();
-            }).catch(() => {return 0});
-        },
-        async deleteHandle() {
-            let result = await this.$$request.post('api/sign/delete', {id: this.studentId});
-            if(!result) return 0;
-            if(result.status) {
-                Bus.$emit('refreshStudentLists');
-                this.$router.go(-1);
-            }
         },
         //退费按钮点击
         quitCourse(data) {
@@ -1275,7 +1216,7 @@ export default {
             this.$message.success('修改成功');
             this.studentMaskStatus = false;
             this.getStudentDetail(this.studentForm.id);
-            Bus.$emit('refreshStudentLists');
+            Bus.$emit('refreshSignedStudentLists');
         },
         //提交分班信息
         async submitDivideClass(url, params) {
@@ -1396,19 +1337,11 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.listenCourseLists = result.lists;
-        },
-        async getTeacherLists() {
-            let result = await this.$$request.post('api/user/normalLists', {type: 'teacher'});
-            console.log(result);
-
-            if(!result) return 0;
-            this.teacherLists = result.lists;
         }
     },
     created() {
         this.studentId = this.$route.query.id;
         this.getStudentDetail();
-        this.getTeacherLists();    //手动消课获取老师列表
     },
     watch: {
         $route: function(val,oldval) {
@@ -1622,17 +1555,17 @@ export default {
     .time_select /deep/ .el-input--suffix .el-input__inner{
         padding-right: 10px;
     }
-    .t_button{
-        display: inline-block;
-        padding: 4px 10px;
-        border: 1px solid #45DAD5;
-        border-radius: 4px;
-        color: #45DAD5;
-    }
-    .d_button{
-        border: 1px solid #999999;
-        color: #999999;
-    }
+    // .t_button{
+    //     display: inline-block;
+    //     padding: 4px 10px;
+    //     border: 1px solid #45DAD5;
+    //     border-radius: 4px;
+    //     color: #45DAD5;
+    // }
+    // .d_button{
+    //     border: 1px solid #999999;
+    //     color: #999999;
+    // }
 </style>
 
 

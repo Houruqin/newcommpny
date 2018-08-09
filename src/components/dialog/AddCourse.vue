@@ -7,8 +7,14 @@
                         <el-form-item label="课程名字：" prop="name">
                             <el-input v-model.trim="courseForm.name" placeholder="课程名称"></el-input>
                         </el-form-item>
-                        <el-form-item label="课节时长：" prop="lesson_time" class="mt-30">
+                        <el-form-item label="课节时长：" prop="lesson_time">
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
+                        </el-form-item>
+                        <el-form-item label="是否可预约：" prop="is_order">
+                            <el-radio-group v-model="courseForm.is_order" :disabled="courseType == 'edit'">
+                                <el-radio :label="0">不可预约</el-radio>
+                                <el-radio :label="1">可预约</el-radio>
+                            </el-radio-group>
                         </el-form-item>
                     </el-col>
 
@@ -16,10 +22,15 @@
                         <el-form-item label="课程有效期：" prop="expire">
                             <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">个月</span>
                         </el-form-item>
-                        <el-form-item label="课程性质：" prop="type" class="mt-30">
+                        <el-form-item label="课程性质：" prop="type">
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
                                 <el-option label="普通课程" :value="1"></el-option>
                                 <el-option label="一对一课程" :value="2"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 2">
+                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
+                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -43,6 +54,7 @@ export default {
     props: {
         type: {default: 'add'},
         dialogStatus: '',
+        courseMode: {default: ''},
         editDetail: {default: null}
     },
     components: {MyButton},
@@ -62,8 +74,12 @@ export default {
             this.courseType = newVal;
         },
         editDetail(newVal, oldVal) {
+            console.log(newVal)
             if(!Object.keys(newVal).length) return 0;
-            for(let key in this.courseForm) this.courseForm[key] = newVal[key];
+            for(let key in this.courseForm) {
+                if(key == 'order_teacher_ids') this.courseForm[key] = newVal[key].substring(1, newVal[key].length-1).split(',').map(v => {return +v});
+                else this.courseForm[key] = newVal[key];
+            }
         }
     },
     data() {
@@ -74,7 +90,9 @@ export default {
                 name: '',  //名字
                 expire: '', //有效期
                 lesson_time: '',  //课时时长
-                type: 1 //课程性质
+                type: 1, //课程性质
+                order_teacher_ids: [],
+                is_order: ''
             },
             courseDialogStatus: false,
             courseType: 'add',
@@ -91,6 +109,15 @@ export default {
                 ],
                 lesson_time: [
                     {required: true, message: '请输入课节时长'}
+                ],
+                type: [
+                    {required: true, message: '请选择课程性质', trigger: 'change'}
+                ],
+                order_teacher_ids: [
+                    {required: true, message: '请选择上课老师', trigger: 'change'}
+                ],
+                is_order: [
+                    {required: true, message: '请设置是否可预约', trigger: 'change'}
                 ]
             },
         }
@@ -98,7 +125,7 @@ export default {
     methods: {
         dialogClose() {
             this.$refs.courseForm.resetFields();
-            for(let key in this.courseForm) this.courseForm[key] = '';
+            for(let key in this.courseForm) this.courseForm[key] = key == 'order_teacher_ids' ? [] : '';
             this.$emit('CB-dialogStatus', 'add_course');
         },
         //form表单确定按钮
@@ -133,7 +160,15 @@ export default {
 
             let url = this.courseType == 'edit' ? 'api/course/edit' : 'api/course/add';
             let params = {};
-            for(let key in this.courseForm) {if(key != 'id') params[key] = this.courseForm[key]};
+            for(let key in this.courseForm) {
+                if(key != 'id') {
+                    if(key == 'order_teacher_ids') {
+                        params[key] = this.courseMode == 2 ? this.courseForm[key] : [];
+                    }else params[key] = this.courseForm[key];
+                }
+            };
+
+            params.class_pattern = this.courseMode;
             if(this.courseType == 'edit') params.id = this.courseForm.id;
             console.log(params);
 
@@ -145,9 +180,7 @@ export default {
             this.courseDialogStatus = false;
             this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
             this.$store.dispatch('getCourse');   //更新课程信息
-
             this.$emit('CB-addCourse');
-            Bus.$emit('refreshCourseLists');
         }
     }
 }

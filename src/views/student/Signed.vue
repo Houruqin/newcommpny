@@ -388,7 +388,7 @@
 
                             <el-form-item label="家长关系：" prop="relation">
                                 <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
+                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -689,7 +689,15 @@ export default {
             let result = await this.$$request.post('api/sign/tab');
             console.log(result);
             if(!result) return 0;
+
             this.tabLists = result.lists;
+
+            if(this.$$cache.getMemberInfo().class_pattern == 2) {
+                this.tabLists.forEach((v, n) => {
+                    if(v.type == 'noGrade') this.tabLists.splice(n ,1);
+                });
+            };
+
             this.getStudentLists();
         },
         //课程列表，点击分班，获取班级列表
@@ -800,7 +808,7 @@ export default {
         this.searchFilter.month = new Date().getMonth() + 1;
         this.getTabLists();
         //监听如果详情修改，那么刷新学员列表
-        Bus.$on('refreshStudentLists', () => {this.getStudentLists()});
+        Bus.$on('refreshSignedStudentLists', () => {this.getStudentLists()});
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
@@ -809,7 +817,7 @@ export default {
         next();   //来到页面，包括通过返回
     },
     beforeDestroy() {
-        Bus.$off('refreshStudentLists');
+        Bus.$off('refreshSignedStudentLists');
     },
     components: {TableHeader, Classify, MyButton}
 }

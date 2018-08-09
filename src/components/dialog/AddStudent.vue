@@ -52,7 +52,7 @@
 
                         <el-form-item label="家长关系：" prop="relation">
                             <el-select v-model="studentForm.relation" placeholder="请选择">
-                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item" :value="index"></el-option>
+                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
 
@@ -300,7 +300,6 @@ export default {
             }).catch(() => {return 0});
 
             this.$emit('CB-addStudent');
-            Bus.$emit('refreshStudentLists');
         }
     }
 }

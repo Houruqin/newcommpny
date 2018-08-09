@@ -2,12 +2,14 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import Request from '../script/request'
+import Cache from '../script/cache'
 
 Vue.use(Vuex);
 
-const state = { 
+const state = {
     guide: false,     //是否引导页
     advisor: [],    //顾问列表
+    teacherList: [],   //老师列表
     source: [],   //渠道列表
     classRoom: [],   //教室列表
     course: [],   //课程列表
@@ -23,7 +25,7 @@ const mutations = {
         state.guide = type;
     },
     async getAdvisor(state) {
-        let result = await Request.post('api/user/normalLists', {type: 'seller'});
+        let result = await Request.get('api/user/normalLists', {type: 'seller'});
         console.log(result)
         if(!result) return 0;
 
@@ -69,6 +71,11 @@ const mutations = {
         let result = await Request.post('api/student/familyRelations');
         console.log(result);
         state.familyRelations = result.relations;
+    },
+    async getTeacher(state) {
+        let result = await Request.get('api/user/normalLists', {type: 'teacher'});
+        console.log(result);
+        state.teacherList = result.lists;
     }
 };
 
@@ -76,7 +83,6 @@ const actions = {
     guideChange(context, type) {
         context.commit('guideChange', type);
     },
-
     getAdvisor(context) {
         context.commit('getAdvisor');
     },
@@ -107,6 +113,10 @@ const actions = {
 
     getRelation(context) {
         context.commit('getRelation');
+    },
+
+    getTeacher(context) {
+        context.commit('getTeacher');
     }
 };
 

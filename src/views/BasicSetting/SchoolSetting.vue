@@ -13,6 +13,11 @@
                         <el-table-column prop="user_mobile" label="校长手机号" align="center"></el-table-column>
                         <el-table-column prop="school_contact" label="校区座机号" align="center"></el-table-column>
                         <el-table-column prop="school_address" label="校区地址" align="center"></el-table-column>
+                        <el-table-column label="课程模式" align="center">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.class_pattern == 1 ? '有班课程' : (scope.row.class_pattern == 0 ? '有班课程/无班课程' : '无班课程')}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
                                 <div class="d-f operate-btn f-j-c">
@@ -54,6 +59,14 @@
                     <el-form-item label="校区地址：" prop="school_address" class="mt-30">
                         <el-input v-model.trim="form.school_address" placeholder="校区地址"></el-input>
                     </el-form-item>
+
+                    <el-form-item label="课程模式：" prop="class_pattern" class="mt-30">
+                        <el-radio-group v-model="form.class_pattern">
+                            <el-radio :label="0">全部</el-radio>
+                            <el-radio :label="1">有班课程</el-radio>
+                            <el-radio :label="2">无班课程</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                 </div>
             </el-form>
             <div class="mt-40 d-f f-j-c">
@@ -68,18 +81,18 @@ import TableHeader from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
 import Bus from '../../script/bus'
 
-let organization_id, school_name, user_name, user_mobile, school_contact, school_address;   //全局申明字段，修改的时候判断参数
+let organization_id, school_name, user_name, user_mobile, school_contact, school_address, class_pattern;   //全局申明字段，修改的时候判断参数
 
 export default {
     data() {
         return {
+            loading: false,
             schoolNum: 3,  //可用的校区数量
             maskStatus: false,   //新增、修改form
             maskType: 'add',
             submitLoading: false,
             schoolLists: [],
             organizationInfo: [],
-            loading: true,
             form: {
                 organization_id: '', //机构id
                 school_name: '',    //校区名称
@@ -88,7 +101,8 @@ export default {
                 school_contact: '',    //联系电话
                 school_address: '',   //校区
                 school_id: '',
-                user_id: ''
+                user_id: '',
+                class_pattern: ''
             },
             rules: {
                 organization_id: [
@@ -113,6 +127,9 @@ export default {
                 school_address: [
                     {required: true, message: '请输入校区地址'},
                     {max: 50, message: '长度不能超过50个字符'}
+                ],
+                class_pattern: [
+                    {required: true, message: '请选择课程模式', trigger: 'change'}
                 ]
             }
         }     
@@ -154,6 +171,8 @@ export default {
                                 school_contact = scope.school_contact;
                             case 'school_address':
                                 school_address = scope.school_address;
+                            case 'class_pattern':
+                                class_pattern = scope.class_pattern;
                         }
                     } else {
                         organization_id = scope.institution_info.id;
@@ -187,7 +206,7 @@ export default {
             this.$$cache.setMemberInfo(memberInfo);
 
             this.getSchoolLists();
-            Bus.$emit('refreshSchoolLists');
+            Bus.$emit('refreshSchoolId');   //删了校区，更新home的schoolId
             this.$message.success('已删除');
         },
         //提交校区信息
@@ -203,10 +222,10 @@ export default {
             console.log(result);
                        
             if(!result) return 0;
+
+            this.getSchoolLists('edit');
             this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
             this.maskStatus = false;
-            Bus.$emit('refreshSchoolLists');
-            this.getSchoolLists();
         },
         //参数处理方法
         getModifyParams() {
@@ -216,8 +235,9 @@ export default {
                 school: {
                     institution_id: form.organization_id,
                     name: form.school_name,
-                    type: '艺术类',
+                    type: '',
                     contact: form.school_contact,
+                    class_pattern: form.class_pattern,
                     address: form.school_address
                 },
                 user: {
@@ -233,7 +253,7 @@ export default {
                 params.user.school_id = form.school_id;
 
                 if(organization_id == form.organization_id) {
-                    if(school_contact == form.school_contact && school_address == form.school_address && school_name == form.school_name) {
+                    if(school_contact == form.school_contact && school_address == form.school_address && school_name == form.school_name && class_pattern == form.class_pattern) {
                         params.school = null;
                     };
 
@@ -249,20 +269,38 @@ export default {
             return postdata;
         },
         //获取校区列表
-        async getSchoolLists() {
+        async getSchoolLists(type) {
             this.loading = true;
-            let result = await this.$$request.post('api/school/lists');
+            let result = await this.$$request.get('api/school/lists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;
+
+            if(type === 'edit') {
+                let memberInfo = this.$$cache.getMemberInfo();
+                result.lists.forEach(v => {
+                    if(memberInfo.school_id == v.id) {
+                        memberInfo.class_pattern = v.class_pattern;
+                        this.$$cache.setMemberInfo(memberInfo);
+                    }
+                });
+            };
+
             this.loading = false;
+        },
+        //获取机构列表
+        async getOrgLists() {
+            let orgLists = await this.$$request.post('api/user/orgLists');
+            if(!orgLists) return 0;
+            this.organizationInfo = orgLists.lists;
         }
     },
-    async created() {
-        let orgLists = await this.$$request.post('api/user/orgLists');
-        if(!orgLists) return 0;
-        this.organizationInfo = orgLists.lists;
+    created() {
+        this.getOrgLists();
         this.getSchoolLists();
+    },
+    beforeDestroy() {
+        Bus.$off('refreshSchoolId');
     },
     components: {TableHeader, MyButton}
 }

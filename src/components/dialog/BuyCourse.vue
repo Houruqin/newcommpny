@@ -8,7 +8,7 @@
                         <el-col :span="8">
                             <el-form-item label="选择课程：" prop="course_id">
                                 <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
-                                    <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -24,11 +24,29 @@
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="7">
+                        <el-col :span="8">
                             <el-form-item label="购课类型：" prop="type">
                                 <el-select v-model="courseForm.type" placeholder="选择购课类型">
                                     <el-option label="新签约" :value="1"></el-option>
                                     <el-option label="续约" :value="2"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+
+                        <!-- 有班选择班级 -->
+                        <el-col :span="8" v-if="buyCourse_type == 1">
+                            <el-form-item label="选择班级：">
+                                <el-select v-model="courseForm.grade_id" placeholder="请选择">
+                                    <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+
+                        <!-- 无班选择老师 -->
+                        <el-col :span="8" v-if="buyCourse_type == 2">
+                            <el-form-item label="选择老师：" prop="teacher_id">
+                                <el-select placeholder="请选择" v-model="courseForm.teacher_id">
+                                    <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -112,6 +130,9 @@ import {StudentStatic} from '../../script/static'
 import MyButton from '../common/MyButton'
 
 export default {
+    created() {
+        this.buyCourse_type = this.$$cache.getMemberInfo().class_pattern;
+    },
     props: {
         dialogStatus: '',
         buyCourseData: {default: {}}
@@ -123,25 +144,27 @@ export default {
             this.courseDialogStatus = newVal;
         },
         buyCourseData(newVal, oldVal) {
-            console.log(newVal);
-
+            this.getCourseLists(newVal.id);
             this.courseForm.student_id = newVal.id;
             this.courseForm.advisor_id = newVal.advisor_id;
             this.courseForm.advisor_name = newVal.advisor ? newVal.advisor.name : '';
             this.courseForm.parent_id = newVal.parent_id;
             this.courseForm.expire = newVal.expire || 12;
             this.courseForm.type = newVal.buy_type || 1;
+
+            if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
             // this.courseForm.preferential_price = 0;
             // this.courseForm.unit_price = 0;
             this.courseForm.pay_at = new Date().getTime();
-
-            if(newVal.course_id) this.courseForm.course_id = newVal.course_id;
         }
     },
     data() {
         return {
             submitLoading: false,
             courseDialogStatus: false,
+            buyCourse_type: null,    //选择课程的类型    有班/无班
+            courseLists: [],
+            gradeLists: [],
             paymentMethod: StudentStatic.paymentMethod, //付款方式
             courseForm: {
                 student_id: '', //学员id
@@ -160,7 +183,10 @@ export default {
                 preferential_price: '',  //优惠价格
                 textbook_price: '',   //教材费用
                 explain: '',  //说明
-                type: 1    //购课类型 1：新签约 2：续约
+                type: 1,    //购课类型 1：新签约 2：续约
+                grade_id: '',
+                teacher_id: '',
+                is_order: ''
             },
             courseRules: {
                 course_id: [
@@ -204,8 +230,11 @@ export default {
                 ],
                 type: [
                     {required: true, message: '请选择购课类型', trigger: 'change'}
+                ],
+                teacher_id: [
+                    {required: true, message: '请选择老师', trigger: 'change'}
                 ]
-            },
+            }
         }
     },
     methods: {
@@ -214,12 +243,35 @@ export default {
             Object.keys(this.courseForm).forEach(v =>{this.courseForm[v] = ''});
             this.$emit('CB-dialogStatus', 'course');
         },
+        //根据school_id获取课程列表
+        async getCourseLists(id) {
+            if(!id) return 0;
+            let result = await this.$$request.post('api/studentCourse/lists', {student_id: id});
+            console.log(result);
+            if(!result) return 0;
+            this.courseLists = result.lists;
+
+            if(this.courseForm.course_id) {
+                console.log('续约');
+                this.getGradeLists(this.courseForm.course_id);
+            }
+        },
         //购买课程，选择课程change
         addCourseChange(val) {
-            this.$store.state.course.forEach(v => {
-                if(v.id == val) {
+            this.$refs.courseForm.clearValidate();
+            this.getGradeLists(val);
+        },
+        getGradeLists(val) {
+            this.courseLists.forEach(v => {
+                if(v.id == val) {   
                     console.log(v);
                     this.courseForm.expire = v.expire;
+                    this.courseForm.is_order = v.is_order;
+                    this.gradeLists = v.grades;
+                    this.buyCourse_type = v.class_pattern;
+
+                    if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
+                    else this.courseForm.teacher_id = '';
                 }
             });
         },
@@ -241,8 +293,10 @@ export default {
             for(let key in this.courseForm) {
                 if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
                 else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
-                else if(key != 'advisor_name') params[key] = this.courseForm[key];
+                else if(key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') params[key] = this.courseForm[key];
             };
+            
+            params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
 
             console.log(params);
 

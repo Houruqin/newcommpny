@@ -1,6 +1,54 @@
 <template>
   <div class="content flex1 workbench_container">
-    <el-row class="head_content" :gutter="20">
+    <el-row :gutter="20" class="top_content">
+      <el-card shadow="hover" >
+        <el-col :span="11" v-if="statitics_info.sign !== ''">
+          <el-row>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" :offset="6">今日</el-col>
+            <el-col :span="6">本月</el-col>
+            <el-col :span="6">上月</el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="6"> <i class="iconfont icon-renshu fs-14"></i> 签约单数(笔)</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.today.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.present_month.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.sign.last_month.count}}</el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="6"> <i class="iconfont icon-jine"></i> 签约金额(元)</el-col>
+            <el-col :span="6">{{statitics_info.sign.today.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.sign.present_month.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.sign.last_month.sum}}元</el-col>
+          </el-row>
+        </el-col>
+        <el-col :span="2" v-if="statitics_info.sign !== '' && statitics_info.eliminate !== '' ">
+          <div class="line"></div>
+        </el-col>
+        <el-col :span="11" v-if="statitics_info.eliminate !== '' ">
+          <el-row>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" :offset="6">今日</el-col>
+            <el-col :span="6">本月</el-col>
+            <el-col :span="6">上月</el-col>
+          </el-row>
+          <el-row v-cloak>
+            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课节数(次)</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.today.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.present_month.count}}</el-col>
+            <el-col :span="6" class="times">{{statitics_info.eliminate.last_month.count}}</el-col>
+          </el-row>
+          <el-row v-cloak>
+            <el-col :span="6"> <i class="iconfont icon-jine"></i> 消课金额(元)</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.today.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.present_month.sum}}元</el-col>
+            <el-col :span="6">{{statitics_info.eliminate.last_month.sum}}元</el-col>
+          </el-row>
+        </el-col>
+      </el-card>
+    </el-row>
+
+    <el-row class="head_content card-box" :gutter="20">
       <el-col :span="17">
         <el-card shadow="hover">
           <TableHeader title="今日待办">
@@ -10,7 +58,7 @@
           <el-tabs v-model="activeName" @tab-click="change_tab">
 
             <!-- 待处理请假 -->
-            <el-tab-pane label="待处理请假" name="leave">
+            <el-tab-pane label="待处理请假" name="leave" v-if="user_info.class_pattern !== 2">
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
@@ -38,7 +86,7 @@
             </el-tab-pane>
 
             <!-- 待分班学员 -->
-            <el-tab-pane label="待分班学员" name="divide">
+            <el-tab-pane label="待分班学员" name="divide" v-if="user_info.class_pattern !== 2">
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
                 <el-table-column class-name="table_head" label="学员姓名" align="left">
                   <template slot-scope="scope">
@@ -158,10 +206,11 @@
             <el-row class="course_list mt-10" v-for="item in today_course_list" :key="item.id">
               <el-row class='fc-3'>
                 <el-col :span="11">
-                  <span class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.grade.name}}</span>
+                  <span v-if="item.grade" class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.grade.name}}</span>
+                  <span v-else class='fc-3' :class="{'fc-m' : new Date().getTime() <= item.end_time*1000}">{{item.course.name}}</span>
                 </el-col>
                 <el-col :span="13" class="t-a-r">
-                  <span @click="view_all_student(item.id,item.begin_time,item.end_time,item.grade_id,item.grade.name)" class='fs-12 cursor-pointer'>全部学员（{{item.students}}人） >></span>
+                  <span @click="view_all_student(item)" class='fs-12 cursor-pointer'>全部学员（{{item.students}}人） >></span>
                 </el-col>
               </el-row>
               <el-row class="border_item">
@@ -243,9 +292,9 @@
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
                 <el-table-column label="状态" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.status === 4" class="fc-subm">邀约未试听</span>
-                    <span v-if="scope.row.status === 5" class="fc-9">邀约已试听</span>
-                    <span v-if="scope.row.status === 7" class="fc-m">未结课</span>
+                    <span v-if="scope.row.status === 4" class="fc-subm">待试听</span>
+                    <span v-if="scope.row.status === 5" class="fc-9">已试听</span>
+                    <span v-if="scope.row.status === 7" class="fc-m">已过期</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -329,28 +378,30 @@
 
             <!-- 已收通知 -->
             <el-tab-pane name="receive">
-              <span slot="label">
+              <div slot="label">
                 <el-badge :value="unread_num" :max="10" class="item">已收通知</el-badge>
-              </span>
+              </div>
               <el-row v-loading="notice_loading" class="content_height" v-if="notice_lists.length>0">
                 <el-row class="cursor-pointer fc-9" :class="{'unread' : notice.is_receive === 0 }" @click.native="notice_detail(notice)" v-for="(notice,index) in notice_lists" :key="index">
-                  <el-col :span="18">【{{notice.notification.type}}】{{notice.notification.title}}</el-col>
+                  <el-col :span="18" class="notice_title">【{{notice.notification.type}}】{{notice.notification.title}}</el-col>
                   <el-col :span="6">{{notice.updated_at | date('yyyy.MM.dd')}}</el-col>
                 </el-row>
               </el-row>
               <el-row v-else class="f-j-c d-f f-a-c fc-9">暂无通知</el-row>
             </el-tab-pane>
             <!-- 已发通知 -->
-            <el-tab-pane label="已发通知" name="send">
+            <el-tab-pane name="send">
+              <div slot="label">
+                已发通知
+              </div>
               <el-row v-loading="notice_loading" class="content_height" v-if="notice_send_lists.length>0">
                 <el-row class="cursor-pointer" @click.native="notice_detail(notice)" v-for="(notice,index) in notice_send_lists" :key="index">
-                  <el-col :span="18">【{{notice.type}}】{{notice.title}}</el-col>
+                  <el-col :span="18" class="notice_title">【{{notice.type}}】{{notice.title}}</el-col>
                   <el-col :span="6">{{notice.updated_at | date('yyyy.MM.dd')}}</el-col>
                 </el-row>
               </el-row>
               <el-row v-else class="f-j-c d-f f-a-c fc-9">暂无通知</el-row>
             </el-tab-pane>
-
           </el-tabs>
 
           <!-- 分页 -->
@@ -506,7 +557,7 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
               <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span v-if="scope.row.type === 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>
@@ -543,6 +594,8 @@ export default {
       follow_up_activeName: "visit",
       notice_activeName: "receive",
 
+      user_info: '',
+
         dialogStatus: {student: false, course: false, contract: false},
         buyCourseData: {},
         contractData: {}, //合约数据
@@ -570,6 +623,11 @@ export default {
           { required: true, message: "请选择渠道信息", trigger: "change" }
         ],
         remark: [{ max: 50, message: "长度不能超过50个字符" }]
+      },
+      //财务统计
+      statitics_info: {
+        sign: '',
+        eliminate: ''
       },
       //今日待办
       leave_info: {
@@ -633,6 +691,7 @@ export default {
         leave: false,
         grade_id: null,
         end: false,
+        course_type: 0,
         loading: false
       },
       //今日跟进
@@ -1068,6 +1127,14 @@ export default {
         this.get_data();
       });
     },
+    //================财务统计模块================
+    async get_finance_data() {
+      this.$$request.get('api/financial/statistics')
+      .then(res => {
+        this.statitics_info.sign = res.sign;
+        this.statitics_info.eliminate = res.eliminate;
+      })
+    },
     //================今日课程模块================
     //按需获取今日跟进所有数据
     async get_follow_up_data() {
@@ -1136,22 +1203,23 @@ export default {
       });
     },
     //查看全部学员
-    view_all_student(timetable_id,start,end,grade_id,grade_name) {
+    view_all_student(obj) {
       this.all_student_info.loading = true; 
       this.all_student_info.data = [];
       this.all_student_info.show = true; 
-      this.all_student_info.grade_id = grade_id;
-      this.all_student_info.title = grade_name; 
-      this.get_all_student_list(timetable_id)
+      this.all_student_info.grade_id = obj.grade_id;
+      this.all_student_info.title = obj.grade_name; 
+      this.all_student_info.course_type = obj.course.is_order;
+      this.get_all_student_list(obj.id)
       //当且仅当在上课前一小时和上课后一小时内才能签到
-      if(new Date().getTime()/1000 > start - 60*60
-       && new Date().getTime()/1000 < end + 60*60){
+      if(new Date().getTime()/1000 > obj.begin_time - 60*60
+       && new Date().getTime()/1000 < obj.end_time + 60*60){
         this.all_student_info.sign = true;
       }else{
         this.all_student_info.sign = false;
       }
       //当且仅当在上课前两个小时之前才能请假
-      if(new Date().getTime()/1000 < start - 2*60*60){
+      if(new Date().getTime()/1000 < obj.begin_time - 2*60*60){
         this.all_student_info.leave = true;
       }else{
         this.all_student_info.leave = false;
@@ -1430,7 +1498,10 @@ export default {
     }
   },
   created() {
+    this.user_info = this.$$cache.getMemberInfo();
+    this.activeName = this.user_info.class_pattern !== 2 ? "leave" : "renewal";
     this.get_data();
+    this.get_finance_data();
     this.get_follow_up_data();
     this.get_today_course();
     this.get_notice_list();
@@ -1461,6 +1532,32 @@ export default {
                 width: auto;
             }
         }
+    }
+    .top_content{
+      margin: 0 !important;
+      /deep/ .el-card__body{
+        min-height: 0 !important;
+      }
+      .el-card{
+        padding: 20px 0;
+      }
+      .el-col {
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        color: #555555;
+      }
+      .line{
+        width: 1px;
+        height: 125px;
+        background: #cccccc;
+        margin: auto
+      }
+      .times{
+        color: #536A81;
+        font-size: 28px;
+        font-weight: bold;
+      }
     }
 .content {
   .el-row {
@@ -1634,6 +1731,13 @@ export default {
 .unread {
   color: #45dad5 !important;
 }
+.notice_title{
+  overflow: hidden;
+  height: 19px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 315px;
+}
 .course_status{
   width: 60px;
   height: 24px;
@@ -1732,6 +1836,9 @@ export default {
 //   font-size: 14px;
 //   color: #555555;
 // }
+.workbench_container /deep/ .el-badge{
+  vertical-align: inherit !important;
+}
 .workbench_container /deep/ .el-badge__content {
   top: 10px;
   right: 0px;

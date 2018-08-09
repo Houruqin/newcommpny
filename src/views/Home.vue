@@ -25,7 +25,9 @@
                                 </el-dropdown-menu>
                             </el-dropdown>
                         </div>
-                        <div v-else class="t-a-c t-o-e cursor-pointer" :title="schoolLists.length > 0 ? schoolLists[0].name : ''">{{schoolLists.length > 0 ? schoolLists[0].name : ''}}</div>
+                        <div v-else class="t-a-c t-o-e cursor-pointer" :title="schoolLists.length > 0 ? schoolLists[0].name : ''">
+                            {{schoolLists.length > 0 ? schoolLists[0].name : ''}}
+                        </div>
                     </div>
                 </div>
                 <Menu></Menu>
@@ -60,7 +62,7 @@
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
-                                    <i @click="search_student" class="iconfont icon-shezhi3 cursor-pointer fc-9"></i>
+                                    <i @click="search_student" class="iconfont icon-icon1460191753512 cursor-pointer fc-9"></i>
                                     <span class="pl-5">校区设置</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="loginOut">
@@ -319,6 +321,7 @@ export default {
             speedyShow: false,
 
             submitLoading: false,
+            schoolLists: [],
 
             dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
             buyCourseData: {},
@@ -332,14 +335,13 @@ export default {
             checkListenStudent: [],   //选中的试听学员
             listenTimetableId: '',   //选中的试听课程
 
-            role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon},
+            role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
             memberInfo: {},
             
-            schoolLists: [],
             modalObj: null,   //遮罩层modal
             guideSetup: 0,   //引导页步骤
             guideData: [
-                {icon: 'icon-shezhi', text: '基础设置', dom: 'mymenu-6'},
+                {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-6'},
                 {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
                 {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
                 {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
@@ -348,7 +350,7 @@ export default {
             speedyLists: [
                 {id: 'addStudent', name: '学员登记', icon: 'icon-iconwogzydj'},
                 {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
-                {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
+                // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
                 {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
                 {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
@@ -369,11 +371,11 @@ export default {
         },
         //查找学员
         search_student() {
-            if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
-                this.$message.closeAll();
-                this.$message.warning('请输入学员姓名或手机号')
-                 return false
-            };
+            // if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
+            //     this.$message.closeAll();
+            //     this.$message.warning('请输入学员姓名或手机号')
+            //      return false
+            // };
             this.loading = true;
             this.page_info.current_page = 1;
             this.get_search_student_info();
@@ -386,15 +388,14 @@ export default {
             this.$$request.post('api/student/studentSearch',params)
             .then(res => {
                 this.loading = false;
-                if(res.lists.data.length > 0) {
-                    this.dialogStatus.search = true;
-                    this.page_info.total = res.lists.total;
-                    this.page_info.current_page = res.lists.current_page;
-                    this.search_result = res.lists.data;
-                }else{
+                if(res.lists.data.length < 1) {
                     this.$message.closeAll();
                     this.$message.warning('未搜索到相关学员信息')
                 }
+                this.dialogStatus.search = true;
+                this.page_info.total = res.lists.total;
+                this.page_info.current_page = res.lists.current_page;
+                this.search_result = res.lists.data;
             })
         },
         speedyChange(val) {
@@ -507,6 +508,11 @@ export default {
             
             this.dialogStatus.listen = false;
             this.dialogStatus.listenStudent = false;
+
+            // if(this.$route.path == '/timetable/index' || this.$route.path == '/timetable/teacher' || this.$route.path == '/timetable/class') {
+            //     Bus.$emit('home_refreshTimeTable');  //如果是在排课页面，刷新课表
+            // }
+
             this.$message.success('办理试听成功!');
         },
         //获取试听填充列表
@@ -594,6 +600,14 @@ export default {
             this.$$cache.loginOut();
             this.$message('已退出登录！');
         },
+        //获取校区列表
+        async getSchoolLists() {
+            let result = await this.$$request.post('api/user/schoolLists');
+            console.log(result)
+            if(!result) return 0;
+            this.schoolLists = result.lists;
+            this.getSchoolName();
+        },
         schoolSelectShow(type) {
             this.schoolSelect = type;
         },
@@ -603,26 +617,18 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.schoolId = school_id;
+
+            let memberInfo = this.$$cache.getMemberInfo();
+            memberInfo.school_id = school_id;
+            this.$$cache.setMemberInfo(memberInfo);
+
             this.getSchoolName();
 
             this.$router.replace({path: '/refresh'});   //刷新工作台路由
         },
         //根据school_id获取校区名称
         getSchoolName() {
-            console.log(this.schoolLists)
             this.schoolLists.forEach(v => {if(v.id == this.schoolId) this.schoolTitle = v.name});
-        },
-        //获取校区列表
-        async getSchoolLists() {
-            this.memberInfo = this.$$cache.getMemberInfo();
-            console.log(this.memberInfo)
-            this.schoolId = this.memberInfo.school_id;
-
-            let result = await this.$$request.post('api/user/schoolLists');
-            console.log(result)
-            if(!result) return 0;
-            this.schoolLists = result.lists;
-            this.getSchoolName();
         },
         helpShowHandle(isShow) {
             this.helpShow = isShow;
@@ -647,6 +653,7 @@ export default {
         mymenuPosition() {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
+                console.log(mymenu)
                 document.querySelector('.guide-box').style.left = '0';
                 document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight}px`;
             }else if(this.guideSetup == 5){
@@ -669,24 +676,39 @@ export default {
         go_page(page) {
             this.page_info.current_page = page;
             this.get_search_student_info();
+        },
+        pageInit() {
+            this.getSchoolLists();
+            this.memberInfo = this.$$cache.getMemberInfo();
+            this.schoolId = this.$$cache.getMemberInfo().school_id;
         }
     },
     mounted() {
         if(this.$store.state.guide) this.showModal();
+
         this.$store.dispatch('getAdvisor');
         this.$store.dispatch('getCourse');
         this.$store.dispatch('getSource');
         this.$store.dispatch('getClassRoom');
         this.$store.dispatch('getGrade');
         this.$store.dispatch('getRelation');
+        this.$store.dispatch('getTeacher');
     },
     created() {
-        this.getSchoolLists();
-        Bus.$on('refreshSchoolLists', () => {this.getSchoolLists()});
+        this.pageInit();
+        Bus.$on('refreshSchoolId', () => {this.pageInit()});
+        // Bus.$on('refreshSchoolLists', () => {this.getSchoolLists()});
     },
     beforeDestroy() {
-        Bus.$off('refreshSchoolLists');
+        // Bus.$off('refreshSchoolLists');
         Bus.$off('refreshCourseLists');
+        Bus.$off('home_refreshTimeTable');
+    },
+    beforeRouteLeave(to, from, next) {
+        //强行删除遮罩层
+        if(this.modalObj) document.body.removeChild(this.modalObj);
+        document.body.removeAttribute('style');
+        next();
     },
     components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
 }
@@ -831,7 +853,7 @@ export default {
             background-color: #2A3C50;
             color: #45DAD5;
             left: 0;
-            top: 151px;
+            top: 166px;
             .tab-title {
                 border-right: 5px #45DAD5 solid;
                 height: 100%;
@@ -872,7 +894,7 @@ export default {
             background: url(../images/guide/guide-icon.png) no-repeat;
             background-size: 100%;
             left: 170px;
-            top: -20px;
+            top: 0;
             .right {
                 width: 375px;
                 right: 0;

@@ -2,7 +2,7 @@
     <el-popover placement="bottom" width="380" trigger="click" ref="myPopver">
         <div class="course-popver">
             <div class="d-f f-j-b">
-                <span class="fs-17 fc-m">{{item.grade_name}}</span>
+                <span class="fs-17 fc-m">{{item.course_name}}</span>
                 <div class="d-f btn" v-if="!pastdue && item.begin_time > new Date().getTime() / 1000">
                     <a class="cursor-pointer" @click="detailEdit(item)">编辑</a>
                     <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
@@ -11,8 +11,7 @@
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
             </div>
-            <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
-            <p class="mt-5"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
+            <p class="mt-10"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
             <p class="mt-20 fc-9">课时：<span class="fc-5">{{item.lesson_num}}课时</span></p>
             <p class="mt-10 fc-9">教室：<span class="fc-5">{{item.room_name}}</span></p>
             <p class="mt-10 d-f fc-9">
@@ -29,17 +28,14 @@
             </p>
         </div>
         <div class="course-item pl-13 pr-10 pt-8 p-r" 
-                :class="{
-                    'gray': item.lesson_end_time,
-                    'green': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length < item.grade_limit_num,
-                    'yellow': !item.lesson_end_time && (item.course_type !== 1 || (item.student_grades.length == item.grade_limit_num)),
-                    'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.grade_limit_num}" 
-                    slot="reference">
+            :class="{'gray': item.lesson_end_time, 
+                    'green': !item.lesson_end_time && item.course_type == 1,
+                    'yellow': !item.lesson_end_time && item.course_type == 2}" slot="reference">
             <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
             </div>
 
-            <p class="t-a-l">{{item.grade_name}}</p>
+            <p class="t-a-l">{{item.course_name}}</p>
             
             <p class="pt-5 d-f f-a-s">
                 <span class="fs-12">
@@ -49,13 +45,15 @@
 
                 <span class="ml-30 fs-12">
                     <i class="iconfont fs-13 icon-renshu"></i>
-                    <span>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
+                    <span class="ml-5">{{item.student_grades.length}}</span>
                 </span>
             </p>
             <p class="pt-5 d-f f-a-c">
                 <i class="iconfont fs-13 icon-shijian"></i>
                 <span class="pl-5 fs-12">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
             </p>
+
+            <!-- <div class="course-type p-a fs-12" v-if="item.course_type == 2" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div> -->
         </div>
     </el-popover>
 </template>
@@ -84,6 +82,15 @@ export default {
                 this.deleteHandle(item.id);
             }).catch(() => {return 0});
         },
+        //结课
+        async endTimeTable(item) {
+            let result = await this.$$request.post('timetable/lessonEnd', {timetable_id: item.id});
+            if(!result) return 0;
+
+            this.$refs.myPopver.showPopper = false;
+            this.$emit('CB-deleteTable');
+            this.$message.success('已结课');
+        },
         async deleteHandle(id) {
             let result = await this.$$request.post('api/timetable/delete', {id: id});
             if(!result || !result.status) return 0;
@@ -91,24 +98,6 @@ export default {
             this.$refs.myPopver.showPopper = false;
             this.$emit('CB-deleteTable');
             this.$message.success('删除成功');
-        },
-        //结课
-        endTimeTable(item) {
-            this.$confirm('确定结课吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.endTimeTableHandle(item.id);
-            }).catch(() => {return 0});
-        },
-        async endTimeTableHandle(id) {
-            let result = await this.$$request.post('api/timetable/lessonEnd', {timetable_id: id});
-            if(!result) return 0;
-
-            this.$refs.myPopver.showPopper = false;
-            this.$emit('CB-deleteTable');
-            this.$message.success('已结课');
         }
     }
 }
