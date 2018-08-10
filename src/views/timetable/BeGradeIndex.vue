@@ -212,7 +212,7 @@
                         <el-scrollbar style="height: 100%;">                          
                             <ul>
                                 <li v-for="(row, index) in dayTableLists" :key="index" class="d-f">
-                                    <div class="left t-a-c">{{hourData[index].name}}</div>
+                                    <div class="left d-f f-j-c f-a-c"><span>{{hourData[index].name}}</span></div>
                                     <div class="right fc-7 flex1">
                                         <div v-if="row.course.length" v-for="(item, num) in row.course" :key="num"
                                             @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
@@ -254,6 +254,12 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- <div class="add-course d-f f-a-c f-j-c" v-if="!row.past_due"
+                                            :class="{'hover': row.operate == true}"  
+                                            @click="addTimetable('single', row.hours_id, row.full_date, row.id)">
+                                            <div v-show="row.operate"><i class="iconfont icon-add"></i></div>
+                                        </div> -->
                                     </div>
                                 </li>
                             </ul>
