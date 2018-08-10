@@ -54,8 +54,8 @@ export default {
                 {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`, 
                     text: "课程管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-kecheng-", 
                     itemList: [
-                        {id: '/course/begrade', text: '班课管理'},
-                        {id: '/course/nograde', text: '无班课管理'}
+                        {id: '/course/begrade', text: '有班课程'},
+                        {id: '/course/nograde', text: '无班课程'}
                     ]
                 },
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},

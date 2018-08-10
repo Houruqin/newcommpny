@@ -830,8 +830,7 @@ export default {
 
             if(!result) return 0;
             this.$message.success('修改老师成功');
-            this.dialogStatus.edit = false;
-            // this.getCourseLists();
+            this.dialogStatus.editTeacher = false;
             this.getBottomTabLists('api/sign/timetable', 'courseTimeTable');
         },
         //评分兑换

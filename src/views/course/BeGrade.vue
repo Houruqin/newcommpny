@@ -1,7 +1,7 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="班课管理">
+            <TableHeader title="有班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
             <div class="course-list-box mt-20" v-for="(course, index) in courseLists" :key="index">

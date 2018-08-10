@@ -15,7 +15,7 @@
                         <el-table-column prop="school_address" label="校区地址" align="center"></el-table-column>
                         <el-table-column label="课程模式" align="center">
                             <template slot-scope="scope">
-                                <span>{{scope.row.class_pattern == 1 ? '有班课程' : (scope.row.class_pattern == 0 ? '有班课程/无班课程' : '无班课程')}}</span>
+                                <span>{{scope.row.class_pattern == 1 ? '有班课程' : scope.row.class_pattern == 0 ? '有班课程/无班课程' : '无班课程'}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" align="center">
@@ -61,7 +61,7 @@
                     </el-form-item>
 
                     <el-form-item label="课程模式：" prop="class_pattern" class="mt-30">
-                        <el-radio-group v-model="form.class_pattern">
+                        <el-radio-group v-model="form.class_pattern" :disabled="maskType == 'modify'">
                             <el-radio :label="0">全部</el-radio>
                             <el-radio :label="1">有班课程</el-radio>
                             <el-radio :label="2">无班课程</el-radio>
@@ -224,6 +224,7 @@ export default {
             if(!result) return 0;
 
             this.getSchoolLists('edit');
+            Bus.$emit('refreshSchoolId');   //新增校区，更新home的schoolId
             this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
             this.maskStatus = false;
         },

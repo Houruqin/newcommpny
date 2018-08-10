@@ -1,7 +1,7 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="课程表">
+            <TableHeader title="有班课表">
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
             </TableHeader>
 
@@ -244,7 +244,8 @@
                                                     </div>
                                                     <div class="ml-50">
                                                         <i class="iconfont fs-13 icon-renshu"></i>
-                                                        <span>{{item.student_grades.length}}</span>
+                                                        <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
+                                                        <span v-else>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
                                                     </div>
                                                 </div>
                                                 <div class="d-f f-a-c ml-30 mr-30 edit-btn" v-if="item.operate && !row.past_due">
