@@ -6,7 +6,7 @@
             </TableHeader>
 
             <div class="content-box">
-                <div class="d-f f-j-b mt-20 fc-7">
+                <div class="d-f f-j-b f-a-c mt-20 fc-7">
                     <div>
                         <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
                             <div class="timetable-filter-tab">

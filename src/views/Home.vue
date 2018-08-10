@@ -670,6 +670,7 @@ export default {
             document.body.removeChild(this.modalObj);
             this.$store.dispatch('guideChange', false);
             document.body.removeAttribute('style');
+            this.modalObj = null;
             this.$router.replace({path: '/refresh'});   //刷新工作台路由
         },
         //翻页
@@ -706,6 +707,7 @@ export default {
         //强行删除遮罩层
         if(this.modalObj) document.body.removeChild(this.modalObj);
         document.body.removeAttribute('style');
+        this.modalObj = null;
         next();
     },
     components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
