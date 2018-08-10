@@ -655,7 +655,7 @@ export default {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
                 console.log(mymenu)
                 document.querySelector('.guide-box').style.left = '0';
-                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight}px`;
+                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 13}px`;
             }else if(this.guideSetup == 5){
                 document.querySelector('.guide-box').style.left = 'auto';
                 document.querySelector('.guide-box').style.top = '50px';
@@ -697,10 +697,8 @@ export default {
     created() {
         this.pageInit();
         Bus.$on('refreshSchoolId', () => {this.pageInit()});
-        // Bus.$on('refreshSchoolLists', () => {this.getSchoolLists()});
     },
     beforeDestroy() {
-        // Bus.$off('refreshSchoolLists');
         Bus.$off('refreshCourseLists');
         Bus.$off('home_refreshTimeTable');
     },

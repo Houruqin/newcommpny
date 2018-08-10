@@ -155,7 +155,7 @@ export default {
                         name: v.school,
                         type: '',
                         contact: v.tel,
-                        class_pattern: form.class_pattern,
+                        class_pattern: v.class_pattern,
                         address: v.address
                     },
                     user: {
@@ -174,7 +174,6 @@ export default {
             this.$$cache.setMemberInfo(memberInfo);
 
             this.formLists.splice(0, this.formLists.length);
-            this.$store.dispatch('getSchoolLists');
             this.$router.replace({path: '/home'});
         }
     },
