@@ -47,9 +47,10 @@
                     <span>{{item.teacher[0].name}}</span>
                 </span>
 
-                <span class="ml-30 fs-12">
+                <span class="ml-20 fs-12">
                     <i class="iconfont fs-13 icon-renshu"></i>
-                    <span>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
+                    <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
+                    <span v-else>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
                 </span>
             </p>
             <p class="pt-5 d-f f-a-c">

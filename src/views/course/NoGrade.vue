@@ -1,7 +1,7 @@
 <template>
      <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="无班课管理">
+            <TableHeader title="无班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
 
@@ -34,8 +34,6 @@
                         <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
                         <el-table-column label="操作" align="center">
                             <template slot-scope="scope">
-                                <!-- <a class="fc-subm cursor-pointer" @click="editTeacher(course, scope.row)">编辑</a>
-                                <a class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</a> -->
                                 <el-dropdown trigger="click" @command="handleCommand" placement="bottom" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
                                     <a class="unfold-icon cursor-pointer el-dropdown-link">
                                         <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
@@ -81,7 +79,7 @@
         </el-dialog>
 
         <!-- 排课弹窗 -->
-        <el-dialog title="快速排课" width="800px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
+        <el-dialog title="快速排课" width="800px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('timetableForm')">
             <div class="form-box">
                 <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm">
                     <el-row>
@@ -154,7 +152,7 @@ export default {
                 edit: false,
                 timetable: false
             },
-            teacherForm: {course_id: '', techer_id: '', student_id: ''},
+            teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
             timetableForm: {
                 course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
             },
@@ -184,8 +182,8 @@ export default {
         }
     },
     methods: {
-        dialogClose() {
-
+        dialogClose(type) {
+            this.$refs[type].resetFields();
         },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
@@ -209,37 +207,6 @@ export default {
             this.courseOperate = 'edit';
             this.editDetail = course;
             this.dialogStatus.course = true;
-        },
-        //班级操作列表点击回调
-        handleCommand(option) {
-            console.log(option)
-            switch(option.type) {
-                case 'plan':
-                    this.planTimeTable(option.course_info, option.grade_info);
-                    break;
-                case 'stop':
-                    this.$confirm('确定办理停课吗?', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(() => {
-                        // this.studentStop(option.grade_info);
-                    }).catch(() => {return 0});
-                    break;
-                case 'edit':
-                    this.editTeacher(option.course_info, option.grade_info);
-                    break;
-            }
-        },
-        //学员停课
-        async studentStop(student_info) {
-            let result = this.$$request.post('api/studentGrade/suspend', {
-                student_id: student_info.id,
-            });
-            if(!result) return 0;
-
-            this.$message.success('操作成功');
-            this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
         },
         //获取课程列表
         async getCourseLists(course_id) {
@@ -276,6 +243,39 @@ export default {
                 dom.style.height = 0;
                 course.collapse = false;
             }
+        },
+        //班级操作列表点击回调
+        handleCommand(option) {
+            console.log(option)
+            switch(option.type) {
+                case 'plan':
+                    this.planTimeTable(option.course_info, option.grade_info);
+                    break;
+                case 'stop':
+                    this.$confirm('确定办理停课吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.studentStop(option);
+                    }).catch(() => {return 0});
+                    break;
+                case 'edit':
+                    this.editTeacher(option.course_info, option.grade_info);
+                    break;
+            }
+        },
+        //学员停课
+        async studentStop(option) {
+            let params = {
+                student_id: option.grade_info.student.id,
+                grade_id: option.course_info.grades[0].id,
+                type: 'stop'
+            };
+            console.log(params)
+            let result = this.$$request.post('api/studentGrade/suspend', params);
+            if(!result) return 0;
+            this.$message.success('操作成功');
         },
         //排课 click
         planTimeTable(course, data) {
@@ -314,6 +314,7 @@ export default {
         },
         //编辑修改老师信息 click
         editTeacher(course, data) {
+            this.teacherForm.old_teacher_id = data.teacher.id;
             this.teacherForm.techer_id = data.teacher.id;
             this.teacherForm.course_id = course.id;
             this.teacherForm.student_id = data.student.id;
@@ -334,7 +335,10 @@ export default {
         },
         //提交修改老师数据
         async submitEditTeacher() {
+            console.log(this.teacherForm)
+
             let result = await this.$$request.post('api/course/changeTeacher', {
+                id: this.teacherForm.old_teacher_id,
                 course_id: this.teacherForm.course_id,
                 teacher_id: this.teacherForm.techer_id,
                 student_id: this.teacherForm.student_id

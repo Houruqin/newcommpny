@@ -319,9 +319,9 @@ export default {
         //下载模板
         downloadExcel() {
             let baseUrl = process.env.NODE_ENV  == 'development' ?  config.devBaseurl.api : config.prodBaseUrl.api;
-            let excel_type = this.activeTab == 'student' ? 'unsign_new' : 'sign_new';
+            let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.$$cache.getMemberInfo().class_pattern == 1 ? 'sign_new' : 'sign';
 
-            window.location.href = `${baseUrl}api/excel/download?excel_type=${excel_type}`;
+            window.location.href = `${baseUrl}api/excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
         },
         //上传错误
         uploadFail(err, file, fileList) {
