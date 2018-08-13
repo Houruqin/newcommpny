@@ -25,7 +25,7 @@
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="学员姓名" align="center">
                             <template slot-scope="scope">
-                                <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+                                <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
                             </template>
                         </el-table-column>
                         <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>

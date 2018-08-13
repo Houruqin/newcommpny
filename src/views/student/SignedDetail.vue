@@ -914,7 +914,8 @@ export default {
                 buy_type: 2,
                 course_id: data.course_id,
                 is_order: data.is_order,
-                class_pattern: data.class_pattern
+                class_pattern: data.class_pattern,
+                teacher_id: data.teacher_ids
             };
             this.buyCourseData = detail;
             this.dialogStatus.course = true;

@@ -357,8 +357,7 @@ export default {
             if(index === -1) {
                 if(this.checkListen.length) return this.$message.warning('最多选择一个');
                 this.checkListen.push(list.id);
-            }
-            else this.checkListen.splice(index, 1);
+            }else this.checkListen.splice(index, 1);
         },
         //试听跟进弹窗关闭，数据重置
         listenCourseInit() {
@@ -473,6 +472,8 @@ export default {
         },
         //获取试听填充列表
         async getListenLists() {
+            this.checkListen.splice(0, this.checkListen.length);
+            
             let select_time = this.auditionData.time / 1000;
             let current_time = new Date().getTime() / 1000;
             let old_time = select_time < current_time ? current_time : select_time;
