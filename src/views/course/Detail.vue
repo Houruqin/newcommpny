@@ -29,7 +29,7 @@
 
         <el-card shadow="hover" class="mt-20">
             <TableHeader title="班级课表">
-                <div class="delete-btn fc-f t-a-c cursor-pointer" @click="deleteTimeTable" :class="{'btn-subm': deleteTimeTableLists.length}">删除</div>
+                <div class="delete-btn fc-f t-a-c cursor-pointer" v-if="timetableCheckbox" @click="deleteTimeTable" :class="{'btn-subm': deleteTimeTableLists.length}">删除</div>
                 <div class="edit-btn fc-m t-a-c ml-10 cursor-pointer" @click="timetableEdit">{{timetableCheckbox ? '取消' : '编辑'}}</div>
             </TableHeader>
 
@@ -102,7 +102,7 @@ export default {
             this.deleteTimeTableLists = val;
         },
         async deleteTimeTable() {
-            if(!this.deleteTimeTableLists.length) return 0;
+            if(!this.deleteTimeTableLists.length) return this.$message.warning('请选择数据!');
             let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
 
             let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
