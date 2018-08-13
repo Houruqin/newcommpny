@@ -686,22 +686,22 @@ export default {
 
             this.$refs.addTimeTable.resetFields();
         },
-        //班级课表radio
-        gradeRadioChange() {
-            this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
-            let num = 0;
-            this.timeTableInfo.grade_info.forEach(v => {
-                if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
-                    this.gradeInfoCheckLists.lists.push(v);
-                    num+= v.num;
-                }
-            });       
-            this.gradeInfoCheckLists.total_num = num;
+        //班级课表radio  班级课表radio   一对一，一对多切换
+        // gradeRadioChange() {
+        //     this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
+        //     let num = 0;
+        //     this.timeTableInfo.grade_info.forEach(v => {
+        //         if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
+        //             this.gradeInfoCheckLists.lists.push(v);
+        //             num+= v.num;
+        //         }
+        //     });       
+        //     this.gradeInfoCheckLists.total_num = num;
 
-            this.timetable_gradeAll = true;
-            this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
-            this.getGradeTableLists();
-        },
+        //     this.timetable_gradeAll = true;
+        //     this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
+        //     this.getGradeTableLists();
+        // },
         //排课班级全选
         gradeCheckAllChange(val) {
             this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];

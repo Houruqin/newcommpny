@@ -133,10 +133,10 @@
                     <el-row class="add-lesson-top">
                         <el-col :span="11">
                             <el-form-item label="课程名称："><span>{{classForm.course_name}}</span></el-form-item>
-                            <el-form-item label="班级名称：" prop="name" class="mt-30">
+                            <el-form-item label="班级名称：" prop="name">
                                 <el-input v-model.trim="classForm.name"></el-input>
                             </el-form-item>
-                            <el-form-item label="任课老师：" prop="teacher_ids" class="mt-30">
+                            <el-form-item label="任课老师：" prop="teacher_ids">
                                 <el-select v-model="classForm.teacher_ids" placeholder="必选">
                                     <el-option
                                         v-for="(item, index) in classSelectInfo.teacher"
@@ -146,10 +146,10 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType === 1">
+                            <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
                                 <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
-                            <el-form-item label="上课教室：" prop="room_id" class="mt-30"  v-if="courseType !== 1">
+                            <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1">
                                 <el-select v-model="classForm.room_id" placeholder="请选择">
                                     <el-option
                                         v-for="item in classSelectInfo.room  "
@@ -159,7 +159,7 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="可否试听：" prop="is_listen" class="mt-30" v-if="courseType === 1">
+                            <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
                                 <el-select v-model="classForm.is_listen" placeholder="请选择">
                                     <el-option label="是" :value="1"></el-option>
                                     <el-option label="否" :value="0"></el-option>
@@ -169,10 +169,10 @@
 
                         <el-col :span="11" :offset="1">
                             <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
-                            <el-form-item label="班级课时：" prop="lesson_num" class="mt-30" v-if="courseType === 1">
+                            <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
                                 <el-input-number v-model="classForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
                             </el-form-item>
-                            <el-form-item label="辅助老师：" class="mt-30" prop="counselor_ids">
+                            <el-form-item label="辅助老师：" prop="counselor_ids">
                                 <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
                                     <el-option
                                         v-for="(item, index) in classSelectInfo.teacher"
@@ -183,15 +183,15 @@
                                 </el-select>
                             </el-form-item>
                             
-                            <el-form-item label="开班日期：" prop="start_time" class="mt-30" v-if="courseType !== 1">
+                            <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
                                 <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                             </el-form-item>
                             
-                            <el-form-item label="人数上限：" prop="limit_num" class="mt-30" v-if="courseType === 1">
+                            <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
                                 <el-input-number v-model="classForm.limit_num" controls-position="right" :min="1" :max="99"></el-input-number>
                             </el-form-item>
 
-                            <el-form-item label="上课教室：" prop="room_id" class="mt-30"  v-if="courseType === 1">
+                            <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1">
                                 <el-select v-model="classForm.room_id" placeholder="请选择">
                                     <el-option
                                         v-for="item in classSelectInfo.room  "
@@ -794,7 +794,8 @@ export default {
         addTimetable(option) {
             console.log(option);
             this.courseType = option.course_info.type;
-            if(option.course_info.type === 1 && option.grade_info.timetable.length == option.grade_info.lesson_num) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
+            
+            if(option.course_info.type === 1 && !option.grade_info.lesson_num_remain) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
 
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
             this.getGradeFill(option.grade_info.course_id, option.grade_info.id, 'timetable');
@@ -1212,9 +1213,6 @@ export default {
 
     .form-box {
         padding: 0 10px;
-        .add-lesson-top {
-            padding-bottom: 20px;
-        }
         .add-lesson-bottom {
             padding-top: 30px;
             border-top: 1px #e3e3e3 solid;

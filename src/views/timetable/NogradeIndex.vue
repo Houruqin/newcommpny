@@ -111,7 +111,8 @@
                                     <div class="cursor-pointer item-box" mytype="week_one">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_one.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
-                                            :item="item" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
+                                            :item="item" :pastdue="scope.row.week_one.past_due">
+                                        </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due"
                                             :class="{'hover': scope.row.week_one.operate == true}"  
                                             @click="addTimetable('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
@@ -125,7 +126,8 @@
                                     <div class="cursor-pointer item-box" mytype="week_two">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_two.lists" :key="n" 
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
-                                            :item="item" :pastdue="scope.row.week_two.past_due"></TimetablePopver>
+                                            :item="item" :pastdue="scope.row.week_two.past_due">
+                                        </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due"
                                             :class="{'hover': scope.row.week_two.operate == true}"  
                                             @click="addTimetable('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
@@ -139,7 +141,8 @@
                                     <div class="cursor-pointer item-box" mytype="week_three">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_three.lists" :key="n" 
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
-                                            :item="item" :pastdue="scope.row.week_three.past_due"></TimetablePopver>
+                                            :item="item" :pastdue="scope.row.week_three.past_due">
+                                        </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due"
                                             :class="{'hover': scope.row.week_three.operate == true}"  
                                             @click="addTimetable('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
@@ -153,7 +156,8 @@
                                     <div class="cursor-pointer item-box" mytype="week_four">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_four.lists" :key="n" 
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
-                                            :item="item" :pastdue="scope.row.week_four.past_due"></TimetablePopver>
+                                            :item="item" :pastdue="scope.row.week_four.past_due">
+                                        </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due"
                                             :class="{'hover': scope.row.week_four.operate == true}"  
                                             @click="addTimetable('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
@@ -162,7 +166,7 @@
                                     </div>
                                 </template>
                             </el-table-column>
-                            <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
+                            <!-- <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_five">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_five.lists" :key="n" 
@@ -203,11 +207,11 @@
                                         </div>
                                     </div>
                                 </template>
-                            </el-table-column>
+                            </el-table-column> -->
                         </el-table>
                     </div>
                     <!-- 日课表 -->
-                    <div class="day-table my-scrollbar fc-5" v-else>
+                    <!-- <div class="day-table my-scrollbar fc-5" v-else>
                         <el-scrollbar style="height: 100%;">                          
                             <ul>
                                 <li v-for="(row, index) in dayTableLists" :key="index" class="d-f">
@@ -250,9 +254,6 @@
                                                 <div class="d-f f-a-c mr-30 ml-30 edit-btn" v-if="item.operate && !row.past_due">
                                                     <a @click="detailEdit(item)">编辑</a>
                                                     <a class="ml-20" @click="detailDelete(item)">删除</a>
-                                                    
-                                                    <!-- <MyButton type="border" fontColor="fc-m" @click.native="detailEdit(item)">编辑</MyButton>
-                                                    <MyButton type="border" fontColor="fc-m" class="ml-10" @click.native="detailDelete(item)">删除</MyButton> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -260,7 +261,7 @@
                                 </li>
                             </ul>
                         </el-scrollbar>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </el-card>
@@ -642,24 +643,24 @@ export default {
 
             this.$refs.addTimeTable.resetFields();
         },
-        //班级课表radio
-        gradeRadioChange() {
-            this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
-            let num = 0;
+        //班级课表radio   一对一，一对多切换
+        // gradeRadioChange() {
+        //     this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
+        //     let num = 0;
 
-            this.timeTableInfo.course_info.forEach(v => {
-                if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
-                    this.gradeInfoCheckLists.lists.push(v);
-                    num+= v.num;
-                }
-            });  
+        //     this.timeTableInfo.course_info.forEach(v => {
+        //         if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
+        //             this.gradeInfoCheckLists.lists.push(v);
+        //             num+= v.num;
+        //         }
+        //     });  
 
-            this.gradeInfoCheckLists.total_num = num;
+        //     this.gradeInfoCheckLists.total_num = num;
 
-            this.timetable_courseAll = true;
-            this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
-            this.getGradeTableLists();
-        },
+        //     this.timetable_courseAll = true;
+        //     this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
+        //     this.getGradeTableLists();
+        // },
         //排课班级全选
         gradeCheckAllChange(val) {
             this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
@@ -758,6 +759,10 @@ export default {
                 this.radioStudentForm = detail.student_grades[0].student_id;
                 this.studentRadio = this.radioStudentForm;
             }
+            
+            this.planCourseLists.forEach(v => {
+                if(v.id == detail.course_id) this.planTeacherLists = v.teachers;
+            });
 
             this.addTimetableMask = true;
         },
@@ -837,6 +842,13 @@ export default {
         },
         //排课 选择老师确定学员列表
         planTeacherChange(val) {
+            this.studentCheckAll = false;
+            this.allStudentLists = [];
+            this.studentRadio = '';
+            this.studentLists = [];
+            this.checkStudentForm = [];
+            this.radioStudentForm = '';
+
             this.planCourseLists.forEach(v => {
                 if(v.id == this.timetableForm.course_id){
                     v.teachers.forEach(k => {
@@ -1080,6 +1092,8 @@ export default {
         async getAddTimeTableFull() {
             let result = await this.$$request.get('api/timetable/notModelFill');
             console.log(result);
+            if(!result) return 0;
+            
             this.planCourseLists = result.course;
         },
         //默认获取全部课表
@@ -1189,7 +1203,6 @@ export default {
                     return newData;
                 });
                 this.weekTableLists = newResult;
-                
                 this.loading = false;
             } else {
                 let newResult = this.hourData.map(v => {
