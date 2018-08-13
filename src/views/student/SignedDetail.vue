@@ -85,7 +85,6 @@
                             <template slot-scope="scope">
                                 <router-link v-if="scope.row.course.class_pattern == 1" 
                                     :to="{path: '/course/detail', query: {grade_id: scope.row.grade.id}}" class="fc-m">{{scope.row.grade.name}}</router-link>
-                                <!-- <span class="fc-m cursor-pointer" v-if="scope.row.course.class_pattern == 1" @click="gradeDetailHandle(scope.row)">{{scope.row.grade.name}}</span> -->
                                 <span v-else>无</span>
                             </template>
                         </el-table-column>
@@ -545,16 +544,19 @@
                             </el-row>
                         </el-col>
                         <el-col :span="11" :offset="1">
-                            <el-form-item label="选择班级：" prop="grade_id">
+                            <el-form-item label="选择班级：" prop="grade_id" v-if="removeTimetableForm.class_pattern == 1">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.grade_id" @change="removeTimeTableChange">
                                     <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="上课老师：" prop="teacher_id">
-                                <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
-                                    <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
+                            <template>
+                                <el-form-item label="上课老师：" prop="teacher_id" v-if="removeTimetableForm.class_pattern == 1">
+                                    <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
+                                        <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="上课老师：" v-else>{{removeTimetableForm.teacher_name}}</el-form-item>
+                            </template>
                             <el-form-item label="扣课时数：" prop="lesson_num">
                                 <el-input-number v-model="removeTimetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
                             </el-form-item>
@@ -839,15 +841,26 @@ export default {
         },
         //手动消课相关
         removeTimeTableClick(data) {
-            this.$store.state.course.forEach(v => {if(v.id == data.course_id) {
-                this.removeTimetableForm.lesson_time = v.lesson_time;
-                this.gradeLists = v.grades;
-            }});
+            console.log(data);
             this.removeTimetableForm.course_id = data.course_id;
             this.removeTimetableForm.course_name = data.course_name;
-            this.removeTimetableDialog = true;
+            this.removeTimetableForm.class_pattern = data.class_pattern;
 
-            console.log(this.gradeLists)
+            if(data.class_pattern == 1) {
+                this.$store.state.course.forEach(v => {if(v.id == data.course_id) {
+                    this.removeTimetableForm.lesson_time = v.lesson_time;
+                    this.gradeLists = v.grades;
+                }});
+            }else {
+                this.removeTimetableForm.teacher_id = data.teacher_ids;
+                this.$store.state.teacherList.forEach(v => {
+                    if(v.id == data.teacher_ids) this.removeTimetableForm.teacher_name = v.name;
+                });
+                this.removeTimetableForm.lesson_time = data.lesson_time;
+            }
+
+            this.removeTimetableDialog = true;
+            
         },
         removeTimeTableChange(val) {
             this.gradeLists.forEach(v =>{
@@ -884,17 +897,18 @@ export default {
 
             console.log(params);
 
-            let result = await this.$$request.post('api/eduCount/manualElimination', params);
-            this.submitLoading.removeTimetable = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('手动消课成功!');
-            this.removeTimetableDialog = false;
-            this.getBottomTabLists('api/studentCourse/normalLists','quitCourseLists');
+            // let result = await this.$$request.post('api/eduCount/manualElimination', params);
+            // this.submitLoading.removeTimetable = false;
+            // console.log(result);
+            // if(!result) return 0;
+            // this.$message.success('手动消课成功!');
+            // this.removeTimetableDialog = false;
+            // this.getBottomTabLists('api/studentCourse/normalLists','quitCourseLists');
         },
         //手动消课弹窗关闭
         timetableDialogClose() {
             this.$refs.removeTimeTable.resetFields();
+            Object.keys(this.removeTimetableForm).forEach(v => {this.removeTimetableForm[v] = ''});
         },
         removeTimeChange(val) {
             if(new Date(val).toDateString() === new Date().toDateString()) {
@@ -1057,11 +1071,6 @@ export default {
                 this.$message.success('操作成功');
                 this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
             })
-        },
-        //班级信息，班级详情
-        gradeDetailHandle(data) {
-            console.log(data);
-            this.gradeDetailMask = true;
         },
         //班级信息，已扣课时点击
         lessonNumHandle(data) {

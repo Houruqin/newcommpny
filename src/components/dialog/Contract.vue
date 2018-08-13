@@ -1,5 +1,6 @@
 <template>
-    <el-dialog title="购课合约" width="850px" center :visible.sync="contractDialogStatus" :close-on-click-modal="false" id="contract" @close="dialogClose('contract')">
+    <el-dialog title="购课合约" width="850px" center :visible.sync="contractDialogStatus" 
+        :close-on-click-modal="false" id="contract" :close-on-press-escape="false" :show-close="false" @close="dialogClose('contract')">
         <div class="contract-box my-scrollbar pl-40" v-if="Object.keys(contractData).length">
             <el-scrollbar style="height: 100%;">
                 <p class="pr-20">
