@@ -14,65 +14,67 @@
                                     <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
                                 </ul>
 
-                                <div class="grade-checkbox mb-30">
-                                    <!-- 班级课表 -->
-                                    <div v-if="timetableFilter == 'grade'" key="default">
-                                        <div class="timetable-gradecheckbox my-scrollbar">
-                                            <div class="check-item">
-                                                <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
-                                                    <span>全选</span>
-                                                    <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
-                                                </el-checkbox>
-                                            </div>
-                                            <el-checkbox-group v-model="timetable_gradeCheck" @change="gradeCheckChange">
-                                                <div v-for="(item, index) in gradeInfoCheckLists.lists" :key="index" class="check-item">
-                                                    <el-checkbox :label="item" class="p-r">
-                                                        <span>{{item.name}}</span>
-                                                        <span class="p-a num">{{item.num}}</span>
+                                <div class="grade-checkbox mb-30 my-scrollbar">
+                                    <el-scrollbar style="height: 100%;">
+                                        <!-- 班级课表 -->
+                                        <div v-if="timetableFilter == 'grade'" key="default">
+                                            <div class="timetable-gradecheckbox my-scrollbar">
+                                                <div class="check-item">
+                                                    <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
+                                                        <span>全选</span>
+                                                        <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                            </el-checkbox-group>
+                                                <el-checkbox-group v-model="timetable_gradeCheck" @change="gradeCheckChange">
+                                                    <div v-for="(item, index) in gradeInfoCheckLists.lists" :key="index" class="check-item">
+                                                        <el-checkbox :label="item" class="p-r">
+                                                            <span>{{item.name}}</span>
+                                                            <span class="p-a num">{{item.num}}</span>
+                                                        </el-checkbox>
+                                                    </div>
+                                                </el-checkbox-group>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <!-- 老师课表 -->
-                                    <div v-else-if="timetableFilter == 'teacher'" key="teacher">
-                                        <div class="timetable-gradecheckbox my-scrollbar">
-                                            <div class="check-item">
-                                                <el-checkbox v-model="timetable_teacherAll" @change="teacherCheckAllChange" class="p-r">
-                                                    <span>全选</span>
-                                                    <span class="p-a num">{{timeTableInfo.total_num}}</span>
-                                                </el-checkbox>
-                                            </div>
-                                            <el-checkbox-group v-model="timetable_teacherCheck" @change="teacherCheckChange">
-                                                <div v-for="(item, index) in timeTableInfo.teacher_info" :key="index" class="check-item">
-                                                    <el-checkbox :label="item" class="p-r">
-                                                        <span>{{item.name}}</span>
-                                                        <span class="p-a num">{{item.num}}</span>
+                                        <!-- 老师课表 -->
+                                        <div v-else-if="timetableFilter == 'teacher'" key="teacher">
+                                            <div class="timetable-gradecheckbox my-scrollbar">
+                                                <div class="check-item">
+                                                    <el-checkbox v-model="timetable_teacherAll" @change="teacherCheckAllChange" class="p-r">
+                                                        <span>全选</span>
+                                                        <span class="p-a num">{{timeTableInfo.total_num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                            </el-checkbox-group>
+                                                <el-checkbox-group v-model="timetable_teacherCheck" @change="teacherCheckChange">
+                                                    <div v-for="(item, index) in timeTableInfo.teacher_info" :key="index" class="check-item">
+                                                        <el-checkbox :label="item" class="p-r">
+                                                            <span>{{item.name}}</span>
+                                                            <span class="p-a num">{{item.num}}</span>
+                                                        </el-checkbox>
+                                                    </div>
+                                                </el-checkbox-group>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div v-else>
-                                        <div class="timetable-gradecheckbox my-scrollbar">
-                                            <div class="check-item">
-                                                <el-checkbox v-model="timetable_roomAll" @change="roomCheckAllChange" class="p-r">
-                                                    <span>全选</span>
-                                                    <span class="p-a num">{{timeTableInfo.total_num}}</span>
-                                                </el-checkbox>
-                                            </div>
-                                            <el-checkbox-group v-model="timetable_roomCheck" @change="roomCheckChange">
-                                                <div v-for="(item, index) in timeTableInfo.room_info" :key="index" class="check-item">
-                                                    <el-checkbox :label="item" class="p-r">
-                                                        <span>{{item.name}}</span>
-                                                        <span class="p-a num">{{item.num}}</span>
+                                        <div v-else>
+                                            <div class="timetable-gradecheckbox my-scrollbar">
+                                                <div class="check-item">
+                                                    <el-checkbox v-model="timetable_roomAll" @change="roomCheckAllChange" class="p-r">
+                                                        <span>全选</span>
+                                                        <span class="p-a num">{{timeTableInfo.total_num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                            </el-checkbox-group>
+                                                <el-checkbox-group v-model="timetable_roomCheck" @change="roomCheckChange">
+                                                    <div v-for="(item, index) in timeTableInfo.room_info" :key="index" class="check-item">
+                                                        <el-checkbox :label="item" class="p-r">
+                                                            <span>{{item.name}}</span>
+                                                            <span class="p-a num">{{item.num}}</span>
+                                                        </el-checkbox>
+                                                    </div>
+                                                </el-checkbox-group>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </el-scrollbar>
                                 </div>
                             </div>
                             <span slot="reference" class="cursor-pointer"><i class="iconfont icon-zhankai3 mr-5"></i>本周全部课表</span>
@@ -666,6 +668,8 @@ export default {
             this.formAddDate.splice(0, this.formAddDate.length);
             // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
             
+            this.$refs.addTimeTable.resetFields();
+
             Object.keys(this.timetableForm).forEach(v => {
                 if(v == 'grade_info') this.timetableForm[v] = [];
                 else if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
@@ -683,8 +687,6 @@ export default {
             this.timetableForm.no_timetable = '';
             this.checkStudentForm = [];
             this.radioStudentForm = '';
-
-            this.$refs.addTimeTable.resetFields();
         },
         //班级课表radio  班级课表radio   一对一，一对多切换
         // gradeRadioChange() {
@@ -872,7 +874,6 @@ export default {
             this.checkStudentForm = [];
             this.radioStudentForm = '';
             this.timetableForm.no_timetable = '';
-            // this.$refs.addTimeTable.resetFields();
             
             this.timetableFull.course.forEach(v => {
                 if(v.id === val[0]) {
@@ -1719,6 +1720,7 @@ export default {
             }
             .grade-checkbox {
                 padding: 0 10px;
+                height: 300px;
                 .timetable-gradecheckbox {
                     width: 100%;
                     .check-item {
