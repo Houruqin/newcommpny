@@ -10,8 +10,8 @@
                     <!-- <span class="conversion-btn t-a-c fc-f ml-20 cursor-pointer" @click="conversionClick">兑换</span> -->
                 </div>
                 <div class="d-f">
-                    <MyButton type="subm" @click.native="gradeDivideClick('add')">分班</MyButton>
-                    <MyButton class="ml-20" @click.native="addListenHandle">试听</MyButton>
+                    <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="gradeDivideClick('add')">分班</MyButton>
+                    <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
                     <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
                 </div>
             </div>
@@ -199,7 +199,6 @@
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
                     <div class="followup-lists-box p-r">
-                        <div class="add-followup p-a"><MyButton type="border" fontColor="fc-m" @click.native="addFollowUp">添加跟进</MyButton></div>
                         <div class="followup-lists">
                             <ul>
                                 <li class="d-f" v-for="(list, index) in followUpLists.data" :key="index">
@@ -455,7 +454,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" v-if="item.id != 3 && item.id != 5" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                     
@@ -1401,6 +1400,7 @@ export default {
     created() {
         this.studentId = this.$route.query.id;
         this.getStudentDetail();
+        console.log(this.$$cache.getMemberInfo())
     },
     watch: {
         $route: function(val,oldval) {

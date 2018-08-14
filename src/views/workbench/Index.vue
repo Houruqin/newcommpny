@@ -450,7 +450,7 @@
       </el-input>
       <span slot="footer" class="dialog-footer">
         <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
-        <el-button type="primary" v-if="!memo_info.readonly" @click.once="add_memo();">提交</el-button>
+        <el-button type="primary" v-if="!memo_info.readonly && memo_info.render" @click.once="add_memo();">提交</el-button>
         <el-button type="primary" v-if="memo_info.readonly" @click="memo_info.show = false;">确定</el-button>
         <el-button v-if="memo_info.readonly" @click="delete_memo(memo_info.id)">删除</el-button>
       </span>
@@ -660,7 +660,8 @@ export default {
         data: [],
         show: false,
         content: '',
-        readonly: false
+        readonly: false,
+        render: true
       },
       page_info: {
         total: 0,
@@ -856,10 +857,15 @@ export default {
     },
     //添加备忘录
     add_memo() {
+      this.memo_info.render = false;
       if(this.memo_info.content.length<1){
+        this.$nextTick(() => {
+          this.memo_info.render = true;
+        })
         this.$message.warning('请输入内容');
         return false;
       }
+      this.memo_info.render = true;
       const params = {
         content: this.memo_info.content
       }

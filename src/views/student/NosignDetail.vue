@@ -2,7 +2,7 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader :title="detail.name" :icon="true" @clicked="editStudent">
-                <MyButton class="ml-20" @click.native="addListenHandle">试听</MyButton>
+                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
                 <MyButton class="ml-20" type="subm" @click.native="buyCourse">购课</MyButton>
             </TableHeader>
             <div class="detail-box fc-9">
@@ -153,7 +153,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" v-if="item.id != 3 && item.id != 5" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
@@ -233,7 +233,7 @@ export default {
 
             followupStatus: '',   //跟进结果
             wayIdArr: StudentStatic.followUp.wayId,
-            resultArr: StudentStatic.followUp.status,
+            resultArr: [],
 
             followUpLists: [],   //跟进列表
             followUpForm: {
@@ -430,7 +430,7 @@ export default {
 
             for(let key in this.followUpForm) {if((key == 'invited_at' || key == 'next_at')) this.followUpForm[key] = this.followUpForm[key] / 1000};
 
-            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
+            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {this.submitLoading = false;return this.$message.warning('邀约试听，试听课程不能为空!');}
 
             let params = {...this.followUpForm, type_id: 5, student_id: this.detail.id};  //type_id默认售前跟进5
 
@@ -503,6 +503,12 @@ export default {
     },
     created() {
         if(this.$route.query.student_id) this.studentId = this.$route.query.student_id;
+
+        if(this.$$cache.getMemberInfo().class_pattern === 2) {
+            this.resultArr.splice(0, this.resultArr.length);
+            StudentStatic.followUp.status.forEach(v => {if(v.id != 4) this.resultArr.push(v)});
+        }else this.resultArr = StudentStatic.followUp.status;
+
         this.getStudentDetail();
         this.getFollowUpLists();
     },

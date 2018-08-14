@@ -12,7 +12,7 @@
           </el-row>
           <el-row>
             <el-col :span="1.5"> 通知正文：　　</el-col>
-            <el-col :span="22" class="ueditor_content">
+            <el-col :span="21" class="ueditor_content">
               <UEditor ref="ueditor"></UEditor>
             </el-col>
           </el-row>
