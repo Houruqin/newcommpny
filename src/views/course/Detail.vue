@@ -12,15 +12,15 @@
                     <p>开课日期：<i>{{$$tools.format(gradeDetail.start_time)}}</i></p>
                     <p>可否试听：<i>{{gradeDetail.is_listen ? '是' : '否'}}</i></p>
                 </div>
-                <div class="ml-100">
+                <div class="ml-100 flex1">
                     <p>人数上限：<i>{{gradeDetail.limit_num}}</i></p>
                     <p>剩余课时：<i>{{gradeDetail.lesson_num_remain}}</i></p>
-                    <p>辅导老师：<i v-for="(teacher, index) in gradeDetail.counselor_lists" :key="index">{{teacher.name}}</i></p>
+                    <p>辅助老师：<i v-for="(teacher, index) in gradeDetail.counselor_lists" :key="index">{{teacher.name}}</i></p>
                     <p>上课教室：<i>{{getRoomName()}}</i></p>
-                    <p>
+                    <p class="d-f">
                         <span>班级学员：</span>
-                        <span>
-                            <i v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10">{{student.name}}</i>
+                        <span class="flex1">
+                            <i v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">{{student.name}}</i>
                         </span>
                     </p>
                 </div>

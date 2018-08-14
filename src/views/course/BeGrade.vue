@@ -95,7 +95,7 @@
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'" 
-                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>                         
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -104,7 +104,7 @@
                                                     <!--正常开课-->
                                                     <template v-else>
                                                         <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
-                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.lesson_num_remain && course.type === 1}">
+                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>    
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -795,7 +795,7 @@ export default {
             console.log(option);
             this.courseType = option.course_info.type;
             
-            if(option.course_info.type === 1 && !option.grade_info.lesson_num_remain) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
+            if(option.course_info.type === 1 && !option.grade_info.unscheduled) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
 
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
             this.getGradeFill(option.grade_info.course_id, option.grade_info.id, 'timetable');
