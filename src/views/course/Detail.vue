@@ -4,7 +4,7 @@
             <TableHeader title="班级详情"></TableHeader>
 
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>
-            <div class="d-f detail-header-box">
+            <div class="d-f detail-header-box" v-if="Object.keys(gradeDetail).length">
                 <div>
                     <p>课　　程：<i>{{gradeDetail.course && gradeDetail.course.name}}</i></p>
                     <p v-if="gradeDetail.course.type !== 2">课　　时：<i>{{gradeDetail.lesson_num}}</i></p>

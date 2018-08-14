@@ -68,12 +68,16 @@
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
+                                <!-- <el-dropdown-item command="usersetting">
+                                    <i class="iconfont icon-fl-renyuan cursor-pointer fc-9"></i>
+                                    <span class="pl-5">个人资料</span>
+                                </el-dropdown-item> -->
                                 <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
-                                    <i @click="search_student" class="iconfont icon-icon1460191753512 cursor-pointer fc-9"></i>
+                                    <i class="iconfont icon-icon1460191753512 cursor-pointer fc-9"></i>
                                     <span class="pl-5">校区设置</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="loginOut">
-                                    <i @click="search_student" class="iconfont icon-tuichu cursor-pointer fc-9"></i>
+                                    <i class="iconfont icon-tuichu cursor-pointer fc-9"></i>
                                     <span class="pl-5">安全退出</span>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -584,7 +588,7 @@ export default {
         },
         //设置下拉
         settingHandleCommand(val) {
-            if(val == 'user') return 0;
+            // if(val == 'usersetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
             if(val == 'schoolsetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
             if(val == 'loginOut') this.loginOut();
         },
