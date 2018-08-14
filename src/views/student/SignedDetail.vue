@@ -55,15 +55,20 @@
                                 <span>{{scope.row.status == 2 ? '已退费' : scope.row.lesson_num_remain}}</span>
                             </template>
                         </el-table-column>
+                        <el-table-column label="课程状态" align="center">
+                            <template slot-scope="scope">
+                                <span v-if="scope.row.expired_at < new Date().getTime() / 1000">课程已经过期</span>
+                                <span v-else-if="scope.row.status == 2">已退费</span>
+                                <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
+                                <span v-else>正常</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.expired_at < new Date().getTime() / 1000">课程已经过期</span>
-                                <span v-else-if="scope.row.status == 2">已退费</span>
-                                <span v-else-if="scope.row.lesson_num_remain <= 0">课时已用完</span>
-                                <span v-else class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="$$cache.getMemberInfo().remove"
+                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
+                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -81,6 +86,7 @@
                 <div key="grade" v-else-if="activeTab == 'grade'">
                     <el-table :data="courseTimeTable.data" stripe>
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
+                        <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="班级名称" align="center">
                             <template slot-scope="scope">
                                 <router-link v-if="scope.row.course.class_pattern == 1" 
@@ -88,7 +94,6 @@
                                 <span v-else>无</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="任课老师/辅助老师" align="center" class-name="table-item">
                             <template slot-scope="scope">
                                 <div v-if="scope.row.course.class_pattern == 1">
@@ -318,7 +323,7 @@
         </BuyCourseDialog>
         
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="800px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
@@ -697,7 +702,7 @@ export default {
             timeTableStatic: timeTableStatic.status,   //上课状态
             
             quitCourseInfo: {},   //退费课程详细数据
-            tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '上课信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+            tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
 
             quitCourseForm: {
                 rel_remain: '',
