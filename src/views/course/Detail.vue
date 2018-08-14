@@ -19,9 +19,9 @@
                     <p>上课教室：<i>{{getRoomName()}}</i></p>
                     <p class="d-f">
                         <span>班级学员：</span>
-                        <span class="flex1">
-                            <i v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">{{student.name}}</i>
-                        </span>
+                        <ul class="flex1 d-f fc-2 student-box f-w-w">
+                            <li v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">{{student.name}}</li>
+                        </ul>
                     </p>
                 </div>
             </div>
@@ -152,7 +152,7 @@ export default {
     .detail-header-box {
         p {
             color: #999;
-            margin-top: 15px;
+            margin-top: 12px;
             i {
                 color: #222;
             }
@@ -172,6 +172,13 @@ export default {
         border: 1px #45DAD5 solid;
         line-height: 35px;
         border-radius: 5px;
+    }
+    .student-box {
+        max-width: 600px;
+        li {
+            width: 70px;
+            text-align: left;
+        }
     }
 </style>
 
