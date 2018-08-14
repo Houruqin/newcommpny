@@ -194,7 +194,7 @@
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
                     <div class="followup-lists-box p-r">
-                        <div class="add-followup p-a"><MyButton type="border" fontColor="fc-m" @click.native="addFollowUp">添加跟进</MyButton></div>
+                        <!-- <div class="add-followup p-a"><MyButton type="border" fontColor="fc-m" @click.native="addFollowUp">添加跟进</MyButton></div> -->
                         <div class="followup-lists">
                             <ul>
                                 <li class="d-f" v-for="(list, index) in followUpLists.data" :key="index">

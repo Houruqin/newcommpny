@@ -430,7 +430,7 @@ export default {
 
             for(let key in this.followUpForm) {if((key == 'invited_at' || key == 'next_at')) this.followUpForm[key] = this.followUpForm[key] / 1000};
 
-            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
+            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {this.submitLoading = false;return this.$message.warning('邀约试听，试听课程不能为空!');}
 
             let params = {...this.followUpForm, type_id: 5, student_id: this.detail.id};  //type_id默认售前跟进5
 
