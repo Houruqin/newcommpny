@@ -66,14 +66,19 @@
                                 <el-input placeholder="课时单价" v-model="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
+                        <el-col :span="8" v-if="$$cache.getMemberInfo().class_pattern !== 2">
                             <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
                                 <el-input-number v-model="courseForm.leave_num" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">次</span>
                             </el-form-item>
                         </el-col>
+                        <el-col :span="8" v-if="$$cache.getMemberInfo().class_pattern === 2">
+                            <el-form-item label="已扣课时：" prop="lesson_num_already">
+                                <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
+                            </el-form-item>
+                        </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="8">
+                        <el-col :span="8" v-if="$$cache.getMemberInfo().class_pattern !== 2">
                             <el-form-item label="已扣课时：" prop="lesson_num_already">
                                 <el-input-number v-model="courseForm.lesson_num_already" controls-position="right" :min="0" :max="200"></el-input-number><span class="pl-10">课时</span>
                             </el-form-item>
@@ -320,6 +325,9 @@ export default {
             b =  money.toFixed(2);
             return isNaN(b) ? '--' : b;
         }
+    },
+    created() {
+        console.log(this.$$cache.getMemberInfo().class_pattern)
     }
 }
 </script>
