@@ -32,7 +32,7 @@
 
         <el-card class="mt-20" shadow="hover">
             <TableHeader title="课程资料"></TableHeader>
-            <el-tabs v-model="activeTab">
+            <el-tabs v-model="activeTab" @tab-click="tabClick">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
             </el-tabs>
             <div class="bottom-content-box">
@@ -89,30 +89,69 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
-                        <el-table-column label="任课老师/辅助老师" align="center">
+                        <el-table-column label="任课老师/辅助老师" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <span>{{scope.row.grade.teachers.length && scope.row.grade.teachers[0].name}}</span>
-                                <span v-if="scope.row.grade.counselors.length">/{{scope.row.grade.counselors[0].name}}</span>
+                                <div v-if="scope.row.course.class_pattern == 1">
+                                    <span>{{scope.row.grade.teachers.length && scope.row.grade.teachers[0].name}}</span>
+                                    <span v-if="scope.row.grade.counselors.length">/{{scope.row.grade.counselors[0].name}}</span>
+                                </div>
+                                <ul v-else class="table-item-list" :class="{'first-merge': scope.row.studentCourses && scope.row.studentCourses.length > 1}">
+                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">
+                                        {{getTeacherName(scope.row.grade, list.teacher_ids)}}
+                                    </li>
+                                </ul>
                             </template>
                         </el-table-column>
-                        <el-table-column label="上课教室" prop="grade.room.name" align="center"></el-table-column>
-                        <el-table-column label="学员未排课时" align="center">
+                        <el-table-column label="上课教室" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <span>{{scope.row.unscheduled}}</span>
+                                <div v-if="scope.row.course.class_pattern == 1">
+                                    <span v-if="scope.row.grade.room">{{scope.row.grade.room.name}}</span>
+                                </div>
+                                <ul v-else class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">无</li>
+                                </ul>
                             </template>
                         </el-table-column>
-                        <el-table-column label="学员剩余课时" align="center">
+                        <el-table-column label="学员未排课时" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <span>{{scope.row.lesson_num_remain}}</span>
+                                <div v-if="scope.row.course.class_pattern == 1">
+                                    <span>{{scope.row.unscheduled}}</span>
+                                </div>
+                                <ul v-else class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">
+                                        {{list.lesson_num_reduce}}
+                                    </li>
+                                </ul>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" align="center">
+                        <el-table-column label="学员剩余课时" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <span class="t_button cursor-pointer fc-m" v-if="scope.row.course.class_pattern == 1" @click="gradeDivideClick('change', scope.row)">转班</span>
-                                <span class="cursor-pointer fc-m" v-else @click="editTeacher(scope.row.course, scope.row.grade, scope.row.student_id)">分配老师</span>
-                                <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
-                                    {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
-                                </span>
+                                <div v-if="scope.row.course.class_pattern == 1">
+                                    <span>{{scope.row.lesson_num_remain}}</span>
+                                </div>
+                                <ul v-else class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">
+                                        {{list.lesson_num_remain}}
+                                    </li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" align="center" class-name="table-item">
+                            <template slot-scope="scope">
+                                <div v-if="scope.row.course.class_pattern == 1">
+                                    <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
+                                    <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                        {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
+                                    </span>
+                                </div>
+                                <ul v-else class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">
+                                        <span class="cursor-pointer fc-m" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
+                                        <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                            {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
+                                        </span>
+                                    </li>
+                                </ul>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -555,7 +594,7 @@
                                         <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="上课老师：" v-else>{{removeTimetableForm.teacher_name}}</el-form-item>
+                                <el-form-item label="上课老师：" prop="teacher_name" v-else>{{removeTimetableForm.teacher_name}}</el-form-item>
                             </template>
                             <el-form-item label="扣课时数：" prop="lesson_num">
                                 <el-input-number v-model="removeTimetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
@@ -604,7 +643,7 @@ export default {
             contractData: {},  //合约详情
 
             editTeacherLists: [],
-            teacherForm: {course_id: '', techer_id: '', student_id: ''},
+            teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
 
 
             quitCourseLists: {},   //退费课程列表
@@ -640,6 +679,7 @@ export default {
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
 
+            oldActiveTab: 'course_info',   //tab之前的值
             activeTab: 'course_info',  //tab列表选中key
 
             dialogStatus: {student: false, course: false, contract: false, editTeacher: false},
@@ -679,7 +719,7 @@ export default {
             },
             studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
             removeTimetableForm: {
-                course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: ''
+                course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
             },
             followUpForm: {
                 way_id: '',   //跟进方式
@@ -707,6 +747,7 @@ export default {
                 day: [
                     {required: true, message: '请选择日期', trigger: 'change'}
                 ],
+                teacher_name: [],
                 time: [
                     {required: true, message: '请选择时间', trigger: 'change'}
                 ]
@@ -800,13 +841,12 @@ export default {
             }
         },
         //编辑修改老师信息 click
-        editTeacher(course, data, student_id) {
-            console.log(course)
-            console.log(data);
-            // this.teacherForm.techer_id = data.teacher.id;   //FIX ME
-            this.teacherForm.course_id = course.id;
+        editTeacherClick(course_id, teacher_id, student_id) {
+            this.teacherForm.old_teacher_id = +teacher_id;
+            this.teacherForm.techer_id = +teacher_id;
+            this.teacherForm.course_id = course_id;
             this.teacherForm.student_id = student_id;
-            this.getEditTeacherLists(course.id);
+            this.getEditTeacherLists(course_id);
         },
         //获取编辑老师列表
         async getEditTeacherLists(id) {
@@ -816,29 +856,42 @@ export default {
             this.editTeacherLists = result.teachers;
             this.dialogStatus.editTeacher = true;
         },
+        getTeacherName(grade, teacher_id) {
+            let teacher_name = '';
+            grade.teachers.forEach(v => {
+                if(v.id == teacher_id) teacher_name = v.name;
+            });
+
+            return teacher_name;
+        },
         //修改老师确定 click
         editTeacherDone() {
             this.$refs.teacherForm.validate(valid => {if(valid) this.submitEditTeacher()});
         },
         //提交修改老师数据
         async submitEditTeacher() {
-            let result = await this.$$request.post('api/course/changeTeacher', {
+            let params = {
+                id: this.teacherForm.old_teacher_id,
                 course_id: this.teacherForm.course_id,
                 teacher_id: this.teacherForm.techer_id,
                 student_id: this.teacherForm.student_id
-            });
+            };
+
+            console.log(params)
+
+            let result = await this.$$request.post('api/course/changeTeacher', params);
 
             console.log(result);
 
             if(!result) return 0;
             this.$message.success('修改老师成功');
             this.dialogStatus.editTeacher = false;
-            this.getBottomTabLists('api/sign/timetable', 'courseTimeTable');
+            this.getBottomTabLists();
         },
         //评分兑换
-        conversionClick() {
+        // conversionClick() {
 
-        },
+        // },
         //手动消课相关
         removeTimeTableClick(data) {
             console.log(data);
@@ -876,10 +929,17 @@ export default {
                 if(valid) this.submitTimetable();
             });
         },
+        //底部列表切换
+        tabClick(item) {
+            if(this.oldActiveTab == this.activeTab) return 0;
+            this.oldActiveTab = item.name;
+            this.getBottomTabLists();
+        },
         //手动消课提交数据
         async submitTimetable() {
             if(this.submitLoading.removeTimetable) return 0;
             this.submitLoading.removeTimetable = true;
+
             let params = {
                 student_id: this.studentId,
                 course_id: this.removeTimetableForm.course_id,
@@ -890,6 +950,7 @@ export default {
                 type: this.removeTimetableForm.type
             };
 
+            if(this.removeTimetableForm.class_pattern == 2) params.grade_id = 0;
             let day = this.removeTimetableForm.day;
             let time = this.removeTimetableForm.time;
             params.begin_time = new Date(`${day} ${time}`).getTime() / 1000;
@@ -897,16 +958,17 @@ export default {
 
             console.log(params);
 
-            // let result = await this.$$request.post('api/eduCount/manualElimination', params);
-            // this.submitLoading.removeTimetable = false;
-            // console.log(result);
-            // if(!result) return 0;
-            // this.$message.success('手动消课成功!');
-            // this.removeTimetableDialog = false;
-            // this.getBottomTabLists('api/studentCourse/normalLists','quitCourseLists');
+            let result = await this.$$request.post('api/eduCount/manualElimination', params);
+            this.submitLoading.removeTimetable = false;
+            console.log(result);
+            if(!result) return 0;
+            this.$message.success('手动消课成功!');
+            this.removeTimetableDialog = false;
+            this.getBottomTabLists();
         },
         //手动消课弹窗关闭
         timetableDialogClose() {
+            this.gradeLists = [];
             this.$refs.removeTimeTable.resetFields();
             Object.keys(this.removeTimetableForm).forEach(v => {this.removeTimetableForm[v] = ''});
         },
@@ -958,7 +1020,7 @@ export default {
         //购课成功，合约回调
         CB_contract(data) {
             this.contractData = data;
-            this.getBottomTabLists('api/studentCourse/normalLists', 'quitCourseLists');
+            if(this.activeTab == 'course_info') this.getBottomTabLists();
             this.dialogStatus.course = false;
             this.dialogStatus.contract = true;
         },
@@ -1157,26 +1219,7 @@ export default {
         },
         //tab列表数据分页
         paginationClick(currentPage) {
-            let url = '', data = '';
-            switch(this.activeTab) {
-                case 'course_info':
-                    url = 'api/studentCourse/normalLists';
-                    data = 'quitCourseLists';
-                    break;
-                case 'grade':
-                    url = 'api/sign/timetable';
-                    data = 'courseTimeTable';
-                    break;
-                case 'comment':
-                    url = 'api/sign/comment';
-                    data = 'courseCommentLists';
-                    break;
-                case 'follow_up':
-                    url = 'api/followUp/lists';
-                    data = 'followUpLists';
-                    break;
-            };
-            this.getBottomTabLists(url, data, currentPage);
+            this.getBottomTabLists(currentPage);
         },
         //提交退费数据
         async submitQuitCourse() {
@@ -1204,7 +1247,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$message.success('退费成功');
-            this.getBottomTabLists('api/studentCourse/normalLists', 'quitCourseLists');
+            this.getBottomTabLists();
             this.quitCourseMaskStatus = false;
         },
         //提交学员信息
@@ -1237,7 +1280,7 @@ export default {
             this.submitLoading.gradeDivide = false;
             if(!result) return 0;
             
-            this.getBottomTabLists('api/studentGrade/lists', 'courseTimeTable');
+            this.getBottomTabLists();
             this.$message.success('分班成功');
             this.classMaskStatus = false;
         },
@@ -1270,7 +1313,7 @@ export default {
 
             this.listenCourseInit();
             for(let key in this.followUpForm) this.followUpForm[key] = '';
-            this.getBottomTabLists('api/followUp/lists', 'followUpLists');
+            this.getBottomTabLists();
         },
         //获取学员详情
         async getStudentDetail() {
@@ -1278,7 +1321,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'studentDetail', result.detail);
-            this.getTabLists();
+            this.getBottomTabLists();
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(url, data) {
@@ -1298,28 +1341,30 @@ export default {
 
             this.classMaskStatus = true;
         },
-        //获取底部tab四个列表的数据
-        getTabLists() {
-            let requestUrl = [
-                {url: 'api/studentCourse/normalLists', data: 'quitCourseLists'},
-                {url: 'api/studentGrade/lists', data: 'courseTimeTable'},
-                {url: 'api/sign/comment', data: 'courseCommentLists'},
-                {url: 'api/followUp/lists', data: 'followUpLists'},
-            ];
-            requestUrl.forEach(d => {this.getBottomTabLists(d.url, d.data)});
-        },
         //获取4个列表方法
-        async getBottomTabLists(url, data, currentPage) {
-            let params = {student_id: this.studentId};
+        async getBottomTabLists(currentPage) {
+            let requestUrl = {
+                course_info: {url: 'api/studentCourse/normalLists', list: 'quitCourseLists'},
+                grade: {url: 'api/studentGrade/lists', list: 'courseTimeTable'},
+                comment: {url: 'api/sign/comment', list: 'courseCommentLists'},
+                follow_up: {url: 'api/followUp/lists', list: 'followUpLists'}
+            };
+
+            let url = requestUrl[this.activeTab].url, params = {student_id: this.studentId}, dataLists = requestUrl[this.activeTab].list;
             if(currentPage) params.page = currentPage;
+
             let result = await this.$$request.post(url, params);
             console.log(result);
             if(!result) return 0;
-            if(data === 'courseCommentLists') result.lists.forEach(v => {
-                v.pic = v.pic ? v.pic.split(',') : [];
-                v.imageMore = false;
-            });
-            this[data] = result.lists;
+
+            if(dataLists === 'courseCommentLists') {
+                result.lists.forEach(v => {
+                    v.pic = v.pic ? v.pic.split(',') : [];
+                    v.imageMore = false;
+                });
+            };
+
+            this[dataLists] = result.lists;
         },
         //获取试听填充列表
         async getListenLists() {

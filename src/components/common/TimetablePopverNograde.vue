@@ -45,8 +45,8 @@
 
                 <span class="ml-20 fs-12">
                     <i class="iconfont fs-13 icon-renshu"></i>
-                    <!-- <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
-                    <span v-else class="ml-5">{{item.student_grades.length}}</span> -->
+                    <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
+                    <span v-else class="ml-5">{{item.student_grades.length}}</span>
                 </span>
             </p>
             <p class="pt-5 d-f f-a-c">
@@ -85,7 +85,7 @@ export default {
         },
         //结课
         async endTimeTable(item) {
-            let result = await this.$$request.post('timetable/lessonEnd', {timetable_id: item.id});
+            let result = await this.$$request.post('api/timetable/lessonEnd', {timetable_id: item.id});
             if(!result) return 0;
 
             this.$refs.myPopver.showPopper = false;
