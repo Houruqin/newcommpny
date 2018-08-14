@@ -1,6 +1,6 @@
 <template>
     <el-dialog title="购课合约" width="850px" center :visible.sync="contractDialogStatus" 
-        :close-on-click-modal="false" id="contract" :close-on-press-escape="false" :show-close="false" @close="dialogClose('contract')">
+        :close-on-click-modal="false" id="contract" @close="dialogClose('contract')">
         <div class="contract-box my-scrollbar pl-40" v-if="Object.keys(contractData).length">
             <el-scrollbar style="height: 100%;">
                 <p class="pr-20">
@@ -80,6 +80,7 @@ export default {
     methods: {
         dialogClose() {
             this.$emit('CB-dialogStatus', 'contract');
+            if(this.routerAble) this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
         },
         //合约确定按钮，跳转签约学员详情
         goSignedLists() {

@@ -42,14 +42,16 @@
                             </el-form-item>
                         </el-col>
 
-                        <!-- 无班选择老师 -->
-                        <el-col :span="8" v-if="buyCourse_type == 2">
-                            <el-form-item label="选择老师：" prop="teacher_id">
-                                <el-select placeholder="请选择" v-model="courseForm.teacher_id">
-                                    <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
+                        <div>
+                            <!-- 无班选择老师 -->
+                            <el-col :span="8" v-if="buyCourse_type == 2">
+                                <el-form-item label="选择老师：" prop="teacher_id">
+                                    <el-select placeholder="请选择" v-model="courseForm.teacher_id">
+                                        <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </div>
                     </el-row>
 
                     <p class="head-info">课程信息</p>
@@ -270,7 +272,7 @@ export default {
                     this.courseForm.is_order = v.is_order;
                     this.gradeLists = v.grades;
                     this.buyCourse_type = v.class_pattern;
-
+                
                     if(change) {
                         if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
                         else this.courseForm.teacher_id = '';
@@ -292,6 +294,8 @@ export default {
             this.submitLoading = true;
             
             let params = {};
+
+            console.log(this.courseForm);
 
             for(let key in this.courseForm) {
                 if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
