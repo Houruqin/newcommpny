@@ -10,12 +10,12 @@
                         <el-form-item label="课节时长：" prop="lesson_time">
                             <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
                         </el-form-item>
-                        <el-form-item label="是否可预约：" prop="is_order">
+                        <!-- <el-form-item label="是否可预约：" prop="is_order">
                             <el-radio-group v-model="courseForm.is_order" disabled>
                                 <el-radio :label="0">不可预约</el-radio>
                                 <el-radio :label="1">可预约</el-radio>
                             </el-radio-group>
-                        </el-form-item>
+                        </el-form-item> -->
                     </el-col>
 
                     <el-col :span="12">
@@ -60,8 +60,6 @@ export default {
     components: {MyButton},
     watch: {
         dialogStatus(newVal, oldVal) {
-            // newVal == true && this.$refs.courseForm && this.$refs.courseForm.resetFields();
-
             this.courseDialogStatus = newVal;
             if(this.courseDialogStatus) {
                 this.courseForm.expire = 12;   //有效期默认12月
@@ -116,10 +114,10 @@ export default {
                 ],
                 order_teacher_ids: [
                     {required: true, message: '请选择上课老师', trigger: 'change'}
-                ],
-                is_order: [
-                    {required: true, message: '请设置是否可预约', trigger: 'change'}
                 ]
+                // is_order: [
+                //     {required: true, message: '请设置是否可预约', trigger: 'change'}
+                // ]
             },
         }
     },
