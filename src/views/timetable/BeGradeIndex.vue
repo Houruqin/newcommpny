@@ -1719,7 +1719,7 @@ export default {
             }
             .grade-checkbox {
                 padding: 0 10px;
-                height: 610px;
+                height: 420px;
                 margin: 10px 0 20px;
                 .timetable-gradecheckbox {
                     width: 100%;

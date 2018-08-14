@@ -38,7 +38,7 @@
             <div class="bottom-content-box">
                 <!-- 订单记录列表 -->
                 <div key="course_info" v-if="activeTab == 'course_info'">
-                    <el-table :data="quitCourseLists.data" stripe>
+                    <el-table :data="quitCourseLists.data" stripe v-loading="loading">
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="购课类型" align="center">
                             <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : '续约'}}</template>
@@ -67,7 +67,7 @@
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
+                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
@@ -84,7 +84,7 @@
 
                 <!-- 上课信息列表 -->
                 <div key="grade" v-else-if="activeTab == 'grade'">
-                    <el-table :data="courseTimeTable.data" stripe>
+                    <el-table :data="courseTimeTable.data" stripe v-loading="loading">
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="班级名称" align="center">
@@ -143,20 +143,19 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <div v-if="scope.row.course.class_pattern == 1">
-                                    <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
-                                    <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
-                                        {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
-                                    </span>
-                                </div>
-                                <ul v-else class="table-item-list">
-                                    <li v-for="(list, index) in scope.row.studentCourses" :key="index">
-                                        <span class="cursor-pointer fc-m" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
+                                <div v-if="scope.row.unscheduled > 0">
+                                    <div v-if="scope.row.course.class_pattern == 1">
+                                        <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
-                                    </li>
-                                </ul>
+                                    </div>
+                                    <ul v-else class="table-item-list">
+                                        <li v-for="(list, index) in scope.row.studentCourses" :key="index">
+                                            <span class="cursor-pointer fc-m" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -172,7 +171,7 @@
 
                 <!-- 课程评价列表 -->
                 <div v-else-if="activeTab == 'comment'" key="comment" class="course-comment">
-                    <div v-if="courseCommentLists.length">
+                    <div v-if="courseCommentLists.length" v-loading="loading">
                         <ul>
                             <li v-for="(list, index) in courseCommentLists" :key="index">
                                 <h3 class="fc-m fs-16">{{list.grade && list.grade.name}}</h3>
@@ -198,7 +197,7 @@
                 </div>
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
-                    <div class="followup-lists-box p-r">
+                    <div class="followup-lists-box p-r" v-loading="loading">
                         <div class="followup-lists">
                             <ul>
                                 <li class="d-f" v-for="(list, index) in followUpLists.data" :key="index">
@@ -256,7 +255,7 @@
         </el-card>
         
         <!-- 学员修改弹窗 -->
-        <el-dialog title="学员修改" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+        <el-dialog title="编辑学员资料" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
             <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" class="form-box" :rules="detailRules">
                 <div class="form-box">
                     <el-row>
@@ -556,7 +555,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="消课类型：" prop="type">
+                            <el-form-item label="消课类型：" prop="type" v-if="removeTimetableForm.class_pattern == 1">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.type">
                                     <el-option label="签到" value="sign"></el-option>
                                     <el-option label="请假" value="leave"></el-option>
@@ -649,6 +648,7 @@ export default {
             editTeacherLists: [],
             teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
 
+            loading: false,
 
             quitCourseLists: {},   //退费课程列表
             courseTimeTable: {},   //课程表
@@ -951,7 +951,7 @@ export default {
                 teacher_id: this.removeTimetableForm.teacher_id,
                 room_id: this.removeTimetableForm.room_id,
                 lesson_num: this.removeTimetableForm.lesson_num,
-                type: this.removeTimetableForm.type
+                type: this.removeTimetableForm.class_pattern == 1 ? this.removeTimetableForm.type : 'sign'
             };
 
             if(this.removeTimetableForm.class_pattern == 2) params.grade_id = 0;
@@ -1347,6 +1347,8 @@ export default {
         },
         //获取4个列表方法
         async getBottomTabLists(currentPage) {
+            this.loading = true;
+
             let requestUrl = {
                 course_info: {url: 'api/studentCourse/normalLists', list: 'quitCourseLists'},
                 grade: {url: 'api/studentGrade/lists', list: 'courseTimeTable'},
@@ -1369,6 +1371,8 @@ export default {
             };
 
             this[dataLists] = result.lists;
+
+            this.loading = false;
         },
         //获取试听填充列表
         async getListenLists() {

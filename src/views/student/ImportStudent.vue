@@ -258,7 +258,7 @@
                 <div class="d-f f-d-c f-a-c">
                     <img src="../../images/common/import-success.png" alt="">
                     <h3 class="fs-20 mt-20">导入成功</h3>
-                    <span class="mt-10 fc-5 fs-15">签约学员数据已经导入成功，合计{{total}}条！</span>
+                    <span class="mt-10 fc-5 fs-15">学员数据已经导入成功，合计{{total}}条！</span>
                 </div>
                 <div class="d-f f-j-c mt-50">
                     <div class="btn border" @click="goWorkBench">回到工作台</div>

@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="type == 'add' ? '登记学员' : '修改学员'" width="800px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+    <el-dialog :title="type == 'add' ? '登记学员' : '编辑学员资料'" width="800px" center :visible.sync="studentDialogStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
         <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
             <div class="form-box">
                 <el-row>

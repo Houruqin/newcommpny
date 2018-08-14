@@ -341,7 +341,7 @@
         </el-card>
 
         <!-- 修改学员信息弹窗 -->
-        <el-dialog title="学员修改" width="800px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+        <el-dialog title="编辑学员资料" width="800px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
             <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
                 <div class="form-box">
                     <el-row>
