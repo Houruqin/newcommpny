@@ -14,7 +14,7 @@
                                     <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
                                 </ul>
 
-                                <div class="grade-checkbox mb-30 my-scrollbar">
+                                <div class="grade-checkbox my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
                                         <!-- 班级课表 -->
                                         <div v-if="timetableFilter == 'grade'" key="default">
@@ -106,7 +106,7 @@
                     <!-- 周课表 -->
                     <div class="fc-5 week-table" v-if="tableType === 'week'" ref="myTimetable">
                         <el-table :data="weekTableLists" border header-row-class-name="time-table-header" @cell-mouse-enter="timeTableHover" @cell-mouse-leave="timeTableleave"
-                            max-height="700" style="width: 100%">
+                            max-height="690" style="width: 100%">
                             <el-table-column align="center" prop="time" width="70" fixed="left" :resizable="false"></el-table-column>
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
@@ -402,23 +402,23 @@
         <el-dialog width="1020px" center :visible.sync="conflictMask" :close-on-click-modal="false">
             <div class="conflict-box">
                 <h3>排课冲突提醒</h3>
-                <p class="mb-20">课程：</p>
+                <p class="mb-20">课程：{{timetableForm.course_name}}</p>
 
                 <el-table class="student-table" border :data="conflictLists" height="400" header-row-class-name="row-header">
                     <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
                     <el-table-column label="上课日期">
                         <template slot-scope="scope">
-                            <el-date-picker type="date" :editable="false" :clearable="false" value-format="timestamp" v-model="scope.row.begin_time"></el-date-picker>
+                            <el-date-picker size="small" type="date" :editable="false" :clearable="false" value-format="timestamp" v-model="scope.row.begin_time"></el-date-picker>
                         </template>
                     </el-table-column>
                     <el-table-column label="开始时间">
                         <template slot-scope="scope">
-                            <el-time-select :picker-options="timePicker" :editable="false" :clearable="false" v-model="scope.row.begin_hours"></el-time-select>
+                            <el-time-select size="small" :picker-options="timePicker" :editable="false" :clearable="false" v-model="scope.row.begin_hours"></el-time-select>
                         </template>
                     </el-table-column>
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" :multiple="addTableType == 'multiple'">
+                            <el-select v-if="scope.row.conflict_data.reason == 2" size="small" v-model="conflict_room" :multiple="addTableType == 'multiple'" >
                                 <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
@@ -463,7 +463,7 @@ export default {
                 reason3: '学员冲突 请修改时间'
             },
             timetableFilterTab: [
-                {id: 'grade', name: '班级'},
+                {id: 'grade', name: '课程'},
                 {id: 'teacher', name: '老师'},
                 {id: 'room', name: '教室'}
             ],
@@ -540,6 +540,7 @@ export default {
                 no_timetable: '',   //未排课时
                 timetable_id: '',
                 course_id: '',
+                course_name: '',
                 start_time: '',
                 lesson_time: '',
                 lesson_num: '',
@@ -751,6 +752,7 @@ export default {
             this.timetableForm.lesson_time = detail.lesson_time;
             this.timetableForm.teacher_ids = detail.teacher.length ? +detail.teacher[0].id : '';  //任课老师
             this.timetableForm.room_id = detail.room_id;
+            this.timetableForm.course_name = detail.course_name;
 
             this.allStudentLists = detail.student_grades.concat(detail.student_audition);
 
@@ -839,6 +841,7 @@ export default {
                 if(v.id == val){
                     this.courseType = v.type;
                     this.timetableForm.lesson_time = v.lesson_time;
+                    this.timetableForm.course_name = v.name;
                     this.planTeacherLists = v.teachers;
                 }
             });
@@ -997,7 +1000,7 @@ export default {
                     params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
                 }});
             } else if(this.addTableType == 'edit') {
-                params.commit_type = 'single';
+                // params.commit_type = 'single';
                 console.log(this.formAddDate)
                 params.begin_time = new Date(`${this.formAddDate[0].week} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
                 params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
@@ -1448,7 +1451,7 @@ export default {
     }
     
     .day-table {
-        height: 660px;
+        height: 690px;
         ul {
             li {
                 // width: 1260px;
@@ -1658,7 +1661,8 @@ export default {
             }
             .grade-checkbox {
                 padding: 0 10px;
-                height: 300px;
+                height: 610px;
+                margin: 10px 0 20px;
                 .timetable-gradecheckbox {
                     width: 100%;
                     .check-item {
