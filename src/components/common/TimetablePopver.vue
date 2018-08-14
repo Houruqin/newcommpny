@@ -16,15 +16,15 @@
             <p class="mt-20 fc-9">课时：<span class="fc-5">{{item.lesson_num}}课时</span></p>
             <p class="mt-10 fc-9">教室：<span class="fc-5">{{item.room_name}}</span></p>
             <p class="mt-10 d-f fc-9">
-                上课学员：
-                <span class="d-f flex1 fc-5 f-w-w">
-                    <i v-for="(student, m) in item.student_grades" :key="m" class="pr-10">{{student.name}}</i>
+                <span>上课学员：</span>
+                <span class="d-f flex1 fc-5 f-w-w student-box">
+                    <i v-for="(student, m) in item.student_grades" :key="m" class="mr-10">{{student.name}}</i>
                 </span>
             </p>
             <p class="mt-10 d-f fc-9" v-if="item.student_audition.length">
-                试听学员：
-                <span class="d-f flex1 fc-5 f-w-w">
-                    <i v-for="(student, m) in item.student_audition" :key="m" class="pr-10">{{student.name}}</i>
+                <span>试听学员：</span>
+                <span class="d-f flex1 fc-5 f-w-w student-box">
+                    <i v-for="(student, m) in item.student_audition" :key="m" class="mr-10">{{student.name}}</i>
                 </span>
             </p>
         </div>
@@ -48,7 +48,7 @@
                 </span>
 
                 <span class="ml-20 fs-12">
-                    <i class="iconfont fs-13 icon-renshu"></i>
+                    <i class="iconfont fs-13" :class="item.course_type === 2 ? 'icon-renyuan' : 'icon-renshu'"></i>
                     <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
                     <span v-else>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
                 </span>
@@ -188,6 +188,12 @@ export default {
             width: 100%;
             left: 0;
             bottom: 0;
+        }
+    }
+    .student-box {
+        i {
+            width: 70px;
+            text-align: left;
         }
     }
 </style>

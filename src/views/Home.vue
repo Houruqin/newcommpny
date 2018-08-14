@@ -53,6 +53,13 @@
                                     <i class="iconfont icon-QQ fc-9"></i>
                                     <span class="pl-10">在线客服</span>
                                 </el-dropdown-item>
+                                <el-dropdown-item class="d-f f-a-c p-r qr-code-box" @mouseover.native="qr_code_show = true" @mouseout.native="qr_code_show = false">
+                                    <i class="iconfont icon-weixingongzhonghao fc-9"></i>
+                                    <span class="pl-10">微信公众号</span>
+                                    <div class="p-a qr-code" v-show="qr_code_show">
+                                        <img src="http://saas.jiaoyf.com/api/wechat/common/qrcode" alt="">
+                                    </div>
+                                </el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
 
@@ -320,6 +327,7 @@ export default {
             schoolTitle: '',   //校区title
             speedyShow: false,
 
+            qr_code_show: false,  //二维码是否显示
             submitLoading: false,
             schoolLists: [],
 
@@ -352,7 +360,7 @@ export default {
                 {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
                 // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
                 {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
-                {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
+                // {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
@@ -682,6 +690,7 @@ export default {
             this.getSchoolLists();
             this.memberInfo = this.$$cache.getMemberInfo();
             this.schoolId = this.$$cache.getMemberInfo().school_id;
+            if(this.$$cache.getMemberInfo().class_pattern != 2) this.speedyLists.push({id: 'addListen', name: '办理试听', icon: 'icon-shiting'});
         }
     },
     mounted() {

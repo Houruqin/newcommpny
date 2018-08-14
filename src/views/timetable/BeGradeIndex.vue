@@ -14,7 +14,7 @@
                                     <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
                                 </ul>
 
-                                <div class="grade-checkbox mb-30 my-scrollbar">
+                                <div class="grade-checkbox my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
                                         <!-- 班级课表 -->
                                         <div v-if="timetableFilter == 'grade'" key="default">
@@ -106,7 +106,7 @@
                     <!-- 周课表 -->
                     <div class="fc-5 week-table" v-if="tableType === 'week'" ref="myTimetable">
                         <el-table :data="weekTableLists" border header-row-class-name="time-table-header" @cell-mouse-enter="timeTableHover" @cell-mouse-leave="timeTableleave"
-                            max-height="700" style="width: 100%">
+                            max-height="690" style="width: 100%">
                             <el-table-column align="center" prop="time" width="70" fixed="left" :resizable="false"></el-table-column>
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
@@ -1520,10 +1520,9 @@ export default {
     }
     
     .day-table {
-        height: 660px;
+        height: 690px;
         ul {
             li {
-                // width: 1260px;
                 .left {
                     width: 80px;
                     border-right: 1px #e3e3e3 solid;
@@ -1720,7 +1719,8 @@ export default {
             }
             .grade-checkbox {
                 padding: 0 10px;
-                height: 300px;
+                height: 610px;
+                margin: 10px 0 20px;
                 .timetable-gradecheckbox {
                     width: 100%;
                     .check-item {
