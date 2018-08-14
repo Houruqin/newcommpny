@@ -268,7 +268,7 @@
             </el-tab-pane>
 
             <!-- 邀约试听 -->
-            <el-tab-pane label="邀约试听" name="audition">
+            <el-tab-pane label="邀约试听" name="audition" v-if="user_info.class_pattern !== 2">
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">

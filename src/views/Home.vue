@@ -521,10 +521,6 @@ export default {
             this.dialogStatus.listen = false;
             this.dialogStatus.listenStudent = false;
 
-            // if(this.$route.path == '/timetable/index' || this.$route.path == '/timetable/teacher' || this.$route.path == '/timetable/class') {
-            //     Bus.$emit('home_refreshTimeTable');  //如果是在排课页面，刷新课表
-            // }
-
             this.$message.success('办理试听成功!');
         },
         //获取试听填充列表

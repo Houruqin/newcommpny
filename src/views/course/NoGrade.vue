@@ -79,7 +79,7 @@
         </el-dialog>
 
         <!-- 排课弹窗 -->
-        <el-dialog title="快速排课" width="800px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('timetableForm')">
+        <el-dialog title="快速排课" width="850px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('timetableForm')">
             <div class="form-box">
                 <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm">
                     <el-row>
@@ -95,7 +95,8 @@
                             <div class="d-f">
                                 <el-form-item label="上课时间：" prop="begin_day" class="begin-day-form">
                                     <el-date-picker v-model="timetableForm.begin_day"
-                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
+                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false"
+                                        @change="beginTimeChange"
                                         placeholder="选择日期" value-format="yyyy/MM/dd">
                                     </el-date-picker>
                                 </el-form-item>
@@ -283,6 +284,12 @@ export default {
                     dom.style.height = `${child.offsetHeight}px`;
                 }
             });
+        },
+        //快速时间选择change
+        beginTimeChange(val) {
+            if(new Date(val).toDateString() === new Date().toDateString()) {
+                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+            }else this.timePicker.minTime = 0;
         },
         listHeaderClick(course, index) {
             let dom = this.$refs['grade-table-content_' + index][0];
@@ -540,7 +547,7 @@ export default {
             width: 100%;
         }
         /deep/ .begin-day-form .el-date-editor{
-            width: 130px !important;
+            // width: 130px !important;
         }
         /deep/ .begin-day-time .el-date-editor{
             width: 100px !important;
