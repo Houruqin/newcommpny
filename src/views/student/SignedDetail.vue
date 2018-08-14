@@ -52,7 +52,7 @@
                         </el-table-column>
                         <el-table-column label="剩余课时" align="center">
                             <template slot-scope="scope">
-                                <span>{{scope.row.status == 2 ? '已退费' : scope.row.lesson_num_remain}}</span>
+                                <span>{{scope.row.status == 2 ? 0 : scope.row.lesson_num_remain}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="课程状态" align="center">
@@ -68,7 +68,7 @@
                                 <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
                                 <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain"
+                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain && scope.row.status != 2"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
