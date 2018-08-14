@@ -754,7 +754,14 @@ export default {
             this.timetableForm.room_id = detail.room_id;
             this.timetableForm.course_name = detail.course_name;
 
-            this.allStudentLists = detail.student_grades.concat(detail.student_audition);
+            this.planCourseLists.forEach(v => {
+                if(v.id == detail.course_id) {
+                    this.planTeacherLists = v.teachers;
+                    v.teachers.forEach(k => {
+                        if(k.id == this.timetableForm.teacher_ids) this.allStudentLists = k.students;
+                    });
+                }
+            });
 
             if(this.courseType === 1) {
                 this.checkStudentForm = detail.student_grades.map(v => {return v.student_id});
@@ -765,9 +772,9 @@ export default {
                 this.studentRadio = this.radioStudentForm;
             }
             
-            this.planCourseLists.forEach(v => {
-                if(v.id == detail.course_id) this.planTeacherLists = v.teachers;
-            });
+            // this.planCourseLists.forEach(v => {
+            //     if(v.id == detail.course_id) this.planTeacherLists = v.teachers;
+            // });
 
             this.addTimetableMask = true;
         },

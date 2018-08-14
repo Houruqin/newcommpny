@@ -16,6 +16,11 @@
                                 <el-radio :label="1">可预约</el-radio>
                             </el-radio-group>
                         </el-form-item> -->
+                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 2">
+                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
+                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
                     </el-col>
 
                     <el-col :span="12">
@@ -26,11 +31,6 @@
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
                                 <el-option label="普通课程" :value="1"></el-option>
                                 <el-option label="一对一课程" :value="2"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="任课老师：" prop="order_teacher_ids" v-if="courseMode == 2">
-                            <el-select v-model="courseForm.order_teacher_ids" placeholder="请选择" multiple>
-                                <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>

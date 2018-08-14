@@ -50,7 +50,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="试听日期" align="center">
+        <el-table-column label="试听日期" align="center" width="200">
           <template slot-scope="scope">
             <div>
               <div>{{scope.row.begin_time | date('yyyy-MM-dd hh:mm')}}-{{scope.row.end_time | date('hh:mm')}}</div>
