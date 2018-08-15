@@ -60,7 +60,14 @@ export default {
                 },
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
                 {id: "/home/inventory", text: "库存管理", item: false, icon: "icon-kucunguanli"},
-                {id: "/home/finance", text: "财务管理", item: false, icon: "icon-finance"},
+                {id: "/home/finance", text: "财务管理", item: true, icon: "icon-finance",
+                    itemList: [
+                        {id: '/finance/income', text: '收款管理'},
+                        {id: '/finance/outlay', text: '支出管理'},
+                        {id: '/finance/refund', text: '退费管理'},
+                        {id: '/finance/assign', text: '业绩分配'}
+                    ]
+                },
                 {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
                 // {
                 //   id: '/home/statistics',
