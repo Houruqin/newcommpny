@@ -26,7 +26,10 @@ import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'
 import Buy from '@/views/academic/Buy'
 
-import Inventory from '@/views/inventory/Index'
+import Commodity from '@/views/inventory/Commodity'
+import StorageView from '@/views/inventory/Storage'
+import Borrow from '@/views/inventory/Borrow'
+
 import Finance from '@/views/finance/Index'
 
 const homeRouter = [
@@ -57,7 +60,11 @@ const homeRouter = [
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
 
-    {path: 'inventory', component: Inventory, meta: {needlogin: true}},
+    {path: 'inventory', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/commodity', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/storage', component: StorageView, meta: {needlogin: true}},
+    {path: 'inventory/borrow', component: Borrow, meta: {needlogin: true}},
+
     {path: 'finance', component: Finance, meta: {needlogin: true}},
 
 
