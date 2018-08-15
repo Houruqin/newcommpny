@@ -26,6 +26,9 @@ import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'
 import Buy from '@/views/academic/Buy'
 
+import Inventory from '@/views/inventory/Index'
+import Finance from '@/views/finance/Index'
+
 const homeRouter = [
     {path: '', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
@@ -53,6 +56,10 @@ const homeRouter = [
     {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
+
+    {path: 'inventory', component: Inventory, meta: {needlogin: true}},
+    {path: 'finance', component: Finance, meta: {needlogin: true}},
+
 
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];
