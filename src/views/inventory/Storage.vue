@@ -34,6 +34,18 @@
                     <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
             </div>
+
+            <el-table class="mt-20 bor-t" v-loading="loading" stripe>
+                <el-table-column label="序号" type="index" align="center"></el-table-column>
+                <el-table-column label="物品名称" align="center"></el-table-column>
+                <el-table-column label="类别" align="center"></el-table-column>
+                <el-table-column label="物品类型" align="center"></el-table-column>
+                <el-table-column label="使用类型" align="center"></el-table-column>
+                <el-table-column label="操作人" align="center"></el-table-column>
+                <el-table-column label="操作时间" align="center"></el-table-column>
+                <el-table-column label="操作数量" align="center"></el-table-column>
+                <el-table-column label="领用人" align="center"></el-table-column>
+            </el-table>
         </el-card>
     </div>
 </template>
@@ -45,10 +57,16 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            loading: false,
+            storageLists: [],   
+            dialogStatus: {addStorage: false},
             searchFilter: {begin_time: '', end_time: '', commodity_type: '', use_type: '', keyword: ''},
         }
     },
     methods: {
+        dialogClose() {
+
+        },
         searchHandle() {
 
         }

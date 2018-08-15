@@ -661,7 +661,6 @@ export default {
         mymenuPosition() {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
-                console.log(mymenu)
                 document.querySelector('.guide-box').style.left = '0';
                 document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 13}px`;
             }else if(this.guideSetup == 5){
