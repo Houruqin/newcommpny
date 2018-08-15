@@ -1,7 +1,9 @@
 <template>
-    <div class="flex1">
+    <div class="flex1 outlay_form">
         <el-card shadow="hover">
             <TableHeader title="支出管理">
+                <MyButton @click.native="typeSetting" type="border" fontColor="fc-m">类型设置</MyButton>
+                <MyButton @click.native="addOutlay" class="ml-20">添加支出</MyButton>
             </TableHeader>
 
             <div class="toolbar mt-20">
@@ -39,7 +41,7 @@
                 </ul>
             </div>
 
-            <el-table stripe class="student-table mt-30" :data="buy_info.data" v-loading="loading" :show-header="true">
+            <el-table stripe class="student-table mt-30" :data="outlay_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="支出类型" prop="stu_name" align="center"></el-table-column>
                 <el-table-column label="支出人员" prop="stu_name" align="center">
@@ -72,8 +74,74 @@
             <!-- 分页 -->
             <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
             </el-pagination>
+
+            <!-- 添加支出弹窗 -->
+            <el-dialog title="添加支出" width="720px" center :visible.sync="dialog.add.show" :close-on-click-modal="false" @close="dialogClose('addCommodity')">
+                <el-form :model="dialog.add.data" label-width="125px" size="small" :rules="addRules" class="form-box">
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="支出人员：" prop="name">
+                                <el-input v-model.trim="dialog.add.data.name" placeholder="请输入支出人员"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="支出金额：" prop="price" class="units-input">
+                                <el-input placeholder="请输入支出金额" v-model="dialog.add.data.price"></el-input>
+                                <span class="pl-10">元</span>
+                            </el-form-item>
+
+                        </el-col>
+
+                        <el-col :span="11">
+                            <el-form-item label="支出类型：" prop="type" class="p-r">
+                                <el-select v-model="dialog.add.data.type" placeholder="请选择">
+                                    <el-option label="内部使用"></el-option>
+                                </el-select>
+                                <div class="p-a add-commodity-type ver-c cursor-pointer" @click="dialog.addType.show = true"><img src="../../images/common/add.png" alt=""></div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="22">
+                            <el-form-item label="备注：" prop="remark" class="units-input">
+                                <el-input type="textarea" :autosize="{minRows: 2, maxRows: 6}" resize="none" v-model="dialog.add.data.remark"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <div class="d-f f-j-c mt-20">
+                        <MyButton @click.native="doneHandle('addCommodity')">确定</MyButton>
+                    </div>
+                </el-form>
+
+                <el-dialog title="添加支出类型" width="500px" center :visible.sync="dialog.addType.show" :close-on-click-modal="false" append-to-body>
+                    <el-form :model="dialog.addType.data" label-width="100px" size="small" :rules="addTypeRules" class="commodity-type-formbox">
+                        <el-form-item label="物品类型：" prop="type" class="pl-50">
+                            <el-input v-model.trim="dialog.addType.data.type" placeholder="请输入物品类型"></el-input>
+                        </el-form-item>
+                        <div class="d-f f-j-c mt-40 mb-10">
+                            <MyButton @click.native="doneHandle('commodityType')">确定</MyButton>
+                        </div>
+                    </el-form>
+                </el-dialog>
+            </el-dialog>
+
+            <!-- 类型设置弹窗 -->
+            <!-- <el-dialog title="类型设置" width="700px" center :visible.sync="dialog.setting.show" :close-on-click-modal="false" @close="dialogClose">
+                <div class="d-f f-j-e">
+                    <MyButton @click.native="addOutlayType">添加物品类型</MyButton>
+                </div>
+
+                <el-dialog title="添加物品类型" width="500px" center :visible.sync="dialogStatus.commodityType" :close-on-click-modal="false" @close="dialogClose('commodityType')" append-to-body>
+                    <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType" class="commodity-type-formbox">
+                        <el-form-item label="物品类型：" prop="name" class="pl-50">
+                            <el-input v-model.trim="commodityTypeForm.name" placeholder="请输入物品类型"></el-input>
+                        </el-form-item>
+                        <div class="d-f f-j-c mt-40 mb-10">
+                            <MyButton @click.native="doneHandle('commodityType')" :loading="submitLoading.source">确定</MyButton>
+                        </div>
+                    </el-form>
+                </el-dialog>
+            </el-dialog> -->
         </el-card>
-        <ContractDialog :routerAble="false" :dialogStatus="dialog.contract.show" :contractData="dialog.contract.data" @CB-dialogStatus="close"></ContractDialog>
     </div>
 </template>
 
@@ -101,8 +169,8 @@ export default {
         advisor_id: "",
         pay_method: ""
       },
-      //购课信息
-      buy_info: {
+      //支出信息
+      outlay_info: {
         data: []
       },
       //分页信息
@@ -113,13 +181,40 @@ export default {
       },
       //弹窗
       dialog: {
-        contract: {
-          data: new Object(),
+        add: {
+          data: {
+            name: "",
+            price: "",
+            remark: "",
+            type: ""
+          },
+          show: false
+        },
+        addType: {
+          show: false,
+          data: {
+            type: ""
+          }
+        },
+        setting: {
           show: false
         }
       },
-      contract_data: {},
-      loading: false
+      loading: false,
+      addRules: {
+        name: [{ required: true, message: "请输入物品名称" }],
+        type: [
+          { required: true, message: "请选择支出类型", trigger: "change" }
+        ],
+        price: [
+          { required: true, message: "请输入支出金额" },
+          { validator: this.$$tools.formOtherValidate("price") }
+        ],
+        remark: [{ required: true, message: "请输入备注" }]
+      },
+      addTypeRules: {
+        type: [{ required: true, message: "请输入支出类型" }]
+      }
     };
   },
   methods: {
@@ -193,7 +288,7 @@ export default {
       this.get_data();
     },
     get_data() {
-    //   this.loading = true;
+      //   this.loading = true;
       const params = {
         start_date: this.get_seconde(this.search_info.begin),
         end_date: this.get_seconde(this.search_info.end),
@@ -228,6 +323,10 @@ export default {
       this.dialog.contract.data = {};
       // this.contract_data = {};
       this.dialog.contract.show = false;
+    },
+    //添加支出
+    addOutlay() {
+      this.dialog.add.show = true;
     }
   },
   created() {
@@ -240,6 +339,20 @@ export default {
 <style lang="less" scoped>
 .student-table {
   border-top: 1px #e3e3e3 solid;
+}
+.form-box {
+  .el-select,
+  .el-date-editor {
+    width: 100%;
+  }
+  /deep/ .el-input {
+    width: 150px;
+  }
+}
+.commodity-type-formbox {
+  /deep/ .el-input {
+    width: 200px;
+  }
 }
 .toolbar /deep/ .el-input {
   width: 160px;
@@ -265,6 +378,12 @@ export default {
 .selected {
   background-color: #45dad5 !important;
   color: #fff !important;
+}
+.add-commodity-type {
+  right: -10px;
+  img {
+    display: block;
+  }
 }
 </style>
 
