@@ -7,7 +7,7 @@
             <div class="header-tab-box d-f f-j-b">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
-            <div class="fifter-toolbar">
+            <div class="fifter-toolbar mt-30">
                 <ul class="d-f">                   
                     <li v-if="activeTab !== 'birthday'">    
                         <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
@@ -55,7 +55,7 @@
                 </ul>
             </div>
 
-            <div class="student-lists-box">
+            <div class="student-lists-box mt-20">
                 <!-- 上课学员列表 -->
                 <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
@@ -829,7 +829,6 @@ export default {
         padding: 0 20px;
     }
     .fifter-toolbar {
-        margin-top: 50px;
         ul li {
             margin-right: 20px;
             &:not(:last-child) {
@@ -865,7 +864,6 @@ export default {
         }
     }
     .student-table {
-        margin-top: 30px;
         border-top: 1px #e3e3e3 solid;
         .allocation-advisor-btn {
             width: 50px;

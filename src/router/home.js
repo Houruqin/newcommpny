@@ -26,11 +26,15 @@ import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'
 import Buy from '@/views/academic/Buy'
 
-import Inventory from '@/views/inventory/Index'
 import IncomeStatistics from '@/views/finance/IncomeStatistics'
 import OutlayStatistics from '@/views/finance/OutlayStatistics'
 import RefundStatistics from '@/views/finance/RefundStatistics'
 import AssignPerformance from '@/views/finance/AssignPerformance'
+
+import Commodity from '@/views/inventory/Commodity'
+import StorageView from '@/views/inventory/Storage'
+import Borrow from '@/views/inventory/Borrow'
+
 
 const homeRouter = [
     {path: '', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
@@ -60,13 +64,15 @@ const homeRouter = [
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
 
-    {path: 'inventory', component: Inventory, meta: {needlogin: true}},
-
     {path: 'finance/income', component: IncomeStatistics, meta: {needlogin: true}},
     {path: 'finance/outlay', component: OutlayStatistics, meta: {needlogin: true}},
     {path: 'finance/refund', component: RefundStatistics, meta: {needlogin: true}},
     {path: 'finance/assign', component: AssignPerformance, meta: {needlogin: true}},
 
+    {path: 'inventory', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/commodity', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/storage', component: StorageView, meta: {needlogin: true}},
+    {path: 'inventory/borrow', component: Borrow, meta: {needlogin: true}},
 
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];

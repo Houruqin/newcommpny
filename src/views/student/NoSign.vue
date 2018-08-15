@@ -9,7 +9,7 @@
             <div class="header-tab-box d-f f-j-b mt-50">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
-            <div class="fifter-toolbar mt-50">
+            <div class="fifter-toolbar mt-30">
                 <ul class="d-f">
                     <li v-if="activeTab != 'no_advisor'">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
@@ -34,7 +34,7 @@
                 </ul>
             </div>
 
-            <el-table class="student-table mt-30" :data="studentTable.data" v-loading="loading" stripe>
+            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="姓名" align="center">
                     <template slot-scope="scope">
