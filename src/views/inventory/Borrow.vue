@@ -22,6 +22,24 @@
                     <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
             </div>
+
+            <el-table class="mt-20 bor-t" v-loading="loading" stripe>
+                <el-table-column label="序号" type="index" align="center"></el-table-column>
+                <el-table-column label="物品名称" align="center"></el-table-column>
+                <el-table-column label="借用人" align="center"></el-table-column>
+                <el-table-column label="借用数量" align="center"></el-table-column>
+                <el-table-column label="借用时间" align="center"></el-table-column>
+                <el-table-column label="归还状态" align="center"></el-table-column>
+                <el-table-column label="已归还数量" align="center"></el-table-column>
+                <el-table-column label="归还时间" align="center"></el-table-column>
+                <el-table-column label="操作人" align="center"></el-table-column>
+                <el-table-column label="备注" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <span class="fc-m cursor-pointer" @click="giveBackClick">归还</span>
+                    </template>
+                </el-table-column>
+            </el-table>
         </el-card>
 
         <!-- 归还弹窗 -->
@@ -51,7 +69,8 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
-            dialogStatus: {giveBack: true},
+            loading: false,
+            dialogStatus: {giveBack: false},
             submitLoading: {back: false},
             searchFilter: {begin_time: '', end_time: '', commodity_type: '', use_type: '', keyword: ''},
             backForm: {back_num: '', explan: ''},
@@ -67,6 +86,9 @@ export default {
 
         },
         searchHandle() {
+
+        },
+        giveBackClick() {
 
         },
         doneHandle() {
