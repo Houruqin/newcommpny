@@ -43,9 +43,12 @@ const Tools = {
             };
             
             if(type == 'int') {
-                if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
+                if(isNaN(value)) return callback(new Error('请输入数字'));
+                else if(value < 0) return callback(new Error('请输入正数!'))
+                else if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
                 else return callback();
             };
+            
 		}
 	},
 

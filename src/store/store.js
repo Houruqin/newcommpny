@@ -16,13 +16,21 @@ const state = {
     grade: [],    //班级列表
     listen_grade: [],    //试听班级列表
     listen_status: [],    //试听状态
-    familyRelations: []   //家长关系
+    familyRelations: [],   //家长关系
+    allUser: []
 };
 
 const mutations = {
     //引导页改变
     guideChange(state, type) {
         state.guide = type;
+    },
+    async getAllUser(state) {
+        let result = await Request.get('api/financeManage/searchUser', {user_name: ''});
+        console.log(result);
+        if(!result) return 0;
+
+        state.allUser = result.users;
     },
     async getAdvisor(state) {
         let result = await Request.get('api/user/normalLists', {type: 'seller'});
@@ -83,6 +91,11 @@ const actions = {
     guideChange(context, type) {
         context.commit('guideChange', type);
     },
+
+    getAllUser(context) {
+        context.commit('getAllUser');
+    },
+    
     getAdvisor(context) {
         context.commit('getAdvisor');
     },

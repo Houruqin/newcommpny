@@ -374,9 +374,17 @@ export default {
         },
         //购课
         buyCourse() {
-            this.dialogStatus.course = true;
-            this.buyCourseData = this.detail;
-        },
+            // this.dialogStatus.course = true;
+            // this.buyCourseData = this.detail;
+            let params = {
+                student_id: this.detail.id,
+                advisor_id: this.detail.advisor_id,
+                advisor: this.detail.advisor,
+                parent_id: this.detail.parent_id
+            };
+
+            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
+        },  
         //试听确定
         listenDoneHandle() {
             if(!this.checkListen.length) return this.$message.warning('试听课程不能为空!');
