@@ -26,14 +26,15 @@
                 <ul class="d-f">
                     <li class="ml-20">
                         <el-select size="small" placeholder="选择课程" v-model="search_info.course_id" @change="search">
-                            <el-option label="全部课程" value=""></el-option>
+                            <el-option label="全部课程" :value="0"></el-option>
                             <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li class="ml-20">
-                        <el-select size="small" placeholder="选择顾问" v-model="search_info.advisor_id" @change="search">
-                            <el-option label="全部课程类型" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.advisor" :key="index" :value="item.id" :label="item.name"></el-option>
+                        <el-select size="small" placeholder="选择课程类型" v-model="search_info.course_type_id" @change="search">
+                            <el-option label="全部课程类型" :value="0"></el-option>
+                            <el-option label="普通课程" :value="1"></el-option>
+                            <el-option label="一对一课程" :value="2"></el-option>
                         </el-select>
                     </li>
                     <li class="name ml-20">
@@ -45,16 +46,16 @@
                 </ul>
             </div>
 
-            <el-table stripe class="student-table mt-30" :data="buy_info.data" v-loading="loading" :show-header="true">
+            <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="退费学员" prop="stu_name" align="center">
+                <el-table-column label="退费学员" prop="student.name" align="center">
                     <template slot-scope="scope">
                         <div>
                             <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="退费课程" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="退费课程" prop="course.name" align="center"></el-table-column>
                 <el-table-column label="退费时间" align="center">
                     <template slot-scope="scope">
                         <div>
@@ -62,9 +63,9 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="剩余课时" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="剩余课时" prop="remain_num" align="center"></el-table-column>
                 <el-table-column label="课时退费" prop="cour_name" align="center"></el-table-column>
-                <el-table-column label="教材退费" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="教材退费" prop="real_price" align="center"></el-table-column>
                 <el-table-column label="实退金额" prop="cour_name" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
@@ -105,12 +106,11 @@ export default {
         ),
         name: "",
         date_type: "",
-        course_id: "",
-        advisor_id: "",
-        pay_method: ""
+        course_id: 0,
+        course_type_id: 0
       },
-      //购课信息
-      buy_info: {
+      //退费信息
+      refund_info: {
         data: []
       },
       //分页信息
@@ -201,22 +201,25 @@ export default {
       this.get_data();
     },
     get_data() {
-    //   this.loading = true;
+      this.loading = true;
       const params = {
-        start_date: this.get_seconde(this.search_info.begin),
-        end_date: this.get_seconde(this.search_info.end),
-        stu_name: this.search_info.name,
+        time_type: "custom",
+        begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
+        end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
+        course_id: this.search_info.course_id,
+        course_type_id: this.search_info.advisor_id,
+        user_name: this.search_info.name,
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
       console.log(params);
-      //   this.$$request
-      //     .post("api/eduCount/studentCourseLists", params)
-      //     .then(res => {
-      //       this.buy_info.data = res.studentCourseLists.data;
-      //       this.page_info.total = res.studentCourseLists.total;
-      //       this.loading = false;
-      //     });
+        this.$$request
+          .get("api/financeManage/studentCourse/lists", params)
+          .then(res => {
+            this.refund_info.data = res.lists.data;
+            this.page_info.total = res.lists.total;
+            this.loading = false;
+          });
     },
     //将时间转换为秒数
     get_seconde(date) {
