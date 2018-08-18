@@ -7,6 +7,7 @@ import HomeRouter from './home'
 import SchoolArea from '@/views/SchoolArea'
 import Refresh from '@/views/Refresh' 
 import Contract from '@/views/Contract'
+import RefundPrint from '@/views/RefundPrint'
 import NotFoundComponent from '@/views/NotFound'
 
 Vue.use(Router)
@@ -17,6 +18,7 @@ const routers = [
     {path: '/addschool', component: SchoolArea, meta: {needlogin: true}},
     {path: '/home', component: Home, children: HomeRouter},
     {path: '/contract', component: Contract, name: 'contractView'},
+    {path: '/refundPrint', component: RefundPrint, name: 'RefundPrint'},
     {path: '/refresh', component: Refresh},
     {path: '*', component: NotFoundComponent}
 ];

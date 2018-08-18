@@ -1,89 +1,89 @@
 <template>
-    <div class="flex1">
-        <el-card shadow="hover">
-            <TableHeader title="退费管理">
-            </TableHeader>
+  <div class="flex1">
+    <el-card shadow="hover">
+      <TableHeader title="退费管理">
+      </TableHeader>
 
-            <div class="toolbar mt-20">
-                <ul class="d-f">
-                    <li @click="choose_date('current_month')">
-                        <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
-                    </li>
-                    <li @click="choose_date('last_month')">
-                        <div :class="[{'selected' : search_info.date_type === 'last_month'},'select_button']">上月</div>
-                    </li>
-                    <li @click="choose_date('current_year')">
-                        <div :class="[{'selected' : search_info.date_type === 'current_year'},'select_button']">本年</div>
-                    </li>
-                    <li class="ml-20">
-                        <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                        <span>至</span>
-                        <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.end" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </li>
-                </ul>
+      <div class="toolbar mt-20">
+        <ul class="d-f">
+          <li @click="choose_date('current_month')">
+            <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
+          </li>
+          <li @click="choose_date('last_month')">
+            <div :class="[{'selected' : search_info.date_type === 'last_month'},'select_button']">上月</div>
+          </li>
+          <li @click="choose_date('current_year')">
+            <div :class="[{'selected' : search_info.date_type === 'current_year'},'select_button']">本年</div>
+          </li>
+          <li class="ml-20">
+            <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <span>至</span>
+            <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.end" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+          </li>
+        </ul>
+      </div>
+      <div class="toolbar mt-20">
+        <ul class="d-f">
+          <li class="ml-20">
+            <el-select size="small" placeholder="选择课程" v-model="search_info.course_id" @change="search">
+              <el-option label="全部课程" :value="0"></el-option>
+              <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
+            </el-select>
+          </li>
+          <li class="ml-20">
+            <el-select size="small" placeholder="选择课程类型" v-model="search_info.course_type_id" @change="search">
+              <el-option label="全部课程类型" :value="0"></el-option>
+              <el-option label="普通课程" :value="1"></el-option>
+              <el-option label="一对一课程" :value="2"></el-option>
+            </el-select>
+          </li>
+          <li class="name ml-20">
+            <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
+          </li>
+          <li>
+            <MyButton @click.native="search" :radius="false">搜索</MyButton>
+          </li>
+        </ul>
+      </div>
+
+      <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true">
+        <el-table-column label="序号" type="index" align="center"></el-table-column>
+        <el-table-column label="退费学员" align="center">
+          <template slot-scope="scope">
+            <div>
+              <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
             </div>
-            <div class="toolbar mt-20">
-                <ul class="d-f">
-                    <li class="ml-20">
-                        <el-select size="small" placeholder="选择课程" v-model="search_info.course_id" @change="search">
-                            <el-option label="全部课程" :value="0"></el-option>
-                            <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
-                        </el-select>
-                    </li>
-                    <li class="ml-20">
-                        <el-select size="small" placeholder="选择课程类型" v-model="search_info.course_type_id" @change="search">
-                            <el-option label="全部课程类型" :value="0"></el-option>
-                            <el-option label="普通课程" :value="1"></el-option>
-                            <el-option label="一对一课程" :value="2"></el-option>
-                        </el-select>
-                    </li>
-                    <li class="name ml-20">
-                        <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
-                    </li>
-                    <li>
-                        <MyButton @click.native="search" :radius="false">搜索</MyButton>
-                    </li>
-                </ul>
+          </template>
+        </el-table-column>
+        <el-table-column label="退费课程" prop="course.name" align="center"></el-table-column>
+        <el-table-column label="退费时间" align="center">
+          <template slot-scope="scope">
+            <div>
+              <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
             </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="剩余课时" prop="remain_num" align="center"></el-table-column>
+        <el-table-column label="课时退费" prop="remain_lesson_price" align="center"></el-table-column>
+        <el-table-column label="教材退费" prop="remain_textbook_price" align="center"></el-table-column>
+        <el-table-column label="实退金额" prop="rel_remain" align="center"></el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <div>
+              <div>
+                <span class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
 
-            <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="退费学员" align="center">
-                    <template slot-scope="scope">
-                        <div>
-                            <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="退费课程" prop="course.name" align="center"></el-table-column>
-                <el-table-column label="退费时间" align="center">
-                    <template slot-scope="scope">
-                        <div>
-                            <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="剩余课时" prop="remain_num" align="center"></el-table-column>
-                <el-table-column label="课时退费" prop="rel_remain" align="center"></el-table-column>
-                <el-table-column label="教材退费" prop="rel_remain" align="center"></el-table-column>
-                <el-table-column label="实退金额" prop="rel_remain" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
-                    <template slot-scope="scope">
-                        <div>
-                            <div>
-                                <span class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
-                            </div>
-                        </div>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <!-- 分页 -->
-            <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
-            </el-pagination>
-        </el-card>
-        <RefundDialog :routerAble="false" :dialogStatus="dialog.refund.show" :refundData="dialog.refund.data" @CB-dialogStatus="close"></RefundDialog>
-    </div>
+      <!-- 分页 -->
+      <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
+      </el-pagination>
+    </el-card>
+    <RefundDialog :routerAble="false" :dialogStatus="dialog.refund.show" :refundData="dialog.refund.data" @CB-dialogStatus="close"></RefundDialog>
+  </div>
 </template>
 
 <script>
@@ -213,13 +213,13 @@ export default {
         page_num: this.page_info.page_num
       };
       console.log(params);
-        this.$$request
-          .get("api/financeManage/studentCourse/quitCourseLists", params)
-          .then(res => {
-            this.refund_info.data = res.lists.data;
-            this.page_info.total = res.lists.total;
-            this.loading = false;
-          });
+      this.$$request
+        .get("api/financeManage/studentCourse/quitCourseLists", params)
+        .then(res => {
+          this.refund_info.data = res.lists.data;
+          this.page_info.total = res.lists.total;
+          this.loading = false;
+        });
     },
     //将时间转换为秒数
     get_seconde(date) {
@@ -227,13 +227,16 @@ export default {
     },
     //查看退费详情
     show_refund(obj) {
-      console.log(obj)
-      // this.$$request
-      //   .get("api/studentCourse/detail", { sc_id: id })
-      //   .then(res => {
-          this.dialog.refund.data = obj;
+      const params = {
+        quit_course_id: obj.id
+      };
+      this.$$request
+        .get("api/financeManage/quitCourseDetail", params)
+        .then(res => {
+          console.log(res)
+          this.dialog.refund.data = res;
           this.dialog.refund.show = true;
-        // });
+        });
     },
     //弹窗关闭回调
     close() {
