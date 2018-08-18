@@ -47,30 +47,32 @@
 
             <el-table stripe class="student-table mt-30" :data="assign_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="业绩归属" prop="cour_name" align="center"></el-table-column>
-                <el-table-column label="合同编号" prop="stu_name" align="center"></el-table-column>
-                <el-table-column label="购课学员" prop="stu_name" align="center">
+                <el-table-column label="业绩归属" prop="achieve_user.name" align="center"></el-table-column>
+                <el-table-column label="合同编号" prop="orderno" align="center"></el-table-column>
+                <el-table-column label="购课学员" align="center">
                     <template slot-scope="scope">
                         <div>
-                            <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
+                            <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="购买课程" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="购买课程" prop="course.name" align="center"></el-table-column>
                 <el-table-column label="签约日期" align="center">
                     <template slot-scope="scope">
                         <div>
-                            <div>{{scope.row.pay_at | date('yyyy-MM-dd')}}</div>
+                            <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="支付方式" prop="cour_name" align="center"></el-table-column>
-                <el-table-column label="业绩金额" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="支付方式" prop="student_course.pay_way" align="center">
+                    <template slot-scope="scope">{{pay_list[scope.row.student_course.pay_way].name}}</template>
+                </el-table-column>
+                <el-table-column label="业绩金额" prop="achieve_price" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <div>
                             <div>
-                                <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">调整业绩</span>
+                                <span class="fc-m cursor-pointer" @click="open_setting(scope.row)">调整业绩</span>
                             </div>
                         </div>
                     </template>
@@ -86,64 +88,69 @@
                 <el-row class="performance_info">
                     <el-row>
                         <el-col :span="8">合同编号：
-                            <span>00010</span>
+                            <span>{{dialog.performance.data.number}}</span>
                         </el-col>
-                        <el-col :span="8">签约时间：
-                            <span>00010</span>
+                        <el-col class="pl-50" :span="8">签约时间：
+                            <span>{{dialog.performance.data.date | date('yyyy-MM-dd')}}</span>
                         </el-col>
-                        <el-col :span="8">操作人：
-                            <span>00010</span>
+                        <el-col class="pl-50" :span="8">操作人：
+                            <span>{{dialog.performance.data.operater}}</span>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8">学员姓名：
-                            <span>00010</span>
+                            <span>{{dialog.performance.data.student_name}}</span>
                         </el-col>
-                        <el-col :span="8">收款方式：
-                            <span>00010</span>
+                        <el-col class="pl-50" :span="8">收款方式：
+                            <span>{{dialog.performance.data.pay_way}}</span>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8">课时费：
-                            <span>00010</span>
+                            <span>{{dialog.performance.data.course_price}}</span>
                         </el-col>
-                        <el-col :span="8">教材费：
-                            <span>00010</span>
+                        <el-col class="pl-50" :span="8">教材费：
+                            <span>{{dialog.performance.data.textbook_price}}</span>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8">合同金额：
-                            <span class="fc-m fs-24">00010</span>
+                            <span class="fc-m fs-24">{{dialog.performance.data.total_price}}</span>
                         </el-col>
                     </el-row>
                 </el-row>
                 <el-row class="performance_setting">
                     <el-col :span="6" class="t-a-r">个人业绩分配：</el-col>
                     <el-col :span="18">
-                        <el-form :model="dialog.performance" label-width="100px" size="small" :rules="performanceRules" class="commodity-type-formbox">
+                        <el-form :model="dialog.performance" ref="performance_valid" label-width="100px" size="small" class="commodity-type-formbox">
                             <el-row v-for="(member,index) in dialog.performance.members" :key="index">
                                 <el-col :span="8" class="ml-30">
-                                    <el-form-item prop="name">
-                                        <el-input v-model.trim="member.name" placeholder="请输入分配人员"></el-input>
+                                    <el-form-item :prop="'members.' + index + '.belong_id'" :rules="performanceRules.name">
+                                        <el-select v-model="member.belong_id" filterable>
+                                            <el-option v-if="item.user_type !== 2" @click.native="member.achieve_user.name = item.name;" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.id">
+                                                <span style="float: left">{{ item.name }}</span>
+                                                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.type | role}}</span>
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="8" class="ml-10">
-                                    <el-form-item prop="price">
-                                        <el-input v-model.trim="member.price" placeholder="请输入分配金额"></el-input>
-                                        <div class="p-a reduce_button ver-c cursor-pointer" @click="delete_member"><img src="../../images/common/add.png" alt=""></div>
+                                    <el-form-item :prop="'members.' + index + '.achieve_price'" :rules="performanceRules.price">
+                                        <el-input v-model.trim="member.achieve_price" placeholder="请输入分配金额"></el-input>
+                                        <i v-if="dialog.performance.members.length > 1" class="iconfont icon-jianhao reduce_button p-a ver-c cursor-pointer" @click="delete_member(index)"></i>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
                             <el-row class="pt-20">
                                 <el-col>
-                                    <div class="p-a add_button ver-c cursor-pointer" @click="add_member"><img src="../../images/common/add.png" alt=""></div>
+                                    <i class="iconfont icon-jiahao add_button p-a ver-c cursor-pointer" @click="add_member"></i>
                                 </el-col>
                             </el-row>
                         </el-form>
                     </el-col>
                 </el-row>
                 <span slot="footer" class="dialog-footer">
-                    <el-button type="primary" @click="dialog.performance.show = false">确 定</el-button>
+                    <el-button type="primary" @click="performance_confirm">确 定</el-button>
                 </span>
             </el-dialog>
         </el-card>
@@ -153,9 +160,8 @@
 <script>
 import TableHeader from "../../components/common/TableHeader";
 import MyButton from "../../components/common/MyButton";
-import ContractDialog from "../../components/dialog/Contract";
 import NameRoute from "../../components/common/NameRoute";
-import {StudentStatic} from '../../script/static';
+import { StudentStatic } from "../../script/static";
 
 export default {
   data() {
@@ -188,28 +194,39 @@ export default {
       },
       //弹窗
       dialog: {
-        contract: {
-          data: new Object(),
-          show: false
-        },
         performance: {
           show: false,
+          data: {
+            number: "",
+            date: "",
+            operater: "",
+            student_name: "",
+            pay_way: "",
+            course_price: "",
+            textbook_price: "",
+            total_price: "",
+            student_course_id: ""
+          },
           members: [
             {
-              name: "",
-              price: ""
+              belong_id: "",
+              id: "",
+              achieve_price: "",
+              achieve_user: {
+                name: ""
+              }
             }
           ]
         }
       },
       performanceRules: {
-        name: [{ required: true, message: "请输入分配人员" }],
+        name: [{ required: true, message: "请选择分配人员" }],
         price: [
           { required: true, message: "请输入分配金额" },
           { validator: this.$$tools.formOtherValidate("price") }
         ]
       },
-      contract_data: {},
+      all_user: [],
       loading: false
     };
   },
@@ -304,40 +321,120 @@ export default {
           this.loading = false;
         });
     },
-    add_member() {
-      this.dialog.performance.members.push({ name: "", price: "" });
+    //获取全部员工+学员信息
+    get_all_user() {
+      this.$$request.get("api/financeManage/allUser").then(res => {
+        this.all_user = res.users;
+      });
     },
-    delete_member() {
-      if (this.dialog.performance.members.length < 2) return false;
-      this.dialog.performance.members.splice(
-        this.dialog.performance.members.length - 1,
-        1
-      );
+    add_member() {
+      this.dialog.performance.members.push({
+        id: 0,
+        belong_id: "",
+        achieve_price: "",
+        achieve_user: {
+          name: ""
+        }
+      });
+    },
+    delete_member(index) {
+    //   if (this.dialog.performance.members.length < 2) return false;
+      this.dialog.performance.members.splice(index,1);
     },
     //将时间转换为秒数
     get_seconde(date) {
       return new Date(date).getTime() / 1000;
     },
-    //查看合约详情
-    show_contract(id) {
+    //打开设置业绩弹窗
+    open_setting(item) {
+      this.dialog.performance.show = true;
+      const params = {
+        student_course_id: item.student_course_id
+      };
       this.$$request
-        .get("api/studentCourse/detail", { sc_id: id })
+        .get("api/financeManage/achievement/singleLists", params)
         .then(res => {
-          this.dialog.contract.data = res.data;
-          this.dialog.contract.show = true;
+          this.dialog.performance.members = res.lists;
+          this.dialog.performance.data = {
+            number: item.orderno,
+            date: item.created_at,
+            operater: item.achieve_allot_user.name,
+            student_name: item.student.name,
+            pay_way: this.pay_list[item.student_course.pay_way].name,
+            course_price: res.studentCourse.lesson_price,
+            textbook_price: res.studentCourse.textbook_price,
+            total_price: item.student_course.real_price,
+            student_course_id: item.student_course_id
+          };
         });
+    },
+    performance_confirm() {
+      this.$refs["performance_valid"].validate(valid => {
+        if (valid) {
+          let query = this.dialog.performance;
+          const params = {
+            student_course_id: query.data.student_course_id,
+            lists: query.members
+          };
+          let refund_total_price = 0;
+          for(let member of query.members) {
+              console.log(member.achieve_price)
+              refund_total_price += parseInt(member.achieve_price)
+          }
+          if(refund_total_price > this.dialog.performance.data.total_price){
+              this.$message.warning('分配金额不能超过合同金额，请重新分配');
+              return false;
+          }
+          this.$$request
+            .post("api/financeManage/achievement/allot", params)
+            .then(res => {
+              this.$message.success("已分配");
+              this.get_data();
+              this.dialog.performance.show = false;
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     //弹窗关闭回调
     close() {
-      this.dialog.contract.data = {};
+      //   this.dialog.contract.data = {};
       // this.contract_data = {};
-      this.dialog.contract.show = false;
+      //   this.dialog.contract.show = false;
+    }
+  },
+  filters: {
+    role: value => {
+      if (!value) return "";
+      switch (value) {
+        case "seller":
+          return "课程顾问";
+          break;
+        case "director":
+          return "顾问主管";
+          break;
+        case "register":
+          return "教务";
+          break;
+        case "dean":
+          return "教务主管";
+          break;
+        case "teacher":
+          return "老师";
+          break;
+        case "master":
+          return "校长";
+          break;
+      }
     }
   },
   created() {
     this.get_data();
+    this.get_all_user();
   },
-  components: { TableHeader, MyButton, ContractDialog, NameRoute }
+  components: { TableHeader, MyButton, NameRoute }
 };
 </script>
 
@@ -364,7 +461,6 @@ export default {
   padding-bottom: 30px;
   border-bottom: 1px solid #e9e9e9;
   .el-col {
-    text-indent: 50px;
     padding: 10px;
     span {
       color: #222222;
@@ -405,15 +501,16 @@ export default {
 }
 .add_button {
   left: 30px;
-  img {
-    display: block;
-  }
 }
 .reduce_button {
   right: -10px;
-  img {
-    display: block;
-  }
+}
+.pl-50 {
+  padding-left: 50px !important;
+}
+.iconfont {
+  color: #45dad5;
+  font-size: 20px;
 }
 </style>
 

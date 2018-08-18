@@ -48,10 +48,10 @@
 
             <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="退费学员" prop="student.name" align="center">
+                <el-table-column label="退费学员" align="center">
                     <template slot-scope="scope">
                         <div>
-                            <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
+                            <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
                         </div>
                     </template>
                 </el-table-column>
@@ -59,19 +59,19 @@
                 <el-table-column label="退费时间" align="center">
                     <template slot-scope="scope">
                         <div>
-                            <div>{{scope.row.pay_at | date('yyyy-MM-dd')}}</div>
+                            <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column label="剩余课时" prop="remain_num" align="center"></el-table-column>
-                <el-table-column label="课时退费" prop="cour_name" align="center"></el-table-column>
-                <el-table-column label="教材退费" prop="real_price" align="center"></el-table-column>
-                <el-table-column label="实退金额" prop="cour_name" align="center"></el-table-column>
+                <el-table-column label="课时退费" prop="rel_remain" align="center"></el-table-column>
+                <el-table-column label="教材退费" prop="rel_remain" align="center"></el-table-column>
+                <el-table-column label="实退金额" prop="rel_remain" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <div>
                             <div>
-                                <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">退费详情</span>
+                                <span class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
                             </div>
                         </div>
                     </template>
@@ -82,14 +82,14 @@
             <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
             </el-pagination>
         </el-card>
-        <ContractDialog :routerAble="false" :dialogStatus="dialog.contract.show" :contractData="dialog.contract.data" @CB-dialogStatus="close"></ContractDialog>
+        <RefundDialog :routerAble="false" :dialogStatus="dialog.refund.show" :refundData="dialog.refund.data" @CB-dialogStatus="close"></RefundDialog>
     </div>
 </template>
 
 <script>
 import TableHeader from "../../components/common/TableHeader";
 import MyButton from "../../components/common/MyButton";
-import ContractDialog from "../../components/dialog/Contract";
+import RefundDialog from "../../components/dialog/Refund";
 import NameRoute from "../../components/common/NameRoute";
 
 export default {
@@ -121,7 +121,7 @@ export default {
       },
       //弹窗
       dialog: {
-        contract: {
+        refund: {
           data: new Object(),
           show: false
         }
@@ -207,14 +207,14 @@ export default {
         begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
         end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
         course_id: this.search_info.course_id,
-        course_type_id: this.search_info.advisor_id,
+        course_type_id: this.search_info.course_type_id,
         user_name: this.search_info.name,
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
       console.log(params);
         this.$$request
-          .get("api/financeManage/studentCourse/lists", params)
+          .get("api/financeManage/studentCourse/quitCourseLists", params)
           .then(res => {
             this.refund_info.data = res.lists.data;
             this.page_info.total = res.lists.total;
@@ -225,26 +225,27 @@ export default {
     get_seconde(date) {
       return new Date(date).getTime() / 1000;
     },
-    //查看合约详情
-    show_contract(id) {
-      this.$$request
-        .get("api/studentCourse/detail", { sc_id: id })
-        .then(res => {
-          this.dialog.contract.data = res.data;
-          this.dialog.contract.show = true;
-        });
+    //查看退费详情
+    show_refund(obj) {
+      console.log(obj)
+      // this.$$request
+      //   .get("api/studentCourse/detail", { sc_id: id })
+      //   .then(res => {
+          this.dialog.refund.data = obj;
+          this.dialog.refund.show = true;
+        // });
     },
     //弹窗关闭回调
     close() {
-      this.dialog.contract.data = {};
+      this.dialog.refund.data = {};
       // this.contract_data = {};
-      this.dialog.contract.show = false;
+      this.dialog.refund.show = false;
     }
   },
   created() {
     this.get_data();
   },
-  components: { TableHeader, MyButton, ContractDialog, NameRoute }
+  components: { TableHeader, MyButton, RefundDialog, NameRoute }
 };
 </script>
 

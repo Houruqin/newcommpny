@@ -44,10 +44,10 @@
             <el-table stripe class="student-table mt-30" :data="outlay_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="支出类型" prop="expend_type.name" align="center"></el-table-column>
-                <el-table-column label="支出人员" prop="expend_user.name" align="center">
+                <el-table-column label="支出人员" align="center">
                     <template slot-scope="scope">
                         <div>
-                            <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
+                            <div>{{scope.row.expend_user_type === 1 ? scope.row.expend_user.name : scope.row.expend_student.name}}</div>
                         </div>
                     </template>
                 </el-table-column>
@@ -384,6 +384,7 @@ export default {
             this.get_outlay_type();
             this.$message.success("已修改！");
             this.dialog.addType.show = false;
+            this.get_data();
           });
       }
     },

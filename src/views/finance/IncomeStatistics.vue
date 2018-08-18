@@ -57,7 +57,7 @@
         <el-table-column label="学员姓名" align="center">
           <template slot-scope="scope">
             <div>
-              <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
+              <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
             </div>
           </template>
         </el-table-column>
@@ -69,12 +69,16 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="支付方式" prop="pay_way" align="center"></el-table-column>
+        <el-table-column label="支付方式" align="center">
+          <template slot-scope="scope">
+            <div>{{pay_list[scope.row.pay_way] ? pay_list[scope.row.pay_way].name : pay_list[scope.row.pay_way]}}</div>
+          </template>
+        </el-table-column>
         <el-table-column label="业绩顾问" prop="advisor.name" align="center"></el-table-column>
-        <el-table-column label="操作人" prop="advisor.name" align="center"></el-table-column>
-        <el-table-column label="课时费" prop="cour_name" align="center"></el-table-column>
-        <el-table-column label="教材费" prop="cour_name" align="center"></el-table-column>
-        <el-table-column label="合同总额" prop="cour_name" align="center"></el-table-column>
+        <el-table-column label="操作人" prop="user.name" align="center"></el-table-column>
+        <el-table-column label="课时费" prop="lesson_price" align="center"></el-table-column>
+        <el-table-column label="教材费" prop="textbook_price" align="center"></el-table-column>
+        <el-table-column label="合同总额" prop="real_price" align="center"></el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <div>
@@ -195,6 +199,7 @@ export default {
           );
           break;
       }
+      this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
     date_change() {
