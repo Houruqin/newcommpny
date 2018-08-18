@@ -316,47 +316,60 @@
         </el-dialog>
         
         <!-- 购买课程弹窗 -->
-        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
-        </BuyCourseDialog>
+        </BuyCourseDialog> -->
         
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
-        <el-dialog title="退费" width="800px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
-            <el-form label-width="110px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm">
-                <div class="form-box">
-                    <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
-                    <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
-                    <el-row>
-                        <el-col :span="6">
-                            <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
-                            <el-form-item label="购买金额：">{{quitCourseInfo.real_price}}</el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
-                            <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
-                            <el-form-item label="剩余课时：">{{quitCourseInfo.lesson_num_remain}}</el-form-item>
-                            <el-form-item label="剩余费用：">{{quitCourseInfo.remain_price}}</el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-form-item label="实际退费：" prop="rel_remain">
-                        <el-col :span="10">
-                            <el-input placeholder="实际退费" v-model="quitCourseForm.rel_remain"></el-input>
-                        </el-col>
-                    </el-form-item>
-                    <el-row class="mt-30">
-                        <el-col :span="21">
-                            <el-form-item label="退费说明：" prop="explain" class="textarea-cls">
-                                <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')" :loading="submitLoading.quitCourse">确认</MyButton></div>
+        <el-dialog title="退费" width="1000px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
+            <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
+                <el-form-item label="上课学员："><span>{{studentDetail.name}}</span></el-form-item>
+                <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
+                <div class="d-f">
+                    <div class="flex1">
+                        <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
+                        <el-form-item label="购买金额：">{{quitCourseInfo.real_price}}</el-form-item>
+                        <el-form-item label="教材费用：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="课时实际退费：" prop="lesson_quitprice">
+                            <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.lesson_quitprice"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <div class="flex1">
+                        <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
+                        <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
+                        <el-form-item label="剩余教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="教材实际退费：" prop="textbook_quitprice">
+                            <el-input type="number" placeholder="教材实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <div class="flex1">
+                        <el-form-item label="剩余课时：">{{quitCourseInfo.lesson_num_remain}}</el-form-item>
+                        <!-- <el-form-item label="剩余费用：">{{quitCourseInfo.remain_price}}</el-form-item> -->
+                        <el-form-item label="剩余课时费：">{{quitCourseInfo.remain_price}}</el-form-item>
+                        <el-form-item label="退费总额：">
+                            {{quitCourseForm.textbook_quitprice + quitCourseForm.lesson_quitprice}}
+                            <!-- <el-input placeholder="退费总额" v-model="quitCourseForm.rel_remain"></el-input> -->
+                        </el-form-item>
+                    </div>
                 </div>
+                <!-- <el-form-item label="实际退费：" prop="rel_remain">
+                    <el-col :span="10">
+                        <el-input placeholder="实际退费" v-model="quitCourseForm.rel_remain"></el-input>
+                    </el-col>
+                </el-form-item> -->
+                <el-row class="mt-30">
+                    <el-col :span="21">
+                        <el-form-item label="退费说明：" prop="explain" class="textarea-cls">
+                            <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')" :loading="submitLoading.quitCourse">确认</MyButton></div>
             </el-form>
         </el-dialog>
 
@@ -705,15 +718,28 @@ export default {
 
             quitCourseForm: {
                 rel_remain: '',
-                explain: ''
+                explain: '',
+                lesson_quitprice: '',
+                textbook_quitprice: ''
             },
             quitCourseRules: {
-                rel_remain: [
-                    {required: true, message: '请输入实际退费金额'},
-                    {validator: this.$$tools.formOtherValidate('price')}
-                ],
+                // rel_remain: [
+                //     {required: true, message: '请输入实际退费金额'},
+                //     {validator: this.$$tools.formOtherValidate('decimals', 2)},
+                //     // {validator: this.$$tools.formOtherValidate('price')}
+                // ],
                 explain: [
                     {max: 200, message: '最多输入200个字符'}
+                ],
+                lesson_quitprice: [
+                    {required: true, message: '请输入课时实际退费'},
+                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
+                    // {validator: this.quitPriceValidate('lesson')}
+                ],
+                textbook_quitprice: [
+                    {required: true, message: '请输入教材实际退费'},
+                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
+                    // {validator: this.quitPriceValidate('textbook')}
                 ]
             },
             teacherRules: {
@@ -842,6 +868,18 @@ export default {
                 Object.keys(this.studentForm).forEach(v => {this.studentForm[v] = ''});
             }else {
                 this.$refs[form].resetFields();
+            }
+        },
+        //退费  课时退费和教材退费单独验证
+        quitPriceValidate(type) {
+            return (rule, value, callback, event, e, d) => {
+                if(type == 'lesson') {
+                    if(value < this.quitCourseInfo.real_price) return callback(new Error('课时退费金额不能超过课时购买费用'));
+                    else return callback();
+                }else {
+                    if(value < Number(this.quitCourseInfo.textbook_price) - Number(this.quitCourseInfo.preferential_textbook_price)) return callback(new Error('教材退费金额不能超过购买教材费用'));
+                    else return callback();
+                }
             }
         },
         //编辑修改老师信息 click
@@ -985,8 +1023,23 @@ export default {
         againBuyCourse(data) {
             console.log(data);
 
-            let detail = {
-                id: data.student_id,
+            // let detail = {
+            //     id: data.student_id,
+            //     advisor_id: data.advisor_id,
+            //     advisor: data.advisor,
+            //     parent_id: data.parent_id,
+            //     expire: data.expire,
+            //     buy_type: 2,
+            //     course_id: data.course_id,
+            //     is_order: data.is_order,
+            //     class_pattern: data.class_pattern,
+            //     teacher_id: data.teacher_ids
+            // };
+            // this.buyCourseData = detail;
+            // this.dialogStatus.course = true;
+
+            let params = {
+                student_id: data.student_id,
                 advisor_id: data.advisor_id,
                 advisor: data.advisor,
                 parent_id: data.parent_id,
@@ -997,8 +1050,8 @@ export default {
                 class_pattern: data.class_pattern,
                 teacher_id: data.teacher_ids
             };
-            this.buyCourseData = detail;
-            this.dialogStatus.course = true;
+
+            this.$router.push({name: 'signedBuyCourse', params: {buyCourseData: params}});
         },
         //课程信息列表查看合约
         async showContract(data) {
@@ -1010,11 +1063,11 @@ export default {
         },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
-            if(type == 'course') {
-                this.buyCourseData = {};
-                this.dialogStatus.course = false;
-                return 0;
-            };
+            // if(type == 'course') {
+            //     this.buyCourseData = {};
+            //     this.dialogStatus.course = false;
+            //     return 0;
+            // };
             if(type == 'contract') {
                 this.contractData = {};
                 this.dialogStatus.contract = false;
@@ -1153,8 +1206,18 @@ export default {
         },
         //购课
         buyCourse() {
-            this.buyCourseData = this.studentDetail;
-            this.dialogStatus.course = true;
+            // this.buyCourseData = this.studentDetail;
+            // this.dialogStatus.course = true;
+            console.log(this.studentDetail);
+
+            let params = {
+                student_id: this.studentDetail.id,
+                advisor_id: this.studentDetail.advisor_id,
+                advisor: this.studentDetail.advisor,
+                parent_id: this.studentDetail.parent_id
+            };
+
+            this.$router.push({name: 'signedBuyCourse', params: {buyCourseData: params}});
         },
         //上课状态转换
         timeTableStatus(status) {
@@ -1240,8 +1303,11 @@ export default {
                 real_price: this.quitCourseInfo.real_price,
                 pre_price: this.quitCourseInfo.unit_price,
                 remain_price: this.quitCourseInfo.remain_price,
-                rel_remain: this.quitCourseForm.rel_remain,
-                explain: this.quitCourseForm.explain
+                // rel_remain: this.quitCourseForm.rel_remain,
+                explain: this.quitCourseForm.explain,
+                rel_remain: this.quitCourseForm.lesson_quitprice + this.quitCourseForm.textbook_quitprice,
+                remain_lesson_price: this.quitCourseForm.lesson_quitprice,
+                remain_textbook_price: this.quitCourseForm.textbook_quitprice
             };
 
             console.log(params)
@@ -1456,6 +1522,12 @@ export default {
             height: 250px;
             overflow: hidden;
             overflow-y: auto;
+        }
+    }
+    .quit-price-form {
+        padding: 0 20px;
+        .el-input {
+            width: 150px;
         }
     }
     .followup-lists-box {

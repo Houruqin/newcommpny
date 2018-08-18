@@ -6,16 +6,23 @@
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.begin_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.begin_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.end_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.end_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-20">
-                        <el-select size="small" placeholder="全部归还记录" v-model="searchFilter.commodity_type" @change="searchHandle">
-                            <el-option label="全部类别" value=""></el-option>
-                            <!-- <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option> -->
+                        <el-select size="small" placeholder="全部归还状态" v-model="searchFilter.borrow_type" @change="searchHandle">
+                            <el-option label="全部归还状态" value=""></el-option>
+                            <el-option label="已归还" :value="1"></el-option>
+                            <el-option label="未归还" :value="2"></el-option>
                         </el-select>
                     </li>
                     <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilter.keyword"></el-input></li>
@@ -23,20 +30,32 @@
                 </ul>
             </div>
 
-            <el-table class="mt-20 bor-t" v-loading="loading" stripe>
+            <el-table class="mt-20 bor-t" :data="borrowTable.data" v-loading="loading" stripe>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="物品名称" align="center"></el-table-column>
-                <el-table-column label="借用人" align="center"></el-table-column>
-                <el-table-column label="借用数量" align="center"></el-table-column>
-                <el-table-column label="借用时间" align="center"></el-table-column>
-                <el-table-column label="归还状态" align="center"></el-table-column>
-                <el-table-column label="已归还数量" align="center"></el-table-column>
-                <el-table-column label="归还时间" align="center"></el-table-column>
-                <el-table-column label="操作人" align="center"></el-table-column>
-                <el-table-column label="备注" align="center"></el-table-column>
+                <el-table-column label="物品名称" prop="goods_name" align="center"></el-table-column>
+                <el-table-column label="借用人" prop="borrow_name" align="center"></el-table-column>
+                <el-table-column label="借用数量" prop="borrow_num" align="center"></el-table-column>
+                <el-table-column label="借用时间" align="center">
+                    <template slot-scope="scope">
+                        {{$$tools.format(scope.row.borrow_time)}}
+                    </template>
+                </el-table-column>
+                <el-table-column label="归还状态" align="center">
+                    <template slot-scope="scope">
+                        {{scope.row.status == 1 ? '已归还' : '未归还'}}
+                    </template>
+                </el-table-column>
+                <el-table-column label="已归还数量" prop="return_num" align="center"></el-table-column>
+                <el-table-column label="归还时间" align="center">
+                    <template slot-scope="scope">
+                        {{scope.row.return_time > 0 ? $$tools.format(scope.row.return_time) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
+                <el-table-column label="备注" prop="remark" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <span class="fc-m cursor-pointer" @click="giveBackClick">归还</span>
+                        <span class="fc-m cursor-pointer" v-if="(scope.row.borrow_num - scope.row.return_num)" @click="giveBackClick(scope.row)">归还</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -46,9 +65,9 @@
         <el-dialog title="归还" width="700px" center :visible.sync="dialogStatus.giveBack" :close-on-click-modal="false" @close="dialogClose">
             <el-form :model="backForm" label-width="100px" size="small" :rules="backRules" ref="backForm" class="form-box">
                 <div class="d-f f-j-b">
-                    <el-form-item label="应归还数量：">10</el-form-item>
-                    <el-form-item label="归还数量：" prop="back_num">
-                        <el-input v-model.trim="backForm.back_num" placeholder="请输入物品类型"></el-input>
+                    <el-form-item label="应归还数量：">{{backForm.back_num}}</el-form-item>
+                    <el-form-item label="归还数量：" prop="return_num">
+                        <el-input v-model.trim="backForm.return_num" placeholder="请输入物品类型"></el-input>
                     </el-form-item>
                 </div>
 
@@ -56,7 +75,7 @@
                     <el-input type="textarea" :rows="4" placeholder="请输入备注" v-model.trim="backForm.explain"></el-input>
                 </el-form-item>
 
-                <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('commodityType')" :loading="submitLoading.back">确定</MyButton></div>
+                <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle" :loading="submitLoading.back">确定</MyButton></div>
             </el-form>
         </el-dialog>
     </div>
@@ -72,10 +91,17 @@ export default {
             loading: false,
             dialogStatus: {giveBack: false},
             submitLoading: {back: false},
-            searchFilter: {begin_time: '', end_time: '', commodity_type: '', use_type: '', keyword: ''},
-            backForm: {back_num: '', explan: ''},
+            searchFilter: {
+                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
+                end_time: new Date().getTime(), 
+                borrow_type: '', keyword: ''
+            },
+
+            borrowTable: {},
+
+            backForm: {back_num: '', return_num: '', explain: ''},
             backRules: {
-                back_num: [
+                return_num: [
                     {required: true, message: '请输入归还数量'}
                 ]
             }
@@ -85,15 +111,64 @@ export default {
         dialogClose() {
 
         },
-        searchHandle() {
-
+        dateChange() {
+            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            this.getBorrowLists();
         },
-        giveBackClick() {
-
+        searchHandle() {
+            this.getBorrowLists();
+        },
+        giveBackClick(item) {
+            this.backForm.id = item.id,
+            this.backForm.back_num = item.borrow_num - item.return_num;
+            this.dialogStatus.giveBack = true;
         },
         doneHandle() {
-            
+            this.$refs.backForm.validate(valid => {this.submitBackForm()});
+        },
+        //提交归还数据
+        async submitBackForm() {
+            let params = {
+                borrow_id: this.backForm.id,
+                return_num: this.backForm.return_num,
+                remark: this.backForm.explain
+            };
+
+            let result = await this.$$request.post('api/repertory/returns', params);
+            console.log(result);
+            if(!result) return 0;
+
+            this.$message.success('归还成功');
+            this.dialogStatus.giveBack = false;
+            this.getBorrowLists();
+        },
+        //获取借用记录列表
+        async getBorrowLists(page) {
+            this.loading = true;
+
+            let params = {
+                data: {
+                    name: this.searchFilter.keyword,
+                    borrow_status: this.searchFilter.borrow_type,
+                    time: {
+                        start: this.searchFilter.begin_time / 1000,
+                        end: this.searchFilter.end_time / 1000
+                    }
+                }
+            };
+
+            if(page) params.page_num = page;
+
+            let result = await this.$$request.get('api/repertory/borrowRecords', params);
+            console.log(result);
+            if(!result) return 0;
+
+            this.borrowTable = result.lists;
+            this.loading = false;
         }
+    },
+    created() {
+        this.getBorrowLists();
     },
     components: {TableHeader, MyButton}
 }
@@ -106,7 +181,7 @@ export default {
     .fifter-toolbar {
         ul li {
             &:not(:last-child) {
-                width: 135px;
+                width: 150px;
             }
             .el-select, .el-date-editor {
                 width: 100%;

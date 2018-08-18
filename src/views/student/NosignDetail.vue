@@ -184,9 +184,9 @@
         </AddStudentDialog>
 
         <!-- 购买课程弹窗 -->
-        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
-        </BuyCourseDialog>
+        </BuyCourseDialog> -->
 
         <!-- 购课合约弹窗 -->
         <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
@@ -308,11 +308,11 @@ export default {
                 this.editDetail = {};
                 return 0;
             };
-            if(type == 'course') {
-                this.dialogStatus.course = false;
-                this.buyCourseData = {};
-                return 0;
-            };
+            // if(type == 'course') {
+            //     this.dialogStatus.course = false;
+            //     this.buyCourseData = {};
+            //     return 0;
+            // };
         },
         //修改详情成功，刷新列表
         CB_addStudent() {
@@ -374,9 +374,17 @@ export default {
         },
         //购课
         buyCourse() {
-            this.dialogStatus.course = true;
-            this.buyCourseData = this.detail;
-        },
+            // this.dialogStatus.course = true;
+            // this.buyCourseData = this.detail;
+            let params = {
+                student_id: this.detail.id,
+                advisor_id: this.detail.advisor_id,
+                advisor: this.detail.advisor,
+                parent_id: this.detail.parent_id
+            };
+
+            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
+        },  
         //试听确定
         listenDoneHandle() {
             if(!this.checkListen.length) return this.$message.warning('试听课程不能为空!');
