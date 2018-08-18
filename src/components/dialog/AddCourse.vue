@@ -8,7 +8,7 @@
                             <el-input v-model.trim="courseForm.name" placeholder="课程名称"></el-input>
                         </el-form-item>
                         <el-form-item label="课节时长：" prop="lesson_time">
-                            <el-input-number v-model="courseForm.lesson_time" controls-position="right" :min="1" :max="180"></el-input-number><span class="pl-10">分钟</span>
+                            <el-input type="number" v-model.number="courseForm.lesson_time"></el-input><span class="pl-10">分钟</span>
                         </el-form-item>
                         <!-- <el-form-item label="是否可预约：" prop="is_order">
                             <el-radio-group v-model="courseForm.is_order" disabled>
@@ -25,7 +25,7 @@
 
                     <el-col :span="12">
                         <el-form-item label="课程有效期：" prop="expire">
-                            <el-input-number v-model="courseForm.expire" controls-position="right" :min="1" :max="120"></el-input-number><span class="pl-10">个月</span>
+                            <el-input type="number" v-model.number="courseForm.expire"></el-input><span class="pl-10">个月</span>
                         </el-form-item>
                         <el-form-item label="课程性质：" prop="type">
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
@@ -101,13 +101,17 @@ export default {
                     {max: 20, message: '长度不能超过20个字符'}
                 ],
                 expire: [
-                    {required: true, message: '请输入课程有效期'}
+                    {required: true, message: '请输入课程有效期'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 120)}
                 ],
                 unit_price: [
                     {required: true, message: '请输入学费标准'}
                 ],
                 lesson_time: [
-                    {required: true, message: '请输入课节时长'}
+                    {required: true, message: '请输入课节时长'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 180)}
                 ],
                 type: [
                     {required: true, message: '请选择课程性质', trigger: 'change'}

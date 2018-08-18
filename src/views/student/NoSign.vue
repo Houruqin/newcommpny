@@ -9,7 +9,7 @@
             <div class="header-tab-box d-f f-j-b mt-50">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
-            <div class="fifter-toolbar mt-50">
+            <div class="fifter-toolbar mt-30">
                 <ul class="d-f">
                     <li v-if="activeTab != 'no_advisor'">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
@@ -34,7 +34,7 @@
                 </ul>
             </div>
 
-            <el-table class="student-table mt-30" :data="studentTable.data" v-loading="loading" stripe>
+            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="姓名" align="center">
                     <template slot-scope="scope">
@@ -97,12 +97,12 @@
         </AddStudentDialog>
         
         <!-- 购买课程弹窗 -->
-        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract">
-        </BuyCourseDialog>
+        </BuyCourseDialog> -->
         
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
+        <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
     </div>
 </template>
 
@@ -139,9 +139,9 @@ export default {
             dialogStatus: {student: false, course: false, contract: false},
             studentType: '',
             
-            buyCourseData: {},
+            // buyCourseData: {},
             editDetail: {},
-            contractData: {},   //合约数据
+            // contractData: {},   //合约数据
 
             studentLists: [],
             editStudentData: {},
@@ -222,16 +222,25 @@ export default {
         },
         //登记成功，购课回调
         CB_buyCourse(data) {
-            this.buyCourseData = data;
-            this.dialogStatus.student = false;
-            this.dialogStatus.course = true;
+            // this.buyCourseData = data;
+            // this.dialogStatus.student = false;
+            // this.dialogStatus.course = true;
+
+            let params = {
+                student_id: data.id,
+                advisor_id: data.advisor_id,
+                advisor: data.advisor,
+                parent_id: data.parent_id
+            };
+
+            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
         },
         //购课成功，合约回调
-        CB_contract(data) {
-            this.contractData = data;
-            this.dialogStatus.course = false;
-            this.dialogStatus.contract = true;
-        },
+        // CB_contract(data) {
+        //     this.contractData = data;
+        //     this.dialogStatus.course = false;
+        //     this.dialogStatus.contract = true;
+        // },
         //单元格时间格式化
         dateForamt(row, column, cellValue) {
             return this.$$tools.format(cellValue)

@@ -59,7 +59,21 @@ export default {
                     ]
                 },
                 {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
-                {id: "/home/setting", text: "基础设置", item: false, icon: "icon-shezhi1"},
+                {id: "/home/inventory", text: "库存管理", item: false, icon: "icon-kucunguanli", item: true,
+                    itemList: [
+                        {id: '/inventory/commodity', text: '物品管理'},
+                        {id: '/inventory/storage', text: '出入库记录'},
+                        {id: '/inventory/borrow', text: '借用记录'}
+                    ]
+                },
+                {id: "/home/finance", text: "财务管理", item: true, icon: "icon-finance",
+                    itemList: [
+                        {id: '/finance/income', text: '收款管理'},
+                        {id: '/finance/outlay', text: '支出管理'},
+                        {id: '/finance/refund', text: '退费管理'},
+                        {id: '/finance/assign', text: '业绩分配'}
+                    ]
+                },
                 {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
                 // {
                 //   id: '/home/statistics',

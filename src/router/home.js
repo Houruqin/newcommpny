@@ -26,17 +26,31 @@ import ClassElimination from '@/views/academic/ClassElimination'
 import Audition from '@/views/academic/Audition'
 import Buy from '@/views/academic/Buy'
 
+import IncomeStatistics from '@/views/finance/IncomeStatistics'
+import OutlayStatistics from '@/views/finance/OutlayStatistics'
+import RefundStatistics from '@/views/finance/RefundStatistics'
+import AssignPerformance from '@/views/finance/AssignPerformance'
+
+import Commodity from '@/views/inventory/Commodity'
+import StorageView from '@/views/inventory/Storage'
+import Borrow from '@/views/inventory/Borrow'
+
+import BuyCourse from '@/views/course/BuyCourse'
+
 const homeRouter = [
     {path: '', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench/editNotice', component: EditNotice, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench/schoolsetting', component: SchoolSetting, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'setting', component: BasicSet, meta: {needlogin: true, menu: '/home/setting'}},
+
     {path: 'student/signed', component: Signed, meta: {keepAlive: true, needlogin: true, menu: '/student/signed'}},
     {path: 'student/nosign', component: NoSign, meta: {keepAlive: true, needlogin: true, menu: '/student/nosign'}},
     {path: 'student/nosigndetail', component: NosignDetail, name: 'nosignDetail', meta: {needlogin: true, menu: '/student/nosign'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/signeddetail', component: SignedDetail, name: 'signedDetail', meta: {needlogin: true, menu: '/student/signed'}},   //需要传递参数，配置name属性，并且通过name跳转，params传递参数
     {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/nosign'}},
+    {path: 'student/nosignbuycourse', name: 'nosignBuyCourse', component: BuyCourse, meta: {needlogin: true, menu: '/student/nosign'}},
+    {path: 'student/signedbuycourse', name: 'signedBuyCourse', component: BuyCourse, meta: {needlogin: true, menu: '/student/signed'}},
 
     {path: 'timetable/index', component: TimeTableBeGrade, meta: {needlogin: true}},
     {path: 'timetable/begrade', component: TimeTableBeGrade, name: 'timetableBegrade', meta: {needlogin: true}},
@@ -53,6 +67,16 @@ const homeRouter = [
     {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
     {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
+
+    {path: 'finance/income', component: IncomeStatistics, meta: {needlogin: true}},
+    {path: 'finance/outlay', component: OutlayStatistics, meta: {needlogin: true}},
+    {path: 'finance/refund', component: RefundStatistics, meta: {needlogin: true}},
+    {path: 'finance/assign', component: AssignPerformance, meta: {needlogin: true}},
+
+    {path: 'inventory', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/commodity', component: Commodity, meta: {needlogin: true}},
+    {path: 'inventory/storage', component: StorageView, meta: {needlogin: true}},
+    {path: 'inventory/borrow', component: Borrow, meta: {needlogin: true}},
 
     {path: 'statistics', component: Statistics, meta: {needlogin: true}}
 ];

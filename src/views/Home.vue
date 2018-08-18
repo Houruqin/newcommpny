@@ -206,12 +206,12 @@
         </AddStudentDialog>
         
         <!-- 购买课程弹窗 -->
-        <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
+        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract">
-        </BuyCourseDialog>
+        </BuyCourseDialog> -->
         
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
+        <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
 
         <!-- 添加、修改课程弹窗 -->
         <AddCourseDialog :dialogStatus="dialogStatus.addCourse" 
@@ -336,8 +336,8 @@ export default {
             schoolLists: [],
 
             dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
-            buyCourseData: {},
-            contractData: {},
+            // buyCourseData: {},
+            // contractData: {},
 
             auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''},   //试听数据
             listenCourseLists: [],   //试听课程列表
@@ -442,16 +442,25 @@ export default {
         //登记成功，购课回调
         CB_buyCourse(data) {
             console.log(data)
-            this.buyCourseData = data;
-            this.dialogStatus.student = false;
-            this.dialogStatus.course = true;
+            // this.buyCourseData = data;
+            // this.dialogStatus.student = false;
+            // this.dialogStatus.course = true;
+            
+            let params = {
+                student_id: data.id,
+                advisor_id: data.advisor_id,
+                advisor: data.advisor,
+                parent_id: data.parent_id
+            };
+
+            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
         },
         //购课成功，合约回调
-        CB_contract(data) {
-            this.contractData = data;
-            this.dialogStatus.course = false;
-            this.dialogStatus.contract = true;
-        },
+        // CB_contract(data) {
+        //     this.contractData = data;
+        //     this.dialogStatus.course = false;
+        //     this.dialogStatus.contract = true;
+        // },
         //新增课程成功，回调
         CB_addCourse() {
             this.dialogStatus.addCourse = false;
@@ -661,7 +670,6 @@ export default {
         mymenuPosition() {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
-                console.log(mymenu)
                 document.querySelector('.guide-box').style.left = '0';
                 document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 13}px`;
             }else if(this.guideSetup == 5){

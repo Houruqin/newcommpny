@@ -325,9 +325,6 @@ export default {
             b =  money.toFixed(2);
             return isNaN(b) ? '--' : b;
         }
-    },
-    created() {
-        console.log(this.$$cache.getMemberInfo().class_pattern)
     }
 }
 </script>

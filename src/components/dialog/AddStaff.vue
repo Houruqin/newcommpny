@@ -22,7 +22,7 @@
                     </el-col>
                     <el-col :span="11" :offset="1">
                         <el-form-item label="电话：" prop="mobile">
-                            <el-input v-model="staffForm.mobile" placeholder="电话"></el-input>
+                            <el-input v-model.trim="staffForm.mobile" placeholder="电话"></el-input>
                         </el-form-item>
                         <el-form-item label="入职时间：" prop="entry_date"  class="mt-30">
                             <el-date-picker
