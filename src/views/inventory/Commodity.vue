@@ -82,7 +82,7 @@
                         </el-form-item>
 
                         <el-form-item label="库存预警：" prop="warning">
-                            <el-input placeholder="库存预警" v-model="addCommodityForm.warning"></el-input>
+                            <el-input placeholder="库存预警" type="number" v-model="addCommodityForm.warning"></el-input>
                         </el-form-item>
                     </el-col>
 
@@ -121,7 +121,7 @@
         <el-dialog title="类型设置" width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false" @close="dialogClose">
             <div class="d-f f-j-e"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
             
-            <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe>
+            <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe height="400">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="物品类型" prop="name" align="center"></el-table-column>
                 <el-table-column label="状态" align="center">
@@ -154,10 +154,10 @@
                 <el-form-item label="物品名称：" prop="name">{{addStorageForm.name}}</el-form-item>
                 <div class="d-f">
                     <el-form-item label="入库数量：" prop="num">
-                        <el-input v-model.trim="addStorageForm.num" placeholder="入库数量"></el-input>
+                        <el-input v-model="addStorageForm.num" type="number" placeholder="入库数量"></el-input>
                     </el-form-item>
                     <el-form-item label="进货单价：" prop="stock_price" class="ml-50">
-                        <el-input v-model.trim="addStorageForm.stock_price" placeholder="进货单价"></el-input><span class="pl-10">元</span>
+                        <el-input type="number" v-model="addStorageForm.stock_price" placeholder="进货单价"></el-input><span class="pl-10">元</span>
                     </el-form-item>
                 </div>
                 <div class="d-f f-j-c mt-20 mb-10"><MyButton @click.native="doneHandle('addStorage')" :loading="submitLoading.addStorage">确定</MyButton></div>
@@ -210,7 +210,7 @@
                     <div>
                         <el-form-item label="物品名称：">{{borrowForm.name}}</el-form-item>
                         <el-form-item label="借用人：" prop="borrow_people">
-                            <el-select v-model="borrowForm.borrow_people" placeholder="请选择" filterable>
+                            <el-select v-model="borrowForm.borrow_people" placeholder="请选择" filterable @change="borrowPeopleChange">
                                 <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.id">
                                     <span style="float: left">{{ item.name }}</span>
                                     <span style="float: right; color: #8492a6; font-size: 12px" v-if="item.user_type == 2">学员</span>
@@ -265,7 +265,6 @@ export default {
 
             commodityTable: {},   //物品列表
             commodityTypeLists: [],  //物品类型列表
-            // searchUserLists: [],
             removeStoageBtn: {
                 one: false, two: false
             },
@@ -279,7 +278,7 @@ export default {
                 student_course: ''
             },   //出库表单
             borrowForm: {
-                name: '', goods_id: '', borrow_num: '', borrow_people: '', total_num: ''
+                name: '', goods_id: '', borrow_num: '', borrow_people: '', total_num: '', borrow_people_type: ''
             },
             
             commodityTypeRules: {
@@ -302,25 +301,32 @@ export default {
                 ],
                 price: [
                     {required: true, message: '请输入销售价格'},
-                    {validator: this.$$tools.formOtherValidate('price')}
+                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
+                    {validator: this.$$tools.formOtherValidate('total', 9999)}
                 ],
                 warning: [
-                    {required: true, message: '请输入库存预警数量'}
+                    {required: true, message: '请输入库存预警数量'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 3000)}
                 ]
             },
             addStorageRules: {
                 num: [
-                    {required: true, message: '请输入入库数量'}
+                    {required: true, message: '请输入入库数量'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 3000)}
                 ],
                 stock_price: [
-                    {required: true, message: '请输入进货单价'}
+                    {required: true, message: '请输入进货单价'},
+                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
+                    {validator: this.$$tools.formOtherValidate('total', 9999)}
                 ]
             },
             removeStorageRules: {
                 num: [
                     {required: true, message: '请输入出库数量'},
                     {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.removeStorageNumValidate()},
+                    {validator: this.removeStorageNumValidate('removeStorage')}
                 ],
                 receive_people: [
                     {required: true, message: '请选择出库人', trigger: 'change'}
@@ -333,7 +339,7 @@ export default {
                 borrow_num: [
                     {required: true, message: '请输入借用数量'},
                     {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.removeStorageNumValidate()},
+                    {validator: this.removeStorageNumValidate('borrow')}
                 ],
                 borrow_people: [
                     {required: true, message: '请选择借用人', trigger: 'change'}
@@ -346,9 +352,10 @@ export default {
             if(type) this.$refs[type].resetFields();
             this.receivePeopleType = 1;
         },
-        removeStorageNumValidate() {
+        removeStorageNumValidate(type) {
             return (rule, value, callback, event, e, d) => {
-                if(value > this.removeStorageForm.total_num) return callback(new Error('不能超过库存数量'));
+                let total_num = type == 'removeStorage' ? this.removeStorageForm.total_num : this.borrowForm.total_num;
+                if(value > total_num) return callback(new Error('不能超过库存数量'));
                 else return callback();
             }
         },
@@ -390,7 +397,6 @@ export default {
             this.removeStorageForm.name = data.name;
             this.removeStorageForm.total_num = data.total_num;
             this.dialogStatus.removeStorage = true;
-            // this.getSearchUserLists();
         },
         //更多点击
         handleCommand(info) {
@@ -399,6 +405,7 @@ export default {
                 case 'borrow':
                     this.borrowForm.name = info.data.name;
                     this.borrowForm.total_num = info.data.total_num;
+                    this.borrowForm.goods_id = info.data.id;
                     this.dialogStatus.borrow = true;
                     break;
                 case 'edit':
@@ -410,6 +417,7 @@ export default {
                     this.addCommodityForm.unit = info.data.unit;
                     this.addCommodityForm.waring = info.data.waring;
                     this.addCommodityForm.goods_id = info.data.id;
+                    this.addCommodityForm.price = info.data.price;
 
                     this.dialogStatus.addCommodity = true;
                     break;
@@ -425,7 +433,12 @@ export default {
             }
         },
         async deleteCommodity(id) {
-            let result = await this.$$request.post('')
+            let result = await this.$$request.post('api/goods/goodsOperate', {id: id});
+            console.log(result);
+            if(!result) return 0;
+            
+            this.$message.success('删除物品成功');
+            this.getCommodityLists();
         },
         //物品类型 操作
         commodityTypeHandle(type, item) {
@@ -436,18 +449,15 @@ export default {
                 this.dialogStatus.commodityType = true;
             }
         },
-        //获取所有人员列表
-        // async getSearchUserLists() {
-        //     let result = await this.$$request.get('api/financeManage/searchUser', {user_name: ''});
-        //     console.log(result);
-        //     if(!result) return 0;
-
-        //     this.searchUserLists = result.users;
-        //     this.dialogStatus.removeStorage = true;
-        // },
+        //借用  借用人change
+        borrowPeopleChange(val) {
+            this.$store.state.allUser.forEach(v => {
+                if(v.id == val) this.borrowForm.borrow_people_type = v.user_type;
+            });
+        },
         //出库 领取人change
         receivePeopleChange(val) {
-            this.searchUserLists.forEach(v => {
+            this.$store.state.allUser.forEach(v => {
                 if(v.id == val) {
                     this.receivePeopleType = v.user_type;
                     if(v.user_type == 2) {
@@ -593,8 +603,10 @@ export default {
             // this.getCommodityLists();
             // this.dialogStatus.removeStorage = false;
         },
+        //提交借用数据
         async submitBorrowInfo() {
             let params = {
+                borrow_user_type: this.borrowForm.borrow_people_type,
                 goods_id: this.borrowForm.goods_id,
                 borrow_num: this.borrowForm.borrow_num,
                 borrow_people: this.borrowForm.borrow_people

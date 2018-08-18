@@ -252,7 +252,9 @@ export default {
         ],
         price: [
           { required: true, message: "请输入支出金额" },
-          { validator: this.$$tools.formOtherValidate("price") }
+        //   { validator: this.$$tools.formOtherValidate("price") }
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.$$tools.formOtherValidate('total', 9999)}
         ],
         remark: [{ required: true, message: "请输入备注" }]
       },

@@ -6,11 +6,17 @@
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.begin_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.begin_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.end_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.end_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-20">
                         <el-select size="small" placeholder="全部类别" v-model="searchFilter.storage_type" @change="searchHandle">
@@ -73,7 +79,11 @@ export default {
             loading: false,
             storageLists: [],   
             dialogStatus: {addStorage: false},
-            searchFilter: {begin_time: '', end_time: '', storage_type: '', commodity_type: '', use_type: '', keyword: ''},
+            searchFilter: {
+                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
+                end_time: new Date().getTime(), 
+                storage_type: '', commodity_type: '', use_type: '', keyword: ''
+            },
             storageTable: {},
 
             commodityTypeLists: []
@@ -82,6 +92,10 @@ export default {
     methods: {
         dialogClose() {
 
+        },
+        dateChange() {
+            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            this.getStorageLists();
         },
         searchHandle() {
             this.getStorageLists();
@@ -99,8 +113,8 @@ export default {
                     goods_type: this.searchFilter.commodity_type,
                     storage_type: this.searchFilter.storage_type,
                     time: {
-                        start: this.searchFilter.begin_time,
-                        end: this.searchFilter.end_time
+                        start: this.searchFilter.begin_time / 1000,
+                        end: this.searchFilter.end_time / 1000
                     }
                 }
             };

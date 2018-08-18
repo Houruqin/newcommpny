@@ -28,20 +28,17 @@ const Tools = {
 	},
 	
 	//表单非正则验证
-	formOtherValidate(type) {
+	formOtherValidate(type, num) {
 		return (rule, value, callback, event, e, d) => {
-            // rules.forEach(v => {
-            //     if(NUMBER_RULE[v].validate(value)) return callback(new Error(NUMBER_RULE[v].message));
-            //     else return callback();
-            // });
-			if(type == 'price') {
+            //小数验证
+            if(type == 'decimals') {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
-                else if(value < 0) return callback(new Error('请输入正数!'))
-				else if(String(value).split('.')[1] && String(value).split('.')[1].length > 2) return callback(new Error('最多两位小数'));
-				else if(value > 9999) return callback(new Error('价格不能超过9999'));
-				else return callback();
+                else if(value < 0) return callback(new Error('请输入正数!'));
+                else if(String(value).split('.')[1] && String(value).split('.')[1].length > num) return callback(new Error(`最多${num}位小数`));
+                else return callback();
             };
             
+            //整数验证
             if(type == 'int') {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
                 else if(value < 0) return callback(new Error('请输入正数!'))
@@ -49,6 +46,11 @@ const Tools = {
                 else return callback();
             };
             
+            //数值验证
+            if(type == 'total') {
+                if(value > num) return callback(new Error(`输入值不能超过${num}`));
+                else return callback();
+            }
 		}
 	},
 

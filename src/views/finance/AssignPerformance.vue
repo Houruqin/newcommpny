@@ -206,7 +206,9 @@ export default {
         name: [{ required: true, message: "请输入分配人员" }],
         price: [
           { required: true, message: "请输入分配金额" },
-          { validator: this.$$tools.formOtherValidate("price") }
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.$$tools.formOtherValidate('total', 9999)}
+        //   { validator: this.$$tools.formOtherValidate("price") }
         ]
       },
       contract_data: {},

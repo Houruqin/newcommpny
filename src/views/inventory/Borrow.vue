@@ -6,11 +6,17 @@
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.begin_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.begin_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
-                        <el-date-picker size="small" v-model="searchFilter.end_time" type="date" placeholder="选择日期"></el-date-picker>
+                        <el-date-picker size="small" :editable="false" :clearable="false" 
+                            @change="dateChange" v-model="searchFilter.end_time" 
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
                     </li>
                     <li class="ml-20">
                         <el-select size="small" placeholder="全部归还状态" v-model="searchFilter.borrow_type" @change="searchHandle">
@@ -42,7 +48,7 @@
                 <el-table-column label="已归还数量" prop="return_num" align="center"></el-table-column>
                 <el-table-column label="归还时间" align="center">
                     <template slot-scope="scope">
-                        {{$$tools.format(scope.row.return_time)}}
+                        {{scope.row.return_time > 0 ? $$tools.format(scope.row.return_time) : ''}}
                     </template>
                 </el-table-column>
                 <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
@@ -85,7 +91,11 @@ export default {
             loading: false,
             dialogStatus: {giveBack: false},
             submitLoading: {back: false},
-            searchFilter: {begin_time: '', end_time: '', borrow_type: '', keyword: ''},
+            searchFilter: {
+                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
+                end_time: new Date().getTime(), 
+                borrow_type: '', keyword: ''
+            },
 
             borrowTable: {},
 
@@ -101,8 +111,12 @@ export default {
         dialogClose() {
 
         },
+        dateChange() {
+            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            this.getBorrowLists();
+        },
         searchHandle() {
-
+            this.getBorrowLists();
         },
         giveBackClick(item) {
             this.backForm.id = item.id,
@@ -123,7 +137,9 @@ export default {
             let result = await this.$$request.post('api/repertory/returns', params);
             console.log(result);
             if(!result) return 0;
-            
+
+            this.$message.success('归还成功');
+            this.dialogStatus.giveBack = false;
             this.getBorrowLists();
         },
         //获取借用记录列表
@@ -134,9 +150,10 @@ export default {
                 data: {
                     name: this.searchFilter.keyword,
                     borrow_status: this.searchFilter.borrow_type,
-                    // time: {
-
-                    // }
+                    time: {
+                        start: this.searchFilter.begin_time / 1000,
+                        end: this.searchFilter.end_time / 1000
+                    }
                 }
             };
 
