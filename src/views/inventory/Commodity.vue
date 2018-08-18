@@ -197,7 +197,7 @@
                     <el-input type="textarea" :rows="4" placeholder="请输入备注" v-model.trim="removeStorageForm.remark"></el-input>
                 </el-form-item>
 
-                <el-form-item label="出库金额：" prop="remark"><span class="fc-m fs-20">{{removeStorageForm.money}}元</span></el-form-item>
+                <el-form-item label="出库金额：" prop="remark"><span class="fc-m fs-20">{{removeStorageForm.num * Number(removeStorageForm.price)}}元</span></el-form-item>
                 <div class="d-f f-j-c mt-20 mb-10"><MyButton @click.native="doneHandle('removeStorage')" :loading="submitLoading.removeStorage">确定</MyButton></div>
             </el-form>
         </el-dialog>
@@ -254,6 +254,11 @@ export default {
                 {type: 'borrow', text: '借用'}, {type: 'edit', text: '编辑'}, {type: 'delete', text: '删除'}
             ],
 
+
+            removeStorageWaringText: {
+                one: '该学员没有购买任何物品，不能出库', two: '没有购买该物品，不能出库', three: '该物品购买库存为0，不能出库'
+            },
+
             loading: false,
             studentCourseLists: [],
             commodityTypeStatus: 'add',
@@ -273,8 +278,8 @@ export default {
             commodityTypeForm: {name: '', id: ''},   //添加物品类型表单
             addStorageForm: {name: '', goods_id: '', num: '', stock_price: ''},   //入库表单
             removeStorageForm: {
-                name: '', goods_id: '', num: '', receive_people: '', remark: '', 
-                total_num: '', money: '', student_course: '', student_total_num: '',
+                name: '', goods_id: '', num: '', receive_people: '', remark: '', price: '',
+                total_num: '', student_course: '', student_total_num: '',
                 student_course: ''
             },   //出库表单
             borrowForm: {
@@ -396,6 +401,7 @@ export default {
             this.removeStorageForm.goods_id = data.id;
             this.removeStorageForm.name = data.name;
             this.removeStorageForm.total_num = data.total_num;
+            this.removeStorageForm.price =  Number(data.price);
             this.dialogStatus.removeStorage = true;
         },
         //更多点击
@@ -415,7 +421,7 @@ export default {
                     this.addCommodityForm.type = info.data.type;
                     this.addCommodityForm.use_type = info.data.use_type;
                     this.addCommodityForm.unit = info.data.unit;
-                    this.addCommodityForm.waring = info.data.waring;
+                    this.addCommodityForm.warning = info.data.warning;
                     this.addCommodityForm.goods_id = info.data.id;
                     this.addCommodityForm.price = info.data.price;
 
@@ -472,21 +478,32 @@ export default {
             this.studentCourseLists.forEach(v => {
                 if(v.id == val) {
                     if(!v.goods.length) {
-                        this.$message.warning('没有购买该物品，不能出库');
+                        this.$message.warning(this.removeStorageWaringText.one);
                         this.removeStoageBtn.one = true;
                         return 0;
                     }else this.removeStoageBtn.one = false;
                     
-                    v.goods.forEach(k => {if(k.goods_id == this.removeStorageForm.goods_id) {
-                        console.log(k)
-                        if(!k.total_num) {
-                            this.removeStoageBtn.two = true;
-                            this.$message.warning('该物品购买库存为0，不能出库');
-                        }else {
-                            this.removeStoageBtn.two = false;
-                            this.removeStorageForm.student_total_num = k.total_num;
-                        }
-                    }});
+                    console.log(this.removeStorageForm.goods_id);
+                    
+                    if(v.goods.some(f => {
+                        return (f.goods_id == this.removeStorageForm.goods_id)
+                    })) {
+                        this.removeStoageBtn.two = false;
+                        v.goods.forEach(k => {
+                            if(k.goods_id == this.removeStorageForm.goods_id) {
+                                if(!k.total_num) {
+                                    this.removeStoageBtn.three = true;
+                                    this.$message.warning(this.removeStorageWaringText.three);
+                                }else {
+                                    this.removeStoageBtn.three = false;
+                                    this.removeStorageForm.student_total_num = k.total_num;
+                                }
+                            }
+                        });
+                    }else {
+                        this.removeStoageBtn.two = true;
+                        this.$message.warning(this.removeStorageWaringText.two);
+                    }
                 }
             });
         },
@@ -527,24 +544,27 @@ export default {
         //提交 物品数据添加
         async submitAddCommodity() {
             let params = {};
-
+            let url = this.operationCommodity == 'add' ? 'api/goods/goodsAdd' : 'api/goods/goodsEdit';
+    
             for(let key in this.addCommodityForm) {
                 if(key == 'price') {
                     if(this.addCommodityForm.use_type == 2) params[key] = this.addCommodityForm[key];
                 }else if(key != 'goods_id'){
                     params[key] = this.addCommodityForm[key];
                 }
-            }
+            };
 
             if(this.operationCommodity == 'edit') params.id = this.addCommodityForm.goods_id;
 
             console.log(params);
-            // let result = await this.$$request.post('api/goods/goodsAdd', params);
-            // console.log(result);
-            // if(!result) return 0;
+            let result = await this.$$request.post(url, params);
+            console.log(result);
+            if(!result) return 0;
 
-            // this.getCommodityLists();
-            // this.dialogStatus.addCommodity = false;
+            this.getCommodityLists();
+
+            this.$message.success(`${this.operationCommodity == 'add' ? '添加' : '修改'}物品成功`);
+            this.dialogStatus.addCommodity = false;
         },
         //提交 物品类型添加
         async submitCommodityType() {
@@ -583,8 +603,9 @@ export default {
         },
         //提交 出库数据
         async submitRemoveStorage() {
-            if(this.removeStoageBtn.one) return this.$message.warning('没有购买该物品，不能出库');
-            if(this.removeStoageBtn.two) return this.$message.warning('该物品购买库存为0，不能出库');
+            if(this.removeStoageBtn.one) return this.$message.warning(this.removeStorageWaringText.one);
+            if(this.removeStoageBtn.two) return this.$message.warning(this.removeStorageWaringText.two);
+            if(this.removeStoageBtn.three) return this.$message.warning(this.removeStorageWaringText.three);
 
             let params = {
                 goods_id: this.removeStorageForm.goods_id,
@@ -595,13 +616,13 @@ export default {
 
             console.log(params);
             
-            // let result = await this.$$request.post('api/repertory/outStorage', params);
-            // console.log(result);
-            // if(!result) return 0;
+            let result = await this.$$request.post('api/repertory/outStorage', params);
+            console.log(result);
+            if(!result) return 0;
 
-            // this.$message.success('出库成功');
-            // this.getCommodityLists();
-            // this.dialogStatus.removeStorage = false;
+            this.$message.success('出库成功');
+            this.getCommodityLists();
+            this.dialogStatus.removeStorage = false;
         },
         //提交借用数据
         async submitBorrowInfo() {

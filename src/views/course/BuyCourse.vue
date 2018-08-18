@@ -113,11 +113,13 @@
                             <div class="textbook-add" @click="textbookAddClick">添加</div>
                         </div>
                     </div>
-                    <div>
-                        <el-form-item label="教材优惠：" prop="preferential_textbook_price" class="units-input ml-50 textbook-privilege">
-                            <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferential_textbook_price" :disabled="preferentialDisabled"></el-input><span class="pl-10">元</span>
-                        </el-form-item>
-                    </div>
+                    <el-form-item label="教材费用：" class="ml-50">
+                        {{courseForm.textbook_price}}
+                    </el-form-item>
+
+                    <el-form-item label="教材优惠：" prop="preferential_textbook_price" class="units-input ml-50">
+                        <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferential_textbook_price" :disabled="preferentialDisabled"></el-input><span class="pl-10">元</span>
+                    </el-form-item>
                 </div>
                 
                 <p class="head-info">付费信息</p>
@@ -311,6 +313,8 @@ export default {
                 this.courseForm.preferential_textbook_price = '';
                 this.preferentialDisabled = true;
             }
+
+            this.courseForm.textbook_price = textbookPrice;
         },
         //教材change
         textbookChange(textbook) {
@@ -385,8 +389,6 @@ export default {
                 let num = v.num ? Number(v.num) : 0;
                 textbookPrice += (num * v.unit_price);
             });
-
-            this.courseForm.textbook_price = textbookPrice;
 
             let money = coursePrice + textbookPrice - Number(this.courseForm.preferential_textbook_price);
             let b;

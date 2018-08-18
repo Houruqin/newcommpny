@@ -9,7 +9,7 @@
                         </el-form-item>
 
                         <el-form-item label="联系电话：" prop="mobile">
-                            <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
+                            <el-input type="number" v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
                         </el-form-item>
 
                         <el-form-item label="就读学校：" prop="school_name">

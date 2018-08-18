@@ -271,7 +271,7 @@
             </div>
 
             <!-- 新增排课弹窗 -->
-            <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="900px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
+            <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="800px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
                 <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
                     <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
                         <el-row>
@@ -312,8 +312,8 @@
                                 </el-form-item>
 
                                 <template v-if="addTableType == 'multiple'">
-                                    <el-form-item label="扣课时数：" prop="lesson_num">
-                                        <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
+                                    <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
+                                        <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                     </el-form-item>
 
                                     <el-form-item label="辅助老师：" prop="counselor_ids">
@@ -328,8 +328,8 @@
                                             <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="扣课时数：" prop="lesson_num">
-                                        <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
+                                    <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
+                                        <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                     </el-form-item>
                                 </template>
                                 <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1">
@@ -350,7 +350,7 @@
                                     </div>
                                 </el-form-item>
                                 <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1">
-                                    <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
+                                    <el-input type="number" v-model.number="timetableForm.loop_time" :disabled="timetableForm.loop == 'no'"></el-input><span class="pl-10">次</span>
                                 </el-form-item>
                             </el-col>                    
                         </el-row>
@@ -613,10 +613,14 @@ export default {
                 counselor_ids: [],
                 lesson_num: [
                     {required: true, message: '请输入课时数'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 99)}
                 ],
                 loop: [],
                 loop_time: [
                     {required: true, message: '请输入排课次数'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 99)}
                 ],
                 start_time: [
                     {required: true, message: '请输入开课时间', trigger: 'change'}
@@ -1592,7 +1596,6 @@ export default {
     }
 
     .form-box {
-        padding: 0 10px;
         max-height: 450px;
         overflow: hidden;
         overflow-y: auto;
@@ -1603,6 +1606,9 @@ export default {
             position: absolute;
             right: -35px;
             top: 5px;
+        }
+        .lesson-num .el-input {
+            width: 180px;
         }
         .el-cascader {
             display: block;

@@ -52,9 +52,13 @@
                 <el-table-column label="物品类型" prop="goods_types_name" align="center"></el-table-column>
                 <el-table-column label="使用类型" align="center"></el-table-column>
                 <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
-                <el-table-column label="操作时间" align="center"></el-table-column>
-                <el-table-column label="操作数量" align="center"></el-table-column>
-                <el-table-column label="领用人" align="center"></el-table-column>
+                <el-table-column label="操作时间" align="center">
+                    <template slot-scope="scope">
+                        {{$$tools.format(scope.row.updated_at)}}
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作数量" prop="num" align="center"></el-table-column>
+                <el-table-column label="领用人" prop="receive_name" align="center"></el-table-column>
             </el-table>
 
             <el-pagination v-if="storageTable.total"
@@ -139,6 +143,7 @@ export default {
     },
     created() {
         this.getStorageLists();
+        this.getCommodityTypeLists();
     },
     components: {TableHeader, MyButton}
 }
