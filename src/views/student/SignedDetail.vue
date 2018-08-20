@@ -324,51 +324,46 @@
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
-        <el-dialog title="退费" width="1000px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
+        <el-dialog title="退费" width="900px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <el-form-item label="上课学员："><span>{{studentDetail.name}}</span></el-form-item>
-                <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
-                <div class="d-f">
-                    <div class="flex1">
+                <div class="d-f pl-50">
+                    <h3>上课学员：<span>{{studentDetail.name}}</span></h3>
+                    <h3 class="ml-50">课程名称：<span>{{quitCourseInfo.course_name}}</span></h3>
+                </div>
+                <div class="d-f mt-30">
+                    <div class="list-item">
                         <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
-                        <el-form-item label="购买金额：">{{quitCourseInfo.real_price}}</el-form-item>
-                        <el-form-item label="教材费用：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
                         <el-form-item label="课时实际退费：" prop="lesson_quitprice">
                             <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.lesson_quitprice"></el-input>
                         </el-form-item>
                     </div>
 
-                    <div class="flex1">
+                    <div class="list-item">
                         <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
-                        <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
-                        <el-form-item label="剩余教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
-                        <el-form-item label="教材实际退费：" prop="textbook_quitprice">
-                            <el-input type="number" placeholder="教材实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
-                        </el-form-item>
+                        <el-form-item label="课时费：">{{quitCourseInfo.given_num}}</el-form-item>
                     </div>
 
-                    <div class="flex1">
-                        <el-form-item label="剩余课时：">{{quitCourseInfo.lesson_num_remain}}</el-form-item>
-                        <!-- <el-form-item label="剩余费用：">{{quitCourseInfo.remain_price}}</el-form-item> -->
+                    <div class="list-item">
+                        <el-form-item label="购买剩余课时：">{{quitCourseInfo.lesson_num_remain}}</el-form-item>
                         <el-form-item label="剩余课时费：">{{quitCourseInfo.remain_price}}</el-form-item>
-                        <el-form-item label="退费总额：">
-                            {{quitCourseForm.textbook_quitprice + quitCourseForm.lesson_quitprice}}
-                            <!-- <el-input placeholder="退费总额" v-model="quitCourseForm.rel_remain"></el-input> -->
-                        </el-form-item>
                     </div>
                 </div>
-                <!-- <el-form-item label="实际退费：" prop="rel_remain">
-                    <el-col :span="10">
-                        <el-input placeholder="实际退费" v-model="quitCourseForm.rel_remain"></el-input>
-                    </el-col>
-                </el-form-item> -->
-                <el-row class="mt-30">
-                    <el-col :span="21">
-                        <el-form-item label="退费说明：" prop="explain" class="textarea-cls">
-                            <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
+
+                <div class="d-f mt-10">
+                    <div class="list-item">
+                        <el-form-item label="教材费：">{{quitCourseInfo.lesson_num}}</el-form-item>
+                        <el-form-item label="教材实际退费：" prop="lesson_quitprice">
+                            <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.lesson_quitprice"></el-input>
                         </el-form-item>
-                    </el-col>
-                </el-row>
+                    </div>
+                    <div class="list-item">
+                        <el-form-item label="剩余教材费：">{{quitCourseInfo.lesson_num}}</el-form-item>
+                    </div>
+                </div> 
+                <el-form-item label="退费说明：" prop="explain" class="textarea-cls pr-100">
+                    <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
+                </el-form-item>
                 <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')" :loading="submitLoading.quitCourse">确认</MyButton></div>
             </el-form>
         </el-dialog>
@@ -1525,6 +1520,9 @@ export default {
         padding: 0 20px;
         .el-input {
             width: 150px;
+        }
+        .list-item {
+            width: 300px;
         }
     }
     .followup-lists-box {
