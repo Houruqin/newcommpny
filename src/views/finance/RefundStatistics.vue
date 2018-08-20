@@ -5,7 +5,7 @@
       </TableHeader>
 
       <div class="toolbar mt-20">
-        <ul class="d-f">
+        <ul class="d-f date_type">
           <li @click="choose_date('current_month')">
             <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
           </li>
@@ -46,7 +46,7 @@
         </ul>
       </div>
 
-      <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true">
+      <el-table stripe class="student-table mt-30" :data="refund_info.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="退费学员" align="center">
           <template slot-scope="scope">
@@ -98,20 +98,16 @@ export default {
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
-        ),
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
         name: "",
-        date_type: "",
+        date_type: "current_month",
         course_id: 0,
         course_type_id: 0
       },
       //退费信息
       refund_info: {
-        data: []
+        data: [],
+        total: ""
       },
       //分页信息
       page_info: {
@@ -131,19 +127,6 @@ export default {
     };
   },
   methods: {
-    init_search_info() {
-      let search_info = {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
-        ),
-        name: ""
-      };
-      this.search_info = search_info;
-    },
     //选择时间
     choose_date(type) {
       console.log(type);
@@ -153,12 +136,7 @@ export default {
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/MM/01")
           );
-          this.search_info.end = new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0,
-            24
-          );
+          this.search_info.end = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
           break;
         case "last_month":
           this.search_info.begin = new Date(
@@ -167,22 +145,16 @@ export default {
             0,
             24
           );
-          this.search_info.end = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
-          );
+          this.search_info.end = new Date(new Date().setDate(0));
           break;
         case "current_year":
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/01/01")
           );
-          this.search_info.end = new Date(
-            new Date().getFullYear() + 1,
-            0,
-            0,
-            24
-          );
+          this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
+      this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
     date_change() {
@@ -217,6 +189,7 @@ export default {
         .get("api/financeManage/studentCourse/quitCourseLists", params)
         .then(res => {
           this.refund_info.data = res.lists.data;
+          this.refund_info.total = res.total;
           this.page_info.total = res.lists.total;
           this.loading = false;
         });
@@ -233,7 +206,7 @@ export default {
       this.$$request
         .get("api/financeManage/quitCourseDetail", params)
         .then(res => {
-          console.log(res)
+          console.log(res);
           this.dialog.refund.data = res;
           this.dialog.refund.show = true;
         });
@@ -243,6 +216,27 @@ export default {
       this.dialog.refund.data = {};
       // this.contract_data = {};
       this.dialog.refund.show = false;
+    },
+    get_sum(param) {
+      let sums = [];
+      const { columns, data } = param;
+      sums[1] = "合计";
+      columns.forEach((item, index) => {
+        switch (item.label) {
+          case "课时退费":
+            return (sums[index] =
+              this.refund_info.total.total_lesson_price + " 元");
+            break;
+          case "教材退费":
+            return (sums[index] =
+              this.refund_info.total.total_textbook_price + " 元");
+            break;
+          case "实退金额":
+            return (sums[index] = this.refund_info.total.total_price + " 元");
+            break;
+        }
+      });
+      return sums;
     }
   },
   created() {
@@ -277,9 +271,11 @@ export default {
   margin-left: 20px;
   cursor: pointer;
 }
-.selected {
-  background-color: #45dad5 !important;
-  color: #fff !important;
+.date_type {
+  .selected {
+    background-color: #45dad5 !important;
+    color: #fff !important;
+  }
 }
 </style>
 

@@ -485,7 +485,7 @@ export default {
         //借用  借用人change
         borrowPeopleChange(val) {
             this.$store.state.allUser.forEach(v => {
-                if(v.id == val) this.borrowForm.borrow_people_type = v.user_type;
+                if(v.together_id == val) this.borrowForm.borrow_people_type = v.user_type;
             });
         },
         //出库 领取人change
@@ -665,12 +665,12 @@ export default {
             };
             console.log(params);
 
-            let result = await this.$$request.post('api/repertory/borrow', params);
-            console.log(result);
-            if(!result) return 0;
+            // let result = await this.$$request.post('api/repertory/borrow', params);
+            // console.log(result);
+            // if(!result) return 0;
 
-            this.$message.success('借用成功');
-            this.dialogStatus.borrow = false;
+            // this.$message.success('借用成功');
+            // this.dialogStatus.borrow = false;
         },
         //获取物品列表
         async getCommodityLists(page) {

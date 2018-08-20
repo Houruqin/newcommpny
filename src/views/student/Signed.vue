@@ -201,7 +201,7 @@
                     </el-table-column>
                     <el-table-column label="购买日期" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
+                            <ul class="table-item-list" :class="{'last-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
                                     {{list.pay_at && $$tools.format(list.pay_at)}}
                                 </li>
@@ -261,7 +261,7 @@
                     </el-table-column>
                     <el-table-column label="课程有效期" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
+                            <ul class="table-item-list" :class="{'last-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
                                     {{list.expired_at && $$tools.format(list.expired_at)}}
                                 </li>
