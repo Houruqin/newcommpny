@@ -1051,7 +1051,7 @@ export default {
                 teacher_id: data.teacher_ids
             };
 
-            this.$router.push({name: 'signedBuyCourse', params: {buyCourseData: params}});
+            this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
         },
         //课程信息列表查看合约
         async showContract(data) {
@@ -1208,8 +1208,6 @@ export default {
         buyCourse() {
             // this.buyCourseData = this.studentDetail;
             // this.dialogStatus.course = true;
-            console.log(this.studentDetail);
-
             let params = {
                 student_id: this.studentDetail.id,
                 advisor_id: this.studentDetail.advisor_id,
@@ -1217,7 +1215,7 @@ export default {
                 parent_id: this.studentDetail.parent_id
             };
 
-            this.$router.push({name: 'signedBuyCourse', params: {buyCourseData: params}});
+            this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
         },
         //上课状态转换
         timeTableStatus(status) {
@@ -1470,7 +1468,6 @@ export default {
     created() {
         this.studentId = this.$route.query.id;
         this.getStudentDetail();
-        console.log(this.$$cache.getMemberInfo())
     },
     watch: {
         $route: function(val,oldval) {

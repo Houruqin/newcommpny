@@ -74,6 +74,7 @@ export default {
                         {id: '/finance/assign', text: '业绩分配'}
                     ]
                 },
+                {id: "/home/setting", text: "基础设置", item: false, icon: "icon-shezhi1"},
                 {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
                 // {
                 //   id: '/home/statistics',

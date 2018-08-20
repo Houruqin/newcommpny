@@ -383,7 +383,7 @@ export default {
                 parent_id: this.detail.parent_id
             };
 
-            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
+            this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
         },  
         //试听确定
         listenDoneHandle() {

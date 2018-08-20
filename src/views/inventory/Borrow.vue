@@ -59,6 +59,15 @@
                     </template>
                 </el-table-column>
             </el-table>
+
+            <el-pagination v-if="borrowTable.total"
+                class="d-f f-j-c mt-50 mb-50" 
+                :page-size="borrowTable.per_page" 
+                background layout="total, prev, pager, next" 
+                :total="borrowTable.total" 
+                :current-page="borrowTable.current_page" 
+                @current-change="paginationClick">
+            </el-pagination>
         </el-card>
 
         <!-- 归还弹窗 -->
@@ -67,7 +76,7 @@
                 <div class="d-f f-j-b">
                     <el-form-item label="应归还数量：">{{backForm.back_num}}</el-form-item>
                     <el-form-item label="归还数量：" prop="return_num">
-                        <el-input v-model.trim="backForm.return_num" placeholder="请输入物品类型"></el-input>
+                        <el-input v-model.trim="backForm.return_num" placeholder="请输入归还数量"></el-input>
                     </el-form-item>
                 </div>
 
@@ -103,13 +112,14 @@ export default {
             backRules: {
                 return_num: [
                     {required: true, message: '请输入归还数量'}
-                ]
+                ],
+                explain: []
             }
         }
     },
     methods: {
         dialogClose() {
-
+            this.$refs.backForm.resetFields();
         },
         dateChange() {
             if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
@@ -125,6 +135,9 @@ export default {
         },
         doneHandle() {
             this.$refs.backForm.validate(valid => {this.submitBackForm()});
+        },
+        paginationClick(current) {
+            this.getBorrowLists(current);
         },
         //提交归还数据
         async submitBackForm() {
@@ -157,7 +170,7 @@ export default {
                 }
             };
 
-            if(page) params.page_num = page;
+            if(page) params.page = page;
 
             let result = await this.$$request.get('api/repertory/borrowRecords', params);
             console.log(result);
