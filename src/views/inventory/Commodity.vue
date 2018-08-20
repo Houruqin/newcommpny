@@ -33,11 +33,25 @@
                 <el-table-column label="使用类型" align="center">
                     <template slot-scope="scope">{{scope.row.use_type == 1 ? '内部使用' : '对外销售'}}</template>
                 </el-table-column>
-                <el-table-column label="进货单价" align="center"></el-table-column>
+                <el-table-column label="进货单价" align="center">
+                    <template slot-scope="scope">{{scope.row.stock_price}}元</template>
+                </el-table-column>
                 <el-table-column label="销售单价" align="center">
                     <template slot-scope="scope">{{scope.row.price}}元</template>
                 </el-table-column>
-                <el-table-column label="库存数量" prop="total_num" align="center"></el-table-column>
+                <el-table-column label="库存数量" align="center">
+                    <template slot-scope="scope">
+                        <div v-if="scope.row.total_num >= scope.row.warning">{{scope.row.total_num}}</div>
+                        <div v-else class="d-f f-j-c">
+                            <el-popover popper-class="grade-student-popver" placement="right" trigger="click" :content="`该物品已少于${scope.row.warning}件，请及时补充库存！`">
+                                <div slot="reference" class="ml-5 cursor-pointer">
+                                    <span>{{scope.row.total_num}}</span>
+                                    <img src="../../images/common/zhuyi.png" alt="">
+                                </div>
+                            </el-popover>
+                        </div>
+                    </template>
+                </el-table-column>
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
                 <el-table-column label="操作" align="center" width="200">
                     <template slot-scope="scope">
@@ -95,7 +109,7 @@
                         </el-form-item>
 
                         <el-form-item label="物品单位：" prop="unit">
-                            <el-input placeholder="物品单位" v-model="addCommodityForm.unit"></el-input>
+                            <el-input placeholder="物品单位" v-model.trim="addCommodityForm.unit"></el-input>
                         </el-form-item>
 
                         <el-form-item label="销售价格：" prop="price" class="units-input" v-if="addCommodityForm.use_type == 2">
@@ -130,13 +144,11 @@
                 <el-table-column label="物品类型" align="center">
                     <template slot-scope="scope">
                         <span class="fc-m cursor-pointer" @click="commodityTypeHandle('edit', scope.row)">修改</span>
-                        <span class="fc-m cursor-pointer ml-10" @click="commodityTypeHandle('forbid', scope.row)">禁用</span>
+                        <span class="fc-m cursor-pointer ml-10" @click="commodityTypeHandle(scope.row.status, scope.row)">{{scope.row.status == 1 ? '禁用' : '启用'}}</span>
                         <span class="fc-m cursor-pointer ml-10" @click="commodityTypeHandle('delete', scope.row)">删除</span>
                     </template>
                 </el-table-column>
             </el-table>
-
-            <div class="d-f f-j-c mt-30 mb-10"><MyButton @click.native="dialogStatus.typeSetting = false">确定</MyButton></div>
 
             <el-dialog :title="commodityTypeStatus == 'add' ? '添加' : '修改' + '物品类型'" width="500px" center :visible.sync="dialogStatus.commodityType" :close-on-click-modal="false" @close="dialogClose('commodityType')" append-to-body>
                 <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType" class="commodity-type-formbox">
@@ -172,13 +184,13 @@
                         <el-form-item label="物品名称：">{{removeStorageForm.name}}</el-form-item>
                         <el-form-item label="领取人：" prop="receive_people">
                             <el-select v-model="removeStorageForm.receive_people" placeholder="请选择" filterable @change="receivePeopleChange">
-                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.id">
+                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id">
                                     <span style="float: left">{{ item.name }}</span>
                                     <span style="float: right; color: #8492a6; font-size: 12px" v-if="item.user_type == 2">学员</span>
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="对应课程：" prop="student_course" v-if="studentCourseLists.length">
+                        <el-form-item label="对应课程：" prop="student_course" v-if="receivePeopleType == 2">
                             <el-select v-model="removeStorageForm.student_course" placeholder="请选择" @change="studentCourseChange">
                                 <el-option v-for="(item, index) in studentCourseLists" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
@@ -190,7 +202,7 @@
                         <el-form-item label="出库数量：" prop="num">
                             <el-input type="number" placeholder="出库数量" v-model="removeStorageForm.num"></el-input>
                         </el-form-item>
-                        <el-form-item label="学员剩余库存：" v-if="removeStorageForm.student_total_num !== ''">{{removeStorageForm.student_total_num}}件</el-form-item>
+                        <el-form-item label="学员剩余库存：" v-if="receivePeopleType == 2 && removeStorageForm.student_total_num !== ''">{{removeStorageForm.student_total_num}}件</el-form-item>
                     </div>
                 </div>
                 <el-form-item label="备注：" class="mt-10 textarea-cls" prop="remark">
@@ -211,7 +223,7 @@
                         <el-form-item label="物品名称：">{{borrowForm.name}}</el-form-item>
                         <el-form-item label="借用人：" prop="borrow_people">
                             <el-select v-model="borrowForm.borrow_people" placeholder="请选择" filterable @change="borrowPeopleChange">
-                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.id">
+                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id">
                                     <span style="float: left">{{ item.name }}</span>
                                     <span style="float: right; color: #8492a6; font-size: 12px" v-if="item.user_type == 2">学员</span>
                                 </el-option>
@@ -355,7 +367,10 @@ export default {
     methods: {
         dialogClose(type) {
             if(type) this.$refs[type].resetFields();
-            this.receivePeopleType = 1;
+            if(type == 'removeStorage') {
+                this.receivePeopleType = 1;
+                this.studentCourseLists.splice(0, this.studentCourseLists.length);
+            }
         },
         removeStorageNumValidate(type) {
             return (rule, value, callback, event, e, d) => {
@@ -398,6 +413,7 @@ export default {
         },
         //出库点击
         removeStorage(data) {
+            console.log(data);
             this.removeStorageForm.goods_id = data.id;
             this.removeStorageForm.name = data.name;
             this.removeStorageForm.total_num = data.total_num;
@@ -453,7 +469,18 @@ export default {
                 this.commodityTypeForm.name = item.name;
                 this.commodityTypeForm.id = item.id;
                 this.dialogStatus.commodityType = true;
-            }
+            }else this.commodityTypeSubmit(type, item.id);
+        },
+        //物品类型删除、禁用
+        async commodityTypeSubmit(type, id) {
+            let params = {id: id, type: type == 'delete' ? 'del' : type == 1 ? 'limit' : 'start'};
+            console.log(params);
+
+            let result = await this.$$request.get('api/goodsType/goodsTypeOperate', params);
+            console.log(result);
+            if(!result) return 0;
+            this.getCommodityTypeLists();
+            this.$message.success(`${type == 'delete' ? '删除' : type == 1 ? '禁用' : '启用'}成功`);
         },
         //借用  借用人change
         borrowPeopleChange(val) {
@@ -464,10 +491,11 @@ export default {
         //出库 领取人change
         receivePeopleChange(val) {
             this.$store.state.allUser.forEach(v => {
-                if(v.id == val) {
+                if(v.together_id == val) {
                     this.receivePeopleType = v.user_type;
                     if(v.user_type == 2) {
-                        this.removeStorageForm.total_num = v.id;
+                        this.removeStorageForm.student_course = '';
+                        this.removeStorageForm.student_total_num = '';
                         this.getStudentCourse(v.id);
                     }
                 }
@@ -475,6 +503,8 @@ export default {
         },
         //出库 学员课程change
         studentCourseChange(val) {
+            this.removeStorageForm.student_total_num = '';
+            
             this.studentCourseLists.forEach(v => {
                 if(v.id == val) {
                     if(!v.goods.length) {
@@ -614,6 +644,7 @@ export default {
                 remark: this.removeStorageForm.remark
             };
 
+            if(this.receivePeopleType == 2) params.student_course = this.removeStorageForm.student_course;
             console.log(params);
             
             let result = await this.$$request.post('api/repertory/outStorage', params);
@@ -653,7 +684,7 @@ export default {
                 }
             };
 
-            if(page) params.page_num = page;
+            if(page) params.page = page;
 
             console.log(params);
 
