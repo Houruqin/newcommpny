@@ -48,7 +48,7 @@ const Tools = {
             
             //数值验证
             if(type == 'total') {
-                if(value > num) return callback(new Error(`输入值不能超过${num}`));
+                if(value > num) return callback(new Error(`数值不能大于${num}`));
                 else return callback();
             }
 		}

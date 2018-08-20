@@ -50,7 +50,9 @@
                     <template slot-scope="scope">{{scope.row.type == 1 ? '出库' : '入库'}}</template>
                 </el-table-column>
                 <el-table-column label="物品类型" prop="goods_types_name" align="center"></el-table-column>
-                <el-table-column label="使用类型" align="center"></el-table-column>
+                <el-table-column label="使用类型" align="center">
+                    <template slot-scope="scope">{{scope.row.use_type == 1 ? '内部使用' : '对外销售'}}</template>
+                </el-table-column>
                 <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
                 <el-table-column label="操作时间" align="center">
                     <template slot-scope="scope">
@@ -123,7 +125,7 @@ export default {
                 }
             };
 
-            if(page) params.page_num = page;
+            if(page) params.page = page;
 
             let result = await this.$$request.get('api/repertory/storageLists', params);
             console.log(result);

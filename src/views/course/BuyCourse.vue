@@ -7,7 +7,7 @@
 
                 <p class="head-info">购买信息</p>
                 <div class="mt-10 d-f">
-                    <div>
+                    <div class="list-item">
                         <el-form-item label="课程名称：" prop="course_id">
                             <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
                                 <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -21,7 +21,7 @@
                             </el-select>
                         </el-form-item>
                     </div>
-                    <div class="ml-100">
+                    <div class="list-item">
                         <el-form-item label="购课日期：" prop="pay_at">
                             <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                         </el-form-item>
@@ -42,7 +42,7 @@
                             </el-form-item>
                         </div>
                     </div>
-                    <div class="ml-100">
+                    <div class="list-item">
                         <el-form-item label="课程有效期：" prop="expire" label-width="110px">
                             <el-input type="number" placeholder="课程有效期" v-model.number="courseForm.expire"></el-input><span class="pl-10">月</span>
                         </el-form-item>
@@ -51,7 +51,7 @@
 
                 <p class="head-info">课程信息</p>
                 <div class="mt-10 d-f">
-                    <div>
+                    <div class="list-item">
                         <el-form-item label="购买课时：" prop="lesson_num">
                             <el-input type="number" placeholder="购买课时" v-model.number="courseForm.lesson_num"></el-input><span class="pl-10">课时</span>
                         </el-form-item>
@@ -62,8 +62,8 @@
                             </el-form-item>
                         </div>
                     </div>
-                    <div class="ml-80">
-                        <el-form-item label="课时单价：" prop="unit_price" class="units-input">
+                    <div class="list-item">
+                        <el-form-item label="课时单价：" prop="unit_price">
                             <el-input placeholder="课时单价" type="number"  v-model.number="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
                         </el-form-item>
 
@@ -71,7 +71,7 @@
                             <el-input type="number" placeholder="赠送课时" v-model.number="courseForm.given_num"></el-input><span class="pl-10">课时</span>
                         </el-form-item>
                     </div>
-                    <div class="ml-80">
+                    <div class="list-item">
                         <div v-if="$$cache.getMemberInfo().class_pattern === 2">
                             <el-form-item label="已扣课时：" prop="lesson_num_already">
                                 <el-input type="number" placeholder="已扣课时" v-model.number="courseForm.lesson_num_already"></el-input><span class="pl-10">课时</span>
@@ -82,7 +82,7 @@
                                 <el-input type="number" placeholder="允许请假数" v-model.number="courseForm.leave_num"></el-input><span class="pl-10">次</span>
                             </el-form-item>
                         </div>
-                        <el-form-item label="课程优惠：" prop="preferential_price" class="units-input">
+                        <el-form-item label="课程优惠：" prop="preferential_price" label-width="110px">
                             <el-input type="number" placeholder="优惠金额" v-model.number="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
                     </div>
@@ -93,33 +93,35 @@
                     <div class="d-f">
                         <span class="p-r textbook-label pl-12">购买教材：</span>
                         <div class="ml-12">
-                            <el-form :model="textbookForm" size="small" ref="textbookForm" v-for="(textbookForm, index) in textbookFormLists" :key="index" :rules="textbookRules">
-                                <div class="d-f f-a-c">
-                                    <el-form-item label-width="0">
-                                        <el-select v-model="textbookForm.goods_id" placeholder="选择教材" @change="textbookChange(textbookForm)">
-                                            <el-option v-for="(item, index) in textbookList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                        </el-select>
-                                    </el-form-item>
+                            <div class="add-textbook-box pr-100">
+                                <el-form :model="textbookForm" size="small" ref="textbookForm" v-for="(textbookForm, index) in textbookFormLists" :key="index" :rules="textbookRules">
+                                    <div class="d-f f-a-c">
+                                        <el-form-item label-width="0" class="textbook-select">
+                                            <el-select v-model="textbookForm.goods_id" placeholder="选择教材" @change="textbookChange(textbookForm)">
+                                                <el-option v-for="(item, index) in textbookList" :key="index" :label="item.name" :value="item.id"></el-option>
+                                            </el-select>
+                                        </el-form-item>
 
-                                    <el-form-item prop="num" label-width="0" class="ml-10 textbook-num">
-                                        <el-input type="number" placeholder="输入数量" v-model.number="textbookForm.num" @input="textbookNumChange(index)"></el-input>
-                                    </el-form-item>
+                                        <el-form-item prop="num" label-width="0" class="ml-10 textbook-num">
+                                            <el-input type="number" placeholder="数量" v-model.number="textbookForm.num" @input="textbookNumChange(index)"></el-input>
+                                        </el-form-item>
 
-                                    <el-form-item class="fc-m ml-10">单价：{{textbookForm.unit_price}}元</el-form-item>
+                                        <el-form-item class="fc-m ml-10">单价：{{textbookForm.unit_price}}元</el-form-item>
 
-                                    <span class="textbool-close mb-17 ml-10 cursor-pointer" @click="textbookRemove(index)" v-if="textbookFormLists.length > 1"><i class="el-tag__close el-icon-close"></i></span> 
-                                </div>
-                            </el-form>
+                                        <span class="textbool-close mb-17 ml-10 cursor-pointer" @click="textbookRemove(index)" v-if="textbookFormLists.length"><i class="el-tag__close el-icon-close"></i></span> 
+                                    </div>
+                                </el-form>
+                            </div>
                             <div class="textbook-add" @click="textbookAddClick">添加</div>
+
+                            <el-form-item label="教材优惠：" prop="preferential_textbook_price" label-width="85px" class="mt-20" v-if="textbookFormLists.length">
+                                <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferential_textbook_price" :disabled="preferentialDisabled"></el-input><span class="pl-10">元</span>
+                            </el-form-item>
                         </div>
                     </div>
-                    <el-form-item label="教材费用：" class="ml-50">
+                    <!-- <el-form-item label="教材费用：" class="ml-50">
                         {{courseForm.textbook_price}}
-                    </el-form-item>
-
-                    <el-form-item label="教材优惠：" prop="preferential_textbook_price" class="units-input ml-50">
-                        <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferential_textbook_price" :disabled="preferentialDisabled"></el-input><span class="pl-10">元</span>
-                    </el-form-item>
+                    </el-form-item> -->
                 </div>
                 
                 <p class="head-info">付费信息</p>
@@ -327,6 +329,19 @@ export default {
         //教材删除
         textbookRemove(index) {
             this.textbookFormLists.splice(index, 1);
+
+            let textbookPrice = 0;
+            this.textbookFormLists.forEach(v => {
+                let num = v.num ? Number(v.num) : 0;
+                textbookPrice += (num * v.unit_price);
+            });
+
+            this.courseForm.textbook_price = textbookPrice;
+
+            if(!textbookPrice) {
+                this.courseForm.preferential_textbook_price = '';
+                this.preferentialDisabled = true;
+            };
         },
         getGradeLists(val, change) {
             this.courseLists.forEach(v => {
@@ -362,7 +377,7 @@ export default {
             let params = {};
 
             console.log(this.courseForm);
-
+            
             for(let key in this.courseForm) {
                 if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
                 else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
@@ -384,13 +399,7 @@ export default {
         },
         getTotalMoney() {
             let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_price);
-            let textbookPrice = 0;
-            this.textbookFormLists.forEach(v => {
-                let num = v.num ? Number(v.num) : 0;
-                textbookPrice += (num * v.unit_price);
-            });
-
-            let money = coursePrice + textbookPrice - Number(this.courseForm.preferential_textbook_price);
+            let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
             let b;
             b =  money.toFixed(2);
             this.courseForm.totalMoney = isNaN(b) ? '--' : b;
@@ -402,7 +411,6 @@ export default {
             if(!result) return 0;
 
             this.textbookList = result.lists;
-            this.textbookFormLists.push({goods_id: '', num: '', unit_price: ''});
         },
         textbookNumValidate() {
             return (rule, value, callback, event, e, d) => {
@@ -415,23 +423,20 @@ export default {
         }
     },
     created() {
-        console.log(this.$route.params.buyCourseData)
-        if(this.$route.params.buyCourseData) {
-            // this.buyCourseData = this.$route.query.buyCourseData;
-            let buyCourseData = this.$route.params.buyCourseData;
-            
-            this.getCourseLists(buyCourseData.student_id);
-            this.courseForm.student_id = buyCourseData.student_id;
-            this.courseForm.advisor_id = buyCourseData.advisor_id;
-            this.courseForm.advisor_name = buyCourseData.advisor ? buyCourseData.advisor.name : '';
-            this.courseForm.parent_id = buyCourseData.parent_id;
-            this.courseForm.expire = buyCourseData.expire || 12;
-            this.courseForm.type = buyCourseData.buy_type || 1;
+        if(this.$route.query.buyCourseData) {
+            let queryData = JSON.parse(this.$route.query.buyCourseData);
 
-            if(buyCourseData.course_id) {
-                console.log(buyCourseData.teacher_id)
-                this.courseForm.course_id = buyCourseData.course_id;
-                if(buyCourseData.class_pattern == 2) this.courseForm.teacher_id = +buyCourseData.teacher_id;
+            this.getCourseLists(queryData.student_id);
+            this.courseForm.student_id = queryData.student_id;
+            this.courseForm.advisor_id = queryData.advisor_id;
+            this.courseForm.advisor_name = queryData.advisor ? queryData.advisor.name : '';
+            this.courseForm.parent_id = queryData.parent_id;
+            this.courseForm.expire = queryData.expire || 12;
+            this.courseForm.type = queryData.buy_type || 1;
+
+            if(queryData.course_id) {
+                this.courseForm.course_id = queryData.course_id;
+                if(queryData.class_pattern == 2) this.courseForm.teacher_id = +queryData.teacher_id;
             }
 
             this.courseForm.pay_at = new Date().getTime();
@@ -446,9 +451,9 @@ export default {
 <style lang="less" scoped>
     .form-box {
         padding: 0 0 0 20px;
-        .el-select, .el-date-editor {
-            width: 100%;
-        }
+        // .el-select, .el-date-editor {
+        //     width: 100%;
+        // }
         h3 {
             font-weight: normal;
             font-size: 14px;
@@ -479,11 +484,14 @@ export default {
                 border-radius: 5px;
             }
         }
+        .list-item {
+            width: 380px;
+        }
         
     }
     .textbook-form {
         .textbook-num {
-            .el-input {
+            /deep/ .el-input {
                 width: 100px;
             }
         }
@@ -491,15 +499,23 @@ export default {
             top: 5px;
         }
         .textbook-add {
-            width: 60px;
-            height: 30px;
-            line-height: 30px;
-            box-sizing: border-box;
+            width:56px;
+            line-height: 28px;
             border: 1px #45DAD5 solid;
             text-align: center;
             border-radius: 3px;
             color: #45DAD5;
             cursor: pointer;
+        }
+        // .textbook-select {
+        //     /deep/ .el-input {
+        //         width: 120px;
+        //     }
+        // }
+        .add-textbook-box {
+            max-height: 250px;
+            overflow: hidden;
+            overflow-y: auto;
         }
     }
 </style>
