@@ -65,9 +65,10 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
-                                <span class="cursor-pointer fc-m pr-10" @click="againBuyCourse(scope.row)">续约</span>
-                                <span class="cursor-pointer fc-m pr-10" @click="showContract(scope.row)">购课详情</span>
+                                <span class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
+                                <span class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
                                 <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
+                                <span v-if="scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
                                 <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain && scope.row.status != 2"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
@@ -635,12 +636,15 @@
             </el-form>
             <div class="d-f f-j-c mt-40"><MyButton @click.native="editTeacherDone" :loading="submitLoading.edit">确定</MyButton></div>
         </el-dialog>
+
+        <RefundDialog :routerAble="false" :dialogStatus="dialogStatus.quitPrice" :refundData="quitPriceDetail" @CB-dialogStatus="CB_dialogStatus"></RefundDialog>
     </div>
 </template>
 
 <script>
 import TableHeader  from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
+import RefundDialog from "../../components/dialog/Refund"
 import {StudentStatic, timeTableStatic} from '../../script/static'
 import Bus from '../../script/bus'
 
@@ -653,9 +657,13 @@ export default {
             submitLoading: {
                 student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
             },
+
+            dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
+
             studentId: '',     //学员id
             studentDetail: {},
             contractData: {},  //合约详情
+            quitPriceDetail: {},   //退费详情
 
             editTeacherLists: [],
             teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
@@ -697,8 +705,6 @@ export default {
 
             oldActiveTab: 'course_info',   //tab之前的值
             activeTab: 'course_info',  //tab列表选中key
-
-            dialogStatus: {student: false, course: false, contract: false, editTeacher: false},
 
             classMaskStatus: false,  //分班弹窗
             quitCourseMaskStatus: false, //退费弹窗
@@ -1018,21 +1024,6 @@ export default {
         againBuyCourse(data) {
             console.log(data);
 
-            // let detail = {
-            //     id: data.student_id,
-            //     advisor_id: data.advisor_id,
-            //     advisor: data.advisor,
-            //     parent_id: data.parent_id,
-            //     expire: data.expire,
-            //     buy_type: 2,
-            //     course_id: data.course_id,
-            //     is_order: data.is_order,
-            //     class_pattern: data.class_pattern,
-            //     teacher_id: data.teacher_ids
-            // };
-            // this.buyCourseData = detail;
-            // this.dialogStatus.course = true;
-
             let params = {
                 student_id: data.student_id,
                 advisor_id: data.advisor_id,
@@ -1056,6 +1047,14 @@ export default {
             this.contractData = result.data;
             this.dialogStatus.contract = true;
         },
+        //退费详情
+        async getQuitPriceDetail(data) {
+            let result = await this.$$request.get('api/financeManage/quitCourseDetail', {student_course_id: data.id});
+            console.log(result);
+            if(!result) return 0;
+            this.quitPriceDetail = result;
+            this.dialogStatus.quitPrice = true;
+        },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
             // if(type == 'course') {
@@ -1067,6 +1066,12 @@ export default {
                 this.contractData = {};
                 this.dialogStatus.contract = false;
                 return 0;
+            };
+
+            if(type == 'refund') {
+                this.quitPriceDetail = {};
+                this.dialogStatus.quitPrice = false;
+                return 0
             };
         },
         //购课成功，合约回调
@@ -1469,7 +1474,7 @@ export default {
             this.getStudentDetail();
         }
     },
-    components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog}
+    components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}
 }
 </script>
 

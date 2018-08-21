@@ -28,7 +28,7 @@
                     <li class="ml-20">
                         <el-select size="small" placeholder="全部物品类型" v-model="searchFilter.commodity_type" @change="searchHandle">
                             <el-option label="全部物品类型" value=""></el-option>
-                            <el-option v-for="(item, index) in commodityTypeLists" :disabled="item.status == -2" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li class="ml-20">    
