@@ -68,10 +68,10 @@
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
-                                <!-- <el-dropdown-item command="usersetting">
+                                <el-dropdown-item command="usersetting" v-if="$$cache.getMemberInfo().type != 'institution' && $$cache.getMemberInfo().type != 'jyf_operation'">
                                     <i class="iconfont icon-fl-renyuan cursor-pointer fc-9"></i>
-                                    <span class="pl-5">个人资料</span>
-                                </el-dropdown-item> -->
+                                    <span class="pl-5">我的资料</span>
+                                </el-dropdown-item>
                                 <el-dropdown-item command="schoolsetting" v-if="memberInfo.type == 'institution'">
                                     <i class="iconfont icon-icon1460191753512 cursor-pointer fc-9"></i>
                                     <span class="pl-5">校区设置</span>
@@ -593,7 +593,7 @@ export default {
         },
         //设置下拉
         settingHandleCommand(val) {
-            // if(val == 'usersetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
+            if(val == 'usersetting') return this.$router.push({path: '/home/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
             if(val == 'schoolsetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
             if(val == 'loginOut') this.loginOut();
         },

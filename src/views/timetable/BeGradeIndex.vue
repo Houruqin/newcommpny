@@ -271,7 +271,7 @@
             </div>
 
             <!-- 新增排课弹窗 -->
-            <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="800px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
+            <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="860px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
                 <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
                     <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
                         <el-row>
@@ -427,7 +427,7 @@
                         <template v-if="courseType === 1">
                             <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                             <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
-                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
+                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="!(item.buy_lesson_num - item.scheduled)">{{item.student_name}}</el-checkbox>
                             </el-checkbox-group>
                         </template>
                         <el-radio-group v-model="studentRadio" v-else>
@@ -804,6 +804,8 @@ export default {
                 }
             });
 
+            console.log(this.gradeInfo)
+
             this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
 
             if(this.courseType === 1) {
@@ -897,7 +899,10 @@ export default {
             this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
             
             if(this.courseType === 1) {
-                this.studentLists = this.gradeInfo.student_grade.map(v => {return v.student_id});
+                this.studentLists.splice(0, this.studentLists.length);
+                this.gradeInfo.student_grade.forEach(k => {if(k.buy_lesson_num - k.scheduled > 0) this.studentLists.push(k.student_id)});
+
+                // this.studentLists = this.gradeInfo.student_grade.map(v => {return v.student_id});
                 this.checkStudentForm = this.studentLists;
                 this.studentCheckAll = (!this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length);
             }
