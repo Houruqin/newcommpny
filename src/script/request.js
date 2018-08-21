@@ -77,6 +77,7 @@ const Request = {
 	 */
     get(url, data, options) {
         let params = { ...DEFAULT_DATA, ...data };
+        console.log(qs.stringify(params))
         return axios.get(`${url}?${qs.stringify(params)}`, { options });
     },
 

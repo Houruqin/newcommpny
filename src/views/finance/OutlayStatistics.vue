@@ -388,17 +388,27 @@ export default {
         });
     },
     //获取全部员工+学员信息
-    get_all_user() {
-      this.$$request
-        .get("api/financeManage/searchUser", { user_name: "" })
-        .then(res => {
-          console.log(res);
-          this.all_user = res.users;
-        });
-    },
+    // get_all_user() {
+    //   const params = {
+    //     student: {
+    //       type: new Array,
+    //       status: new Array
+    //     },
+    //     user: {
+    //       type: new Array,
+    //       status: new Array
+    //     }
+    //   };
+    //   console.log(params)
+    //   this.$$request
+    //     .get("api/financeManage/searchUser", params)
+    //     .then(res => {
+    //       console.log(res);
+    //       this.all_user = res.users;
+    //     });
+    // },
     //添加支出弹窗
     open_outlay_dialog() {
-      this.get_all_user();
       this.dialog.add.show = true;
       this.dialog.add.data.id = "";
       this.dialog.add.data.together_id = "";
@@ -504,6 +514,8 @@ export default {
   created() {
     this.get_outlay_type();
     this.get_data();
+    this.$store.dispatch("getAllUser");
+    this.all_user = this.$store.state.allUser;
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };
