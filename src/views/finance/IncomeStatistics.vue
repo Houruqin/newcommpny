@@ -174,6 +174,7 @@ export default {
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
+      this.page_info.page = 1;
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
