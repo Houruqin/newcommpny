@@ -78,7 +78,7 @@
             <el-col :span="11">
               <el-form-item label="支出人员：" prop="name">
                 <el-select v-model="dialog.add.data.together_id" filterable placeholder="请输入支出人员" remote>
-                  <el-option @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.together_id">
+                  <el-option v-if="item.user_type !== 2" @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.together_id">
                     <span style="float: left">{{ item.name }}</span>
                     <span style="float: right; color: #8492a6; font-size: 13px">{{ item.user_type === 2 ? '学员' : ''}}</span>
                   </el-option>
@@ -496,7 +496,9 @@ export default {
     this.get_outlay_type();
     this.get_data();
     this.$store.dispatch("getAllUser");
-    this.all_user = this.$store.state.allUser;
+    this.$nextTick(() => {
+      this.all_user = this.$store.state.allUser;
+    });
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };
