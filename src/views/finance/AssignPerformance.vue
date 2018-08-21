@@ -126,7 +126,7 @@
               <el-row v-for="(member,index) in dialog.performance.members" :key="index">
                 <el-col :span="8" class="ml-30">
                   <el-form-item :prop="'members.' + index + '.belong_id'" :rules="performanceRules.name">
-                    <el-select v-model="member.belong_id" filterable remote>
+                    <el-select v-model="member.belong_id" filterable remote placeholder="请输入人员姓名">
                       <el-option :disabled="item.status !== 1" v-if="item.user_type !== 2" @click.native="member.achieve_user.name = item.name;" v-for="item in all_user" :key="item.id" :label="item.name" :value="String(item.id)">
                         <span style="float: left">{{ item.name }}</span>
                         <span style="float: right; color: #8492a6; font-size: 13px">{{ item.type | role}}</span>
