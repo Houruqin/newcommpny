@@ -334,8 +334,8 @@ export default {
       });
     },
     //获取支出类型
-    get_outlay_type() {
-      this.$$request.get("api/financeManage/expendType/lists").then(res => {
+    async get_outlay_type() {
+      await this.$$request.get("api/financeManage/expendType/lists").then(res => {
         this.dialog.add.data.type_lists = res.expendTypes;
       });
     },
@@ -352,7 +352,11 @@ export default {
               params
             );
             if (!result) return false;
-            this.get_outlay_type();
+            //添加后默认选择新增选项
+            this.get_outlay_type().then(() => {
+              let length = this.dialog.add.data.type_lists.length - 1;
+              this.dialog.add.data.type_id = this.dialog.add.data.type_lists[length].id
+            });
             this.$message.success("已添加！");
             this.dialog.addType.show = false;
           } else {
