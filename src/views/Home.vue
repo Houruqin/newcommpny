@@ -353,7 +353,7 @@ export default {
             modalObj: null,   //遮罩层modal
             guideSetup: 0,   //引导页步骤
             guideData: [
-                {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-6'},
+                {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-8'},
                 {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
                 {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
                 {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
@@ -671,7 +671,7 @@ export default {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
                 document.querySelector('.guide-box').style.left = '0';
-                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 13}px`;
+                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 30}px`;
             }else if(this.guideSetup == 5){
                 document.querySelector('.guide-box').style.left = 'auto';
                 document.querySelector('.guide-box').style.top = '50px';
@@ -754,7 +754,7 @@ export default {
         overflow-x: hidden;
     }
     .logo {
-        padding-top: 50px;
+        padding-top: 20px;
         width: 230px;
         a {
             width: 80px;

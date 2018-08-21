@@ -773,10 +773,6 @@ export default {
                 this.radioStudentForm = detail.student_grades[0].student_id;
                 this.studentRadio = this.radioStudentForm;
             }
-            
-            // this.planCourseLists.forEach(v => {
-            //     if(v.id == detail.course_id) this.planTeacherLists = v.teachers;
-            // });
 
             this.addTimetableMask = true;
         },

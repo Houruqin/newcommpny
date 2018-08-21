@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-50">
+  <div class="pb-50 pt-20">
     <el-menu
       :default-active="$store.state.guide ? '' : $route.meta.menu ? $route.meta.menu : $route.path"
       class="left-menu"
@@ -91,7 +91,7 @@ export default {
 <style lang="less" scoped>
 .left-menu {
   border: none;
-  margin-top: 20px;
+//   margin-top: 20px;
   .menu-item {
     width: 230px;
   }
