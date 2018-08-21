@@ -32,7 +32,7 @@
               <el-option v-for="(item, index) in dialog.add.data.type_lists" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
-          <li class="name ml-20">
+          <li class="name ml-20 mr-20">
             <el-input size="small" placeholder="请输入支出人员姓名" v-model.trim="search_info.name"></el-input>
           </li>
           <li>
@@ -159,9 +159,9 @@
           </el-table-column>
         </el-table>
 
-        <div class="d-f f-j-c mt-30 mb-10">
+        <!-- <div class="d-f f-j-c mt-30 mb-10">
           <MyButton @click.native="dialog.setting.show = false">确定</MyButton>
-        </div>
+        </div> -->
       </el-dialog>
 
       <el-dialog title="添加支出类型" width="500px" center :visible.sync="dialog.addType.show" :close-on-click-modal="false" append-to-body>
@@ -170,7 +170,7 @@
             <el-input v-model.trim="dialog.addType.type" placeholder="请输入支出类型"></el-input>
           </el-form-item>
           <div class="d-f f-j-c mt-40 mb-10">
-            <MyButton @click.native="add_outlay_type">确定</MyButton>
+            <MyButton @click.native="add_outlay_type('addType')">确定</MyButton>
           </div>
         </el-form>
       </el-dialog>
@@ -190,7 +190,9 @@ export default {
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
+          0
+        ),
         name: "",
         date_type: "current_month",
         pay_method: 0
@@ -269,7 +271,9 @@ export default {
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/MM/01")
           );
-          this.search_info.end = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
+          this.search_info.end = new Date(
+            new Date().setMonth(new Date().getMonth() + 1)
+          ).setDate(0);
           break;
         case "last_month":
           this.search_info.begin = new Date(
@@ -335,34 +339,40 @@ export default {
       });
     },
     //添加支出类型
-    async add_outlay_type() {
-      if (this.dialog.addType.handle === "add") {
-        const params = {
-          name: this.dialog.addType.type
-        };
-        let result = await this.$$request.post(
-          "api/financeManage/expendType/add",
-          params
-        );
-        if (!result) return false;
-        this.get_outlay_type();
-        this.$message.success("已添加！");
-        this.dialog.addType.show = false;
-      } else {
-        const params = {
-          id: this.dialog.addType.id,
-          name: this.dialog.addType.type
-        };
-        let result = await this.$$request.post(
-          "api/financeManage/expendType/edit",
-          params
-        );
-        if (!result) return false;
-        this.get_outlay_type();
-        this.$message.success("已修改！");
-        this.dialog.addType.show = false;
-        this.get_data();
-      }
+    add_outlay_type(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          if (this.dialog.addType.handle === "add") {
+            const params = {
+              name: this.dialog.addType.type
+            };
+            let result = await this.$$request.post(
+              "api/financeManage/expendType/add",
+              params
+            );
+            if (!result) return false;
+            this.get_outlay_type();
+            this.$message.success("已添加！");
+            this.dialog.addType.show = false;
+          } else {
+            const params = {
+              id: this.dialog.addType.id,
+              name: this.dialog.addType.type
+            };
+            let result = await this.$$request.post(
+              "api/financeManage/expendType/edit",
+              params
+            );
+            if (!result) return false;
+            this.get_outlay_type();
+            this.$message.success("已修改！");
+            this.dialog.addType.show = false;
+            this.get_data();
+          }
+        } else {
+          return false;
+        }
+      });
     },
     //将时间转换为秒数
     get_seconde(date) {
