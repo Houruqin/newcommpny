@@ -2,9 +2,9 @@ import Vue from 'vue'
 
 const VALIDATE_RULE = {
 	number: {reg: /^[0-9]+.?[0-9]*$/, message: '请输入数字'},  //纯数字验证
-	phone: {reg: /^(1[34578]\d{9})?$/, message: '请输入正确的11位手机号码'},// 手机号码
+	phone: {reg: /^(1\d{10})?$/, message: '请输入正确的11位手机号码'},// 手机号码
 	code: {reg: /^\d{4}$/, message: '请输入正确的4位数字验证码'}, // 验证码
-	tel: {reg: /(^0\d{2,3}-\d{7,8}(-\d{1,6})?$)|(^1[34578]\d{9}$)/, message: '座机格式不对'}, // 座机或者电话
+	tel: {reg: /(^0\d{2,3}-\d{7,8}(-\d{1,6})?$)|(^1\d{10}$)/, message: '座机格式不对'}, // 座机或者电话
 	tel_qq: {reg: /^(\d{5,11})?$/, message: '请输入正确的QQ号'}, // 意见反馈QQ或者电话
 	face: {reg: /\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]|\ud83d[\ude80-\udeff]/, message: '不能输入表情'}  // 不能使用表情
 };
