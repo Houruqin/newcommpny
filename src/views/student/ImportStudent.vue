@@ -478,7 +478,8 @@ export default {
 
             var tableList = this.previewData.map(d => {
                 let res = [];
-                this.tableAllHeader[this.activeTab].slice(1).forEach((v, n) => {res[n] = d[v].data});
+                let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                this.tableAllHeader[tab].slice(1).forEach((v, n) => {res[n] = d[v].data});
                 return res;
             });
 
