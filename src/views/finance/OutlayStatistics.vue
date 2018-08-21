@@ -291,6 +291,7 @@ export default {
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
+      this.page_info.page = 1;
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
@@ -387,26 +388,6 @@ export default {
           this.dialog.contract.show = true;
         });
     },
-    //获取全部员工+学员信息
-    // get_all_user() {
-    //   const params = {
-    //     student: {
-    //       type: new Array,
-    //       status: new Array
-    //     },
-    //     user: {
-    //       type: new Array,
-    //       status: new Array
-    //     }
-    //   };
-    //   console.log(params)
-    //   this.$$request
-    //     .get("api/financeManage/searchUser", params)
-    //     .then(res => {
-    //       console.log(res);
-    //       this.all_user = res.users;
-    //     });
-    // },
     //添加支出弹窗
     open_outlay_dialog() {
       this.dialog.add.show = true;
