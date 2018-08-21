@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="购课合约" width="850px" center :visible.sync="contractDialogStatus" 
+    <el-dialog title="购课合约" width="900px" center :visible.sync="contractDialogStatus" 
         :close-on-click-modal="false" id="contract" @close="dialogClose('contract')">
         <div class="contract-box my-scrollbar pl-40" v-if="Object.keys(contractData).length">
             <el-scrollbar style="height: 100%;">
@@ -22,8 +22,9 @@
                             <td>课程名称</td>
                             <td>购买课时</td>
                             <td>课时单价</td>
+                            <td>课时费用</td>
                             <td>教材费用</td>
-                            <td>优惠金额</td>
+                            <td>优惠总额</td>
                             <td>赠送课时</td>
                             <td>已扣课时</td>
                             <td>合同金额</td>
@@ -32,6 +33,7 @@
                             <td>{{contractData.course.name}}</td>
                             <td>{{contractData.lesson_num}}</td>
                             <td>{{contractData.unit_price}}</td>
+                            <td>{{contractData.lesson_price}}</td>
                             <td>{{contractData.textbook_price}}</td>
                             <td>{{contractData.preferential_price}}</td>
                             <td>{{contractData.given_num}}</td>

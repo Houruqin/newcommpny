@@ -24,6 +24,8 @@ axios.interceptors.request.use(config => {
 
 //请求完成之后的拦截器
 axios.interceptors.response.use(res => {
+    // cache.set('version', res.headers.version);
+
     let result = res.data;
     switch (result.code) {
         case 1:
@@ -77,7 +79,6 @@ const Request = {
 	 */
     get(url, data, options) {
         let params = { ...DEFAULT_DATA, ...data };
-        console.log(qs.stringify(params))
         return axios.get(`${url}?${qs.stringify(params)}`, { options });
     },
 

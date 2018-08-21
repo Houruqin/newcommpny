@@ -82,8 +82,8 @@
                                 <el-input type="number" placeholder="允许请假数" v-model.number="courseForm.leave_num"></el-input><span class="pl-10">次</span>
                             </el-form-item>
                         </div>
-                        <el-form-item label="课程优惠：" prop="preferential_price" label-width="110px">
-                            <el-input type="number" placeholder="优惠金额" v-model.number="courseForm.preferential_price"></el-input><span class="pl-10">元</span>
+                        <el-form-item label="课程优惠：" prop="preferential_class_price" label-width="110px">
+                            <el-input type="number" placeholder="优惠金额" v-model.number="courseForm.preferential_class_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
                     </div>
                 </div>
@@ -187,7 +187,8 @@ export default {
                 pay_at: '',   //购课日期
                 pay_way: '',   //付款方式
                 unit_price: '',   //课时单价
-                preferential_price: '',  //优惠价格
+                // preferential_price: '',  //优惠总价格
+                preferential_class_price: '',  //课时优惠
                 preferential_textbook_price: '', //教材优惠
                 explain: '',  //说明
                 type: 1,    //购课类型 1：新签约 2：续约
@@ -233,7 +234,7 @@ export default {
                 pay_way: [
                     {required: true, message: '请选择付款方式', trigger: 'change'}
                 ],
-                preferential_price: [
+                preferential_class_price: [
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
                     {validator: this.$$tools.formOtherValidate('total', 9999)}
                 ],
@@ -366,7 +367,7 @@ export default {
         async submitBuyCourse() {
             if(this.courseForm.lesson_num_already > this.courseForm.lesson_num) return this.$message.warning('已扣课时数不能超过购买课时数!');
             if(this.courseForm.leave_num > this.courseForm.lesson_num) return this.$message.warning('请假次数不能超过购买课时数!');
-            if(Number(this.courseForm.preferential_price) + Number(this.courseForm.preferential_textbook_price) > this.courseForm.totalMoney) {
+            if(Number(this.courseForm.preferential_class_price) + Number(this.courseForm.preferential_textbook_price) > this.courseForm.totalMoney) {
                 return this.$message.warning('优惠不能超过总金额!');
             }
 
@@ -374,8 +375,6 @@ export default {
             this.submitLoading = true;
             
             let params = {};
-
-            console.log(this.courseForm);
             
             for(let key in this.courseForm) {
                 if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
@@ -385,6 +384,7 @@ export default {
             
             params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
             params.textbook = this.textbookFormLists.map(k => {return {goods_id: k.goods_id, num: k.num}});
+            params.preferential_price = this.courseForm.preferential_class_price + this.courseForm.preferential_textbook_price;
 
             console.log(params);
 
@@ -397,7 +397,7 @@ export default {
             this.dialogStatus.contract = true;
         },
         getTotalMoney() {
-            let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_price);
+            let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_class_price);
             let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
             let b;
             b =  money.toFixed(2);

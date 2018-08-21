@@ -514,16 +514,21 @@ export default {
                 this.stepActive = 2;
                 let list = result.data;
                 
+                let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                // this.previewData = list.map((d, e) => {
+                //     let itemlist = {index: `student_${e}`};
+                //     this.tableAllHeader[tab].forEach((v, n) => {
+                //         itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                //     });
+                //     return itemlist;
+                // });
                 this.previewData = list.map(d => {
-                    let list = {};
-                    this.tableAllHeader[this.activeTab].forEach((v, n) => {
-                        console.log(d[n]);
-
-                        list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                    let itemlist = {};
+                    this.tableAllHeader[tab].forEach((v, n) => {
+                        itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                     });
-                    return list;
+                    return itemlist;
                 });
-                console.log(this.previewData);
             }
         },
         //冲突删除
