@@ -324,13 +324,17 @@
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
-        <el-dialog title="退费" width="900px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
+        <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <div class="d-f pl-50">
-                    <h3>上课学员：<span>{{studentDetail.name}}</span></h3>
-                    <h3 class="ml-50">课程名称：<span>{{quitCourseInfo.course_name}}</span></h3>
+                <div class="d-f">
+                    <div class="list-item">
+                        <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
+                    </div>
+                    <div class="list-item">
+                        <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
+                    </div>
                 </div>
-                <div class="d-f mt-30">
+                <div class="d-f">
                     <div class="list-item">
                         <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
                         <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
@@ -341,27 +345,27 @@
 
                     <div class="list-item">
                         <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
-                        <el-form-item label="课时费：">{{quitCourseInfo.given_num}}</el-form-item>
+                        <el-form-item label="课时费：">{{quitCourseInfo.lesson_price}}</el-form-item>
                     </div>
 
                     <div class="list-item">
                         <el-form-item label="购买剩余课时：">{{quitCourseInfo.lesson_num_remain}}</el-form-item>
-                        <el-form-item label="剩余课时费：">{{quitCourseInfo.remain_price}}</el-form-item>
+                        <el-form-item label="剩余课时费：">{{quitCourseInfo.residue_lesson_price}}</el-form-item>
                     </div>
                 </div>
 
                 <div class="d-f mt-10">
                     <div class="list-item">
-                        <el-form-item label="教材费：">{{quitCourseInfo.lesson_num}}</el-form-item>
-                        <el-form-item label="教材实际退费：" prop="lesson_quitprice">
-                            <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.lesson_quitprice"></el-input>
+                        <el-form-item label="教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="教材实际退费：" prop="textbook_quitprice">
+                            <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
                         </el-form-item>
                     </div>
                     <div class="list-item">
-                        <el-form-item label="剩余教材费：">{{quitCourseInfo.lesson_num}}</el-form-item>
+                        <el-form-item label="剩余教材费：">{{quitCourseInfo.textbooks_price}}</el-form-item>
                     </div>
                 </div> 
-                <el-form-item label="退费说明：" prop="explain" class="textarea-cls pr-100">
+                <el-form-item label="退费说明：" prop="explain" class="textarea-cls pr-100 mt-10">
                     <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
                 </el-form-item>
                 <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('quitCourseForm')" :loading="submitLoading.quitCourse">确认</MyButton></div>
@@ -718,23 +722,18 @@ export default {
                 textbook_quitprice: ''
             },
             quitCourseRules: {
-                // rel_remain: [
-                //     {required: true, message: '请输入实际退费金额'},
-                //     {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                //     // {validator: this.$$tools.formOtherValidate('price')}
-                // ],
                 explain: [
                     {max: 200, message: '最多输入200个字符'}
                 ],
                 lesson_quitprice: [
                     {required: true, message: '请输入课时实际退费'},
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    // {validator: this.quitPriceValidate('lesson')}
+                    {validator: this.quitPriceValidate('lesson')}
                 ],
                 textbook_quitprice: [
                     {required: true, message: '请输入教材实际退费'},
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    // {validator: this.quitPriceValidate('textbook')}
+                    {validator: this.quitPriceValidate('textbook')}
                 ]
             },
             teacherRules: {
@@ -853,6 +852,7 @@ export default {
                     teacher_id: '',
                     course_id: ''
                 };
+                // 48213449
             }else if(form === 'followUpForm') {
                 this.listenCourseInit();
                 this.$refs[form].resetFields();
@@ -869,10 +869,10 @@ export default {
         quitPriceValidate(type) {
             return (rule, value, callback, event, e, d) => {
                 if(type == 'lesson') {
-                    if(value < this.quitCourseInfo.real_price) return callback(new Error('课时退费金额不能超过课时购买费用'));
+                    if(value > Number(this.quitCourseInfo.real_price)) return callback(new Error('课时退费金额不能超过剩余课时费'));
                     else return callback();
                 }else {
-                    if(value < Number(this.quitCourseInfo.textbook_price) - Number(this.quitCourseInfo.preferential_textbook_price)) return callback(new Error('教材退费金额不能超过购买教材费用'));
+                    if(value > Number(this.quitCourseInfo.textbook_price)) return callback(new Error('教材退费金额不能超过剩余教材费'));
                     else return callback();
                 }
             }
@@ -1296,7 +1296,6 @@ export default {
                 real_price: this.quitCourseInfo.real_price,
                 pre_price: this.quitCourseInfo.unit_price,
                 remain_price: this.quitCourseInfo.remain_price,
-                // rel_remain: this.quitCourseForm.rel_remain,
                 explain: this.quitCourseForm.explain,
                 rel_remain: this.quitCourseForm.lesson_quitprice + this.quitCourseForm.textbook_quitprice,
                 remain_lesson_price: this.quitCourseForm.lesson_quitprice,
@@ -1522,7 +1521,7 @@ export default {
             width: 150px;
         }
         .list-item {
-            width: 300px;
+            width: 280px;
         }
     }
     .followup-lists-box {
