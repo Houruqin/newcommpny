@@ -37,7 +37,7 @@
               <el-option label="一对一课程" :value="2"></el-option>
             </el-select>
           </li>
-          <li class="name ml-20">
+          <li class="name ml-20 mr-20">
             <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
           </li>
           <li>

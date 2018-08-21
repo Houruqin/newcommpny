@@ -29,7 +29,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>
-                        <el-table-column label="课时总课程" prop="total_num" align="center"></el-table-column>
+                        <el-table-column label="课程总课时" prop="total_num" align="center"></el-table-column>
                         <el-table-column label="未排课时" prop="no_rank_num" align="center"></el-table-column>
                         <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
                         <el-table-column label="操作" align="center">
@@ -47,10 +47,6 @@
                                             <i class="iconfont icon-paike1"></i>
                                             <span>排课</span>
                                         </el-dropdown-item>
-                                        <!-- <el-dropdown-item :command="{type:'stop', grade_info: scope.row, course_info: course}">
-                                            <i class="iconfont icon-tingke"></i>
-                                            <span>停课</span>
-                                        </el-dropdown-item> -->
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </template>
@@ -310,32 +306,11 @@ export default {
                 case 'plan':
                     this.planTimeTable(option.course_info, option.grade_info);
                     break;
-                // case 'stop':
-                //     this.$confirm('确定办理停课吗?', '提示', {
-                //         confirmButtonText: '确定',
-                //         cancelButtonText: '取消',
-                //         type: 'warning'
-                //     }).then(() => {
-                //         this.studentStop(option);
-                //     }).catch(() => {return 0});
-                //     break;
                 case 'edit':
                     this.editTeacher(option.course_info, option.grade_info);
                     break;
             }
         },
-        //学员停课
-        // async studentStop(option) {
-        //     let params = {
-        //         student_id: option.grade_info.student.id,
-        //         grade_id: option.course_info.grades[0].id,
-        //         type: 'stop'
-        //     };
-        //     console.log(params)
-        //     let result = this.$$request.post('api/studentGrade/suspend', params);
-        //     if(!result) return 0;
-        //     this.$message.success('操作成功');
-        // },
         //排课 click
         planTimeTable(course, data) {
             console.log(data);

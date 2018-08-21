@@ -28,7 +28,7 @@
                     <li class="ml-20">
                         <el-select size="small" placeholder="全部物品类型" v-model="searchFilter.commodity_type" @change="searchHandle">
                             <el-option label="全部物品类型" value=""></el-option>
-                            <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in commodityTypeLists" :disabled="item.status == -2" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li class="ml-20">    
@@ -86,8 +86,8 @@ export default {
             storageLists: [],   
             dialogStatus: {addStorage: false},
             searchFilter: {
-                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
-                end_time: new Date().getTime(), 
+                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
                 storage_type: '', commodity_type: '', use_type: '', keyword: ''
             },
             storageTable: {},

@@ -126,15 +126,13 @@
                 
                 <p class="head-info">付费信息</p>
                 <div class="mt-20">
-                    <div class="d-f">
-                        <el-form-item label="付款方式：" prop="pay_way">
-                            <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                                <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </div>
+                    <el-form-item label="付款方式：" prop="pay_way">
+                        <el-select v-model="courseForm.pay_way" placeholder="付款方式">
+                            <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
 
-                    <el-form-item label="购买说明：" class="mt-10 textarea-cls pr-50" prop="explain">
+                    <el-form-item label="购买说明：" class="mt-30 textarea-cls explain-input" prop="explain">
                         <el-input type="textarea" :rows="4" placeholder="购买说明" v-model.trim="courseForm.explain"></el-input>
                     </el-form-item>
                 </div>
@@ -196,7 +194,8 @@ export default {
                 grade_id: '',
                 teacher_id: '',
                 is_order: '',
-                totalMoney: ''   //总金额
+                totalMoney: '',   //总金额
+                textbook_price: 0    //教材费用
             },
             textbookFormLists: [],
             preferentialDisabled: true,
@@ -487,7 +486,9 @@ export default {
         .list-item {
             width: 380px;
         }
-        
+        .explain-input {
+            width: 1020px;
+        }
     }
     .textbook-form {
         .textbook-num {
@@ -507,11 +508,6 @@ export default {
             color: #45DAD5;
             cursor: pointer;
         }
-        // .textbook-select {
-        //     /deep/ .el-input {
-        //         width: 120px;
-        //     }
-        // }
         .add-textbook-box {
             max-height: 250px;
             overflow: hidden;

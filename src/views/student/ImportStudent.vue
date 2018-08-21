@@ -382,6 +382,11 @@ export default {
         //选择文件
         onChange(file, fileList) {
             if(fileList.length > 1) fileList.shift();
+            if(file.response) {
+                this.submitLoading.submit_excel = false;
+                file.status = 'ready';
+                file.percentage = 0;
+            };
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
             this.readFiles(file.raw);
@@ -418,7 +423,6 @@ export default {
         },
         //验证文件
         verifyExcelFile() {
-            console.log(this.tableData)
             if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
             if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
 
@@ -439,18 +443,14 @@ export default {
         //上传成功
         uploadSuccess(response, file, fileList) {
             console.log(response)
-            this.submitLoading.submit_excel = false;
             if(response.code === 1) {
                 if(response.data.status === 1) {
                     this.total = response.data.success;
                     this.stepActive = 3;
-                    this.fileInput = ''; 
                 }else {
                     this.stepActive = 2;
                     let list = response.data.data;
                     let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
-                    console.log(list);
-
                     this.previewData = list.map((d, e) => {
                         let itemlist = {index: `student_${e}`};
                         this.tableAllHeader[tab].forEach((v, n) => {
