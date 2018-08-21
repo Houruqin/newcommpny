@@ -36,7 +36,7 @@
               <el-option v-for="(item, index) in pay_list" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
-          <li class="name ml-20 search">
+          <li class="name ml-20 search mr-20">
             <el-input size="small" placeholder="请输入学员姓名/员工/合同编号" v-model.trim="search_info.name"></el-input>
           </li>
           <li>
@@ -325,6 +325,11 @@ export default {
     //打开设置业绩弹窗
     open_setting(item) {
       this.dialog.performance.show = true;
+      // this.$refs.performance_valid.resetFields();
+
+      this.$nextTick(() => {
+        this.$refs.performance_valid.resetFields();
+      });
       const params = {
         student_course_id: item.student_course_id
       };
@@ -356,7 +361,7 @@ export default {
           let refund_total_price = 0;
           for (let member of query.members) {
             console.log(member.achieve_price);
-            refund_total_price += member.achieve_price*1;
+            refund_total_price += member.achieve_price * 1;
           }
           if (refund_total_price > this.dialog.performance.data.total_price) {
             this.$message.warning("分配金额不能超过合同金额，请重新分配");
@@ -377,12 +382,6 @@ export default {
           return false;
         }
       });
-    },
-    //弹窗关闭回调
-    close() {
-      //   this.dialog.contract.data = {};
-      // this.contract_data = {};
-      //   this.dialog.contract.show = false;
     }
   },
   filters: {
