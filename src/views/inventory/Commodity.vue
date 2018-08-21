@@ -41,9 +41,9 @@
                 </el-table-column>
                 <el-table-column label="库存数量" align="center">
                     <template slot-scope="scope">
-                        <div v-if="scope.row.total_num >= scope.row.warning">{{scope.row.total_num}}</div>
+                        <div v-if="scope.row.total_num > scope.row.warning">{{scope.row.total_num}}</div>
                         <div v-else class="d-f f-j-c">
-                            <el-popover popper-class="grade-student-popver" placement="right" trigger="click" :content="`该物品已少于${scope.row.warning}件，请及时补充库存！`">
+                            <el-popover popper-class="grade-student-popver" placement="right" trigger="click" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
                                 <div slot="reference" class="ml-5 cursor-pointer">
                                     <span>{{scope.row.total_num}}</span>
                                     <img src="../../images/common/zhuyi.png" alt="">
@@ -60,7 +60,8 @@
                         <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                             <span class="fc-m ml-20 cursor-pointer el-dropdown-link">更多</span>
                             <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index" 
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                                    :disabled="operation.type == 'borrow' && scope.row.use_type == 2" 
                                     :command="{type: operation.type, data: scope.row}">{{operation.text}}
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -103,7 +104,7 @@
                     <el-col :span="11">
                         <el-form-item label="物品类型：" prop="type" class="p-r">
                             <el-select v-model="addCommodityForm.type" placeholder="请选择">
-                                <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                                <el-option v-for="(item, index) in commodityTypeLists" v-if="item.status != -2" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                             <div class="p-a add-commodity-type ver-c cursor-pointer" @click="addCommodityType"><img src="../../images/common/add.png" alt=""></div>
                         </el-form-item>
@@ -485,7 +486,7 @@ export default {
         //借用  借用人change
         borrowPeopleChange(val) {
             this.$store.state.allUser.forEach(v => {
-                if(v.id == val) this.borrowForm.borrow_people_type = v.user_type;
+                if(v.together_id == val) this.borrowForm.borrow_people_type = v.user_type;
             });
         },
         //出库 领取人change

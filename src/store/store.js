@@ -2,7 +2,6 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import Request from '../script/request'
-import Cache from '../script/cache'
 
 Vue.use(Vuex);
 
@@ -26,7 +25,10 @@ const mutations = {
         state.guide = type;
     },
     async getAllUser(state) {
-        let result = await Request.get('api/financeManage/searchUser', {user_name: ''});
+        let result = await Request.get('api/financeManage/searchUser', {
+            student: { types: ['sign'], status: [1] },
+            user: { types: ['all'], status: [1] }
+        });
         console.log(result);
         if(!result) return 0;
 

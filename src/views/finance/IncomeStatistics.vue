@@ -5,7 +5,7 @@
       </TableHeader>
 
       <div class="toolbar mt-20">
-        <ul class="d-f">
+        <ul class="d-f date_type">
           <li @click="choose_date('current_month')">
             <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
           </li>
@@ -42,7 +42,7 @@
               <el-option v-for="(item, index) in pay_list" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
-          <li class="name ml-20">
+          <li class="name ml-20 mr-20">
             <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
           </li>
           <li>
@@ -51,7 +51,7 @@
         </ul>
       </div>
 
-      <el-table stripe class="student-table mt-30" :data="income_info.data" v-loading="loading" :show-header="true">
+      <el-table stripe class="student-table mt-30" :data="income_info.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="合同编号" prop="orderno" align="center"></el-table-column>
         <el-table-column label="学员姓名" align="center">
@@ -71,7 +71,7 @@
         </el-table-column>
         <el-table-column label="支付方式" align="center">
           <template slot-scope="scope">
-            <div>{{pay_list[scope.row.pay_way] ? pay_list[scope.row.pay_way].name : pay_list[scope.row.pay_way]}}</div>
+            <div>{{pay_list[scope.row.pay_way - 1] ? pay_list[scope.row.pay_way - 1].name : pay_list[scope.row.pay_way - 1]}}</div>
           </template>
         </el-table-column>
         <el-table-column label="业绩顾问" prop="advisor.name" align="center"></el-table-column>
@@ -103,7 +103,7 @@ import TableHeader from "../../components/common/TableHeader";
 import MyButton from "../../components/common/MyButton";
 import ContractDialog from "../../components/dialog/Contract";
 import NameRoute from "../../components/common/NameRoute";
-import {StudentStatic} from '../../script/static';
+import { StudentStatic } from "../../script/static";
 
 export default {
   data() {
@@ -111,14 +111,11 @@ export default {
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
+          0
         ),
         name: "",
-        date_type: "custom",
+        date_type: "current_month",
         course_id: 0,
         advisor_id: 0,
         pay_method: 0
@@ -127,7 +124,8 @@ export default {
       pay_list: StudentStatic.paymentMethod,
       //购课信息
       income_info: {
-        data: []
+        data: [],
+        total: ""
       },
       //分页信息
       page_info: {
@@ -147,19 +145,6 @@ export default {
     };
   },
   methods: {
-    init_search_info() {
-      let search_info = {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
-        ),
-        name: ""
-      };
-      this.search_info = search_info;
-    },
     //选择时间
     choose_date(type) {
       console.log(type);
@@ -170,11 +155,8 @@ export default {
             this.$format_date(new Date(), "yyyy/MM/01")
           );
           this.search_info.end = new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0,
-            24
-          );
+            new Date().setMonth(new Date().getMonth() + 1)
+          ).setDate(0);
           break;
         case "last_month":
           this.search_info.begin = new Date(
@@ -183,22 +165,16 @@ export default {
             0,
             24
           );
-          this.search_info.end = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
-          );
+          this.search_info.end = new Date(new Date().setDate(0));
           break;
         case "current_year":
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/01/01")
           );
-          this.search_info.end = new Date(
-            new Date().getFullYear() + 1,
-            0,
-            0,
-            24
-          );
+          this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
+      this.page_info.page = 1;
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
@@ -236,6 +212,7 @@ export default {
         .then(res => {
           console.log(res);
           this.income_info.data = res.lists.data;
+          this.income_info.total = res.total;
           this.page_info.total = res.lists.total;
           this.loading = false;
         });
@@ -258,6 +235,27 @@ export default {
       this.dialog.contract.data = {};
       // this.contract_data = {};
       this.dialog.contract.show = false;
+    },
+    get_sum(param) {
+      let sums = [];
+      const { columns, data } = param;
+      sums[1] = "合计";
+      columns.forEach((item, index) => {
+        switch (item.label) {
+          case "课时费":
+            return (sums[index] =
+              this.income_info.total.total_lesson_price + " 元");
+            break;
+          case "教材费":
+            return (sums[index] =
+              this.income_info.total.total_textbook_price + " 元");
+            break;
+          case "合同总额":
+            return (sums[index] = this.income_info.total.total_price + " 元");
+            break;
+        }
+      });
+      return sums;
     }
   },
   created() {
@@ -292,9 +290,11 @@ export default {
   margin-left: 20px;
   cursor: pointer;
 }
-.selected {
-  background-color: #45dad5 !important;
-  color: #fff !important;
+.date_type {
+  .selected {
+    background-color: #45dad5 !important;
+    color: #fff !important;
+  }
 }
 </style>
 

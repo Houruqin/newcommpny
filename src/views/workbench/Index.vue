@@ -462,12 +462,12 @@
     </AddStudentDialog>
     
     <!-- 购买课程弹窗 -->
-    <BuyCourseDialog :dialogStatus="dialogStatus.course" @CB-dialogStatus="CB_dialogStatus" :buyCourseData="buyCourseData"
+    <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" @CB-dialogStatus="CB_dialogStatus" :buyCourseData="buyCourseData"
         @CB-contract="CB_contract">
-    </BuyCourseDialog>
+    </BuyCourseDialog> -->
     
     <!-- 购课合约弹窗 -->
-    <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
+    <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
 
     <!-- 拒绝请假弹窗 -->
     <el-dialog :visible.sync="leave_info.show_refuse_dialog" :show-close="false" width="400px">
@@ -744,7 +744,7 @@ export default {
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus(type) {
         if(type == 'student') return this.dialogStatus.student = false;
-        if(type == 'course') return this.dialogStatus.course = false;
+        // if(type == 'course') return this.dialogStatus.course = false;
     },
     //登记成功，刷新列表
     CB_addStudent() {
@@ -753,16 +753,25 @@ export default {
     //登记成功，购课回调
     CB_buyCourse(data) {
         console.log(data)
-        this.buyCourseData = data;
-        this.dialogStatus.student = false;
-        this.dialogStatus.course = true;
+        // this.buyCourseData = data;
+        // this.dialogStatus.student = false;
+        // this.dialogStatus.course = true;
+
+        let params = {
+            student_id: data.id,
+            advisor_id: data.advisor_id,
+            advisor: data.advisor,
+            parent_id: data.parent_id
+        };
+
+        this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //购课成功，合约回调
-    CB_contract(data) {
-        this.contractData = data;
-        this.dialogStatus.course = false;
-        this.dialogStatus.contract = true;
-    },
+    // CB_contract(data) {
+    //     this.contractData = data;
+    //     this.dialogStatus.course = false;
+    //     this.dialogStatus.contract = true;
+    // },
     //切换tab标签
     change_tab() {
       this.page_info.current_page = 1;
@@ -1016,16 +1025,31 @@ export default {
       });
     },
     //续约
-    renew(student) {
-      this.buyCourseData = {
-        course_id: student.course_id,
-        id: student.student_id,
-        advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
-        advisor: {name: student.advisor_name},
-        parent_id: student.parent_id,
-        buy_type: 2
-      };
-      this.dialogStatus.course = true;
+    renew(data) {
+        console.log(data);
+
+
+    //   this.buyCourseData = {
+    //     course_id: student.course_id,
+    //     id: student.student_id,
+    //     advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
+    //     advisor: {name: student.advisor_name},
+    //     parent_id: student.parent_id,
+    //     buy_type: 2
+    //   };
+    //   this.dialogStatus.course = true;
+
+
+        let params = {
+            student_id: data.student_id,
+            advisor_id: data.advisor_id,
+            advisor: {name: data.advisor_name},
+            parent_id: data.parent_id,
+            buy_type: 2,
+            course_id: data.course_id,
+        };
+
+        this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //获取生日学员列表
     get_birth_data() {

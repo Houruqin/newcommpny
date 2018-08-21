@@ -128,7 +128,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column align="center" label="任课老师">
+                        <el-table-column align="center" label="任课老师" v-if="classPattern != 1">
                             <template slot-scope="scope">
                                 <el-popover placement="bottom" width="170" trigger="click">
                                     <el-input v-model="scope.row.course_teacher.data" size="small" @change="scope.row.course_teacher.error = false"></el-input>
@@ -291,12 +291,16 @@ export default {
             excelfileExtend: '.xls,.xlsx',    //文件格式
             fileInput: '',
             errTableEdit: false,
+            classPattern: 0,
             submitLoading: {
                 submit_excel: false, submit_list: false
             },
             tableAllHeader: {
                 student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
                 course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
+                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
+                ],
+                course_begrade: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
                     'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
                 ]
             },
@@ -319,7 +323,7 @@ export default {
         //下载模板
         downloadExcel() {
             let baseUrl = process.env.NODE_ENV  == 'development' ?  config.devBaseurl.api : config.prodBaseUrl.api;
-            let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.$$cache.getMemberInfo().class_pattern == 1 ? 'sign_new' : 'sign';
+            let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.classPattern == 1 ? 'sign_new' : 'sign';
 
             window.location.href = `${baseUrl}api/excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
         },
@@ -378,6 +382,11 @@ export default {
         //选择文件
         onChange(file, fileList) {
             if(fileList.length > 1) fileList.shift();
+            if(file.response) {
+                this.submitLoading.submit_excel = false;
+                file.status = 'ready';
+                file.percentage = 0;
+            };
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
             this.readFiles(file.raw);
@@ -414,7 +423,6 @@ export default {
         },
         //验证文件
         verifyExcelFile() {
-            console.log(this.tableData)
             if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
             if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
 
@@ -435,24 +443,20 @@ export default {
         //上传成功
         uploadSuccess(response, file, fileList) {
             console.log(response)
-            this.submitLoading.submit_excel = false;
             if(response.code === 1) {
                 if(response.data.status === 1) {
                     this.total = response.data.success;
                     this.stepActive = 3;
-                    this.fileInput = ''; 
                 }else {
                     this.stepActive = 2;
                     let list = response.data.data;
-                    
-                    console.log(list);
-
+                    let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
                     this.previewData = list.map((d, e) => {
-                        let list = {index: `student_${e}`};
-                        this.tableAllHeader[this.activeTab].forEach((v, n) => {
-                            list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                        let itemlist = {index: `student_${e}`};
+                        this.tableAllHeader[tab].forEach((v, n) => {
+                            itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                         });
-                        return list;
+                        return itemlist;
                     });
                 }
             }else {
@@ -510,16 +514,14 @@ export default {
                 this.stepActive = 2;
                 let list = result.data;
                 
-                console.log(list);
-
-                this.previewData = list.map(d => {
-                    let list = {};
-                    this.tableAllHeader[this.activeTab].forEach((v, n) => {
-                        list[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+                let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                this.previewData = list.map((d, e) => {
+                    let itemlist = {index: `student_${e}`};
+                    this.tableAllHeader[tab].forEach((v, n) => {
+                        itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                     });
-                    return list;
+                    return itemlist;
                 });
-                console.log(this.previewData);
             }
         },
         //冲突删除
@@ -543,6 +545,7 @@ export default {
     },
     created() {
         this.importUrlChange();
+        this.classPattern = this.$$cache.getMemberInfo().class_pattern;
     }
 }
 </script>

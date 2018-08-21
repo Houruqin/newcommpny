@@ -269,11 +269,11 @@
         </el-card>
         
         <!-- 新增排课弹窗 -->
-        <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="800px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
+        <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="820px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
                 <div class="form-box" id="form-box">
-                    <el-row>
-                        <el-col :span="11">
+                    <div class="d-f">
+                        <div class="flex1">
                             <el-form-item label="选择课程：" prop="course_id">
                                 <el-select placeholder="请选择" v-model="timetableForm.course_id" @change="formGradeChange">
                                     <el-option v-for="(item, index) in planCourseLists" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -297,7 +297,7 @@
                                     <div class="d-f">
                                         <div class="title p-r is-required pt-3"><span class="pr-12">上课时间：</span></div>
                                         <el-row class="p-r flex1">
-                                            <el-col :span="addTableType == 'edit' ? 14 : 8">
+                                            <el-col :span="addTableType == 'edit' ? 14 : 9">
                                                 <el-form-item v-if="addTableType == 'edit'">
                                                     <el-date-picker v-model="addDate.week" @change="formEditDateChange"
                                                         :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
@@ -311,7 +311,7 @@
                                                 </el-form-item>
                                             </el-col>
 
-                                            <el-col :span="addTableType == 'edit' ? 9 : 15" class="p-r" :offset="1">
+                                            <el-col :span="addTableType == 'edit' ? 9 : 14" class="p-r" :offset="1">
                                                 <el-form-item  label-width="0" prop="begin_time" class="p-r">
                                                     <el-time-select 
                                                         :editable="false"
@@ -325,9 +325,9 @@
                                     </div>
                                 </el-form>
                             </div>
-                        </el-col>
+                        </div>
 
-                        <el-col :span="11" :offset="1">
+                        <div class="flex1 ml-20">
                             <el-form-item label="课程属性：">
                                 <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
                                 <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
@@ -372,8 +372,8 @@
                                     </div>
                                 </div>
                             </el-form-item>
-                        </el-col>                    
-                    </el-row>
+                        </div>                    
+                    </div>
                 </div>
                 <div class="d-f f-j-c mt-30">
                     <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
@@ -773,10 +773,6 @@ export default {
                 this.radioStudentForm = detail.student_grades[0].student_id;
                 this.studentRadio = this.radioStudentForm;
             }
-            
-            // this.planCourseLists.forEach(v => {
-            //     if(v.id == detail.course_id) this.planTeacherLists = v.teachers;
-            // });
 
             this.addTimetableMask = true;
         },

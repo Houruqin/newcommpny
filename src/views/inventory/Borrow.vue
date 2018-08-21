@@ -101,8 +101,8 @@ export default {
             dialogStatus: {giveBack: false},
             submitLoading: {back: false},
             searchFilter: {
-                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
-                end_time: new Date().getTime(), 
+                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
                 borrow_type: '', keyword: ''
             },
 

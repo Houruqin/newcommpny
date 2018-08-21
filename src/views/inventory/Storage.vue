@@ -86,8 +86,8 @@ export default {
             storageLists: [],   
             dialogStatus: {addStorage: false},
             searchFilter: {
-                begin_time: new Date().setMonth(new Date().getMonth() - 1), 
-                end_time: new Date().getTime(), 
+                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
                 storage_type: '', commodity_type: '', use_type: '', keyword: ''
             },
             storageTable: {},

@@ -1,181 +1,181 @@
 <template>
-    <div class="flex1 outlay_form">
-        <el-card shadow="hover">
-            <TableHeader title="支出管理">
-                <MyButton @click.native="open_setting_dialog" type="border" fontColor="fc-m">类型设置</MyButton>
-                <MyButton @click.native="open_outlay_dialog" class="ml-20">添加支出</MyButton>
-            </TableHeader>
+  <div class="flex1 outlay_form">
+    <el-card shadow="hover">
+      <TableHeader title="支出管理">
+        <MyButton @click.native="open_setting_dialog" type="border" fontColor="fc-m">类型设置</MyButton>
+        <MyButton @click.native="open_outlay_dialog" class="ml-20">添加支出</MyButton>
+      </TableHeader>
 
-            <div class="toolbar mt-20">
-                <ul class="d-f">
-                    <li @click="choose_date('current_month')">
-                        <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
-                    </li>
-                    <li @click="choose_date('last_month')">
-                        <div :class="[{'selected' : search_info.date_type === 'last_month'},'select_button']">上月</div>
-                    </li>
-                    <li @click="choose_date('current_year')">
-                        <div :class="[{'selected' : search_info.date_type === 'current_year'},'select_button']">本年</div>
-                    </li>
-                    <li class="ml-20">
-                        <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                        <span>至</span>
-                        <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.end" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </li>
-                </ul>
+      <div class="toolbar mt-20">
+        <ul class="d-f date_type">
+          <li @click="choose_date('current_month')">
+            <div :class="[{'selected' : search_info.date_type === 'current_month'},'select_button']">本月</div>
+          </li>
+          <li @click="choose_date('last_month')">
+            <div :class="[{'selected' : search_info.date_type === 'last_month'},'select_button']">上月</div>
+          </li>
+          <li @click="choose_date('current_year')">
+            <div :class="[{'selected' : search_info.date_type === 'current_year'},'select_button']">本年</div>
+          </li>
+          <li class="ml-20">
+            <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <span>至</span>
+            <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.end" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+          </li>
+        </ul>
+      </div>
+      <div class="toolbar mt-20">
+        <ul class="d-f">
+          <li class="ml-20">
+            <el-select size="small" placeholder="全部支出类型" v-model="search_info.pay_method" @change="search">
+              <el-option label="全部支出类型" :value="0"></el-option>
+              <el-option v-for="(item, index) in dialog.add.data.type_lists" :key="index" :value="item.id" :label="item.name"></el-option>
+            </el-select>
+          </li>
+          <li class="name ml-20 mr-20">
+            <el-input size="small" placeholder="请输入支出人员姓名" v-model.trim="search_info.name"></el-input>
+          </li>
+          <li>
+            <MyButton @click.native="search" :radius="false">搜索</MyButton>
+          </li>
+        </ul>
+      </div>
+
+      <el-table stripe class="student-table mt-30" :data="outlay_info.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
+        <el-table-column label="序号" type="index" align="center"></el-table-column>
+        <el-table-column label="支出类型" prop="expend_type.name" align="center"></el-table-column>
+        <el-table-column label="支出人员" align="center">
+          <template slot-scope="scope">
+            <div>
+              <div>{{scope.row.expend_user_type === 1 ? scope.row.expend_user.name : scope.row.expend_student.name}}</div>
             </div>
-            <div class="toolbar mt-20">
-                <ul class="d-f">
-                    <li class="ml-20">
-                        <el-select size="small" placeholder="全部支出类型" v-model="search_info.pay_method" @change="search">
-                            <el-option label="全部支出类型" :value="0"></el-option>
-                            <el-option v-for="(item, index) in dialog.add.data.type_lists" :key="index" :value="item.id" :label="item.name"></el-option>
-                        </el-select>
-                    </li>
-                    <li class="name ml-20">
-                        <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
-                    </li>
-                    <li>
-                        <MyButton @click.native="search" :radius="false">搜索</MyButton>
-                    </li>
-                </ul>
+          </template>
+        </el-table-column>
+        <el-table-column label="支出时间" align="center">
+          <template slot-scope="scope">
+            <div>
+              <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
             </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人" prop="user.name" align="center"></el-table-column>
+        <el-table-column label="支出金额" prop="expend_price" align="center"></el-table-column>
+        <el-table-column label="备注" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.remark}}</div>
+          </template>
+        </el-table-column>
+      </el-table>
 
-            <el-table stripe class="student-table mt-30" :data="outlay_info.data" v-loading="loading" :show-header="true">
-                <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="支出类型" prop="expend_type.name" align="center"></el-table-column>
-                <el-table-column label="支出人员" align="center">
-                    <template slot-scope="scope">
-                        <div>
-                            <div>{{scope.row.expend_user_type === 1 ? scope.row.expend_user.name : scope.row.expend_student.name}}</div>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="支出时间" align="center">
-                    <template slot-scope="scope">
-                        <div>
-                            <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作人" prop="user.name" align="center"></el-table-column>
-                <el-table-column label="支出金额" prop="expend_price" align="center"></el-table-column>
-                <el-table-column label="备注" align="center">
-                    <template slot-scope="scope">
-                        <div>{{scope.row.remark}}</div>
-                    </template>
-                </el-table-column>
-            </el-table>
+      <!-- 分页 -->
+      <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
+      </el-pagination>
 
-            <!-- 分页 -->
-            <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
-            </el-pagination>
+      <!-- 添加支出弹窗 -->
+      <el-dialog title="添加支出" width="720px" center :visible.sync="dialog.add.show" :close-on-click-modal="false">
+        <el-form :model="dialog.add.data" label-width="125px" ref="add" size="small" :rules="addRules" class="form-box">
+          <el-row>
+            <el-col :span="11">
+              <el-form-item label="支出人员：" prop="name">
+                <el-select v-model="dialog.add.data.together_id" filterable placeholder="请输入支出人员" remote>
+                  <el-option v-if="item.user_type !== 2" @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.together_id">
+                    <span style="float: left">{{ item.name }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.user_type === 2 ? '学员' : ''}}</span>
+                  </el-option>
+                </el-select>
+              </el-form-item>
 
-            <!-- 添加支出弹窗 -->
-            <el-dialog title="添加支出" width="720px" center :visible.sync="dialog.add.show" :close-on-click-modal="false">
-                <el-form :model="dialog.add.data" label-width="125px" ref="add" size="small" :rules="addRules" class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="支出人员：" prop="name">
-                                <el-select v-model="dialog.add.data.id" filterable placeholder="请选择支出人员">
-                                    <el-option @click.native="dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.id">
-                                        <span style="float: left">{{ item.name }}</span>
-                                        <span style="float: right; color: #8492a6; font-size: 13px">{{ item.user_type === 2 ? '学员' : ''}}</span>
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
+              <el-form-item label="支出金额：" prop="price" class="units-input">
+                <el-input placeholder="请输入支出金额" v-model="dialog.add.data.price"></el-input>
+                <span class="pl-10">元</span>
+              </el-form-item>
 
-                            <el-form-item label="支出金额：" prop="price" class="units-input">
-                                <el-input placeholder="请输入支出金额" v-model="dialog.add.data.price"></el-input>
-                                <span class="pl-10">元</span>
-                            </el-form-item>
+            </el-col>
 
-                        </el-col>
+            <el-col :span="11">
+              <el-form-item label="支出类型：" prop="type" class="p-r">
+                <el-select v-model="dialog.add.data.type_id" placeholder="请选择">
+                  <el-option v-if="type.status === 1" @click.native="dialog.add.data.type = type.name" v-for="type of dialog.add.data.type_lists" :key="type.id" :label="type.name" :value="type.id"></el-option>
+                </el-select>
+                <div class="p-a add-commodity-type ver-c cursor-pointer" @click="open_outlay_type"><img src="../../images/common/add.png" alt=""></div>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="22">
+              <el-form-item label="备注：" prop="remark" class="units-input">
+                <el-input type="textarea" :autosize="{minRows: 2, maxRows: 6}" resize="none" v-model="dialog.add.data.remark"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <div class="d-f f-j-c mt-20">
+            <MyButton @click.native="submitForm('add')">确定</MyButton>
+          </div>
+        </el-form>
+      </el-dialog>
 
-                        <el-col :span="11">
-                            <el-form-item label="支出类型：" prop="type" class="p-r">
-                                <el-select v-model="dialog.add.data.type_id" placeholder="请选择">
-                                    <el-option @click.native="dialog.add.data.type = type.name" v-for="type of dialog.add.data.type_lists" :key="type.id" :label="type.name" :value="type.id"></el-option>
-                                </el-select>
-                                <div class="p-a add-commodity-type ver-c cursor-pointer" @click="open_outlay_type"><img src="../../images/common/add.png" alt=""></div>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="22">
-                            <el-form-item label="备注：" prop="remark" class="units-input">
-                                <el-input type="textarea" :autosize="{minRows: 2, maxRows: 6}" resize="none" v-model="dialog.add.data.remark"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <div class="d-f f-j-c mt-20">
-                        <MyButton @click.native="submitForm('add')">确定</MyButton>
-                    </div>
-                </el-form>
-            </el-dialog>
+      <!-- 添加支出确认弹窗 -->
+      <el-dialog class="outlay" title="确认添加？" width="720px" center :visible.sync="dialog.add_confirm.show" :close-on-click-modal="false">
+        <el-row class="t-a-c">请确认信息是否无误！</el-row>
+        <el-row class="outlay_info">
+          <el-col :span="8">支出人员：
+            <span>{{dialog.add.data.name}}</span>
+          </el-col>
+          <el-col :span="8">支出类型：
+            <span>{{dialog.add.data.type}}</span>
+          </el-col>
+          <el-col :span="8">支出金额：
+            <span>{{dialog.add.data.price}} 元</span>
+          </el-col>
+          <el-col :span="24">备注：
+            <span>{{dialog.add.data.remark}}</span>
+          </el-col>
+        </el-row>
+        <div class="d-f f-j-c mt-20">
+          <MyButton type="border" class="fc-m" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
+          <MyButton class="ml-20" @click.native="add_outlay">确定</MyButton>
+        </div>
+      </el-dialog>
 
-            <!-- 添加支出确认弹窗 -->
-            <el-dialog class="outlay" title="确认添加？" width="720px" center :visible.sync="dialog.add_confirm.show" :close-on-click-modal="false">
-                <el-row class="t-a-c">请确认信息是否无误！</el-row>
-                <el-row class="outlay_info">
-                    <el-col :span="8">支出人员：
-                        <span>{{dialog.add.data.name}}</span>
-                    </el-col>
-                    <el-col :span="8">支出类型：
-                        <span>{{dialog.add.data.type}}</span>
-                    </el-col>
-                    <el-col :span="8">支出金额：
-                        <span>{{dialog.add.data.price}} 元</span>
-                    </el-col>
-                    <el-col :span="24">备注：
-                        <span>{{dialog.add.data.remark}}</span>
-                    </el-col>
-                </el-row>
-                <div class="d-f f-j-c mt-20">
-                    <MyButton type="border" class="fc-m" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
-                    <MyButton class="ml-20" @click.native="add_outlay">确定</MyButton>
-                </div>
-            </el-dialog>
+      <!-- 类型设置弹窗 -->
+      <el-dialog title="类型设置" width="700px" center :visible.sync="dialog.setting.show" :close-on-click-modal="false">
+        <div class="d-f f-j-e">
+          <MyButton @click.native="open_outlay_type">添加支出类型</MyButton>
+        </div>
 
-            <!-- 类型设置弹窗 -->
-            <el-dialog title="类型设置" width="700px" center :visible.sync="dialog.setting.show" :close-on-click-modal="false">
-                <div class="d-f f-j-e">
-                    <MyButton @click.native="open_outlay_type">添加支出类型</MyButton>
-                </div>
+        <el-table class="mt-20 bor-t" :data="dialog.add.data.type_lists" v-loading="loading" stripe>
+          <el-table-column label="序号" type="index" align="center"></el-table-column>
+          <el-table-column label="支出类型" prop="name" align="center"></el-table-column>
+          <el-table-column label="状态" align="center">
+            <template slot-scope="scope">{{scope.row.status === 1 ? '正常' : (scope.row.status === 0 ? '禁用' : '删除')}}</template>
+          </el-table-column>
+          <el-table-column label="操作" align="center">
+            <template slot-scope="scope">
+              <span class="fc-m cursor-pointer" @click="type_edit(scope.row.id,scope.row.name)">修改</span>
+              <span v-if="scope.row.status === 1" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,0)">禁用</span>
+              <span v-if="scope.row.status === 0" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,1)">启用</span>
+              <span class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,-1)">删除</span>
+            </template>
+          </el-table-column>
+        </el-table>
 
-                <el-table class="mt-20 bor-t" :data="dialog.add.data.type_lists" v-loading="loading" stripe>
-                    <el-table-column label="序号" type="index" align="center"></el-table-column>
-                    <el-table-column label="支出类型" prop="name" align="center"></el-table-column>
-                    <el-table-column label="状态" align="center">
-                        <template slot-scope="scope">{{scope.row.status === 1 ? '正常' : (scope.row.status === 0 ? '禁用' : '删除')}}</template>
-                    </el-table-column>
-                    <el-table-column label="操作" align="center">
-                        <template slot-scope="scope">
-                            <span class="fc-m cursor-pointer" @click="type_edit(scope.row.id,scope.row.name)">修改</span>
-                            <span v-if="scope.row.status === 1" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,0)">禁用</span>
-                            <span v-if="scope.row.status === 0" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,1)">启用</span>
-                            <span class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,-1)">删除</span>
-                        </template>
-                    </el-table-column>
-                </el-table>
+        <!-- <div class="d-f f-j-c mt-30 mb-10">
+          <MyButton @click.native="dialog.setting.show = false">确定</MyButton>
+        </div> -->
+      </el-dialog>
 
-                <div class="d-f f-j-c mt-30 mb-10">
-                    <MyButton @click.native="dialog.setting.show = false">确定</MyButton>
-                </div>
-            </el-dialog>
-
-            <el-dialog title="添加支出类型" width="500px" center :visible.sync="dialog.addType.show" :close-on-click-modal="false" append-to-body>
-                <el-form :model="dialog.addType" label-width="100px" size="small" :rules="addTypeRules" class="commodity-type-formbox">
-                    <el-form-item label="支出类型" prop="type" class="pl-50">
-                        <el-input v-model.trim="dialog.addType.type" placeholder="请输入支出类型"></el-input>
-                    </el-form-item>
-                    <div class="d-f f-j-c mt-40 mb-10">
-                        <MyButton @click.native="add_outlay_type">确定</MyButton>
-                    </div>
-                </el-form>
-            </el-dialog>
-        </el-card>
-    </div>
+      <el-dialog title="添加支出类型" width="500px" center :visible.sync="dialog.addType.show" :close-on-click-modal="false" append-to-body>
+        <el-form :model="dialog.addType" ref="addType" label-width="100px" size="small" :rules="addTypeRules" class="commodity-type-formbox">
+          <el-form-item label="支出类型" prop="type" class="pl-50">
+            <el-input v-model.trim="dialog.addType.type" placeholder="请输入支出类型"></el-input>
+          </el-form-item>
+          <div class="d-f f-j-c mt-40 mb-10">
+            <MyButton @click.native="add_outlay_type('addType')">确定</MyButton>
+          </div>
+        </el-form>
+      </el-dialog>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -190,19 +190,17 @@ export default {
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
+          0
         ),
         name: "",
-        date_type: "",
+        date_type: "current_month",
         pay_method: 0
       },
       //支出信息
       outlay_info: {
-        data: []
+        data: [],
+        total: ""
       },
       //分页信息
       page_info: {
@@ -222,7 +220,8 @@ export default {
             remark: "",
             type_id: "",
             type: "",
-            type_lists: []
+            type_lists: [],
+            together_id: ""
           },
           show: false
         },
@@ -252,9 +251,9 @@ export default {
         ],
         price: [
           { required: true, message: "请输入支出金额" },
-        //   { validator: this.$$tools.formOtherValidate("price") }
-          {validator: this.$$tools.formOtherValidate('decimals', 2)},
-          {validator: this.$$tools.formOtherValidate('total', 9999)}
+          //   { validator: this.$$tools.formOtherValidate("price") }
+          { validator: this.$$tools.formOtherValidate("decimals", 2) },
+          { validator: this.$$tools.formOtherValidate("total", 999999) }
         ],
         remark: [{ required: true, message: "请输入备注" }]
       },
@@ -264,20 +263,6 @@ export default {
     };
   },
   methods: {
-    //初始化查询信息
-    init_search_info() {
-      let search_info = {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          0,
-          24
-        ),
-        name: ""
-      };
-      this.search_info = search_info;
-    },
     //选择时间
     choose_date(type) {
       this.search_info.date_type = type;
@@ -287,11 +272,8 @@ export default {
             this.$format_date(new Date(), "yyyy/MM/01")
           );
           this.search_info.end = new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0,
-            24
-          );
+            new Date().setMonth(new Date().getMonth() + 1)
+          ).setDate(0);
           break;
         case "last_month":
           this.search_info.begin = new Date(
@@ -300,22 +282,16 @@ export default {
             0,
             24
           );
-          this.search_info.end = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
-          );
+          this.search_info.end = new Date(new Date().setDate(0));
           break;
         case "current_year":
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/01/01")
           );
-          this.search_info.end = new Date(
-            new Date().getFullYear() + 1,
-            0,
-            0,
-            24
-          );
+          this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
+      this.page_info.page = 1;
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
@@ -352,45 +328,57 @@ export default {
       console.log(params);
       this.$$request.get("api/financeManage/expend/lists", params).then(res => {
         this.outlay_info.data = res.expendRecords.data;
+        this.outlay_info.total = res.total;
         this.page_info.total = res.expendRecords.total;
         this.loading = false;
       });
     },
     //获取支出类型
-    get_outlay_type() {
-      this.$$request.get("api/financeManage/expendType/lists").then(res => {
+    async get_outlay_type() {
+      await this.$$request.get("api/financeManage/expendType/lists").then(res => {
         this.dialog.add.data.type_lists = res.expendTypes;
       });
     },
     //添加支出类型
-    add_outlay_type() {
-      if (this.dialog.addType.handle === "add") {
-        const params = {
-          name: this.dialog.addType.type
-        };
-        this.$$request
-          .post("api/financeManage/expendType/add", params)
-          .then(res => {
-            this.get_outlay_type();
+    add_outlay_type(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          if (this.dialog.addType.handle === "add") {
+            const params = {
+              name: this.dialog.addType.type
+            };
+            let result = await this.$$request.post(
+              "api/financeManage/expendType/add",
+              params
+            );
+            if (!result) return false;
+            //添加后默认选择新增选项
+            this.get_outlay_type().then(() => {
+              let length = this.dialog.add.data.type_lists.length - 1;
+              this.dialog.add.data.type_id = this.dialog.add.data.type_lists[length].id
+            });
             this.$message.success("已添加！");
             this.dialog.addType.show = false;
-          });
-      } else {
-        const params = {
-          id: this.dialog.addType.id,
-          name: this.dialog.addType.type
-        };
-        this.$$request
-          .post("api/financeManage/expendType/edit", params)
-          .then(res => {
+          } else {
+            const params = {
+              id: this.dialog.addType.id,
+              name: this.dialog.addType.type
+            };
+            let result = await this.$$request.post(
+              "api/financeManage/expendType/edit",
+              params
+            );
+            if (!result) return false;
             this.get_outlay_type();
             this.$message.success("已修改！");
             this.dialog.addType.show = false;
             this.get_data();
-          });
-      }
+          }
+        } else {
+          return false;
+        }
+      });
     },
-    //修改支出类型
     //将时间转换为秒数
     get_seconde(date) {
       return new Date(date).getTime() / 1000;
@@ -404,19 +392,12 @@ export default {
           this.dialog.contract.show = true;
         });
     },
-    //获取全部员工+学员信息
-    get_all_user() {
-      this.$$request
-        .get("api/financeManage/searchUser", { user_name: "" })
-        .then(res => {
-          console.log(res);
-          this.all_user = res.users;
-        });
-    },
     //添加支出弹窗
     open_outlay_dialog() {
-      this.get_all_user();
       this.dialog.add.show = true;
+      this.dialog.add.data.id = "";
+      this.dialog.add.data.together_id = "";
+      this.dialog.add.data.type_id = "";
       this.$nextTick(() => {
         this.$refs.add.resetFields();
       });
@@ -437,7 +418,7 @@ export default {
       });
     },
     //添加支出确定
-    add_outlay() {
+    async add_outlay() {
       const params = {
         expend_user_type: this.dialog.add.data.user_type,
         expend_user_id: this.dialog.add.data.id,
@@ -445,12 +426,15 @@ export default {
         expend_price: this.dialog.add.data.price,
         remark: this.dialog.add.data.remark
       };
-      this.$$request.post("api/financeManage/expend/add", params).then(res => {
-        this.$message.success("已添加！");
-        this.dialog.add.show = false;
-        this.dialog.add_confirm.show = false;
-        this.get_data();
-      });
+      let result = await this.$$request.post(
+        "api/financeManage/expend/add",
+        params
+      );
+      if (!result) return false;
+      this.$message.success("已添加！");
+      this.dialog.add.show = false;
+      this.dialog.add_confirm.show = false;
+      this.get_data();
     },
     //类型设置
     open_setting_dialog() {
@@ -476,13 +460,14 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(() => {
-        this.$$request
-          .post("api/financeManage/expendType/set", params)
-          .then(res => {
-            this.$message.success("已" + word);
-            this.get_outlay_type();
-          });
+      }).then(async () => {
+        let result = await this.$$request.post(
+          "api/financeManage/expendType/set",
+          params
+        );
+        if (!result) return false;
+        this.$message.success("已" + word);
+        this.get_outlay_type();
       });
     },
     open_outlay_type() {
@@ -492,11 +477,32 @@ export default {
         type: "",
         handle: "add"
       };
+      this.$nextTick(() => {
+        this.$refs.addType.resetFields();
+      });
+    },
+    //获取合计的值
+    get_sum(param) {
+      let sums = [];
+      const { columns, data } = param;
+      sums[1] = "合计";
+      columns.forEach((item, index) => {
+        switch (item.label) {
+          case "支出金额":
+            return (sums[index] = this.outlay_info.total + " 元");
+            break;
+        }
+      });
+      return sums;
     }
   },
   created() {
     this.get_outlay_type();
     this.get_data();
+    this.$store.dispatch("getAllUser");
+    this.$nextTick(() => {
+      this.all_user = this.$store.state.allUser;
+    });
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };
@@ -557,9 +563,11 @@ export default {
   margin-left: 20px;
   cursor: pointer;
 }
-.selected {
-  background-color: #45dad5 !important;
-  color: #fff !important;
+.date_type {
+  .selected {
+    background-color: #45dad5 !important;
+    color: #fff !important;
+  }
 }
 .add-commodity-type {
   right: -10px;

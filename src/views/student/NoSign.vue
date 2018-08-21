@@ -233,7 +233,7 @@ export default {
                 parent_id: data.parent_id
             };
 
-            this.$router.push({name: 'nosignBuyCourse', params: {buyCourseData: params}});
+            this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
         },
         //购课成功，合约回调
         // CB_contract(data) {

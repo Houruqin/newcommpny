@@ -59,7 +59,7 @@ import MyButton from '../common/MyButton'
 export default {
     props: {
         dialogStatus: '',
-        refundData: {default: {}},
+        refundData: {default: () => {return {}}},
     },
     components: {MyButton},
     watch: {
