@@ -24,7 +24,8 @@ axios.interceptors.request.use(config => {
 
 //请求完成之后的拦截器
 axios.interceptors.response.use(res => {
-    // cache.set('version', res.headers.version);
+    console.log(res);
+    if(config.version !== res.headers.version) return window.location.reload(true);
 
     let result = res.data;
     switch (result.code) {
