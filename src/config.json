@@ -1,5 +1,5 @@
 {
-    "version": "1.0.5",
+    "version": "1.2.1",
     "devBaseurl": {
         "api": "http://saas_dev.jiaoyf.com/",
         "image": "http://192.168.34.50:81/"
