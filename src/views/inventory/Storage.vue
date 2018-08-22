@@ -96,9 +96,6 @@ export default {
         }
     },
     methods: {
-        dialogClose() {
-
-        },
         dateChange() {
             if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
             this.getStorageLists();

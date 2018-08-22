@@ -97,7 +97,7 @@
                         </el-form-item>
 
                         <el-form-item label="库存预警：" prop="warning">
-                            <el-input placeholder="库存预警" type="number" v-model="addCommodityForm.warning"></el-input>
+                            <el-input placeholder="库存预警" type="number" v-model.number="addCommodityForm.warning"></el-input>
                         </el-form-item>
                     </el-col>
 
@@ -167,10 +167,10 @@
                 <el-form-item label="物品名称：" prop="name">{{addStorageForm.name}}</el-form-item>
                 <div class="d-f">
                     <el-form-item label="入库数量：" prop="num">
-                        <el-input v-model="addStorageForm.num" type="number" placeholder="入库数量"></el-input>
+                        <el-input v-model.number="addStorageForm.num" type="number" placeholder="入库数量"></el-input>
                     </el-form-item>
                     <el-form-item label="进货单价：" prop="stock_price" class="ml-50">
-                        <el-input type="number" v-model="addStorageForm.stock_price" placeholder="进货单价"></el-input><span class="pl-10">元</span>
+                        <el-input type="number" v-model.number="addStorageForm.stock_price" placeholder="进货单价"></el-input><span class="pl-10">元</span>
                     </el-form-item>
                 </div>
                 <div class="d-f f-j-c mt-20 mb-10"><MyButton @click.native="doneHandle('addStorage')" :loading="submitLoading.addStorage">确定</MyButton></div>
@@ -201,7 +201,7 @@
                     <div class="flex1">
                         <el-form-item label="库存数量：">{{removeStorageForm.total_num}}件</el-form-item>
                         <el-form-item label="出库数量：" prop="num">
-                            <el-input type="number" placeholder="出库数量" v-model="removeStorageForm.num"></el-input>
+                            <el-input type="number" placeholder="出库数量" v-model.number="removeStorageForm.num"></el-input>
                         </el-form-item>
                         <el-form-item label="学员剩余库存：" v-if="receivePeopleType == 2 && removeStorageForm.student_total_num !== ''">{{removeStorageForm.student_total_num}}件</el-form-item>
                     </div>
@@ -234,7 +234,7 @@
                     <div class="ml-20">
                         <el-form-item label="库存数量：">{{borrowForm.total_num}}</el-form-item>
                         <el-form-item label="借用数量：" prop="borrow_num">
-                            <el-input type="number" placeholder="借用数量" v-model="borrowForm.borrow_num"></el-input>
+                            <el-input type="number" placeholder="借用数量" v-model.number="borrowForm.borrow_num"></el-input>
                         </el-form-item>
                     </div>
                 </div>
@@ -410,6 +410,7 @@ export default {
         addStorage(data) {
             this.addStorageForm.name = data.name;
             this.addStorageForm.goods_id = data.id;
+            this.addStorageForm.stock_price = data.stock_price;
             this.dialogStatus.addStorage = true;
         },
         //出库点击
@@ -624,13 +625,13 @@ export default {
 
             console.log(params);
             
-            let result = await this.$$request.post('api/repertory/putStorage', params);
-            console.log(result);
-            if(!result) return 0;
+            // let result = await this.$$request.post('api/repertory/putStorage', params);
+            // console.log(result);
+            // if(!result) return 0;
 
-            this.$message.success('入库成功');
-            this.getCommodityLists();
-            this.dialogStatus.addStorage = false;
+            // this.$message.success('入库成功');
+            // this.getCommodityLists();
+            // this.dialogStatus.addStorage = false;
         },
         //提交 出库数据
         async submitRemoveStorage() {
