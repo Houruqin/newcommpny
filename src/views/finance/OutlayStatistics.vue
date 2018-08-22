@@ -78,7 +78,7 @@
             <el-col :span="11">
               <el-form-item label="支出人员：" prop="name">
                 <el-select v-model="dialog.add.data.together_id" filterable placeholder="请输入支出人员" remote>
-                  <el-option v-if="item.user_type !== 2" @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in all_user" :key="item.id" :label="item.name" :value="item.together_id">
+                  <el-option v-if="item.user_type !== 2" @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in $store.state.allUser" :key="item.id" :label="item.name" :value="item.together_id">
                     <span style="float: left">{{ item.name }}</span>
                     <span style="float: right; color: #8492a6; font-size: 13px">{{ item.user_type === 2 ? '学员' : ''}}</span>
                   </el-option>
@@ -241,7 +241,7 @@ export default {
         }
       },
       loading: false,
-      all_user: [],
+      // all_user: [],
       timeout: null,
       filted_user: "",
       addRules: {
@@ -352,7 +352,6 @@ export default {
               params
             );
             if (!result) return false;
-            //添加后默认选择新增选项
             this.get_outlay_type().then(() => {
               let length = this.dialog.add.data.type_lists.length - 1;
               this.dialog.add.data.type_id = this.dialog.add.data.type_lists[length].id
@@ -500,9 +499,9 @@ export default {
     this.get_outlay_type();
     this.get_data();
     this.$store.dispatch("getAllUser");
-    this.$nextTick(() => {
-      this.all_user = this.$store.state.allUser;
-    });
+    // this.$nextTick(() => {
+    //   this.all_user = this.$store.state.allUser;
+    // });
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };
