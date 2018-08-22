@@ -442,7 +442,6 @@ export default {
         },
         //上传成功
         uploadSuccess(response, file, fileList) {
-            console.log(response)
             if(response.code === 1) {
                 if(response.data.status === 1) {
                     this.total = response.data.success;
@@ -450,10 +449,12 @@ export default {
                 }else {
                     this.stepActive = 2;
                     let list = response.data.data;
-                    let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                    let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
+
                     this.previewData = list.map((d, e) => {
                         let itemlist = {index: `student_${e}`};
                         this.tableAllHeader[tab].forEach((v, n) => {
+                            console.log(d[n])
                             itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                         });
                         return itemlist;
@@ -474,16 +475,14 @@ export default {
         },
         //冲突提交
         conflictSubmit() {
-            console.log(this.previewData);
-
             var tableList = this.previewData.map(d => {
                 let res = [];
-                let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
+
                 this.tableAllHeader[tab].slice(1).forEach((v, n) => {res[n] = d[v].data});
                 return res;
             });
 
-            console.log(tableList);
             if(!tableList.length) return this.$message.warning('你已将全部信息删除，不能提交！');
             this.subSubmitHandle(tableList);
         },
@@ -515,7 +514,7 @@ export default {
                 this.stepActive = 2;
                 let list = result.data;
                 
-                let tab = this.classPattern == 1 ? 'course_begrade' : this.activeTab;
+                let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
                 this.previewData = list.map((d, e) => {
                     let itemlist = {index: `student_${e}`};
                     this.tableAllHeader[tab].forEach((v, n) => {
@@ -534,7 +533,6 @@ export default {
             });
 
             this.errTableEdit = false;
-            console.log(this.previewData);
         },
         importUrlChange() {
             let baseUrl = process.env.NODE_ENV  == 'development' ?  config.devBaseurl.api : config.prodBaseUrl.api;

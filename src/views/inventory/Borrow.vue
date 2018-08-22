@@ -76,7 +76,7 @@
                 <div class="d-f f-j-b">
                     <el-form-item label="应归还数量：">{{backForm.back_num}}</el-form-item>
                     <el-form-item label="归还数量：" prop="return_num">
-                        <el-input v-model.trim="backForm.return_num" placeholder="请输入归还数量"></el-input>
+                        <el-input type="number" v-model.number="backForm.return_num" placeholder="请输入归还数量"></el-input>
                     </el-form-item>
                 </div>
 
@@ -111,7 +111,9 @@ export default {
             backForm: {back_num: '', return_num: '', explain: ''},
             backRules: {
                 return_num: [
-                    {required: true, message: '请输入归还数量'}
+                    {required: true, message: '请输入归还数量'},
+                    {validator: this.$$tools.formOtherValidate('int')},
+                    {validator: this.$$tools.formOtherValidate('total', 5000)}
                 ],
                 explain: []
             }
