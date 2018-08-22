@@ -625,13 +625,13 @@ export default {
 
             console.log(params);
             
-            // let result = await this.$$request.post('api/repertory/putStorage', params);
-            // console.log(result);
-            // if(!result) return 0;
+            let result = await this.$$request.post('api/repertory/putStorage', params);
+            console.log(result);
+            if(!result) return 0;
 
-            // this.$message.success('入库成功');
-            // this.getCommodityLists();
-            // this.dialogStatus.addStorage = false;
+            this.$message.success('入库成功');
+            this.getCommodityLists();
+            this.dialogStatus.addStorage = false;
         },
         //提交 出库数据
         async submitRemoveStorage() {
