@@ -9,8 +9,8 @@ const
   CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config = {
-  distDir: 'dist',
-  staticDir: 'static',
+  distDir: 'dist/',
+  staticDir: 'static/',
   publicPath: '/',
   port: 8888,
   host: '0.0.0.0'
@@ -19,13 +19,13 @@ const config = {
 module.exports = {
   devtool: '#source-map',
   entry: {
-    [`${config.staticDir}/index`]: ['babel-polyfill', './index.js']
+    [`${config.staticDir}index`]: ['babel-polyfill', './index.js']
   },
   output: {
     path: path.join(__dirname, config.distDir),
     filename: `[name].js`,
     publicPath: config.publicPath,
-    chunkFilename: `${config.staticDir}/[name].[chunkhash:5].js`,
+    chunkFilename: `${config.staticDir}[name].[chunkhash:5].js`,
     devtoolModuleFilenameTemplate: '[resource-path]'
   },
   module: {
@@ -50,7 +50,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([config.distDir]),
     new ExtractTextPlugin('[name].css'),
-    new webpack.optimize.CommonsChunkPlugin(`${config.staticDir}/common`),
+    new webpack.optimize.CommonsChunkPlugin(`${config.staticDir}common`),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './static'),
       to: config.staticDir,
