@@ -2,7 +2,7 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader title="无班课表">
-                <!-- <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton> -->
+                <!-- <MyButton  type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton> -->
             </TableHeader>
 
             <div class="content-box">
@@ -116,7 +116,7 @@
                                             :item="item" :pastdue="scope.row.week_one.past_due">
                                         </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due"
-                                            :class="{'hover': scope.row.week_one.operate == true}"  
+                                            :class="{'hover': scope.row.week_one.operate == true}"
                                             @click="addTimetable('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
                                             <div v-show="scope.row.week_one.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -126,12 +126,12 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_two">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_two.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_two.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_two.past_due">
                                         </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due"
-                                            :class="{'hover': scope.row.week_two.operate == true}"  
+                                            :class="{'hover': scope.row.week_two.operate == true}"
                                             @click="addTimetable('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
                                             <div v-show="scope.row.week_two.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -141,12 +141,12 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_three">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_three.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_three.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_three.past_due">
                                         </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due"
-                                            :class="{'hover': scope.row.week_three.operate == true}"  
+                                            :class="{'hover': scope.row.week_three.operate == true}"
                                             @click="addTimetable('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
                                             <div v-show="scope.row.week_three.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -156,12 +156,12 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_four">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_four.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_four.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_four.past_due">
                                         </TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due"
-                                            :class="{'hover': scope.row.week_four.operate == true}"  
+                                            :class="{'hover': scope.row.week_four.operate == true}"
                                             @click="addTimetable('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
                                             <div v-show="scope.row.week_four.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -171,11 +171,11 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_five">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_five.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_five.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_five.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due"
-                                            :class="{'hover': scope.row.week_five.operate == true}"  
+                                            :class="{'hover': scope.row.week_five.operate == true}"
                                             @click="addTimetable('single', scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
                                             <div v-show="scope.row.week_five.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -185,11 +185,11 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_six">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_six.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_six.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_six.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due"
-                                            :class="{'hover': scope.row.week_six.operate == true}"  
+                                            :class="{'hover': scope.row.week_six.operate == true}"
                                             @click="addTimetable('single', scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
                                             <div v-show="scope.row.week_six.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -199,11 +199,11 @@
                             <el-table-column align="center" :render-header="tableHeader" min-width="185" :resizable="false">
                                 <template slot-scope="scope">
                                     <div class="cursor-pointer item-box" mytype="week_seven">
-                                        <TimetablePopver v-for="(item, n) in scope.row.week_seven.lists" :key="n" 
+                                        <TimetablePopver v-for="(item, n) in scope.row.week_seven.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_seven.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due"
-                                            :class="{'hover': scope.row.week_seven.operate == true}"  
+                                            :class="{'hover': scope.row.week_seven.operate == true}"
                                             @click="addTimetable('single', scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
                                             <div v-show="scope.row.week_seven.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
@@ -214,14 +214,14 @@
                     </div>
                     <!-- 日课表 -->
                     <div class="day-table my-scrollbar fc-5" v-else>
-                        <el-scrollbar style="height: 100%;">                          
+                        <el-scrollbar style="height: 100%;">
                             <ul>
                                 <li v-for="(row, index) in dayTableLists" :key="index" class="d-f">
                                     <div class="left t-a-c">{{hourData[index].name}}</div>
                                     <div class="right fc-7 flex1">
                                         <div v-if="row.course.length" v-for="(item, num) in row.course" :key="num"
                                             @mouseenter.stop="coursehover(item)" @mouseleave="courseMouseout(item)"
-                                            class="course-box bgc-f d-f f-j-b cursor-pointer p-r" 
+                                            class="course-box bgc-f d-f f-j-b cursor-pointer p-r"
                                             :class="{'mt-5' : num > 0, 'gray': item.lesson_end_time,
                                                     'green': !item.lesson_end_time && item.course_type === 1,
                                                     'yellow': !item.lesson_end_time && item.course_type == 2}">
@@ -267,7 +267,7 @@
                 </div>
             </div>
         </el-card>
-        
+
         <!-- 新增排课弹窗 -->
         <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="820px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
@@ -300,7 +300,7 @@
                                             <el-col :span="addTableType == 'edit' ? 14 : 9">
                                                 <el-form-item v-if="addTableType == 'edit'">
                                                     <el-date-picker v-model="addDate.week" @change="formEditDateChange"
-                                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false" 
+                                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false"
                                                         placeholder="选择日期" value-format="yyyy/MM/dd">
                                                     </el-date-picker>
                                                 </el-form-item>
@@ -313,10 +313,10 @@
 
                                             <el-col :span="addTableType == 'edit' ? 9 : 14" class="p-r" :offset="1">
                                                 <el-form-item  label-width="0" prop="begin_time" class="p-r">
-                                                    <el-time-select 
+                                                    <el-time-select
                                                         :editable="false"
-                                                        v-model="addDate.begin_time" 
-                                                        :picker-options="timePicker" 
+                                                        v-model="addDate.begin_time"
+                                                        :picker-options="timePicker"
                                                         placeholder="时间">
                                                     </el-time-select>
                                                 </el-form-item>
@@ -372,7 +372,7 @@
                                     </div>
                                 </div>
                             </el-form-item>
-                        </div>                    
+                        </div>
                     </div>
                 </div>
                 <div class="d-f f-j-c mt-30">
@@ -427,7 +427,7 @@
                         <template slot-scope="scope">
                             <span v-if="scope.row.conflict_data.reason == 3">
                                 <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
-                            </span> 
+                            </span>
                         </template>
                     </el-table-column>
                     <el-table-column label="解决建议">
@@ -518,18 +518,18 @@ export default {
             allStudentLists: [],   //学员总数
 
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
-            
-            weekList: [
-                {id: 1, name: '周一', type: 'week_one'}, 
-                {id: 2, name: '周二', type: 'week_two'}, 
-                {id: 3, name: '周三', type: 'week_three'}, 
-                {id: 4, name: '周四', type: 'week_four'}, 
 
-                {id: 5, name: '周五', type: 'week_five'}, 
-                {id: 6, name: '周六', type: 'week_six'}, 
+            weekList: [
+                {id: 1, name: '周一', type: 'week_one'},
+                {id: 2, name: '周二', type: 'week_two'},
+                {id: 3, name: '周三', type: 'week_three'},
+                {id: 4, name: '周四', type: 'week_four'},
+
+                {id: 5, name: '周五', type: 'week_five'},
+                {id: 6, name: '周六', type: 'week_six'},
                 {id: 0, name: '周日', type: 'week_seven'}
             ],
-            
+
             defaultWeekList: [],    //课表头部展示周数据
             timetableWeekList: [],   //排课下拉选择周数据
 
@@ -659,7 +659,7 @@ export default {
         //             this.gradeInfoCheckLists.lists.push(v);
         //             num+= v.num;
         //         }
-        //     });  
+        //     });
 
         //     this.gradeInfoCheckLists.total_num = num;
 
@@ -768,7 +768,7 @@ export default {
             if(this.courseType === 1) {
                 this.checkStudentForm = detail.student_grades.map(v => {return v.student_id});
                 this.studentLists = this.checkStudentForm;
-                this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length; 
+                this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length;
             }else {
                 this.radioStudentForm = detail.student_grades[0].student_id;
                 this.studentRadio = this.radioStudentForm;
@@ -823,10 +823,10 @@ export default {
                 this.formAddDate.push({begin_time: newTime, end_time: '', week: week});
             }else {
                 this.timetableForm.room_id = [];
-                this.formAddDate.push({begin_time: '', end_time: '', week: ''});               
+                this.formAddDate.push({begin_time: '', end_time: '', week: ''});
                 this.timetableForm.start_time = new Date().getTime();
             }
-            
+
             this.addTimetableMask = true;
         },
         //新增排课选择班级
@@ -903,7 +903,7 @@ export default {
             console.log(this.allStudentLists)
             if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
             this.addStudentDialog = true;
-            
+
             if(this.courseType === 1) {
                 this.studentLists = this.checkStudentForm;
                 this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
@@ -931,7 +931,7 @@ export default {
                     if(v.id == this.studentRadio) this.timetableForm.no_timetable = v.scheduled;
                 });
             }
-            this.addStudentDialog = false;           
+            this.addStudentDialog = false;
         },
         //排课，开课日期改变
         startTimeChange(val) {
@@ -994,11 +994,11 @@ export default {
                 lesson_num: this.timetableForm.lesson_num,
                 teacher_ids: this.timetableForm.teacher_ids,
                 // loop_time: this.timetableForm.loop_time,
-                room_id : this.timetableForm.room_id,  
+                room_id : this.timetableForm.room_id,
                 student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {return {student_id: v}}) : [{student_id: this.radioStudentForm}]
             }
             //单个提交
-            if(this.addTableType == 'single') { 
+            if(this.addTableType == 'single') {
                 // params.commit_type = 'single';
                 this.timetableWeekList.forEach(v => {if(v.id == this.formAddDate[0].week) {
                     params.begin_time = new Date(`${v.day.newFullDay} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
@@ -1093,18 +1093,18 @@ export default {
             }
         },
         //判断当前开课日期是不是本周
-        isSameWeek(old){  
-            var oneDayTime = 1000*60*60*24;  
-            var old_count = parseInt(old/oneDayTime);  
-            var now_other = parseInt(new Date().getTime() / oneDayTime);  
-            return parseInt((old_count+4)/7) == parseInt((now_other+4)/7);  
+        isSameWeek(old){
+            var oneDayTime = 1000*60*60*24;
+            var old_count = parseInt(old/oneDayTime);
+            var now_other = parseInt(new Date().getTime() / oneDayTime);
+            return parseInt((old_count+4)/7) == parseInt((now_other+4)/7);
         },
         //获取新增排课填充数据
         async getAddTimeTableFull() {
             let result = await this.$$request.get('api/timetable/notModelFill');
             console.log(result);
             if(!result) return 0;
-            
+
             this.planCourseLists = result.course;
         },
         //默认获取全部课表
@@ -1127,7 +1127,7 @@ export default {
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
-        },   
+        },
         //班级获取课表
         async getGradeTableLists() {
             if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
@@ -1185,7 +1185,7 @@ export default {
                         };
 
                         let past_due, full_date = w.day.newFullDay;
-                        if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {                           
+                        if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
                             past_due = v.id < new Date().getHours() ? true : false;
                         }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
                             past_due = true;
@@ -1223,7 +1223,7 @@ export default {
 
                     let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, "/");
 
-                    if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) { 
+                    if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
                         past_due = v.id <= new Date().getHours();
                     }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
                         past_due = true;
@@ -1237,7 +1237,7 @@ export default {
                         let nowDate = new Date(d.begin_time * 1000);
                         let hour = nowDate.getHours();
                         let week = nowDate.getDay();
-                        
+
                         d.operate = false;
                         d.time_quantum = {
                             begin_time: this.$$tools.formatTime(d.begin_time),
@@ -1258,7 +1258,7 @@ export default {
         },
         //周数据做处理
         getWeekList(time, type) {
-            let now = new Date(), nowTime, day; 
+            let now = new Date(), nowTime, day;
 
             if(time) {
                 nowTime = time;
@@ -1271,11 +1271,11 @@ export default {
             let weekLists = this.weekList.map(d => {
 
                 let num = d.id, newTime, past_due;
-                
+
                 let day_a = day == 0 ? 7 : day;
 
                 newTime = num == 0 ? nowTime + (7-day_a) * ONE_DAY_LONG : nowTime - (day_a-num) * ONE_DAY_LONG;
-                
+
                 let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
 
                 // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
@@ -1454,7 +1454,7 @@ export default {
             bottom: 0;
         }
     }
-    
+
     .day-table {
         height: 690px;
         ul {
