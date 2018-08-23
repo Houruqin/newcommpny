@@ -11,7 +11,7 @@ const
 const config = {
   distDir: 'dist',
   staticDir: 'static',
-  publicPath: '/',
+  publicPath: argv.env === 'local' ? '/' : '/pc',
   port: 8888,
   host: '0.0.0.0'
 };
