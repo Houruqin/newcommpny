@@ -69,15 +69,18 @@
                             </el-table-column>
                             <el-table-column label="操作" align="center">
                                 <template slot-scope="scope">
-                                    <el-dropdown trigger="click" @command="handleCommand" placement="bottom" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
-                                        <a class="unfold-icon cursor-pointer el-dropdown-link">
+                                    <span class="cursor-pointer" :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
+                                    <span class="fc-m ml-10 cursor-pointer" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
+                                    <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                                        <!-- <a class="unfold-icon cursor-pointer el-dropdown-link">
                                             <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
-                                        </a>
+                                        </a> -->
+                                        <span class="fc-m ml-10 cursor-pointer el-dropdown-link">其他</span>
                                         <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                            <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type:item.type, grade_info: scope.row, course_info: course}">
+                                            <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
                                                 <!--未开课-->
                                                 <template v-if="scope.row.begin_status == 0">
-                                                    <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'">
+                                                    <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'">
                                                         <i class="iconfont" :class="item.icon"></i>                         
                                                         <span>{{item.text}}</span>
                                                     </div>
@@ -86,7 +89,7 @@
                                                 <template v-else>
                                                     <!--停课-->
                                                     <template v-if="scope.row.status == -3">
-                                                        <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'over' || item.type == 'edit' || item.type == 'delete'">
+                                                        <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'edit' || item.type == 'delete'">
                                                             <i class="iconfont" :class="item.icon"></i>                         
                                                             <span>{{item.text}}</span>
                                                         </div>
@@ -94,7 +97,7 @@
 
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
-                                                        <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'edit' || item.type == 'delete'" 
+                                                        <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'" 
                                                             :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>                         
                                                             <span>{{item.text}}</span>
@@ -103,7 +106,7 @@
 
                                                     <!--正常开课-->
                                                     <template v-else>
-                                                        <div class="d-f f-j-b" v-if="item.type == 'plan' || item.type == 'over' || item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
+                                                        <div class="d-f f-j-b" v-if="item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
                                                             :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                             <i class="iconfont" :class="item.icon"></i>    
                                                             <span>{{item.text}}</span>
@@ -122,101 +125,13 @@
             </div>
         </el-card>
         <!-- 添加、修改课程弹窗 -->
-        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editDetail" :courseMode="1"
+        <AddCourseDialog :dialogStatus="dialogStatus.course" :type="courseOperate" :editDetail="editCourseDetail" :courseMode="1"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
         <!-- 添加/修改班级弹窗 -->
-        <el-dialog :title="classEdit ? '修改班级' : '添加班级'" width="800px" center :visible.sync="dialogStatus.grade" :close-on-click-modal="false" @close="dialogClose('classRoomForm')">
-            <div class="form-box">
-                <el-form :model="classForm" label-width="120px" size="small" ref="classRoomForm" :rules="classRules">
-                    <el-row class="add-lesson-top">
-                        <el-col :span="11">
-                            <el-form-item label="课程名称："><span>{{classForm.course_name}}</span></el-form-item>
-                            <el-form-item label="班级名称：" prop="name">
-                                <el-input v-model.trim="classForm.name"></el-input>
-                            </el-form-item>
-                            <el-form-item label="任课老师：" prop="teacher_ids">
-                                <el-select v-model="classForm.teacher_ids" placeholder="必选">
-                                    <el-option
-                                        v-for="(item, index) in classSelectInfo.teacher"
-                                        :key="index"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
-                                <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                            <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1">
-                                <el-select v-model="classForm.room_id" placeholder="请选择">
-                                    <el-option
-                                        v-for="item in classSelectInfo.room  "
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
-                                <el-select v-model="classForm.is_listen" placeholder="请选择">
-                                    <el-option label="是" :value="1"></el-option>
-                                    <el-option label="否" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>                           
-                        </el-col>
+        <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" @CB-addGrade="CB_addGrade" :editDetail="editGradeDetail" :type="gradeType"></AddGradeDialog>
 
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
-                            <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
-                                <el-input-number v-model="classForm.lesson_num" controls-position="right" :min="1" :max="200"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                            <el-form-item label="辅助老师：" prop="counselor_ids">
-                                <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
-                                    <el-option
-                                        v-for="(item, index) in classSelectInfo.teacher"
-                                        :key="index"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            
-                            <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
-                                <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-                            
-                            <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
-                                <el-input-number v-model="classForm.limit_num" controls-position="right" :min="1" :max="99"></el-input-number>
-                            </el-form-item>
-
-                            <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1">
-                                <el-select v-model="classForm.room_id" placeholder="请选择">
-                                    <el-option
-                                        v-for="item in classSelectInfo.room  "
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <el-form-item label="班级学员：">
-                        <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length" class="grade-student-check">
-                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index">{{item.student_name}}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-form-item>
-
-                    <div class="d-f f-j-c">
-                        <MyButton @click.native="doneHandle" :loading="submitLoading.grade">确定</MyButton>
-                    </div>
-                </el-form>
-            </div>
-        </el-dialog>
         <!-- 排课弹窗 -->
         <el-dialog title="批量排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
@@ -415,10 +330,11 @@
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader';
-import MyButton from '../../components/common/MyButton';
+import TableHeader from '../../components/common/TableHeader'
+import MyButton from '../../components/common/MyButton'
 import {courseStatic} from '../../script/static'
 import AddCourseDialog from '../../components/dialog/AddCourse'
+import AddGradeDialog from '../../components/dialog/AddGrade'
 import Bus from '../../script/bus'
 import Vue from 'vue';
 import jquery from 'jquery'
@@ -445,8 +361,9 @@ export default {
             dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
             addStudentDialog: false,
 
-            editDetail: {},
-
+            gradeType: '',
+            editCourseDetail: {},
+            editGradeDetail: {},
 
             classSelectInfo: {},
             classEdit: false,
@@ -587,26 +504,21 @@ export default {
         //弹出框关闭事件
         dialogClose(type) { 
             this.$refs[type].resetFields();
-            if(type == 'classRoomForm') {
-                this.studentLists = [];
-                this.studentCheckAll = false;
-                for(let key in this.classForm) this.classForm[key] = '';
-            }else {
-                Object.keys(this.timetableForm).forEach(v => {
-                    if(v == 'room_id') this.timetableForm[v] = [];
-                    else if(v == 'loop') this.timetableForm[v] = 'no';
-                    else this.timetableForm[v] = '';
-                });
+            Object.keys(this.timetableForm).forEach(v => {
+                if(v == 'room_id') this.timetableForm[v] = [];
+                else if(v == 'loop') this.timetableForm[v] = 'no';
+                else this.timetableForm[v] = '';
+            });
 
-                this.formAddDate.splice(0, this.formAddDate.length);
-                this.timetable_studentCheckAll = false;
+            this.formAddDate.splice(0, this.formAddDate.length);
+            this.timetable_studentCheckAll = false;
 
-                this.studentRadio = '';
-                this.timetable_studentLists = [];
+            this.studentRadio = '';
+            this.timetable_studentLists = [];
 
-                this.checkStudentForm = [];
-                this.radioStudentForm = '';
-            }
+            this.checkStudentForm = [];
+            this.radioStudentForm = '';
+
             this.allStudentLists = [];
         },
         listHeaderClick(course, index) {
@@ -635,13 +547,24 @@ export default {
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {
             if(type == 'add_course')  {
-                this.editDetail = {};
+                this.editCourseDetail = {};
                 this.dialogStatus.course = false;
                 this.courseOperate = '';
-            }
+                return 0;
+            };
+
+            if(type == 'grade') {
+                this.editGradeDetail = {};
+                this.dialogStatus.grade = false;
+                return 0;
+            };
         },
-        CB_addCourse() {
-            this.getCourseLists();
+        CB_addGrade(course_id) {
+            this.getCourseLists(course_id);
+            this.dialogStatus.grade = false;
+        },
+        CB_addCourse(course_id) {
+            this.getCourseLists(course_id);
             this.dialogStatus.course = false;
         },
         //创建班级学员checkbox，全选
@@ -722,54 +645,30 @@ export default {
         //编辑课程
         editCourse(course) {
             this.courseOperate = 'edit';
-            this.editDetail = course;
+            this.editCourseDetail = course;
             this.dialogStatus.course = true;
         },
          //新增班级，获取form相关数据
         async addClassRoom(id, type) {
-            this.$refs.classRoomForm && this.$refs.classRoomForm.resetFields();
-            
-            this.classEdit = false;
-            this.courseType = type;
-            this.getGradeFill(id, null, 'add');
+            this.editGradeDetail = {course_id: id, course_type: type};
+            this.gradeType = 'add';
             this.dialogStatus.grade = true;
         },
         //修改班级
         async editClassRoom(data, type) {
             console.log(data);
-            this.courseType = type;
-            this.getGradeFill(data.course_id, data.id, 'edit');
-            
-            this.$refs.classRoomForm && this.$refs.classRoomForm.resetFields();
-
-            for(let key in this.classForm) {
-                if(key == 'teacher_ids') {
-                    this.classForm[key] = data['teacher_lists'].length ? data['teacher_lists'][0].id : '';
-                }else if(key == 'counselor_ids') {
-                    this.classForm[key] = data['counselor_lists'].length ? data['counselor_lists'][0].id : '';
-                }else if(key == 'start_time') {
-                    //若开课时间大于五年 则显示当前日期
-                    this.classForm[key] = data[key] * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? new Date().getTime() : data[key] * 1000;
-                }else if(key == 'limit_num') this.classForm[key] = `${data[key]}`;
-                else this.classForm[key] = data[key];
-            }
+            this.editGradeDetail = {...data, course_type: type};
+            this.gradeType = 'edit';
             this.dialogStatus.grade = true;
-            this.classEdit = true;
         },
         //form表单确定按钮
-        doneHandle() {
-            this.$refs.classRoomForm.validate(valid => {if(valid) this.submitClassRoom()});
-        },
+        // doneHandle() {
+        //     this.$refs.classRoomForm.validate(valid => {if(valid) this.submitClassRoom()});
+        // },
         //班级操作列表点击回调
         handleCommand(option) {
             switch(option.type) {
-                case 'plan':
-                    this.addTimetable(option);
-                    break;
                 case 'begin':
-                    this.classCourseState(option);
-                    break;
-                case 'over':
                     this.classCourseState(option);
                     break;
                 case 'stop':
@@ -1018,52 +917,52 @@ export default {
             this.getCourseLists(data.course_id);
         },
         //新增、编辑班级提交数据
-        submitClassRoom() {
-            if(this.courseType === 1) {
-                if(this.classForm.limit_num < this.studentLists.length) {
-                    this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(() => {
-                        this.submitClassRoomHandle();
-                    }).catch(() => {return 0});
-                }else {
-                    this.submitClassRoomHandle();
-                }
-            }else {
-                this.submitClassRoomHandle();
-            }
-        },
-        async submitClassRoomHandle() {
-            if(this.submitLoading.grade) return 0;
-            this.submitLoading.grade = true;
+        // submitClassRoom() {
+        //     if(this.courseType === 1) {
+        //         if(this.classForm.limit_num < this.studentLists.length) {
+        //             this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
+        //                 confirmButtonText: '确定',
+        //                 cancelButtonText: '取消',
+        //                 type: 'warning'
+        //             }).then(() => {
+        //                 this.submitClassRoomHandle();
+        //             }).catch(() => {return 0});
+        //         }else {
+        //             this.submitClassRoomHandle();
+        //         }
+        //     }else {
+        //         this.submitClassRoomHandle();
+        //     }
+        // },
+        // async submitClassRoomHandle() {
+        //     if(this.submitLoading.grade) return 0;
+        //     this.submitLoading.grade = true;
 
-            let url = this.classEdit ? 'api/grade/edit' : 'api/grade/add';
-            let params = {};
+        //     let url = this.classEdit ? 'api/grade/edit' : 'api/grade/add';
+        //     let params = {};
             
-            for(let key in this.classForm) {
-                if(key == 'teacher_ids' || key == 'counselor_ids') {
-                    params[key] = `,${this.classForm[key]},`;
-                }else if(key == 'start_time'){
-                    params[key] = this.classForm[key] / 1000;
-                }else params[key] = this.classForm[key];
-            };
+        //     for(let key in this.classForm) {
+        //         if(key == 'teacher_ids' || key == 'counselor_ids') {
+        //             params[key] = `,${this.classForm[key]},`;
+        //         }else if(key == 'start_time'){
+        //             params[key] = this.classForm[key] / 1000;
+        //         }else params[key] = this.classForm[key];
+        //     };
             
-            params.students = this.studentLists.map(v => {return {student_id: v.student_id}});
-            console.log(params)
+        //     params.students = this.studentLists.map(v => {return {student_id: v.student_id}});
+        //     console.log(params)
 
-            let result = await this.$$request.post(url, params);
-            this.submitLoading.grade = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success(this.classEdit ? '修改成功' : '添加成功');
+        //     let result = await this.$$request.post(url, params);
+        //     this.submitLoading.grade = false;
+        //     console.log(result);
+        //     if(!result) return 0;
+        //     this.$message.success(this.classEdit ? '修改成功' : '添加成功');
 
-            this.getCourseLists(params.course_id);
-            this.$store.dispatch('getCourse');
-            this.dialogStatus.grade = false;
-            this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
-        },
+        //     this.getCourseLists(params.course_id);
+        //     this.$store.dispatch('getCourse');
+        //     this.dialogStatus.grade = false;
+        //     this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
+        // },
         //获取课程列表
         async getCourseLists(course_id) {
             let active = '';
@@ -1078,7 +977,10 @@ export default {
                     active = num;
                 }else d.collapse = false;
 
-                d.class_lists.forEach(v => {v.operationStatus = false; v.gradeStatus = this.gradeStatus(v)});
+                d.class_lists.forEach(v => {
+                    // v.operationStatus = false; 
+                    v.gradeStatus = this.gradeStatus(v)
+                });
             });
             this.courseLists = result.lists;
             this.$nextTick(v => {
@@ -1125,7 +1027,7 @@ export default {
         this.getCourseLists();
         this.getWeek();
     },
-    components: {TableHeader, MyButton, AddCourseDialog}
+    components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog}
 }
 </script>
 
@@ -1275,15 +1177,6 @@ export default {
                     border-radius: 3px;
                     padding: 0 5px;
                 }
-            }
-        }
-        .grade-student-check {
-            max-height: 200px;
-            overflow: hidden;
-            overflow-y: auto;
-            .el-checkbox {
-                margin-left: 0;
-                margin-right: 30px;
             }
         }
         .time-table-student-check {

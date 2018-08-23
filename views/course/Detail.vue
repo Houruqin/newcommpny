@@ -1,7 +1,9 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="班级详情"></TableHeader>
+            <TableHeader title="班级详情" :icon="true" @clicked="editCourseDetail">
+                <MyButton type="subm" @click.native="deleteGrade">删除</MyButton>
+            </TableHeader>
 
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>
             <div class="d-f detail-header-box" v-if="Object.keys(gradeDetail).length">
@@ -20,7 +22,9 @@
                     <p class="d-f">
                         <span>班级学员：</span>
                         <ul class="flex1 d-f fc-2 student-box f-w-w">
-                            <li v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">{{student.name}}</li>
+                            <li v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">
+                                <router-link :to="{path: '/student/signeddetail', query: {id: student.id}}" class="cursor-pointer fc-m">{{student.name}}</router-link>
+                            </li>
                         </ul>
                     </p>
                 </div>
@@ -64,21 +68,36 @@
                 @current-change="paginationClick">
             </el-pagination>
         </el-card>
+
+        <!-- 修改班级弹窗 -->
+        <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" :editDetail="editDetail" :type="gradeType" @CB-addGrade="CB_addGrade"></AddGradeDialog>
     </div>
 </template>
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader';
-import MyButton from '../../components/common/MyButton';
+import TableHeader from '../../components/common/TableHeader'
+import MyButton from '../../components/common/MyButton'
+import AddGradeDialog from '../../components/dialog/AddGrade'
 
 export default {
-    components: {TableHeader, MyButton},
+    components: {TableHeader, MyButton, AddGradeDialog},
     data() {
         return {
             gradeId: 167,
             gradeDetail: {},
             timeTableLists: [],
+            
+            gradeType: '',
+
+            dialogStatus: {grade: false},
+            courseType: 1,
+            classSelectInfo: {},
+            studentLists: [],
+            allStudentLists: [],
+            studentCheckAll: false,
+            
+            editDetail: {},
 
             deleteTimeTableLists: [],    //删除课表，选中的课表
             timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
@@ -92,6 +111,27 @@ export default {
             });
             return room_name;
         },
+        dialogClose() {
+            this.$refs.classRoomForm.resetFields();
+        },
+        CB_dialogStatus(type) {
+            if(type == 'grade') {
+                this.gradeType = '';
+                this.editDetail = {};
+                this.dialogStatus.grade = false;
+            }
+        },
+        CB_addGrade() {
+            this.getGradeDetail();
+            this.editDetail = {};
+            this.dialogStatus.grade = false;
+        },
+        //编辑详情
+        editCourseDetail() {
+            this.gradeType = 'edit';
+            this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
+            this.dialogStatus.grade = true;
+        },
         paginationClick(curr) {
             this.getTimeTableLists(curr);
         },
@@ -100,6 +140,22 @@ export default {
         },
         handleSelectionChange(val) {
             this.deleteTimeTableLists = val;
+        },
+        //删除班级
+        deleteGrade() {
+            this.$confirm('确定删除班级吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.deleteClassRoom();
+            }).catch(() => {return 0});
+        },
+        async deleteClassRoom() {
+            let result = await this.$$request.post('api/grade/delete', {id: this.gradeDetail.id});
+            if(!result) return 0;
+            this.$message.success('已删除');
+            this.$router.go(-1);
         },
         async deleteTimeTable() {
             if(!this.deleteTimeTableLists.length) return this.$message.warning('请选择数据!');
@@ -128,6 +184,7 @@ export default {
 
             if(!result) return 0;
             this.gradeDetail = result.grade;
+            this.courseType = this.gradeDetail.course.type;
             this.getTimeTableLists();
         },
         async getTimeTableLists(curr_page) {
