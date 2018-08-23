@@ -16,7 +16,8 @@ const state = {
     listen_grade: [],    //试听班级列表
     listen_status: [],    //试听状态
     familyRelations: [],   //家长关系
-    allUser: []
+    allUser: [],   //所有用户列表
+    roleLists: []   //所有用户角色列表
 };
 
 const mutations = {
@@ -33,6 +34,13 @@ const mutations = {
         if(!result) return 0;
 
         state.allUser = result.users;
+    },
+    async getRoleLists(state) {
+        let result = await Request.post('api/permission/roleLists');
+        console.log(result);
+
+        if(!result) return 0;
+        state.roleLists = result.lists;
     },
     async getAdvisor(state) {
         let result = await Request.get('api/user/normalLists', {type: 'seller'});
@@ -93,11 +101,15 @@ const actions = {
     guideChange(context, type) {
         context.commit('guideChange', type);
     },
-
+    
     getAllUser(context) {
         context.commit('getAllUser');
     },
     
+    getRoleLists(context) {
+        context.commit('getRoleLists');
+    },
+
     getAdvisor(context) {
         context.commit('getAdvisor');
     },

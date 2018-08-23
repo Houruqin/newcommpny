@@ -3,7 +3,7 @@
         <el-card shadow="hover">
             <TableHeader :title="detail.name" :icon="true" @clicked="editStudent">
                 <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
-                <MyButton class="ml-20" type="subm" @click.native="buyCourse">购课</MyButton>
+                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
             </TableHeader>
             <div class="detail-box fc-9">
                 <p>

@@ -7,7 +7,7 @@
             <div class="d-f f-a-c tab-box p-r">
                 <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
                     <el-tab-pane label="全部" name="all"></el-tab-pane>
-                    <el-tab-pane v-for="(item, index) in roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
+                    <el-tab-pane v-for="(item, index) in $store.state.roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
                 </el-tabs>
                 <el-select v-model="filterVal" placeholder="请选择" class="ml-50 filter-box" @change="filterChange" size="small">
                     <el-option label="全部任职状态" value=""></el-option>
@@ -58,7 +58,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog v-if="load_lazy" :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
+        <AddStaffDialog :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff" @CB-dimission="CB_dimission">
         </AddStaffDialog>
     </div>
@@ -81,8 +81,6 @@ export default {
             editDetail: {},
             type: 'add',
             currPage: false,
-            //职务列表
-            roleLists: [],
             //所有权限列表  
             authorityAllLists: [
                 {id: 'paike', name: '排课', checked: false}, 
@@ -120,7 +118,7 @@ export default {
         },
         //新增，选择角色
         roleChange(val) {
-            this.roleLists.forEach(v => {if(v.name === val) this.form.role_id = v.id});
+            this.$store.state.roleLists.forEach(v => {if(v.name === val) this.form.role_id = v.id});
         },
         tabClick(tab, event) {
             this.getUserLists();
@@ -149,8 +147,6 @@ export default {
         },
         //修改
         modifyHandle(data) {
-            // this.load_com = true;
-            // console.log(data)
             this.type = 'edit';
             this.editDetail = data;
             this.dialogStatus = true;
@@ -187,15 +183,6 @@ export default {
             this.staffListInfo = result.lists;
             this.loading = false;
         },
-        //角色列表
-        async getRoleLists() {
-            let result = await this.$$request.post('api/permission/roleLists');
-            console.log(result);
-
-            if(!result) return 0;
-            this.roleLists = result.lists;
-            this.load_lazy = true;
-        },
         //权限列表
         async getAuthorityLists() {
             let result = await this.$$request.post('api/permission/lists');
@@ -206,7 +193,6 @@ export default {
         }
     },
     created() {
-        this.getRoleLists();
         this.getUserLists();
     },
     components: {TableHeader, MyButton, AddStaffDialog}

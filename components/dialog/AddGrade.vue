@@ -8,7 +8,7 @@
                     <el-form-item label="班级名称：" prop="name">
                         <el-input v-model.trim="classForm.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="任课老师：" prop="teacher_ids">
+                    <el-form-item label="任课老师：" prop="teacher_ids" class="p-r">
                         <el-select v-model="classForm.teacher_ids" placeholder="必选">
                             <el-option
                                 v-for="(item, index) in classSelectInfo.teacher"
@@ -17,6 +17,7 @@
                                 :value="item.id">
                             </el-option>
                         </el-select>
+                        <div class="p-a add-room ver-c cursor-pointer" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
                     </el-form-item>
                     <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
                         <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
@@ -101,12 +102,18 @@
                 <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('roomForm')" :loading="submitLoading.room">确定</MyButton></div>
             </el-form>
         </el-dialog>
+
+        <!-- 新增员工弹窗 -->
+        <AddStaffDialog :dialogStatus="userDialogStatus" :type="userType" :role="userRole" :appendBody="true"
+            @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
+        </AddStaffDialog>
     </el-dialog>
 </template>
 
 <script>
 import MyButton from '../common/MyButton'
 import Bus from '../../script/bus'
+import AddStaffDialog from './AddStaff'
 
 export default {
     props: {
@@ -114,7 +121,7 @@ export default {
         dialogStatus: '',
         editDetail: {default: null}
     },
-    components: {MyButton},
+    components: {MyButton, AddStaffDialog},
     watch: {
         dialogStatus(newVal, oldVal) {
             this.gradeDialogStatus = newVal;
@@ -149,10 +156,13 @@ export default {
     data() {
         return {
             gradeDialogStatus: false,
-
             roomDialogStatus: false,
+            userDialogStatus: false,
 
             gradeType: 'add',
+            userType: 'add',
+            userRole: '',
+
             courseType: 1,
             studentLists: [],
             classSelectInfo: {},
@@ -224,6 +234,13 @@ export default {
                 this.$emit('CB-dialogStatus', 'grade');
             }
         },
+        CB_dialogStatus(type) {
+            this.userRole = false;
+            this.userDialogStatus = false;
+        },
+        CB_addStaff() {
+
+        },
         //班级学员checkbox，全选
         studentCheckAllChange(val) {
             this.studentLists = val ? this.allStudentLists : [];
@@ -236,6 +253,11 @@ export default {
         //添加教室
         addRoom() {
             this.roomDialogStatus = true;
+        },
+        //添加老师
+        addTeacher() {
+            this.userRole = 'teacher';
+            this.userDialogStatus = true;
         },
         //编辑班级确定
         doneHandle(type) {
