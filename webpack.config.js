@@ -35,7 +35,7 @@ module.exports = {
       { test: /\.pug$/, loader: `pug-loader?pretty` },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.(?:yml|yaml)$/, loader: 'json-loader!yaml-loader' },
-      { test: /\.(?:png|jpg|jpeg|gif|ico|svg|eot|ttf|woff|otf)$/, loader: `url-loader?limit=10240&name=${config.staticDir}[name].[hash:5].[ext]` },
+      { test: /\.(?:png|jpg|jpeg|gif|ico|svg|eot|ttf|woff|otf)$/, loader: `url-loader?limit=10240&name=${config.staticDir}/[name].[hash:5].[ext]` },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.less$/, loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!postcss-loader!less-loader' }) }
     ]
