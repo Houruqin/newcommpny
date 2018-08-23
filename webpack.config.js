@@ -9,9 +9,9 @@ const
   CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config = {
-  distDir: 'dist',
-  staticDir: 'static',
-  publicPath: argv.env === 'local' ? '/' : '/pc',
+  distDir: 'dist/',
+  staticDir: 'static/',
+  publicPath: argv.env === 'local' ? '/' : '/pc/',
   port: 8888,
   host: '0.0.0.0'
 };
@@ -19,13 +19,13 @@ const config = {
 module.exports = {
   devtool: '#source-map',
   entry: {
-    [`${config.staticDir}/index`]: ['babel-polyfill', './index.js']
+    [`${config.staticDir}index`]: ['babel-polyfill', './index.js']
   },
   output: {
     path: path.join(__dirname, config.distDir),
     filename: `[name].js`,
     publicPath: config.publicPath,
-    chunkFilename: `${config.staticDir}/[name].[chunkhash:5].js`,
+    chunkFilename: `${config.staticDir}[name].[chunkhash:5].js`,
     devtoolModuleFilenameTemplate: '[resource-path]'
   },
   module: {
@@ -35,7 +35,7 @@ module.exports = {
       { test: /\.pug$/, loader: `pug-loader?pretty` },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.(?:yml|yaml)$/, loader: 'json-loader!yaml-loader' },
-      { test: /\.(?:png|jpg|jpeg|gif|ico|svg|eot|ttf|woff|otf)$/, loader: `url-loader?limit=10240&name=${config.staticDir}/[name].[hash:5].[ext]` },
+      { test: /\.(?:png|jpg|jpeg|gif|ico|svg|eot|ttf|woff|otf)$/, loader: `url-loader?limit=10240&name=${config.staticDir}[name].[hash:5].[ext]` },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.less$/, loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!postcss-loader!less-loader' }) }
     ]
@@ -50,7 +50,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([config.distDir]),
     new ExtractTextPlugin('[name].css'),
-    new webpack.optimize.CommonsChunkPlugin(`${config.staticDir}/common`),
+    new webpack.optimize.CommonsChunkPlugin(`${config.staticDir}common`),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './static'),
       to: config.staticDir,
