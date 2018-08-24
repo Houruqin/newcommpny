@@ -5,7 +5,7 @@
                 <MyButton class="mr-20" @click.native="addStudent">登记学员</MyButton>
                 <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
             </TableHeader>
-            
+
             <div class="header-tab-box d-f f-j-b mt-50">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
@@ -17,14 +17,14 @@
                             <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li>    
+                    <li>
                         <el-select size="small" placeholder="所有渠道" v-model="searchFilter.source_id" @change="searchHandle">
                             <el-option label="所有渠道" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li v-if="activeTab != 'no_advisor' && activeTab != 'invalid'">
-                        <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle"> 
+                        <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
                             <el-option label="全部跟进" value=""></el-option>
                             <el-option v-for="(item, index) in followUp" :key="index" :label="item.name" :value="item.id" v-if="item.id != -1"></el-option>
                         </el-select>
@@ -45,7 +45,7 @@
                 <el-table-column label="学员顾问" align="center">
                     <template slot-scope="scope">
                         <div v-if="scope.row.advisor_info">{{scope.row.advisor_info.name}}</div>
-                        <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor' || activeTab == 'following'" class="d-f f-a-c f-j-c"> 
+                        <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor' || activeTab == 'following'" class="d-f f-a-c f-j-c">
                             <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                 <span class="el-dropdown-link">
                                     <div class="allocation-advisor-btn" slot="reference" @click="listStudentId = scope.row.id">分配</div>
@@ -62,7 +62,7 @@
                 <el-table-column label="最新跟进状态" prop="follow_cn" align="center">
                     <template slot-scope="scope">
                         <div class="d-f f-a-c f-j-c">
-                            <span class="follow-status fs-12" :class="{'green': scope.row.follow_status === 2 || scope.row.follow_status === 3 || scope.row.follow_status === 4 || scope.row.follow_status === 5, 
+                            <span class="follow-status fs-12" :class="{'green': scope.row.follow_status === 2 || scope.row.follow_status === 3 || scope.row.follow_status === 4 || scope.row.follow_status === 5,
                             'red': scope.row.follow_status === 1 || scope.row.follow_status === 6, 'gray': scope.row.follow_status === 0 || scope.row.follow_status === -1}">
                                 {{scope.row.follow_cn}}
                             </span>
@@ -80,11 +80,11 @@
             </el-table>
 
             <el-pagination v-if="studentTable.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="studentTable.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="studentTable.total" 
-                :current-page="studentTable.current_page" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="studentTable.per_page"
+                background layout="total, prev, pager, next"
+                :total="studentTable.total"
+                :current-page="studentTable.current_page"
                 @current-change="paginationClick"
                 @next-click="nextClick"
                 @prev-click="prevClick">
@@ -95,12 +95,12 @@
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
-        
+
         <!-- 购买课程弹窗 -->
         <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract">
         </BuyCourseDialog> -->
-        
+
         <!-- 购课合约弹窗 -->
         <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
     </div>
@@ -132,20 +132,20 @@ export default {
             headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
             studentTable: {},
             searchKeyWord: '',
-            
+
             searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''},  //搜索筛选条件
             followUp: StudentStatic.followUp.status,
 
             dialogStatus: {student: false, course: false, contract: false},
             studentType: '',
-            
+
             // buyCourseData: {},
             editDetail: {},
             // contractData: {},   //合约数据
 
             studentLists: [],
             editStudentData: {},
-            sourceRules: {  
+            sourceRules: {
                 name: [
                     {required: true, message: '请输入渠道'},
                     {max: 20, message: '长度不能超过20个字符'}
@@ -185,7 +185,7 @@ export default {
                     return time.getTime() > new Date().getTime();
                 }
             }
-        } 
+        }
     },
     methods: {
         tabClick(tab) {
@@ -251,7 +251,7 @@ export default {
         },
         //列表顾问选择
         async listAdvisorChange(val) {
-            let result = await this.$$request.post('api/student/distribute', {student_id: this.listStudentId, advisor_id: val});
+            let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
             this.getTabLists();
@@ -273,7 +273,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(id) {
-            let result = await this.$$request.post('api/student/delete', {id: id});
+            let result = await this.$$request.post('/student/delete', {id: id});
             if(!result) return 0;
             this.getTabLists();
             this.$message.success('已删除');
@@ -293,7 +293,7 @@ export default {
         },
         //获取tab列表
         async getTabLists() {
-            let result = await this.$$request.post('api/student/tab');
+            let result = await this.$$request.post('/student/tab');
             console.log(result);
             if(!result) return 0;
             this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
@@ -318,7 +318,7 @@ export default {
             if(currentPage) params.page = currentPage;
             console.log(params);
 
-            let result = await this.$$request.post('api/student/lists', params);
+            let result = await this.$$request.post('/student/lists', params);
             console.log(result);
             if(!result) return 0;
             this.studentTable = result.lists;
@@ -330,7 +330,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
-        if(from.name == 'nosignDetail') to.meta.keepAlive = true; 
+        if(from.name == 'nosignDetail') to.meta.keepAlive = true;
         else to.meta.keepAlive = false;
         next();   //来到页面，包括通过返回
     },

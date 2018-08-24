@@ -26,7 +26,7 @@
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
                 </el-table-column>
                 <el-table-column label="任职岗位" align="center">
-                    <template slot-scope="scope"> 
+                    <template slot-scope="scope">
                         <span v-for="(type,index) in scope.row.type_all" :key="index" :class="{'list-item-gray': !scope.row.status}"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span>
                     </template>
                 </el-table-column>
@@ -46,10 +46,10 @@
                 </el-table-column>
             </el-table>
             <el-pagination v-if="staffListInfo.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="staffListInfo.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="staffListInfo.total" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="staffListInfo.per_page"
+                background layout="total, prev, pager, next"
+                :total="staffListInfo.total"
                 :current-page="parseInt(staffListInfo.current_page)"
                 @current-change="paginationClick"
                 @next-click="nextClick"
@@ -81,12 +81,12 @@ export default {
             editDetail: {},
             type: 'add',
             currPage: false,
-            //所有权限列表  
+            //所有权限列表
             authorityAllLists: [
-                {id: 'paike', name: '排课', checked: false}, 
-                {id: 'caiwu', name: '财务', checked: false}, 
-                {id: 'xueyuan', name: '学员管理', checked: false}, 
-                {id: 'course', name: '课程管理', checked: false}, 
+                {id: 'paike', name: '排课', checked: false},
+                {id: 'caiwu', name: '财务', checked: false},
+                {id: 'xueyuan', name: '学员管理', checked: false},
+                {id: 'course', name: '课程管理', checked: false},
                 {id: 'staff', name: '员工管理', checked: false}
             ],
             authorityAll: false,
@@ -162,7 +162,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(scope) {
-            let result = await this.$$request.post('api/user/delete', {id: scope.id});
+            let result = await this.$$request.post('/user/delete', {id: scope.id});
             console.log(result);
 
             if(!result) return 0;
@@ -176,7 +176,7 @@ export default {
             if(currentPage) params.page = currentPage;
             if(this.filterVal === 0 || this.filterVal === 1) params.status = this.filterVal;
             console.log(params)
-            let result = await this.$$request.get('api/user/lists', params);
+            let result = await this.$$request.get('/user/lists', params);
             console.log(result);
 
             if(!result) return 0;
@@ -185,7 +185,7 @@ export default {
         },
         //权限列表
         async getAuthorityLists() {
-            let result = await this.$$request.post('api/permission/lists');
+            let result = await this.$$request.post('/permission/lists');
             console.log(result);
 
             if(!result) return 0;

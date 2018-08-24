@@ -42,7 +42,7 @@
                     <el-table-column label="跟进状态" align="center">
                         <template slot-scope="scope">
                             <div class="d-f f-a-c f-j-c">
-                                <span class="follow-status fs-12" :class="{'green': scope.row.followup_status === 2 || scope.row.followup_status === 3 || scope.row.followup_status === 4 || scope.row.followup_status === 5, 
+                                <span class="follow-status fs-12" :class="{'green': scope.row.followup_status === 2 || scope.row.followup_status === 3 || scope.row.followup_status === 4 || scope.row.followup_status === 5,
                                 'red': scope.row.followup_status === 1 || scope.row.followup_status === 6 || scope.row.followup_status === -2, 'gray': scope.row.followup_status === 0 || scope.row.followup_status === -1}">
                                     {{scope.row.followup_status_describe}}
                                 </span>
@@ -99,10 +99,10 @@
                     </el-table-column>
                 </el-table>
                 <el-pagination v-if="bottomLists.total"
-                    class="d-f f-j-c mt-50 mb-50" 
-                    :page-size="bottomLists.per_page" 
-                    background layout="total, prev, pager, next" 
-                    :total="bottomLists.total" 
+                    class="d-f f-j-c mt-50 mb-50"
+                    :page-size="bottomLists.per_page"
+                    background layout="total, prev, pager, next"
+                    :total="bottomLists.total"
                     :current-page="bottomLists.current_page"
                     @current-change="paginationClick">
                 </el-pagination>
@@ -192,7 +192,7 @@ export default {
             let params = {user_id: this.userId};
 
             if(curr_page) params.page = curr_page;
-            let result = await this.$$request.get(`api/user/${key}`, params);
+            let result = await this.$$request.get(`user/${key}`, params);
             console.log(result);
 
             if(!result) return 0;
@@ -202,7 +202,7 @@ export default {
             this.loading = false;
         },
         async getDetail() {
-            let result = await this.$$request.get('api/user/detail', {user_id: this.userId});
+            let result = await this.$$request.get('/user/detail', {user_id: this.userId});
             console.log(result);
             if(!result) return 0;
             this.userDetail = result.user;
@@ -220,7 +220,7 @@ export default {
             }).catch(() => {return 0});
         },
         async dimissionHandle() {
-            let result = await this.$$request.post('api/user/changeStatus', {id: this.userId});
+            let result = await this.$$request.post('/user/changeStatus', {id: this.userId});
             console.log(result);
             if(!result) return 0;
 
@@ -239,14 +239,14 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(scope) {
-            let result = await this.$$request.post('api/user/delete', {id: this.userId});
+            let result = await this.$$request.post('/user/delete', {id: this.userId});
             console.log(result);
             if(!result) return 0;
             this.$router.go(-1);
         },
         //课程信息列表查看合约
         async showContract(data) {
-            let result = await this.$$request.get('api/studentCourse/detail', {sc_id: data.id});
+            let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
             console.log(result);
             if(!result) return 0;
             this.contractData = result.data

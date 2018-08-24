@@ -37,7 +37,7 @@
                 </el-row>
             </div>
         </el-form>
-        
+
         <div class="d-f f-j-c mt-20">
             <MyButton @click.native="doneHandle('courseForm')" :loading="submitLoading">提交</MyButton>
             <MyButton v-if="courseType == 'edit'" class="ml-20" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
@@ -147,8 +147,8 @@ export default {
         },
         async deleteHandle(course_id) {
             if(!course_id) return this.$message.warning('操作失败');
-            
-            let result = await this.$$request.post('api/course/delete', {id: course_id});
+
+            let result = await this.$$request.post('/course/delete', {id: course_id});
             console.log(result);
             if(!result) return 0;
 
@@ -161,7 +161,7 @@ export default {
             if(this.submitLoading) return 0;
             this.submitLoading = true;
 
-            let url = this.courseType == 'edit' ? 'api/course/edit' : 'api/course/add';
+            let url = this.courseType == 'edit' ? '/course/edit' : '/course/add';
             let params = {};
             for(let key in this.courseForm) {
                 if(key != 'id') {

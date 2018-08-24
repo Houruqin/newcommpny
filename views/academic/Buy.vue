@@ -151,7 +151,7 @@ export default {
         page_num: this.page_info.page_num
       };
       this.$$request
-        .post("api/eduCount/studentCourseLists", params)
+        .post("/eduCount/studentCourseLists", params)
         .then(res => {
           this.buy_info.data = res.studentCourseLists.data;
           this.page_info.total = res.studentCourseLists.total;
@@ -165,7 +165,7 @@ export default {
     //查看合约详情
     show_contract(id) {
       this.$$request
-        .get("api/studentCourse/detail", { sc_id: id })
+        .get("/studentCourse/detail", { sc_id: id })
         .then(res => {
           this.dialog.contract.data = res.data;
           this.dialog.contract.show = true;

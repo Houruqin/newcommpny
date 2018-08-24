@@ -139,7 +139,7 @@ export default {
         },
         //退出
         async quitHandle() {
-            let result = await this.$$request.post('api/auth/logout');
+            let result = await this.$$request.post('/auth/logout');
             console.log(result);
             if(!result) return 0;
             this.$$cache.loginOut();
@@ -166,7 +166,7 @@ export default {
                 }
             });
 
-            let result = await this.$$request.post('api/school/add', {lists: params.reverse()});
+            let result = await this.$$request.post('/school/add', {lists: params.reverse()});
             console.log(result);
             if(!result) return 0;
             let memberInfo = this.$$cache.getMemberInfo();
@@ -178,7 +178,7 @@ export default {
         }
     },
     async created() {
-        let result = await this.$$request.post('api/user/orgLists');
+        let result = await this.$$request.post('/user/orgLists');
         console.log(result);
         if(!result) return 0;
         this.organizationInfo = result.lists;

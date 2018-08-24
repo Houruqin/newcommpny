@@ -26,7 +26,7 @@ const mutations = {
         state.guide = type;
     },
     async getAllUser(state) {
-        let result = await Request.get('api/financeManage/searchUser', {
+        let result = await Request.get('/financeManage/searchUser', {
             student: { types: ['sign'], status: [1] },
             user: { types: ['all'], status: [1] }
         });
@@ -36,62 +36,62 @@ const mutations = {
         state.allUser = result.users;
     },
     async getRoleLists(state) {
-        let result = await Request.post('api/permission/roleLists');
+        let result = await Request.post('/permission/roleLists');
         console.log(result);
 
         if(!result) return 0;
         state.roleLists = result.lists;
     },
     async getAdvisor(state) {
-        let result = await Request.get('api/user/normalLists', {type: 'seller'});
+        let result = await Request.get('/user/normalLists', {type: 'seller'});
         console.log(result)
         if(!result) return 0;
 
         state.advisor = result.lists;
     },
     async getSource(state) {
-        let result = await Request.post('api/source/lists');
+        let result = await Request.post('/source/lists');
         console.log(result)
         if(!result) return 0;
 
         state.source = result.lists;
     },
     async getClassRoom() {
-        let result = await Request.post('api/classRoom/lists');
+        let result = await Request.post('/classRoom/lists');
         console.log(result)
         if(!result) return 0;
 
         state.classRoom = result.lists;
     },
     async getCourse(state) {
-        let result = await Request.post('api/course/normalLists');
+        let result = await Request.post('/course/normalLists');
         console.log(result)
         if(!result) return 0;
 
         state.course = result.lists;
     },
     async getGrade(state) {
-        let result = await Request.post('api/eduCount/gradeLists', {is_listen: 0});
+        let result = await Request.post('/eduCount/gradeLists', {is_listen: 0});
         if(!result) return 0;
         state.grade = result.grades;
     },
     async getListenGrade(state) {
-        let result = await Request.post('api/eduCount/gradeLists', {is_listen: 1});
+        let result = await Request.post('/eduCount/gradeLists', {is_listen: 1});
         if(!result) return 0;
         state.listen_grade = result.grades;
     },
     async getStatus(state) {
-        let result = await Request.post('api/eduCount/listenStatus');
+        let result = await Request.post('/eduCount/listenStatus');
         if(!result) return 0;
         state.listen_status = result.status;
     },
     async getRelation(state) {
-        let result = await Request.post('api/student/familyRelations');
+        let result = await Request.post('/student/familyRelations');
         console.log(result);
         state.familyRelations = result.relations;
     },
     async getTeacher(state) {
-        let result = await Request.get('api/user/normalLists', {type: 'teacher'});
+        let result = await Request.get('/user/normalLists', {type: 'teacher'});
         console.log(result);
         state.teacherList = result.lists;
     }
@@ -101,11 +101,11 @@ const actions = {
     guideChange(context, type) {
         context.commit('guideChange', type);
     },
-    
+
     getAllUser(context) {
         context.commit('getAllUser');
     },
-    
+
     getRoleLists(context) {
         context.commit('getRoleLists');
     },
@@ -117,7 +117,7 @@ const actions = {
     getSource(context) {
         context.commit('getSource');
     },
-    
+
     getClassRoom(context) {
         context.commit('getClassRoom');
     },
@@ -125,15 +125,15 @@ const actions = {
     getCourse(context) {
         context.commit('getCourse');
     },
-    
+
     getGrade(context) {
         context.commit('getGrade');
     },
-    
+
     getListenGrade(context) {
         context.commit('getListenGrade');
     },
-    
+
     getStatus(context) {
         context.commit('getStatus');
     },

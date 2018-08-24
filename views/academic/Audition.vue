@@ -167,7 +167,7 @@ export default {
         page_num: this.page_info.page_num
       };
       this.$$request
-        .post("api/eduCount/listenCourseLists", params)
+        .post("/eduCount/listenCourseLists", params)
         .then(res => {
           this.audition_info.data = res.listenCourseLists.data;
           this.page_info.total = res.listenCourseLists.total;

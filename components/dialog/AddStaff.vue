@@ -128,7 +128,7 @@ export default {
         },
         //角色列表
         async getRoleLists() {
-            let result = await this.$$request.post('api/permission/roleLists');
+            let result = await this.$$request.post('/permission/roleLists');
             console.log(result);
 
             if(!result) return 0;
@@ -144,7 +144,7 @@ export default {
             if(this.submitLoading.add) return 0;
             this.submitLoading.add = true;
 
-            let url = this.staffType == 'add' ? 'api/user/add' : 'api/user/edit';
+            let url = this.staffType == 'add' ? '/user/add' : '/user/edit';
             let params = {
                 name: this.staffForm.name,
                 mobile: this.staffForm.mobile,
@@ -181,7 +181,7 @@ export default {
             if(this.submitLoading.remove) return 0;
             this.submitLoading.remove = true;
 
-            let result = await this.$$request.post('api/user/changeStatus', {id: this.staffForm.id});
+            let result = await this.$$request.post('/user/changeStatus', {id: this.staffForm.id});
             this.submitLoading.remove = false;
             console.log(result);
             if(!result) return 0;
@@ -198,8 +198,8 @@ export default {
                 this.$message.closeAll();
                 this.$message.warning('不能删除校长职务！')
             };
-            
-        }  
+
+        }
     },
     components: {MyButton}
 }

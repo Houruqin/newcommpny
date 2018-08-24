@@ -27,8 +27,8 @@
                 </span>
             </p>
         </div>
-        <div class="course-item pl-13 pr-10 pt-8 p-r" 
-            :class="{'gray': item.lesson_end_time, 
+        <div class="course-item pl-13 pr-10 pt-8 p-r"
+            :class="{'gray': item.lesson_end_time,
                     'green': !item.lesson_end_time && item.course_type == 1,
                     'yellow': !item.lesson_end_time && item.course_type == 2}" slot="reference">
             <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
@@ -36,7 +36,7 @@
             </div>
 
             <p class="t-a-l">{{item.course_name}}</p>
-            
+
             <p class="pt-5 d-f f-a-s">
                 <span class="fs-12">
                     <i class="iconfont fs-13 icon-laoshi"></i>
@@ -85,7 +85,7 @@ export default {
         },
         //结课
         async endTimeTable(item) {
-            let result = await this.$$request.post('api/timetable/lessonEnd', {timetable_id: item.id});
+            let result = await this.$$request.post('/timetable/lessonEnd', {timetable_id: item.id});
             if(!result) return 0;
 
             this.$refs.myPopver.showPopper = false;
@@ -93,7 +93,7 @@ export default {
             this.$message.success('已结课');
         },
         async deleteHandle(id) {
-            let result = await this.$$request.post('api/timetable/delete', {id: id});
+            let result = await this.$$request.post('/timetable/delete', {id: id});
             if(!result || !result.status) return 0;
 
             this.$refs.myPopver.showPopper = false;

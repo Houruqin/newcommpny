@@ -75,7 +75,7 @@
                 <div class="right-chart" ref="courseChart"></div>
             </div>
         </el-card>
-        
+
         <!-- 渠道统计 -->
         <el-card class="mt-20" shadow="hover">
             <div class="d-f f-a-c">
@@ -99,7 +99,7 @@
                         <div class="my-scrollbar">
                             <el-scrollbar style="height: 100%;">
                                 <ul>
-                                    <li class="fc-7 cursor-pointer" :class="{'checked': item.checked}" 
+                                    <li class="fc-7 cursor-pointer" :class="{'checked': item.checked}"
                                         v-for="(item, index) in source.data" :key="index"
                                         @click="sourceFilterClick(item)">{{item.source_name}}
                                     </li>
@@ -202,8 +202,8 @@ export default {
             student: {
                 year: new Date().getTime(),
                 student_type: [
-                    {id: 'new', name: '新增学员', color: '#E94848', check: true}, 
-                    {id: 'renew', name: '续约学员', color: '#45DAB2', check: true}, 
+                    {id: 'new', name: '新增学员', color: '#E94848', check: true},
+                    {id: 'renew', name: '续约学员', color: '#45DAB2', check: true},
                     {id: 'quit', name: '退费学员', color: '#FF7D50', check: true}
                 ],
                 data: {},
@@ -213,8 +213,8 @@ export default {
             course: {
                 year: new Date().getTime(),
                 course_type: [
-                    {id: 'timetable', name: '排课', color: '#45DAB2', check: true}, 
-                    {id: 'course', name: '上课', color: '#FF7D50', check: true}, 
+                    {id: 'timetable', name: '排课', color: '#45DAB2', check: true},
+                    {id: 'course', name: '上课', color: '#FF7D50', check: true},
                     {id: 'leave', name: '请假', color: '#6880E5', check: true},
                     {id: 'absent', name: '旷课', color: '#E94848', check: true}
                 ],
@@ -364,7 +364,7 @@ export default {
         },
         //年龄及性别统计 right
         ageChartInit() {
-            let xaxisText = {fontSize: 12, color: '#555'};            
+            let xaxisText = {fontSize: 12, color: '#555'};
             let options = {
                 color: this.colors.sex,
                 tooltip: {trigger: 'axis'},
@@ -372,9 +372,9 @@ export default {
                 xAxis: {
                     type: 'category',
                     data: [
-                        {value: '3-5岁', textStyle: xaxisText}, 
-                        {value: '5-7岁', textStyle: xaxisText}, 
-                        {value: '7-9岁', textStyle: xaxisText}, 
+                        {value: '3-5岁', textStyle: xaxisText},
+                        {value: '5-7岁', textStyle: xaxisText},
+                        {value: '7-9岁', textStyle: xaxisText},
                         {value: '9-11岁', textStyle: xaxisText},
                         {value: '11-12岁及以上', textStyle: xaxisText},
                         {value: '其他', textStyle: xaxisText}
@@ -385,7 +385,7 @@ export default {
                 series: [
                     {name: '女', type: 'bar', label: {show: true}, barWidth: 30, data: this.sex.data.lists.map(v => {return v.woman_num})},
                     {name: '男', type: 'bar', label: {show: true}, barWidth: 30, barGap: 0, data: this.sex.data.lists.map(v => {return v.man_num})}
-                ]              
+                ]
             };
             this.ageChartObj.setOption(options, true);
         },
@@ -449,7 +449,7 @@ export default {
                 legend: this.pieOptions.legend,
                 textStyle: {color: '#555' }
             };
-            
+
             options.legend.formatter = (params) => {return `${params}：${this.getSourceItemNum(params)}`};
             options.legend.type = 'scroll';
             options.series = [{
@@ -505,10 +505,10 @@ export default {
         },
         //获取性别、年龄学员列表
         async getSexLists() {
-            let result = await this.$$request.post('api/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000, type: this.sex.student_type});
+            let result = await this.$$request.post('/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000, type: this.sex.student_type});
             console.log(result);
             if(!result) return 0;
-            
+
             result.total_num = result.woman_num + result.man_num;
             result.man_percentage = result.man_num == 0 ? '0%' : `${(result.man_num / result.total_num * 100).toFixed(1)}%`;
             result.woman_percentage = result.woman_num == 0 ? '0%' : `${(result.woman_num / result.total_num * 100).toFixed(1)}%`;
@@ -520,7 +520,7 @@ export default {
         },
         //获取签约学员列表
         async getStudentLists() {
-            let result = await this.$$request.post('api/collect/signLists', {what_time: this.student.year / 1000});
+            let result = await this.$$request.post('/collect/signLists', {what_time: this.student.year / 1000});
             console.log(result);
             if(!result) return 0;
 
@@ -534,17 +534,17 @@ export default {
         },
         //课程及考勤统计列表
         async getCourseLists() {
-            let result = await this.$$request.post('api/collect/courseLists', {what_time: this.course.year / 1000});
+            let result = await this.$$request.post('/collect/courseLists', {what_time: this.course.year / 1000});
             console.log(result);
             if(!result) return 0;
-            
+
             this.course.data = result.lists;
 
             this.courseChartInit();
         },
         //销售统计列表
         async getSellLists() {
-            let result = await this.$$request.post('api/collect/sellLists', {start: this.sell.start_time / 1000, end: this.sell.end_time / 1000, advisor_id: this.sell.advisor_id});
+            let result = await this.$$request.post('/collect/sellLists', {start: this.sell.start_time / 1000, end: this.sell.end_time / 1000, advisor_id: this.sell.advisor_id});
             console.log(result);
             if(!result) return 0;
 
@@ -552,13 +552,13 @@ export default {
         },
         //渠道统计列表
         async getSourseLists() {
-            let result = await this.$$request.post('api/collect/sourceLists', {what_time: this.source.what_time / 1000, type: this.source.student_type});
+            let result = await this.$$request.post('/collect/sourceLists', {what_time: this.source.what_time / 1000, type: this.source.student_type});
             console.log(result);
             if(!result) return 0;
 
             this.source.showCheckBox.splice(0, this.source.showCheckBox.length);
             // result.lists.sort((a, b) => {return a.total < b.total});
-            
+
             result.lists.forEach((v, num) => {
                 v.checked = num < 7 ? true : false;
                 if(num < 7) this.source.showCheckBox.push(v);
@@ -583,7 +583,7 @@ export default {
 
             this.sourceLeftObj = Echart.init(this.$refs.sourceLeft);
             this.sourceRightObj = Echart.init(this.$refs.sourceRight);
-        }   
+        }
     },
     created() {
         let arr = [];
@@ -713,7 +713,7 @@ export default {
                             border-top-right-radius: 30px;
                             border-bottom-right-radius: 30px;
                         }
-                    }        
+                    }
                 }
                 .ratio {
                     display: block;

@@ -114,7 +114,7 @@ export default {
       this.show_notice_person = arr;
     },
     get_notice_person() {
-      this.$$request.get("api/notification/fill").then(res => {
+      this.$$request.get("/notification/fill").then(res => {
         this.master_lists = [...res.master];
         this.teacher_lists = [...res.teacher];
         this.seller_lists = [...res.seller];
@@ -168,7 +168,7 @@ export default {
         content: this.$refs.ueditor.get_content(),
         receivers: persons_id
       };
-      this.$$request.post("api/notification/send", params).then(res => {
+      this.$$request.post("/notification/send", params).then(res => {
         this.$message.success("已发送");
         this.$router.replace({ path: "/home" });
       });
@@ -213,7 +213,7 @@ export default {
     }
   }
   .ueditor_content {
-    min-height: 500px;  
+    min-height: 500px;
     position: relative;
     z-index: 1;
   }

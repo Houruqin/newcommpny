@@ -71,11 +71,11 @@
                         </li>
                     </ul>
                     <el-pagination v-if="followUpLists.total"
-                        class="d-f f-j-c mt-50 mb-20" 
-                        :page-size="followUpLists.per_page" 
-                        background layout="total, prev, pager, next" 
-                        :total="followUpLists.total" 
-                        :current-page="followUpLists.current_page" 
+                        class="d-f f-j-c mt-50 mb-20"
+                        :page-size="followUpLists.per_page"
+                        background layout="total, prev, pager, next"
+                        :total="followUpLists.total"
+                        :current-page="followUpLists.current_page"
                         @current-change="paginationClick"
                         @next-click="nextClick"
                         @prev-click="prevClick">
@@ -90,10 +90,10 @@
             <div class="form-box">
                <el-row type="flex" justify="center">
                     <el-col :span="10">
-                        <el-date-picker size="small" 
-                            v-model="auditionData.time" type="date" 
-                            value-format="timestamp" :clearable="false" 
-                            :editable="false" placeholder="选择日期" 
+                        <el-date-picker size="small"
+                            v-model="auditionData.time" type="date"
+                            value-format="timestamp" :clearable="false"
+                            :editable="false" placeholder="选择日期"
                             @change="getListenLists"
                             :picker-options="pickListenDisable">
                         </el-date-picker>
@@ -258,7 +258,7 @@ export default {
                     {max: 150, message: '长度不能超过150个字符'}
                 ]
             },
-            sourceRules: {  
+            sourceRules: {
                 name: [
                     {required: true, message: '请输入渠道'},
                     {max: 20, message: '长度不能超过20个字符'}
@@ -333,10 +333,10 @@ export default {
             this.listenType = 'followup';    //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
             this.maskFollowUp = true;
         },
-        //跟进结果选择 
+        //跟进结果选择
         followUpStatusChange(value) {
             this.followupStatus = value;
-            if(value === 4) {               
+            if(value === 4) {
                 this.getListenLists();
                 this.maskAudition = true;
             }else {
@@ -384,7 +384,7 @@ export default {
             };
 
             this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },  
+        },
         //试听确定
         listenDoneHandle() {
             if(!this.checkListen.length) return this.$message.warning('试听课程不能为空!');
@@ -447,13 +447,13 @@ export default {
             }else if(this.checkListenCourse.timetable_id) params.timetable_id = this.checkListenCourse.timetable_id;
 
             console.log(params);
-            
-            let result = await this.$$request.post('api/followUp/add', params);
+
+            let result = await this.$$request.post('/followUp/add', params);
             this.submitLoading = false;
             console.log(result);
             if(!result) return 0;
             this.$message.success('添加成功');
-            
+
             this.maskFollowUp = false;
             this.maskAudition = false;
             this.listenCourseInit();
@@ -465,7 +465,7 @@ export default {
             this.loading = true;
             let params = {student_id: this.studentId};
             if(currentPage) params.page = currentPage;
-            let result = await this.$$request.post('api/followUp/lists', params);
+            let result = await this.$$request.post('/followUp/lists', params);
             console.log(result);
             if(!result) return 0;
             this.followUpLists = result.lists;
@@ -473,7 +473,7 @@ export default {
         },
         //获取学员详情
         async getStudentDetail() {
-            let result = await this.$$request.post('api/student/detail', {id: this.studentId});
+            let result = await this.$$request.post('/student/detail', {id: this.studentId});
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'detail', result.detail);
@@ -481,11 +481,11 @@ export default {
         //获取试听填充列表
         async getListenLists() {
             this.checkListen.splice(0, this.checkListen.length);
-            
+
             let select_time = this.auditionData.time / 1000;
             let current_time = new Date().getTime() / 1000;
             let old_time = select_time < current_time ? current_time : select_time;
-            let result = await this.$$request.post('api/listenCourse/fill', {start_time: old_time});
+            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
 
             if(!result) return 0;
             this.auditionData.teacher_lists = result.teacher;
@@ -504,7 +504,7 @@ export default {
                 course_id: this.auditionData.course_id
             };
 
-            let result = await this.$$request.post('api/listenCourse/lists', {data: params});
+            let result = await this.$$request.post('/listenCourse/lists', {data: params});
             if(!result) return 0;
             this.listenCourseLists = result.lists;
         }
@@ -533,7 +533,7 @@ export default {
 
 <style lang="less" scoped>
     h5 {font-weight: normal}
-    
+
     .table-header {
         height: 50px;
         border-bottom: 1px #e3e3e3 solid;

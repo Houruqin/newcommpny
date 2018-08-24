@@ -38,7 +38,7 @@
                             <el-option label="是" :value="1"></el-option>
                             <el-option label="否" :value="0"></el-option>
                         </el-select>
-                    </el-form-item>                           
+                    </el-form-item>
                 </el-col>
 
                 <el-col :span="11">
@@ -56,11 +56,11 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    
+
                     <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
                         <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
-                    
+
                     <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
                         <el-input type="number" v-model.number="classForm.limit_num"></el-input><span class="pl-10">课时</span>
                     </el-form-item>
@@ -90,7 +90,7 @@
                 <MyButton @click.native="doneHandle" :loading="submitLoading.grade">确定</MyButton>
             </div>
         </el-form>
-        
+
         <!-- 添加教室 -->
         <el-dialog title="添加教室" width="500px" center :visible.sync="roomDialogStatus" :close-on-click-modal="false" @close="dialogClose('roomForm')" append-to-body>
             <el-form :model="roomForm" label-width="100px" size="small" :rules="roomRules" ref="roomForm" class="form-box">
@@ -229,7 +229,7 @@ export default {
                 this.studentLists = [];
                 this.allStudentLists = [];
                 this.studentCheckAll = false;
-                
+
                 for(let key in this.classForm) this.classForm[key] = '';
                 this.$emit('CB-dialogStatus', 'grade');
             }
@@ -271,7 +271,7 @@ export default {
             let params = {course_id: course_id};
             if(grade_id) params.grade_id = grade_id;
 
-            let result = await this.$$request.post('api/grade/fill', params);
+            let result = await this.$$request.post('/grade/fill', params);
             console.log(result)
             if(!result) return 0;
             this.classSelectInfo = result.lists;
@@ -292,12 +292,12 @@ export default {
             if(this.submitLoading.room) return 0;
             this.submitLoading.room = true;
 
-            let result = await this.$$request.post('api/classRoom/add', {name: this.roomForm.name});
+            let result = await this.$$request.post('/classRoom/add', {name: this.roomForm.name});
             console.log(result);
             this.submitLoading.room = false;
 
             if(!result) return 0;
-            
+
             this.$store.dispatch('getClassRoom');   //更新教室信息
             this.roomDialogStatus = false;
             this.$message.success('添加成功');
@@ -325,9 +325,9 @@ export default {
             if(this.submitLoading.grade) return 0;
             this.submitLoading.grade = true;
 
-            let url = this.gradeType == 'edit' ? 'api/grade/edit' : 'api/grade/add';
+            let url = this.gradeType == 'edit' ? '/grade/edit' : '/grade/add';
             let params = {};
-            
+
             for(let key in this.classForm) {
                 if(key == 'teacher_ids' || key == 'counselor_ids') {
                     params[key] = `,${this.classForm[key]},`;
@@ -335,7 +335,7 @@ export default {
                     params[key] = this.classForm[key] / 1000;
                 }else params[key] = this.classForm[key];
             };
-            
+
             params.students = this.studentLists.map(v => {return {student_id: v.student_id}});
             console.log(params)
 

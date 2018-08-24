@@ -132,7 +132,7 @@ export default {
                     {required: true, message: '请选择课程模式', trigger: 'change'}
                 ]
             }
-        }     
+        }
     },
     methods: {
         //弹窗关闭
@@ -197,7 +197,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteSchool(school_id) {
-            let result = await this.$$request.post('api/school/delete', {school_id: school_id});
+            let result = await this.$$request.post('/school/delete', {school_id: school_id});
             console.log(result);
             if(!result) return 0;
 
@@ -214,13 +214,13 @@ export default {
             if(this.submitLoading) return 0;
             this.submitLoading = true;
 
-            let url = this.maskType == 'add' ? 'api/school/add' : 'api/school/edit';
+            let url = this.maskType == 'add' ? '/school/add' : '/school/edit';
             let postdata = this.getModifyParams();
             console.log(postdata);
             let result = await this.$$request.post(url, postdata);
             this.submitLoading = false;
             console.log(result);
-                       
+
             if(!result) return 0;
 
             this.getSchoolLists('edit');
@@ -247,7 +247,7 @@ export default {
                     name: form.user_name
                 }
             };
-            
+
             if(this.maskType == 'modify') {
                 params.school.id = form.school_id;
                 params.user.id = form.user_id;
@@ -272,7 +272,7 @@ export default {
         //获取校区列表
         async getSchoolLists(type) {
             this.loading = true;
-            let result = await this.$$request.get('api/school/lists');
+            let result = await this.$$request.get('/school/lists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;
@@ -291,7 +291,7 @@ export default {
         },
         //获取机构列表
         async getOrgLists() {
-            let orgLists = await this.$$request.post('api/user/orgLists');
+            let orgLists = await this.$$request.post('/user/orgLists');
             if(!orgLists) return 0;
             this.organizationInfo = orgLists.lists;
         }

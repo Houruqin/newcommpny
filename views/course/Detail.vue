@@ -60,11 +60,11 @@
             </el-table>
 
             <el-pagination v-if="timeTableLists.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="timeTableLists.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="timeTableLists.total" 
-                :current-page="timeTableLists.current_page" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="timeTableLists.per_page"
+                background layout="total, prev, pager, next"
+                :total="timeTableLists.total"
+                :current-page="timeTableLists.current_page"
                 @current-change="paginationClick">
             </el-pagination>
         </el-card>
@@ -87,7 +87,7 @@ export default {
             gradeId: 167,
             gradeDetail: {},
             timeTableLists: [],
-            
+
             gradeType: '',
 
             dialogStatus: {grade: false},
@@ -96,7 +96,7 @@ export default {
             studentLists: [],
             allStudentLists: [],
             studentCheckAll: false,
-            
+
             editDetail: {},
 
             deleteTimeTableLists: [],    //删除课表，选中的课表
@@ -107,7 +107,7 @@ export default {
         getRoomName() {
             let room_name;
             this.$store.state.classRoom.forEach(v => {
-                if(this.gradeDetail.room_id == v.id) room_name = v.name; 
+                if(this.gradeDetail.room_id == v.id) room_name = v.name;
             });
             return room_name;
         },
@@ -152,7 +152,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteClassRoom() {
-            let result = await this.$$request.post('api/grade/delete', {id: this.gradeDetail.id});
+            let result = await this.$$request.post('/grade/delete', {id: this.gradeDetail.id});
             if(!result) return 0;
             this.$message.success('已删除');
             this.$router.go(-1);
@@ -161,10 +161,10 @@ export default {
             if(!this.deleteTimeTableLists.length) return this.$message.warning('请选择数据!');
             let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
 
-            let result = await this.$$request.post('api/timetable/deleteAll', {id: timetableLists});
+            let result = await this.$$request.post('/timetable/deleteAll', {id: timetableLists});
             console.log(result);
             if(!result) return 0;
-    
+
             if(result.status == 1) {
                 this.$message.success('删除成功');
                 this.getTimeTableLists();
@@ -179,7 +179,7 @@ export default {
             if(!this.timetableCheckbox) this.$refs.timetable.clearSelection();
         },
         async getGradeDetail() {
-            let result = await this.$$request.get('api/grade/detail', {grade_id: this.gradeId});
+            let result = await this.$$request.get('/grade/detail', {grade_id: this.gradeId});
             console.log(result);
 
             if(!result) return 0;
@@ -191,7 +191,7 @@ export default {
             let params = {grade_id: this.gradeId};
             if(curr_page) params.page = curr_page;
 
-            let result = await this.$$request.get('api/grade/timetableList', params);
+            let result = await this.$$request.get('/grade/timetableList', params);
             console.log(result);
 
             if(!result) return 0;

@@ -24,7 +24,7 @@
                 <p v-if="studentDetail.parent_info">
                     <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></span>
                     <span>联系电话：<i>{{studentDetail.parent_info.mobile}}</i></span>
-                </p>    
+                </p>
                 <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
                 <p><span>学员备注：<i>{{studentDetail.remark}}</i></span></p>
             </div>
@@ -75,10 +75,10 @@
                         </el-table-column>
                     </el-table>
                     <el-pagination v-if="quitCourseLists.total"
-                        class="d-f f-j-c mt-50 mb-20" 
-                        :page-size="quitCourseLists.per_page" 
-                        background layout="total, prev, pager, next" 
-                        :total="quitCourseLists.total" 
+                        class="d-f f-j-c mt-50 mb-20"
+                        :page-size="quitCourseLists.per_page"
+                        background layout="total, prev, pager, next"
+                        :total="quitCourseLists.total"
                         :current-page="quitCourseLists.current_page" @current-change="paginationClick">
                     </el-pagination>
                 </div>
@@ -90,7 +90,7 @@
                         <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="班级名称" align="center">
                             <template slot-scope="scope">
-                                <router-link v-if="scope.row.course.class_pattern == 1" 
+                                <router-link v-if="scope.row.course.class_pattern == 1"
                                     :to="{path: '/course/detail', query: {grade_id: scope.row.grade.id}}" class="fc-m">{{scope.row.grade.name}}</router-link>
                                 <span v-else>无</span>
                             </template>
@@ -162,10 +162,10 @@
                     </el-table>
 
                     <el-pagination v-if="courseTimeTable.total"
-                        class="d-f f-j-c mt-50 mb-20" 
-                        :page-size="courseTimeTable.per_page" 
-                        background layout="total, prev, pager, next" 
-                        :total="courseTimeTable.total" 
+                        class="d-f f-j-c mt-50 mb-20"
+                        :page-size="courseTimeTable.per_page"
+                        background layout="total, prev, pager, next"
+                        :total="courseTimeTable.total"
                         :current-page="courseTimeTable.current_page" @current-change="paginationClick">
                     </el-pagination>
                 </div>
@@ -179,9 +179,9 @@
                                 <p class="fs-12 fc-9 mt-10">{{list.teacher && list.teacher.name}}<span class="pl-20">发表于<i class="pl-5">{{$$tools.format(list.created_at)}}</i></span></p>
                                 <p class="mt-20 fs-15">{{list.content}}</p>
                                 <div v-if="list.pic.length" class="mt-10 d-f">
-                                    <div v-if="index < 2 && !list.imageMore" 
-                                        v-for="(img, index) in list.pic" :key="index" 
-                                        class="comment-img-box" 
+                                    <div v-if="index < 2 && !list.imageMore"
+                                        v-for="(img, index) in list.pic" :key="index"
+                                        class="comment-img-box"
                                         :class="{'ml-10': index > 0}"
                                         @click="list.imageMore = true">
                                         <img :src="img" alt="">
@@ -243,10 +243,10 @@
                                 </li>
                             </ul>
                             <el-pagination v-if="followUpLists.total"
-                                class="d-f f-j-c mt-50 mb-20" 
-                                :page-size="followUpLists.per_page" 
-                                background layout="total, prev, pager, next" 
-                                :total="followUpLists.total" 
+                                class="d-f f-j-c mt-50 mb-20"
+                                :page-size="followUpLists.per_page"
+                                background layout="total, prev, pager, next"
+                                :total="followUpLists.total"
                                 :current-page="followUpLists.current_page" @current-change="paginationClick">
                             </el-pagination>
                         </div>
@@ -254,7 +254,7 @@
                 </div>
             </div>
         </el-card>
-        
+
         <!-- 学员修改弹窗 -->
         <el-dialog title="编辑学员资料" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
             <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" class="form-box" :rules="detailRules">
@@ -315,12 +315,12 @@
                 </div>
             </el-form>
         </el-dialog>
-        
+
         <!-- 购买课程弹窗 -->
         <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
         </BuyCourseDialog> -->
-        
+
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
@@ -365,7 +365,7 @@
                     <div class="list-item">
                         <el-form-item label="剩余教材费：">{{quitCourseInfo.textbooks_price}}</el-form-item>
                     </div>
-                </div> 
+                </div>
                 <el-form-item label="退费说明：" prop="explain" class="textarea-cls pr-100 mt-10">
                     <el-input type="textarea" :rows="4" placeholder="退费说明" v-model="quitCourseForm.explain"></el-input>
                 </el-form-item>
@@ -392,21 +392,21 @@
                     <div v-else class="fc-7 mt-20">暂无班级</div>
                 </div>
             </div>
-            
+
             <div class="d-f f-j-c mt-30">
                 <MyButton :type="gradeDivideLists.disabled ? 'gray': 'main'" @click.native="divideClassDone(gradeDivideLists.disabled)" :loading="submitLoading.gradeDivide">确认</MyButton>
             </div>
         </el-dialog>
-        
+
         <!-- 邀约试听弹窗 -->
         <el-dialog title="试听" width="720px" center :visible.sync="maskAudition" :close-on-click-modal="false" @close="dialogClose('listen')">
             <div class="form-box">
                <el-row type="flex" justify="center">
                     <el-col :span="10">
-                        <el-date-picker size="small" 
-                            v-model="auditionData.time" type="date" 
-                            value-format="timestamp" :clearable="false" 
-                            :editable="false" placeholder="选择日期" 
+                        <el-date-picker size="small"
+                            v-model="auditionData.time" type="date"
+                            value-format="timestamp" :clearable="false"
+                            :editable="false" placeholder="选择日期"
                             @change="getListenLists"
                             :picker-options="pickListenDisable">
                         </el-date-picker>
@@ -469,7 +469,7 @@
                             <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
-                    
+
                     <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
                         <span>试听课程：{{checkListenCourse.course_name}}</span>
                         <span class="ml-10">上课时间: {{checkListenCourse.begin_time}}</span>
@@ -561,7 +561,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="消课课程：">{{removeTimetableForm.course_name}}</el-form-item>
-                            
+
                             <el-form-item label="上课教室：" prop="room_id">
                                 <el-select placeholder="请选择" v-model="removeTimetableForm.room_id">
                                     <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -579,7 +579,7 @@
                             <el-row class='time_select'>
                                 <el-col :span="17">
                                     <el-form-item label="上课时间：" prop="day">
-                                        <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter" 
+                                        <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
                                             @change="removeTimeChange"
                                             placeholder="选择日期" value-format="yyyy/MM/dd">
                                         </el-date-picker>
@@ -588,10 +588,10 @@
 
                                 <el-col :span="6" :offset="1">
                                     <el-form-item label-width="0" prop="time">
-                                        <el-time-select 
+                                        <el-time-select
                                             :editable="false"
-                                            v-model="removeTimetableForm.time" 
-                                            :picker-options="timePicker" 
+                                            v-model="removeTimetableForm.time"
+                                            :picker-options="timePicker"
                                             placeholder="时间">
                                         </el-time-select>
                                     </el-form-item>
@@ -717,7 +717,7 @@ export default {
             wayIdArr: StudentStatic.followUp.wayId,
             relationArr: StudentStatic.relation,
             timeTableStatic: timeTableStatic.status,   //上课状态
-            
+
             quitCourseInfo: {},   //退费课程详细数据
             tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
 
@@ -893,7 +893,7 @@ export default {
         },
         //获取编辑老师列表
         async getEditTeacherLists(id) {
-            let result = await this.$$request.post('api/course/orderTeachers', {course_id: id});
+            let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
             console.log(result);
             if(!result) return 0;
             this.editTeacherLists = result.teachers;
@@ -922,7 +922,7 @@ export default {
 
             console.log(params)
 
-            let result = await this.$$request.post('api/course/changeTeacher', params);
+            let result = await this.$$request.post('/course/changeTeacher', params);
 
             console.log(result);
 
@@ -956,7 +956,7 @@ export default {
             }
 
             this.removeTimetableDialog = true;
-            
+
         },
         removeTimeTableChange(val) {
             this.gradeLists.forEach(v =>{
@@ -1001,7 +1001,7 @@ export default {
 
             console.log(params);
 
-            let result = await this.$$request.post('api/eduCount/manualElimination', params);
+            let result = await this.$$request.post('/eduCount/manualElimination', params);
             this.submitLoading.removeTimetable = false;
             console.log(result);
             if(!result) return 0;
@@ -1041,7 +1041,7 @@ export default {
         },
         //课程信息列表查看合约
         async showContract(data) {
-            let result = await this.$$request.get('api/studentCourse/detail', {sc_id: data.id});
+            let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
             console.log(result);
             if(!result) return 0;
             this.contractData = result.data;
@@ -1049,7 +1049,7 @@ export default {
         },
         //退费详情
         async getQuitPriceDetail(data) {
-            let result = await this.$$request.get('api/financeManage/quitCourseDetail', {student_course_id: data.id});
+            let result = await this.$$request.get('/financeManage/quitCourseDetail', {student_course_id: data.id});
             console.log(result);
             if(!result) return 0;
             this.quitPriceDetail = result;
@@ -1088,10 +1088,10 @@ export default {
             this.listenType = 'followup';    //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
             this.maskFollowUp = true;
         },
-        //跟进结果选择 
+        //跟进结果选择
         followUpStatusChange(value) {
             this.followupStatus = value;
-            if(value === 4) {               
+            if(value === 4) {
                 this.getListenLists();
                 this.maskAudition = true;
             }else {
@@ -1130,18 +1130,18 @@ export default {
         //添加分班
         gradeDivideClick(type, data) {
             this.divideClassType = type;
-            if(type === 'add') this.getStudentGradeLists('api/sign/courseLists');
+            if(type === 'add') this.getStudentGradeLists('/sign/courseLists');
             else {
                 this.divideClassRadio = data.grade_id;
                 this.original_grade_id = data.grade_id;
-                this.getStudentGradeLists('api/sign/gradeLists', data);
+                this.getStudentGradeLists('/sign/gradeLists', data);
             }
         },
         //分班确定按钮
         divideClassDone(disabled) {
             if(disabled) return 0;
             if(!this.divideClassRadio) return this.$message.warning('请选择班级');
-            
+
             this.gradeDivideLists.lists.forEach(v => {
                 v.grade.forEach(d => {
                     if(d.id == this.divideClassRadio) {
@@ -1163,9 +1163,9 @@ export default {
         //提交分班数据
         submitClassRoomHandle() {
             if(this.divideClassType === 'add') {
-                this.submitDivideClass('api/studentGrade/add', {student_id: this.studentId, grade_id: this.divideClassRadio});
+                this.submitDivideClass('/studentGrade/add', {student_id: this.studentId, grade_id: this.divideClassRadio});
             }else {
-                this.submitDivideClass('api/studentGrade/change', {
+                this.submitDivideClass('/studentGrade/change', {
                     student_id: this.studentId,
                     original_grade_id: this.original_grade_id,
                     target_grade_id: this.divideClassRadio
@@ -1173,7 +1173,7 @@ export default {
             }
         },
         // 停课/开课（只针对学员停课）
-        stopCourse(s_id,g_id,type,index) {      
+        stopCourse(s_id,g_id,type,index) {
             const params = {
                 student_id : s_id,
                 grade_id : g_id,
@@ -1185,7 +1185,7 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                let result = this.$$request.post('api/studentGrade/suspend',params);
+                let result = this.$$request.post('/studentGrade/suspend',params);
                 if(!result) return 0;
                 this.$message.success('操作成功');
                 this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
@@ -1248,7 +1248,7 @@ export default {
             lesson_num_remain = lesson_num_remain <= 0 ? 0 : lesson_num_remain;
 
             this.quitCourseInfo.remain_price = (+(this.quitCourseInfo.unit_price) * lesson_num_remain).toFixed(2);
-            
+
             this.quitCourseMaskStatus = true;
         },
         //试听确定
@@ -1308,8 +1308,8 @@ export default {
             };
 
             console.log(params)
-            
-            let result = await this.$$request.post('api/quitCourse/add', params);
+
+            let result = await this.$$request.post('/quitCourse/add', params);
             this.submitLoading.quitCourse = false;
             console.log(result);
             if(!result) return 0;
@@ -1327,7 +1327,7 @@ export default {
                 params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
             };
 
-            let result = await this.$$request.post('api/sign/edit', params);
+            let result = await this.$$request.post('/sign/edit', params);
             this.submitLoading.student = false;
             console.log(result);
             if(!result) return 0;
@@ -1346,7 +1346,7 @@ export default {
             let result = await this.$$request.post(url, params);
             this.submitLoading.gradeDivide = false;
             if(!result) return 0;
-            
+
             this.getBottomTabLists();
             this.$message.success('分班成功');
             this.classMaskStatus = false;
@@ -1354,7 +1354,7 @@ export default {
         //提交跟进
         async submitFollowUpInfo() {
             for(let key in this.followUpForm) {if(key == 'invited_at' || key == 'next_at') this.followUpForm[key] = this.followUpForm[key] / 1000};
-            
+
             if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
 
 
@@ -1369,7 +1369,7 @@ export default {
 
             console.log(params);
 
-            let result = await this.$$request.post('api/followUp/add', params);  //type_id默认售后跟进6
+            let result = await this.$$request.post('/followUp/add', params);  //type_id默认售后跟进6
             this.submitLoading.followUp = false;
             console.log(result);
             if(!result) return 0;
@@ -1384,7 +1384,7 @@ export default {
         },
         //获取学员详情
         async getStudentDetail() {
-            let result = await this.$$request.post('api/student/detail', {id: this.studentId});
+            let result = await this.$$request.post('/student/detail', {id: this.studentId});
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'studentDetail', result.detail);
@@ -1413,10 +1413,10 @@ export default {
             this.loading = true;
 
             let requestUrl = {
-                course_info: {url: 'api/studentCourse/normalLists', list: 'quitCourseLists'},
-                grade: {url: 'api/studentGrade/lists', list: 'courseTimeTable'},
-                comment: {url: 'api/sign/comment', list: 'courseCommentLists'},
-                follow_up: {url: 'api/followUp/lists', list: 'followUpLists'}
+                course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
+                grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
+                comment: {url: '/sign/comment', list: 'courseCommentLists'},
+                follow_up: {url: '/followUp/lists', list: 'followUpLists'}
             };
 
             let url = requestUrl[this.activeTab].url, params = {student_id: this.studentId}, dataLists = requestUrl[this.activeTab].list;
@@ -1441,7 +1441,7 @@ export default {
         async getListenLists() {
             let old_time = Math.round(this.auditionData.time / 1000);
 
-            let result = await this.$$request.post('api/listenCourse/fill', {start_time: old_time});
+            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
             console.log(result);
             if(!result) return 0;
             this.auditionData.teacher_lists = result.teacher;
@@ -1458,7 +1458,7 @@ export default {
                 course_id: this.auditionData.course_id
             };
 
-            let result = await this.$$request.post('api/listenCourse/lists', {data: params});
+            let result = await this.$$request.post('/listenCourse/lists', {data: params});
             console.log(result);
             if(!result) return 0;
             this.listenCourseLists = result.lists;
