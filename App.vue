@@ -9,7 +9,7 @@
 export default {
   name: 'App',
   async created() {
-    let result = await this.$$request.post('api/auth/index');
+    let result = await this.$$request.post('/auth/index');
     if(!result) this.$router.replace({path: '/login'});
     else this.isSchoolArea();
     // else this.$router.replace({path: '/addschool'});
@@ -17,7 +17,7 @@ export default {
   },
   methods: {
     async isSchoolArea() {
-        let result = await this.$$request.post('api/school/exists');
+        let result = await this.$$request.post('/school/exists');
         if(!result) this.$router.replace({path: '/login'});
         else if(result && result.status == 0) {
             this.$router.push({path: '/addschool'});

@@ -325,7 +325,7 @@ export default {
             let baseUrl = config.api;
             let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.classPattern == 1 ? 'sign_new' : 'sign';
 
-            window.location.href = `${baseUrl}api/excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
+            window.location.href = `${baseUrl}excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
         },
         //上传错误
         uploadFail(err, file, fileList) {
@@ -501,7 +501,7 @@ export default {
                 excel_params = {...this.uploadParams, data: params}
             }
 
-            let result = await this.$$request.post(`api/${excel_type}/upload`, excel_params);
+            let result = await this.$$request.post(`${excel_type}/upload`, excel_params);
             console.log(result);
             this.submitLoading.submit_list = false;
             if(!result) return 0;
@@ -537,7 +537,7 @@ export default {
         importUrlChange() {
             let baseUrl = config.api;
             let excel_type = this.activeTab == 'student' ? 'excel' : 'courseExcel';
-            this.importUrl = `${baseUrl}api/${excel_type}/upload`;
+            this.importUrl = `${baseUrl}${excel_type}/upload`;
 
             this.uploadParams = this.activeTab == 'student' ? {excel_type: 'unsign_new'} : {is_limit_course_repeat: -1, is_limit_student_repeat: -1};
         }

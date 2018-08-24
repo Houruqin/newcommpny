@@ -83,7 +83,7 @@ export default {
             maskState: 'add',
             classForm: {id: '', name: ''},
             sourceForm: {id: '', name: ''},
-            sourceRules: {  
+            sourceRules: {
                 name: [
                     {required: true, message: '请输入渠道'},
                     {max: 10, message: '长度不能超过10个字符'}
@@ -145,7 +145,7 @@ export default {
         //删除
         deleteSource(scope, type) {
             let msg = type == 'source' ? '渠道' : '教室';
-            
+
             this.$confirm(`确定删除${msg}吗?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -156,7 +156,7 @@ export default {
         },
         //删除调用方法
         async deleteHandle(scope, type) {
-            let url = type == 'source' ? 'api/source/delete' : 'api/classRoom/delete';
+            let url = type == 'source' ? '/source/delete' : '/classRoom/delete';
             let result = await this.$$request.post(url, {id: scope.id});
             if(!result) return 0;
 
@@ -165,7 +165,7 @@ export default {
             }else {
                 this.$store.dispatch('getClassRoom');   //更新教室信息
             }
-            
+
             this.$message.success('已删除');
         },
         //表单提交方法
@@ -177,11 +177,11 @@ export default {
 
             if(formName == 'classForm') {
                 params.name = this.classForm.name;
-                url = this.maskState == 'modify' ? 'api/classRoom/edit' : 'api/classRoom/add';
+                url = this.maskState == 'modify' ? '/classRoom/edit' : '/classRoom/add';
                 if(this.maskState == 'modify') params.id = this.classForm.id;
             }else {
                 params.name = this.sourceForm.name;
-                url = this.maskState == 'modify' ? 'api/source/edit' : 'api/source/add';
+                url = this.maskState == 'modify' ? '/source/edit' : '/source/add';
                 if(this.maskState == 'modify') params.id = this.sourceForm.id;
             }
 
@@ -190,7 +190,7 @@ export default {
             console.log(result);
 
             if(!result) return 0;
-            
+
             this.$message.success(this.maskState == 'modify' ? '修改成功' : '添加成功');
 
             if(formName == 'classForm') {

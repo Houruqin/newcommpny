@@ -14,7 +14,7 @@
                             <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li>    
+                    <li>
                         <el-select size="small" placeholder="全部使用类型" v-model="searchFilter.use_type" @change="searchHandle">
                             <el-option label="全部使用类型" value=""></el-option>
                             <el-option label="内部使用" :value="1"></el-option>
@@ -61,7 +61,7 @@
                             <span class="fc-m ml-20 cursor-pointer el-dropdown-link">更多</span>
                             <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                    :disabled="operation.type == 'borrow' && scope.row.use_type == 2" 
+                                    :disabled="operation.type == 'borrow' && scope.row.use_type == 2"
                                     :command="{type: operation.type, data: scope.row}">{{operation.text}}
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -71,11 +71,11 @@
             </el-table>
 
             <el-pagination v-if="commodityTable.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="commodityTable.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="commodityTable.total" 
-                :current-page="commodityTable.current_page" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="commodityTable.per_page"
+                background layout="total, prev, pager, next"
+                :total="commodityTable.total"
+                :current-page="commodityTable.current_page"
                 @current-change="paginationClick">
             </el-pagination>
         </el-card>
@@ -135,7 +135,7 @@
         <!-- 类型设置弹窗 -->
         <el-dialog title="类型设置" width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false" @close="dialogClose">
             <div class="d-f f-j-e"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
-            
+
             <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe height="400">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="物品类型" prop="name" align="center"></el-table-column>
@@ -218,7 +218,7 @@
         <!-- 借用 -->
         <el-dialog title="借用" width="650px" center :visible.sync="dialogStatus.borrow" :close-on-click-modal="false" @close="dialogClose('borrowForm')">
             <el-form :model="borrowForm" label-width="110px" size="small" :rules="borrowRules" ref="borrowForm" class="form-box">
-                
+
                 <div class="d-f">
                     <div>
                         <el-form-item label="物品名称：">{{borrowForm.name}}</el-form-item>
@@ -298,7 +298,7 @@ export default {
             borrowForm: {
                 name: '', goods_id: '', borrow_num: '', borrow_people: '', total_num: '', borrow_people_type: ''
             },
-            
+
             commodityTypeRules: {
                 name: [
                     {required: true, message: '请输入物品类型'}
@@ -457,10 +457,10 @@ export default {
             }
         },
         async deleteCommodity(id) {
-            let result = await this.$$request.post('api/goods/goodsOperate', {id: id});
+            let result = await this.$$request.post('/goods/goodsOperate', {id: id});
             console.log(result);
             if(!result) return 0;
-            
+
             this.$message.success('删除物品成功');
             this.getCommodityLists();
         },
@@ -478,7 +478,7 @@ export default {
             let params = {id: id, type: type == 'delete' ? 'del' : type == 1 ? 'limit' : 'start'};
             console.log(params);
 
-            let result = await this.$$request.get('api/goodsType/goodsTypeOperate', params);
+            let result = await this.$$request.get('/goodsType/goodsTypeOperate', params);
             console.log(result);
             if(!result) return 0;
             this.getCommodityTypeLists();
@@ -506,7 +506,7 @@ export default {
         //出库 学员课程change
         studentCourseChange(val) {
             this.removeStorageForm.student_total_num = '';
-            
+
             this.studentCourseLists.forEach(v => {
                 if(v.id == val) {
                     if(!v.goods.length) {
@@ -514,9 +514,9 @@ export default {
                         this.removeStoageBtn.one = true;
                         return 0;
                     }else this.removeStoageBtn.one = false;
-                    
+
                     console.log(this.removeStorageForm.goods_id);
-                    
+
                     if(v.goods.some(f => {
                         return (f.goods_id == this.removeStorageForm.goods_id)
                     })) {
@@ -567,7 +567,7 @@ export default {
         },
         //出库  如果领取人为学员 获取学员相关课程
         async getStudentCourse(id) {
-            let result = await this.$$request.get('api/repertory/courseLists', {student_id: id});
+            let result = await this.$$request.get('/repertory/courseLists', {student_id: id});
             console.log(result);
 
             if(!result) return 0;
@@ -576,8 +576,8 @@ export default {
         //提交 物品数据添加
         async submitAddCommodity() {
             let params = {};
-            let url = this.operationCommodity == 'add' ? 'api/goods/goodsAdd' : 'api/goods/goodsEdit';
-    
+            let url = this.operationCommodity == 'add' ? '/goods/goodsAdd' : '/goods/goodsEdit';
+
             for(let key in this.addCommodityForm) {
                 if(key == 'price') {
                     if(this.addCommodityForm.use_type == 2) params[key] = this.addCommodityForm[key];
@@ -601,14 +601,14 @@ export default {
         //提交 物品类型添加
         async submitCommodityType() {
             let params = {name: this.commodityTypeForm.name};
-            let url = this.commodityTypeStatus == 'add' ? 'api/goodsType/goodsTypeAdd' : 'api/goodsType/goodsTypeEdit';
+            let url = this.commodityTypeStatus == 'add' ? '/goodsType/goodsTypeAdd' : '/goodsType/goodsTypeEdit';
             if(this.commodityTypeStatus == 'edit') params.id = this.commodityTypeForm.id;
 
             let result = await this.$$request.post(url, params);
             console.log(result);
 
             if(!result) return 0;
-            
+
             this.getCommodityTypeLists();
             if(this.commodityTypeStatus == 'edit') this.getCommodityLists();
 
@@ -624,8 +624,8 @@ export default {
             };
 
             console.log(params);
-            
-            let result = await this.$$request.post('api/repertory/putStorage', params);
+
+            let result = await this.$$request.post('/repertory/putStorage', params);
             console.log(result);
             if(!result) return 0;
 
@@ -648,8 +648,8 @@ export default {
 
             if(this.receivePeopleType == 2) params.student_course = this.removeStorageForm.student_course;
             console.log(params);
-            
-            let result = await this.$$request.post('api/repertory/outStorage', params);
+
+            let result = await this.$$request.post('/repertory/outStorage', params);
             console.log(result);
             if(!result) return 0;
 
@@ -667,7 +667,7 @@ export default {
             };
             console.log(params);
 
-            let result = await this.$$request.post('api/repertory/borrow', params);
+            let result = await this.$$request.post('/repertory/borrow', params);
             console.log(result);
             if(!result) return 0;
 
@@ -690,7 +690,7 @@ export default {
 
             console.log(params);
 
-            let result = await this.$$request.get('api/repertory/goodsLists', params);
+            let result = await this.$$request.get('/repertory/goodsLists', params);
             console.log(result);
             if(!result) return 0;
 
@@ -699,7 +699,7 @@ export default {
         },
         //获取物品类型列表
         async getCommodityTypeLists() {
-            let result = await this.$$request.get('api/goodsType/goodsTypeLists');
+            let result = await this.$$request.get('/goodsType/goodsTypeLists');
             console.log(result);
             if(!result) return 0;
 

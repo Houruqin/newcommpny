@@ -33,7 +33,7 @@ import cache from '../script/cache'
 export default {
     name: 'Login',
     data() {
-        return{ 
+        return{
             logo: Logo,
             phone: this.$$cache.get('phone') || '',
             verificationCode: '',
@@ -53,12 +53,12 @@ export default {
             if(!this.$$tools.validate('phone', this.phone.trim())) return 0;
             if(this.codeTime != 0) return 0;
             this.codeTime = -1;
-            
-            let result = await this.$$request.post('api/auth/smsSend', {
+
+            let result = await this.$$request.post('/auth/smsSend', {
                 mobile: this.phone.trim(),
                 type: 'login'
             });
-            
+
             this.codeTime = 60;
             if(result) {
                 let timer = setInterval(() => {this.codeTime <= 0 ? clearInterval(timer) : this.codeTime--}, 1000);
@@ -73,15 +73,15 @@ export default {
 
             if(!this.$$tools.validate('code', this.verificationCode.trim())) return 0;
 
-            let result = await this.$$request.post('api/auth/login', {
+            let result = await this.$$request.post('/auth/login', {
                 mobile: this.phone.trim(),
                 sms_code: this.verificationCode.trim()
             });
-            
+
             console.log(result);
 
             if(!result) return 0;
-            
+
             this.$$cache.removeMemberInfo();    //request拦截器统一做了token处理，已经保存过一次值，登录重新赋值
 
             if(this.checked) {
@@ -97,7 +97,7 @@ export default {
         },
         //登录成功，判断是否有校区
         async isSchoolArea() {
-            let result = await this.$$request.post('api/school/exists');
+            let result = await this.$$request.post('/school/exists');
             console.log(result)
             if(!result) return 0;
 

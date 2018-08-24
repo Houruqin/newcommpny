@@ -208,7 +208,7 @@ export default {
       };
       console.log(params);
       this.$$request
-        .get("api/financeManage/studentCourse/lists", params)
+        .get("/financeManage/studentCourse/lists", params)
         .then(res => {
           console.log(res);
           this.income_info.data = res.lists.data;
@@ -224,7 +224,7 @@ export default {
     //查看合约详情
     show_contract(id) {
       this.$$request
-        .get("api/studentCourse/detail", { sc_id: id })
+        .get("/studentCourse/detail", { sc_id: id })
         .then(res => {
           this.dialog.contract.data = res.data;
           this.dialog.contract.show = true;

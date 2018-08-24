@@ -169,7 +169,7 @@
                   </template>
                 </el-table-column>
               </el-table>
-            </el-tab-pane>  
+            </el-tab-pane>
 
             <!-- 备忘录 -->
             <el-tab-pane label="备忘录" name="memo" class="t-o-e">
@@ -187,7 +187,7 @@
                 </el-table-column>
               </el-table>
             </el-tab-pane>
-            
+
           </el-tabs>
           <div v-if="activeName === 'leave'" @click="open_all_leave_dialog" class="more_record t-a-c fc-7 mt-20 cursor-pointer">历史请假记录>></div>
           <!-- 分页 -->
@@ -195,8 +195,8 @@
           </el-pagination>
           <el-pagination v-if="activeName === 'memo' && page_info.total > 6" class="d-f f-j-c mt-10" :page-size="6" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.current_page" @current-change="go_page">
           </el-pagination>
-          
-          
+
+
         </el-card>
       </el-col>
       <el-col :span="7">
@@ -438,13 +438,13 @@
     </el-row>
 
     <!-- 备忘录弹窗 -->
-    <el-dialog v-if="memo_info.show" class="memo" 
-    :close-on-click-modal="false" 
-    :close-on-press-escape="false" 
-    :visible.sync="memo_info.show" 
-    title="备忘录" 
-    :show-close="true" 
-    width="800px" 
+    <el-dialog v-if="memo_info.show" class="memo"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :visible.sync="memo_info.show"
+    title="备忘录"
+    :show-close="true"
+    width="800px"
     center>
       <el-input type="textarea" :readonly="memo_info.readonly" placeholder="内容(不超过500字)" resize="none" :autosize="{ minRows: 15, maxRows: 30}" :maxlength="500" v-model.trim="memo_info.content">
       </el-input>
@@ -457,15 +457,15 @@
     </el-dialog>
 
     <!-- 登记学员弹窗 -->
-    <AddStudentDialog  :dialogStatus="dialogStatus.student" 
+    <AddStudentDialog  :dialogStatus="dialogStatus.student"
         @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
     </AddStudentDialog>
-    
+
     <!-- 购买课程弹窗 -->
     <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" @CB-dialogStatus="CB_dialogStatus" :buyCourseData="buyCourseData"
         @CB-contract="CB_contract">
     </BuyCourseDialog> -->
-    
+
     <!-- 购课合约弹窗 -->
     <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
 
@@ -819,7 +819,7 @@ export default {
     },
     //打开历史记录弹窗
     open_all_leave_dialog() {
-      this.all_leave_record.show = true; 
+      this.all_leave_record.show = true;
       this.all_leave_record.search_info = {
         start: new Date(this.$format_date(new Date(),'yyyy/MM/01')), //默认当月第一天
         end: new Date(new Date().getFullYear(),new Date().getMonth()+1,0,24),
@@ -840,7 +840,7 @@ export default {
         page: info.page,
         page_num: info.pageNum,
       }
-      this.$$request.post('api/leaveTicket/processedLists',params).then(
+      this.$$request.post('/leaveTicket/processedLists',params).then(
         res => {
           this.all_leave_record.data = res.lists.data;
           this.all_leave_record.page_info.total = res.lists.total;
@@ -878,7 +878,7 @@ export default {
       const params = {
         content: this.memo_info.content
       }
-      this.$$request.post('api/memorandum/add',params).then(res => {
+      this.$$request.post('/memorandum/add',params).then(res => {
         this.memo_info.show = false;
         this.get_memo_data();
         this.$message.success('已添加');
@@ -894,7 +894,7 @@ export default {
                 const params = {
                   id: id
                 }
-                this.$$request.post('api/memorandum/delete',params).then(res => {
+                this.$$request.post('/memorandum/delete',params).then(res => {
                   this.memo_info.show = false;
                   this.get_memo_data();
                   this.$message.success('已删除');
@@ -916,7 +916,7 @@ export default {
         page: this.page_info.current_page
       };
       this.$$request
-        .get("api/student/undisposedLeaveTicketLists", params)
+        .get("/student/undisposedLeaveTicketLists", params)
         .then(res => {
           this.leave_info.data = res.lists;
           this.page_info.total = res.total;
@@ -938,7 +938,7 @@ export default {
           params.remark = this.leave_info.remark;
         }
       }
-      this.$$request.post("api/student/leaveTicketCheck", params).then(res => {
+      this.$$request.post("/student/leaveTicketCheck", params).then(res => {
         this.get_leave_data();
         this.$message.success("已处理");
       });
@@ -957,7 +957,7 @@ export default {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.post("api/sign/noGrade", params).then(res => {
+      this.$$request.post("/sign/noGrade", params).then(res => {
         let data = res.lists.data;
         let data_map = new Map();
         for (let i = 0; i < data.length; i++) {
@@ -983,7 +983,7 @@ export default {
       const params = {
         id: info.course_id
       };
-      this.$$request.post("api/sign/gradeLists", params).then(res => {
+      this.$$request.post("/sign/gradeLists", params).then(res => {
         if (res.lists.length < 1) {
           this.$message.warning("暂无可选班级");
         }
@@ -1003,7 +1003,7 @@ export default {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.post("api/sign/contract", params).then(res => {
+      this.$$request.post("/sign/contract", params).then(res => {
         let data = res.lists.data;
         let data_map = new Map();
         for (let i = 0; i < data.length; i++) {
@@ -1058,7 +1058,7 @@ export default {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.get("api/student/birthday", params).then(res => {
+      this.$$request.get("/student/birthday", params).then(res => {
         this.birth_info.data = res.lists;
         this.page_info.total = res.total;
         this.loading = false;
@@ -1074,7 +1074,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$$request.post("api/student/sendGift", params).then(res => {
+            this.$$request.post("/student/sendGift", params).then(res => {
               this.get_birth_data();
               this.$message.success("操作成功");
             });
@@ -1087,7 +1087,7 @@ export default {
         page_num : 6,
         page: this.page_info.current_page
       }
-      this.$$request.post('api/memorandum/lists',params).then(res => {
+      this.$$request.post('/memorandum/lists',params).then(res => {
         this.memo_info.data = res.memorandums.data;
         this.page_info.total = res.memorandums.total;
         this.loading = false;
@@ -1151,7 +1151,7 @@ export default {
         grade_id: this.divide_info.class.id,
         sc_id: this.divide_info.class.sc_id
       };
-      this.$$request.post("api/studentGrade/add", params).then(res => {
+      this.$$request.post("/studentGrade/add", params).then(res => {
         this.$message.success("分班成功");
         this.divide_info.show_divide_dialog = false;
         this.get_data();
@@ -1159,7 +1159,7 @@ export default {
     },
     //================财务统计模块================
     async get_finance_data() {
-      this.$$request.get('api/financial/statistics')
+      this.$$request.get('/financial/statistics')
       .then(res => {
         this.statitics_info.sign = res.sign;
         this.statitics_info.eliminate = res.eliminate;
@@ -1198,7 +1198,7 @@ export default {
           },
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("api/student/lists", params).then(res => {
+        this.$$request.post("/student/lists", params).then(res => {
           this[`${this.follow_up_activeName}_list`] = res.lists.data;
           this.follow_up_page_info.total = res.lists.total;
           this.follow_loading = false;
@@ -1208,7 +1208,7 @@ export default {
           page_num: 5,
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("api/followUp/needFollow", params).then(res => {
+        this.$$request.post("/followUp/needFollow", params).then(res => {
           this[`${this.follow_up_activeName}_list`] = res.followUps.data;
           this.follow_up_page_info.total = res.followUps.total;
           this.follow_loading = false;
@@ -1219,7 +1219,7 @@ export default {
           type: type,
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("api/followUp/todayLists", params).then(res => {
+        this.$$request.post("/followUp/todayLists", params).then(res => {
           this[`${this.follow_up_activeName}_list`] = res.lists;
           this.follow_up_page_info.total = res.total;
           this.follow_loading = false;
@@ -1228,17 +1228,17 @@ export default {
     },
     //获取今日课程列表
     async get_today_course() {
-      this.$$request.get("api/timetable/todayLists").then(res => {
+      this.$$request.get("/timetable/todayLists").then(res => {
         this.today_course_list = res.lists;
       });
     },
     //查看全部学员
     view_all_student(obj) {
-      this.all_student_info.loading = true; 
+      this.all_student_info.loading = true;
       this.all_student_info.data = [];
-      this.all_student_info.show = true; 
+      this.all_student_info.show = true;
       this.all_student_info.grade_id = obj.grade_id;
-      this.all_student_info.title = obj.grade_name; 
+      this.all_student_info.title = obj.grade_name;
       this.all_student_info.course_type = obj.course.is_order;
       this.get_all_student_list(obj.id)
       //当且仅当在上课前一小时和上课后一小时内才能签到
@@ -1259,10 +1259,10 @@ export default {
       const params = {
               timetable_id: id
             }
-      this.$$request.get('api/timetable/studentLists',params).then(res => {
+      this.$$request.get('/timetable/studentLists',params).then(res => {
         this.all_student_info.data = res.lists;
         this.all_student_info.end = (res.lesson_end_time > 0);
-        this.all_student_info.loading = false; 
+        this.all_student_info.loading = false;
       })
     },
     //学员签到
@@ -1273,12 +1273,12 @@ export default {
                 timetable_id: t_id,
                 student_id: s_id
               }
-        this.$$request.post('api/signRecord/add',params).then(res => {
+        this.$$request.post('/signRecord/add',params).then(res => {
           this.$message.success("已签到");
           this.get_all_student_list(t_id);
         })
       }
-      
+
     },
     //学员请假
     leave_student(s_id,t_id,status,item) {
@@ -1289,7 +1289,7 @@ export default {
           timetable_id: t_id,
           student_id: s_id
         }
-        this.$$request.post('api/leaveTicket/add',params).then(res => {
+        this.$$request.post('/leaveTicket/add',params).then(res => {
           this.$message.success("已请假");
           this.get_all_student_list(t_id);
         })
@@ -1301,14 +1301,14 @@ export default {
       const params = {
         follow_up_id: id
       };
-      this.$$request.post("api/followUp/inviteSure", params).then(res => {
+      this.$$request.post("/followUp/inviteSure", params).then(res => {
         this.get_follow_up_data();
         this.$message.success("操作成功");
       });
     },
      //列表顾问选择
         async select_advisor(val) {
-            let result = await this.$$request.post('api/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
+            let result = await this.$$request.post('/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
             .then(res => {
               this.get_follow_up_data();
               this.$message.success("操作成功");
@@ -1326,7 +1326,7 @@ export default {
       const params = {
         page: this.notice_page_info.current_page
       };
-      this.$$request.get("api/notification/personalLists", params).then(res => {
+      this.$$request.get("/notification/personalLists", params).then(res => {
         this.notice_lists = res.lists;
         this.notice_page_info.total = res.total;
         this.unread_num = res.unread < 1 ? "" : res.unread;
@@ -1339,7 +1339,7 @@ export default {
       const params = {
         page: this.notice_page_info.current_page
       };
-      this.$$request.get("api/notification/lists", params).then(res => {
+      this.$$request.get("/notification/lists", params).then(res => {
         this.notice_send_lists = res.lists;
         this.notice_page_info.total = res.total;
         this.notice_loading = false;
@@ -1353,7 +1353,7 @@ export default {
           const params = {
             notification_id: notice.notification.id
           };
-          this.$$request.post("api/notification/read", params).then(res => {
+          this.$$request.post("/notification/read", params).then(res => {
             this.get_notice_list();
           });
           this.notice_info.title = notice.notification.title;
@@ -1501,7 +1501,7 @@ export default {
         groupby: this.search_type
       };
       this.$$request
-        .post("api/classElimination/statistics", params)
+        .post("/classElimination/statistics", params)
         .then(res => {
           let pie_data = [
             { value: res.actual, name: "已消课时", total: res.should },

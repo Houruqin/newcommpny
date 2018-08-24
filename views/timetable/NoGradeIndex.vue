@@ -787,7 +787,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(id) {
-            let result = await this.$$request.post('api/timetable/delete', {id: id});
+            let result = await this.$$request.post('/timetable/delete', {id: id});
             if(!result || !result.status) return 0;
 
             this.$message.success('删除成功');
@@ -1058,7 +1058,7 @@ export default {
 
             this.conflict_room = this.addTableType == 'multiple' ? [] : '';
 
-            let result = await this.$$request.post('api/timetable/notModelCourse', params);
+            let result = await this.$$request.post('/timetable/notModelCourse', params);
             console.log(result);
             this.submitLoading.timetable = false;
             if(!result) return 0;
@@ -1101,7 +1101,7 @@ export default {
         },
         //获取新增排课填充数据
         async getAddTimeTableFull() {
-            let result = await this.$$request.get('api/timetable/notModelFill');
+            let result = await this.$$request.get('/timetable/notModelFill');
             console.log(result);
             if(!result) return 0;
 
@@ -1110,7 +1110,7 @@ export default {
         //默认获取全部课表
         async getAllTableLists() {
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/notModelList', {select_time: Math.round(this.calendar.time), type: this.tableType});
+            let result = await this.$$request.post('/timetable/notModelList', {select_time: Math.round(this.calendar.time), type: this.tableType});
             console.log(result);
             if(!result) return 0;
 
@@ -1133,7 +1133,7 @@ export default {
             if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/noGradeCourseLists', {
+            let result = await this.$$request.post('/timetable/noGradeCourseLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 course_id: this.timetable_gradeCheck.map(v => {return v.id})
@@ -1147,7 +1147,7 @@ export default {
             if(!this.timetable_teacherCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/noGradeTeacherLists', {
+            let result = await this.$$request.post('/timetable/noGradeTeacherLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 teacher_id: this.timetable_teacherCheck.map(v => {return v.id})
@@ -1161,7 +1161,7 @@ export default {
             if(!this.timetable_roomCheck.length) return this.resultDispose([]);
 
             this.loading = true;
-            let result = await this.$$request.post('api/timetable/noGradeRoomLists', {
+            let result = await this.$$request.post('/timetable/noGradeRoomLists', {
                 select_time: Math.round(this.calendar.time),
                 type: this.tableType,
                 room_id: this.timetable_roomCheck.map(v => {return v.id})

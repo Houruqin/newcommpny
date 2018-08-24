@@ -187,7 +187,7 @@ export default {
       };
       console.log(params);
       this.$$request
-        .get("api/financeManage/studentCourse/quitCourseLists", params)
+        .get("/financeManage/studentCourse/quitCourseLists", params)
         .then(res => {
           this.refund_info.data = res.lists.data;
           this.refund_info.total = res.total;
@@ -205,7 +205,7 @@ export default {
         quit_course_id: obj.id
       };
       this.$$request
-        .get("api/financeManage/quitCourseDetail", params)
+        .get("/financeManage/quitCourseDetail", params)
         .then(res => {
           console.log(res);
           this.dialog.refund.data = res;

@@ -18,13 +18,13 @@
                             <img src="../../images/common/add.png" alt="">
                             <i class="pl-10">添加班级</i>
                         </span>
-                        
+
                         <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
                             <i class="iconfont icon-zhankai"></i>
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="grade-table-box" :ref="'grade-table-content_' + index">
                     <div class="grade-table-content">
                         <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" strip>
@@ -81,7 +81,7 @@
                                                 <!--未开课-->
                                                 <template v-if="scope.row.begin_status == 0">
                                                     <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'">
-                                                        <i class="iconfont" :class="item.icon"></i>                         
+                                                        <i class="iconfont" :class="item.icon"></i>
                                                         <span>{{item.text}}</span>
                                                     </div>
                                                 </template>
@@ -90,16 +90,16 @@
                                                     <!--停课-->
                                                     <template v-if="scope.row.status == -3">
                                                         <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'edit' || item.type == 'delete'">
-                                                            <i class="iconfont" :class="item.icon"></i>                         
+                                                            <i class="iconfont" :class="item.icon"></i>
                                                             <span>{{item.text}}</span>
                                                         </div>
                                                     </template>
 
                                                     <!--结课-->
                                                     <template v-else-if="scope.row.status == -2">
-                                                        <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'" 
+                                                        <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'"
                                                             :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                            <i class="iconfont" :class="item.icon"></i>                         
+                                                            <i class="iconfont" :class="item.icon"></i>
                                                             <span>{{item.text}}</span>
                                                         </div>
                                                     </template>
@@ -108,7 +108,7 @@
                                                     <template v-else>
                                                         <div class="d-f f-j-b" v-if="item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
                                                             :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                            <i class="iconfont" :class="item.icon"></i>    
+                                                            <i class="iconfont" :class="item.icon"></i>
                                                             <span>{{item.text}}</span>
                                                         </div>
                                                     </template>
@@ -202,7 +202,7 @@
                             <el-form-item label="排课次数：" prop="loop_time" v-if="courseType !== 1">
                                 <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
                             </el-form-item>
-                        </el-col>                    
+                        </el-col>
                     </el-row>
 
 
@@ -224,10 +224,10 @@
 
                                                 <el-col :span="12" class="p-r" :offset="1">
                                                     <el-form-item  label-width="0" prop="begin_time" class="p-r">
-                                                        <el-time-select 
+                                                        <el-time-select
                                                             :editable="false"
-                                                            v-model="addDate.begin_time" 
-                                                            :picker-options="timePicker" 
+                                                            v-model="addDate.begin_time"
+                                                            :picker-options="timePicker"
                                                             placeholder="时间">
                                                         </el-time-select>
                                                     </el-form-item>
@@ -311,7 +311,7 @@
                         <template slot-scope="scope">
                             <span v-if="scope.row.conflict_data.reason == 3">
                                 <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
-                            </span> 
+                            </span>
                         </template>
                     </el-table-column>
                     <el-table-column label="解决建议">
@@ -351,8 +351,8 @@ export default {
                 reason2: '教室冲突 请修改时间或教室',
                 reason3: '学员冲突 请修改时间'
             },
-            courseLists: [],  
-            
+            courseLists: [],
+
             conflictLists: [],   //冲突列表
             conflict_room: [],
 
@@ -376,7 +376,7 @@ export default {
 
 
             timetable_studentCheckAll: false,   //添加排课，学员全选状态
-            
+
             studentLists: [],    //添加班级，选择的学员列表
 
             checkStudentForm: [],  //批量排课,需要在form展示的值
@@ -388,10 +388,10 @@ export default {
             operationLists: courseStatic.classRoomStatus,
             timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
             weekList: [
-                {id: 1, name: '周一', day: {}}, 
-                {id: 2, name: '周二', day: {}}, 
-                {id: 3, name: '周三', day: {}}, 
-                {id: 4, name: '周四', day: {}}, 
+                {id: 1, name: '周一', day: {}},
+                {id: 2, name: '周二', day: {}},
+                {id: 3, name: '周三', day: {}},
+                {id: 4, name: '周四', day: {}},
                 {id: 5, name: '周五', day: {}}, {id: 6, name: '周六', day: {}}, {id: 0, name: '周日', day: {}}
             ],
             timetableForm: {
@@ -502,7 +502,7 @@ export default {
     },
     methods: {
         //弹出框关闭事件
-        dialogClose(type) { 
+        dialogClose(type) {
             this.$refs[type].resetFields();
             Object.keys(this.timetableForm).forEach(v => {
                 if(v == 'room_id') this.timetableForm[v] = [];
@@ -624,7 +624,7 @@ export default {
                 });
             }
             this.addStudentDialog = false;
-            
+
         },
         //排课，开课日期改变
         startTimeChange(val) {
@@ -692,7 +692,7 @@ export default {
         addTimetable(option) {
             console.log(option);
             this.courseType = option.course_info.type;
-            
+
             if(option.course_info.type === 1 && !option.grade_info.unscheduled) return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
 
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
@@ -711,13 +711,13 @@ export default {
             if(option.grade_info.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
                 //若开课时间大于五年 则显示当前日期
                 this.timetableForm.start_time = option.grade_info.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? new Date().setHours(0, 0, 0, 0) : option.grade_info.start_time * 1000;
-                
+
                 this.getWeek(this.timetableForm.start_time);
                 this.disableStartTime = this.timetableForm.start_time;
             }else {
                 this.timetableForm.start_time = new Date().setHours(0, 0, 0, 0);
             }
-            
+
             this.dialogStatus.timetable = true;
         },
         //排课弹窗，选择一周某一天
@@ -787,16 +787,16 @@ export default {
             this.getConflictLists(params);
         },
         //判断当前开课日期是不是本周
-        isSameWeek(old){  
-            var oneDayTime = 1000*60*60*24;  
-            var old_count = parseInt(old/oneDayTime);  
-            var now_other = parseInt(new Date().getTime() / oneDayTime);  
-            return parseInt((old_count+4)/7) == parseInt((now_other+4)/7);  
+        isSameWeek(old){
+            var oneDayTime = 1000*60*60*24;
+            var old_count = parseInt(old/oneDayTime);
+            var now_other = parseInt(new Date().getTime() / oneDayTime);
+            return parseInt((old_count+4)/7) == parseInt((now_other+4)/7);
         },
         //批量排课，根据开课日期，重新循环获取周数据
         getNewWeekLists(nowTime, num) {
             let day = new Date(nowTime).getDay();
-            let oneDayLong = 24*60*60*1000; 
+            let oneDayLong = 24*60*60*1000;
             let newTime = num == 0 ? nowTime + (7-day) * oneDayLong : nowTime - (day-num) * oneDayLong;
 
             let newFullDay = this.$$tools.format(newTime / 1000).replace(/\-/g, "/");
@@ -821,7 +821,7 @@ export default {
                 };
                 return item;
             });
-            
+
             lists = lists.concat(this.other_lists);
 
             let params = {lists: lists, commit_type: 'conflict'};
@@ -834,7 +834,7 @@ export default {
             if(this.submitLoading.timetable) return 0;
             this.submitLoading.timetable = true;
 
-            let result = await this.$$request.post('api/timetable/conflictLists', params);
+            let result = await this.$$request.post('/timetable/conflictLists', params);
             this.submitLoading.timetable = false;
             console.log(result);
 
@@ -853,7 +853,7 @@ export default {
                     v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
                     if(v.conflict_data.reason == 2) this.conflict_room = v.conflict_data.data.map(k => {return k.id});
                 });
-                
+
                 this.conflictLists = result.conflict_lists;   //冲突列表
                 this.other_lists = result.lists;    //正常列表
                 this.dialogStatus.conflict = true;
@@ -864,7 +864,7 @@ export default {
             let params = {course_id: course_id};
             if(grade_id) params.grade_id = grade_id;
 
-            let result = await this.$$request.post('api/grade/fill', params);
+            let result = await this.$$request.post('/grade/fill', params);
             console.log(result)
             if(!result) return 0;
             this.classSelectInfo = result.lists;
@@ -904,14 +904,14 @@ export default {
         //改变班级状态 开课/结课/停课
         async submitChangeCourseStatus(option) {
             let params = {id: option.grade_info.id, status: option.type == 'over' ?  -2 : option.type == 'stop' ? -3 : 1};
-            let result = await this.$$request.post('api/grade/changeStatus', params);
+            let result = await this.$$request.post('/grade/changeStatus', params);
             if(!result) return 0;
             this.$message.success('修改状态成功');
-            this.getCourseLists(option.course_info.id); 
+            this.getCourseLists(option.course_info.id);
         },
         //删除班级
         async deleteClassRoom(data) {
-            let result = await this.$$request.post('api/grade/delete', {id: data.id});
+            let result = await this.$$request.post('/grade/delete', {id: data.id});
             if(!result) return 0;
             this.$message.success('已删除');
             this.getCourseLists(data.course_id);
@@ -938,9 +938,9 @@ export default {
         //     if(this.submitLoading.grade) return 0;
         //     this.submitLoading.grade = true;
 
-        //     let url = this.classEdit ? 'api/grade/edit' : 'api/grade/add';
+        //     let url = this.classEdit ? '/grade/edit' : '/grade/add';
         //     let params = {};
-            
+
         //     for(let key in this.classForm) {
         //         if(key == 'teacher_ids' || key == 'counselor_ids') {
         //             params[key] = `,${this.classForm[key]},`;
@@ -948,7 +948,7 @@ export default {
         //             params[key] = this.classForm[key] / 1000;
         //         }else params[key] = this.classForm[key];
         //     };
-            
+
         //     params.students = this.studentLists.map(v => {return {student_id: v.student_id}});
         //     console.log(params)
 
@@ -967,7 +967,7 @@ export default {
         async getCourseLists(course_id) {
             let active = '';
 
-            let result = await this.$$request.post('api/course/lists');
+            let result = await this.$$request.post('/course/lists');
             console.log(result);
             if(!result) return 0;
             result.lists.forEach((d, num) => {
@@ -978,7 +978,7 @@ export default {
                 }else d.collapse = false;
 
                 d.class_lists.forEach(v => {
-                    // v.operationStatus = false; 
+                    // v.operationStatus = false;
                     v.gradeStatus = this.gradeStatus(v)
                 });
             });
@@ -993,7 +993,7 @@ export default {
         },
         //周数据做处理
         getWeek(time) {
-            let now = new Date(), nowTime, day; 
+            let now = new Date(), nowTime, day;
 
             if(time) {
                 nowTime = time;
@@ -1003,17 +1003,17 @@ export default {
                 day = now.getDay();
             }
 
-            let oneDayLong = 24*60*60*1000 ; 
+            let oneDayLong = 24*60*60*1000 ;
 
             this.weekList.forEach(d => {
                 let num = d.id, newTime;
-                
+
                 let day_a = day == 0 ? 7 : day;
 
                 newTime = num == 0 ? nowTime + (7-day_a) * oneDayLong : nowTime - (day_a-num) * oneDayLong;
-                
+
                 let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
-                
+
                 let newFullDay = this.$$tools.format(newTime / 1000);
 
                 d.day = {
@@ -1080,7 +1080,7 @@ export default {
         }
         .grade-table-box {
             height: 0;
-            position: relative;  
+            position: relative;
             overflow: hidden;
             -webkit-transition:  height 300ms;
             transition:  height 300ms;
@@ -1204,7 +1204,7 @@ export default {
             background-color: #EEEEEE !important;
         }
     }
-    
+
     .operation-lists {
         width: 110px;
         /deep/ .el-dropdown-menu__item {

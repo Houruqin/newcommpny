@@ -98,8 +98,8 @@
                                 </el-form-item>
 
                                 <el-form-item  label-width="0" prop="begin_time" class="begin-day-time ml-10">
-                                    <el-time-select 
-                                        :editable="false" v-model="timetableForm.begin_time" 
+                                    <el-time-select
+                                        :editable="false" v-model="timetableForm.begin_time"
                                         :picker-options="timePicker" placeholder="时间">
                                     </el-time-select>
                                 </el-form-item>
@@ -153,7 +153,7 @@
                         <template slot-scope="scope">
                             <span v-if="scope.row.conflict_data.reason == 3">
                                 <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
-                            </span> 
+                            </span>
                         </template>
                     </el-table-column>
                     <el-table-column label="解决建议">
@@ -261,7 +261,7 @@ export default {
         async getCourseLists(course_id) {
             let active = '';
 
-            let result = await this.$$request.post('api/course/orderLists');
+            let result = await this.$$request.post('/course/orderLists');
             console.log(result);
             if(!result) return 0;
 
@@ -346,7 +346,7 @@ export default {
             params.end_time = params.begin_time + this.timetableForm.lesson_time * 60 ;
 
             this.getConflictLists(params);
-            // let result = await this.$$request.post('api/timetable/order', params);
+            // let result = await this.$$request.post('/timetable/order', params);
             // console.log(result);
 
             // if(!result) return 0;
@@ -387,7 +387,7 @@ export default {
         async getConflictLists(params) {
             console.log(params);
 
-            let result = await this.$$request.post('api/timetable/notModelCourse', params);
+            let result = await this.$$request.post('/timetable/notModelCourse', params);
             this.submitLoading.timetable = false;
             if(!result) return 0;
 
@@ -427,7 +427,7 @@ export default {
         },
         //获取编辑老师列表
         async getEditTeacherLists(id) {
-            let result = await this.$$request.post('api/course/orderTeachers', {course_id: id});
+            let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
             console.log(result);
             if(!result) return 0;
             this.editTeacherLists = result.teachers;
@@ -444,7 +444,7 @@ export default {
             if(this.submitLoading.edit) return 0;
             this.submitLoading.edit = true;
 
-            let result = await this.$$request.post('api/course/changeTeacher', {
+            let result = await this.$$request.post('/course/changeTeacher', {
                 id: this.teacherForm.old_teacher_id,
                 course_id: this.teacherForm.course_id,
                 teacher_id: this.teacherForm.techer_id,
@@ -487,7 +487,7 @@ export default {
         }
         .grade-table-box {
             height: 0;
-            position: relative;  
+            position: relative;
             overflow: hidden;
             -webkit-transition:  height 300ms;
             transition:  height 300ms;

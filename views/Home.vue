@@ -17,7 +17,7 @@
                                     <el-scrollbar style="height: 100%;">
                                         <el-dropdown-item
                                             :title="item.name"
-                                            v-for="(item, index) in schoolLists" 
+                                            v-for="(item, index) in schoolLists"
                                             :command="item.id" :key="index" :class="{'active': item.id == schoolId}">
                                             <div class="t-o-e">{{item.name}}</div>
                                         </el-dropdown-item>
@@ -57,7 +57,7 @@
                                     <i class="iconfont icon-weixingongzhonghao fc-9"></i>
                                     <span class="pl-10">微信公众号</span>
                                     <div class="p-a qr-code" v-show="qr_code_show">
-                                        <img src="http://saas.jiaoyf.com/api/wechat/common/qrcode" alt="">
+                                        <img src="http://saas.jiaoyf.com/wechat/common/qrcode" alt="">
                                     </div>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -201,20 +201,20 @@
         </el-dialog>
 
         <!-- 登记学员弹窗 -->
-        <AddStudentDialog  :dialogStatus="dialogStatus.student" 
+        <AddStudentDialog  :dialogStatus="dialogStatus.student"
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
-        
+
         <!-- 购买课程弹窗 -->
         <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
             @CB-contract="CB_contract">
         </BuyCourseDialog> -->
-        
+
         <!-- 购课合约弹窗 -->
         <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
 
         <!-- 添加、修改课程弹窗 -->
-        <AddCourseDialog :dialogStatus="dialogStatus.addCourse" 
+        <AddCourseDialog :dialogStatus="dialogStatus.addCourse"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
@@ -223,10 +223,10 @@
             <div class="form-box" v-loading="loading">
                <el-row type="flex" justify="center">
                     <el-col :span="10">
-                        <el-date-picker size="small" 
-                            v-model="auditionData.time" type="date" 
-                            value-format="timestamp" :clearable="false" 
-                            :editable="false" placeholder="选择日期" 
+                        <el-date-picker size="small"
+                            v-model="auditionData.time" type="date"
+                            value-format="timestamp" :clearable="false"
+                            :editable="false" placeholder="选择日期"
                             @change="listenDateChange"
                             :picker-options="pickListenDisable">
                         </el-date-picker>
@@ -295,7 +295,7 @@
                         </template>
                     </el-table-column>
                 </el-table>
-                
+
                 <div class="d-f f-j-c mt-20">
                     <MyButton class="mt-20" @click.native="listenStudentDone" :type="checkListenStudent.length ? 'main' : 'gray'" :loading="submitLoading">确定</MyButton>
                 </div>
@@ -349,7 +349,7 @@ export default {
 
             role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
             memberInfo: {},
-            
+
             modalObj: null,   //遮罩层modal
             guideSetup: 0,   //引导页步骤
             guideData: [
@@ -368,7 +368,7 @@ export default {
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
-                    return time.getTime() < new Date().setHours(0, 0, 0, 0);    
+                    return time.getTime() < new Date().setHours(0, 0, 0, 0);
                 }
             },
             page_info: {
@@ -397,7 +397,7 @@ export default {
                 search_data : this.search_student_info,
                 page: this.page_info.current_page
             }
-            this.$$request.post('api/student/studentSearch',params)
+            this.$$request.post('/student/studentSearch',params)
             .then(res => {
                 this.loading = false;
                 if(res.lists.data.length < 1) {
@@ -412,17 +412,17 @@ export default {
         },
         speedyChange(val) {
             switch(val) {
-                case 'addStudent':                   
+                case 'addStudent':
                     this.dialogStatus.student = true;
                     break;
                 case 'importStudent':
                     this.$router.push({path: '/student/importstudent'});
                     break;
                 case 'addCourse':
-                    this.dialogStatus.addCourse = true; 
+                    this.dialogStatus.addCourse = true;
                     break;
                 case 'addListen':
-                    this.dialogStatus.listen = true; 
+                    this.dialogStatus.listen = true;
                     this.getListenLists();
                     break;
                 case 'notice':
@@ -445,7 +445,7 @@ export default {
             // this.buyCourseData = data;
             // this.dialogStatus.student = false;
             // this.dialogStatus.course = true;
-            
+
             let params = {
                 student_id: data.id,
                 advisor_id: data.advisor_id,
@@ -513,20 +513,20 @@ export default {
         },
         //试听学员确定
         async listenStudentDone() {
-            
+
             if(!this.checkListenStudent.length) return this.$message.warning('请选择试听学员');
 
             if(this.submitLoading) return 0;
             this.submitLoading = true;
 
-            let result = await this.$$request.post('api/listenCourse/add', {
+            let result = await this.$$request.post('/listenCourse/add', {
                 timetable_id: this.listenTimetableId,
                 student_id: this.checkListenStudent
             });
             this.submitLoading = false;
             console.log(result);
             if(!result) return 0;
-            
+
             this.dialogStatus.listen = false;
             this.dialogStatus.listenStudent = false;
 
@@ -537,7 +537,7 @@ export default {
             this.loading = true;
             let old_time = Math.round(this.auditionData.time / 1000);
 
-            let result = await this.$$request.post('api/listenCourse/fill', {start_time: old_time});
+            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
             console.log(result);
             if(!result) return 0;
             this.auditionData.teacher_lists = result.teacher;
@@ -554,24 +554,24 @@ export default {
                 course_id: this.auditionData.course_id
             };
 
-            let result = await this.$$request.post('api/listenCourse/lists', {data: params});
+            let result = await this.$$request.post('/listenCourse/lists', {data: params});
             this.loading = false;
             console.log(result);
             if(!result) return 0;
-            
+
             this.listenCourseLists = result.lists;
         },
         //获取试听学员列表
         async getListenStudentLists() {
-            let result = await this.$$request.get('api/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
+            let result = await this.$$request.get('/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
             this.loading = false;
             console.log(result);
             if(!result) return 0;
-            
+
             result.lists.forEach(v => {v.active = false});
             this.listenStudentLists = result.lists;   //原始数据
             this.listenStudentFilterLists = this.listenStudentFilter();
-            
+
         },
         //试听学员列表搜索搜索筛选方法
         listenStudentFilter(text) {
@@ -611,7 +611,7 @@ export default {
         },
         //退出登录
         async loginOut() {
-            let result = await this.$$request.post('api/auth/logout');
+            let result = await this.$$request.post('/auth/logout');
             console.log(result);
             if(!result) return 0;
             this.$$cache.loginOut();
@@ -619,7 +619,7 @@ export default {
         },
         //获取校区列表
         async getSchoolLists() {
-            let result = await this.$$request.post('api/user/schoolLists');
+            let result = await this.$$request.post('/user/schoolLists');
             console.log(result)
             if(!result) return 0;
             this.schoolLists = result.lists;
@@ -630,7 +630,7 @@ export default {
         },
         //切换校区，切换登录
         async loginCheckOut(school_id) {
-            let result = await this.$$request.post('api/auth/checkLogin', {school_id: school_id});
+            let result = await this.$$request.post('/auth/checkLogin', {school_id: school_id});
             console.log(result);
             if(!result) return 0;
             this.schoolId = school_id;
@@ -839,8 +839,8 @@ export default {
                     height: 0;
                     top: 5px;
                     margin-left: 5px;
-                    border-left: 6px solid transparent; 
-                    border-right: 6px solid transparent; 
+                    border-left: 6px solid transparent;
+                    border-right: 6px solid transparent;
                     border-top: 10px solid #9B9B9B;
                     -webkit-transition: transform 300ms;
                     transition: transform 300ms;
@@ -856,7 +856,7 @@ export default {
         .home-main-box {
             padding: 0 20px 20px;
         }
-    }   
+    }
     .guide-box {
         position: fixed;
         z-index: 6000;
@@ -1005,7 +1005,7 @@ export default {
             height: 120px;
         }
     }
-    
+
     .search-input {
         width: 200px;
     }

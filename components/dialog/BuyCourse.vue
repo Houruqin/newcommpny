@@ -187,7 +187,7 @@ export default {
                 given_num: '',  //赠送课时
                 lesson_num_already: '',  //已扣课时数
                 expire: '',   //有效期
-                leave_num: '',   //请假次数 
+                leave_num: '',   //请假次数
                 pay_at: '',   //购课日期
                 pay_way: '',   //付款方式
                 unit_price: '',   //课时单价
@@ -257,7 +257,7 @@ export default {
         //根据school_id获取课程列表
         async getCourseLists(id) {
             if(!id) return 0;
-            let result = await this.$$request.post('api/studentCourse/lists', {student_id: id});
+            let result = await this.$$request.post('/studentCourse/lists', {student_id: id});
             console.log(result);
             if(!result) return 0;
             this.courseLists = result.lists;
@@ -271,13 +271,13 @@ export default {
         },
         getGradeLists(val, change) {
             this.courseLists.forEach(v => {
-                if(v.id == val) {   
+                if(v.id == val) {
                     console.log(v);
                     this.courseForm.expire = v.expire;
                     this.courseForm.is_order = v.is_order;
                     this.gradeLists = v.grades;
                     this.buyCourse_type = v.class_pattern;
-                
+
                     if(change) {
                         if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
                         else this.courseForm.teacher_id = '';
@@ -297,7 +297,7 @@ export default {
 
             if(this.submitLoading) return 0;
             this.submitLoading = true;
-            
+
             let params = {};
 
             console.log(this.courseForm);
@@ -307,12 +307,12 @@ export default {
                 else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
                 else if(key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') params[key] = this.courseForm[key];
             };
-            
+
             params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
 
             console.log(params);
 
-            let result = await this.$$request.post('api/studentCourse/add', params);
+            let result = await this.$$request.post('/studentCourse/add', params);
             this.submitLoading = false;
             console.log(result);
             if(!result) return 0;

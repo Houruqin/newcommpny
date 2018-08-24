@@ -6,15 +6,15 @@
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
-                        <el-date-picker size="small" :editable="false" :clearable="false" 
-                            @change="dateChange" v-model="searchFilter.begin_time" 
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilter.begin_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
-                        <el-date-picker size="small" :editable="false" :clearable="false" 
-                            @change="dateChange" v-model="searchFilter.end_time" 
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilter.end_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
@@ -61,11 +61,11 @@
             </el-table>
 
             <el-pagination v-if="borrowTable.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="borrowTable.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="borrowTable.total" 
-                :current-page="borrowTable.current_page" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="borrowTable.per_page"
+                background layout="total, prev, pager, next"
+                :total="borrowTable.total"
+                :current-page="borrowTable.current_page"
                 @current-change="paginationClick">
             </el-pagination>
         </el-card>
@@ -149,7 +149,7 @@ export default {
                 remark: this.backForm.explain
             };
 
-            let result = await this.$$request.post('api/repertory/returns', params);
+            let result = await this.$$request.post('/repertory/returns', params);
             console.log(result);
             if(!result) return 0;
 
@@ -174,7 +174,7 @@ export default {
 
             if(page) params.page = page;
 
-            let result = await this.$$request.get('api/repertory/borrowRecords', params);
+            let result = await this.$$request.get('/repertory/borrowRecords', params);
             console.log(result);
             if(!result) return 0;
 
