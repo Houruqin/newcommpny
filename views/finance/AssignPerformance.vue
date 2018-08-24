@@ -292,7 +292,7 @@ export default {
       };
       console.log(params);
       this.$$request
-        .get("api/financeManage/achievement/lists", params)
+        .get("/financeManage/achievement/lists", params)
         .then(res => {
           this.assign_info.data = res.lists.data;
           this.page_info.total = res.lists.total;
@@ -301,7 +301,7 @@ export default {
     },
     //获取全部员工+学员信息
     get_all_user() {
-      this.$$request.get("api/financeManage/allUser").then(res => {
+      this.$$request.get("/financeManage/allUser").then(res => {
         this.all_user = res.users;
       });
     },
@@ -335,7 +335,7 @@ export default {
         student_course_id: item.student_course_id
       };
       this.$$request
-        .get("api/financeManage/achievement/singleLists", params)
+        .get("/financeManage/achievement/singleLists", params)
         .then(res => {
           this.dialog.performance.members = res.lists;
           this.dialog.performance.data = {
@@ -369,7 +369,7 @@ export default {
             return false;
           }
           let result = await this.$$request.post(
-            "api/financeManage/achievement/allot",
+            "/financeManage/achievement/allot",
             params
           );
 

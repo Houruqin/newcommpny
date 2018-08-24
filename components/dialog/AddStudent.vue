@@ -70,7 +70,7 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-                
+
                 <el-row class="mt-10">
                     <el-form-item label="备注：" class="textarea-cls pr-30" prop="remark">
                         <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
@@ -189,7 +189,7 @@ export default {
                     {max: 50, message: '长度不能超过50个字符'}
                 ]
             },
-            sourceRules: {  
+            sourceRules: {
                 name: [
                     {required: true, message: '请输入渠道'},
                     {max: 20, message: '长度不能超过20个字符'}
@@ -226,7 +226,7 @@ export default {
             if(this.submitLoading.student) return 0;
             this.submitLoading.student = true;
 
-            let params = {}, url = 'api/student/add';
+            let params = {}, url = '/student/add';
             for(let key in this.studentForm) {
                 if(key == 'birthday') {
                     params[key] = this.studentForm[key] / 1000;
@@ -234,12 +234,12 @@ export default {
             };
 
             if(this.studentType == 'edit') {
-                params.id = this.studentForm.id; 
-                url = 'api/student/edit';
+                params.id = this.studentForm.id;
+                url = '/student/edit';
             }
-            
+
             console.log(params);
-            
+
             let result = await this.$$request.post(url, params);
             console.log(result);
             if(!result) return this.submitLoading.student = false;
@@ -271,19 +271,19 @@ export default {
             if(this.submitLoading.source) return 0;
             this.submitLoading.source = true;
 
-            let result = await this.$$request.post('api/source/add', this.sourceForm);
+            let result = await this.$$request.post('/source/add', this.sourceForm);
             this.submitLoading.source = false;
             console.log(result);
 
             if(!result) return 0;
-            
+
             this.$store.dispatch('getSource');   //更新渠道信息
             this.sourceDialogStatus = false;
             this.studentForm.source_id = result.data.id;
-        }, 
+        },
         //登记学员重复手机号码，处理方法
         async studentRepeat(params) {
-            let result = await this.$$request.post('api/student/add', {...params, parent_this: 'yes'});
+            let result = await this.$$request.post('/student/add', {...params, parent_this: 'yes'});
             this.submitLoading.student = false;
             console.log(result)
             if(!result) return 0;

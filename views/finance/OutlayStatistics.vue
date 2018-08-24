@@ -326,7 +326,7 @@ export default {
         page_num: this.page_info.page_num
       };
       console.log(params);
-      this.$$request.get("api/financeManage/expend/lists", params).then(res => {
+      this.$$request.get("/financeManage/expend/lists", params).then(res => {
         this.outlay_info.data = res.expendRecords.data;
         this.outlay_info.total = res.total;
         this.page_info.total = res.expendRecords.total;
@@ -335,7 +335,7 @@ export default {
     },
     //获取支出类型
     async get_outlay_type() {
-      await this.$$request.get("api/financeManage/expendType/lists").then(res => {
+      await this.$$request.get("/financeManage/expendType/lists").then(res => {
         this.dialog.add.data.type_lists = res.expendTypes;
       });
     },
@@ -348,7 +348,7 @@ export default {
               name: this.dialog.addType.type
             };
             let result = await this.$$request.post(
-              "api/financeManage/expendType/add",
+              "/financeManage/expendType/add",
               params
             );
             if (!result) return false;
@@ -364,7 +364,7 @@ export default {
               name: this.dialog.addType.type
             };
             let result = await this.$$request.post(
-              "api/financeManage/expendType/edit",
+              "/financeManage/expendType/edit",
               params
             );
             if (!result) return false;
@@ -385,7 +385,7 @@ export default {
     //查看合约详情
     show_contract(id) {
       this.$$request
-        .get("api/studentCourse/detail", { sc_id: id })
+        .get("/studentCourse/detail", { sc_id: id })
         .then(res => {
           this.dialog.contract.data = res.data;
           this.dialog.contract.show = true;
@@ -426,7 +426,7 @@ export default {
         remark: this.dialog.add.data.remark
       };
       let result = await this.$$request.post(
-        "api/financeManage/expend/add",
+        "/financeManage/expend/add",
         params
       );
       if (!result) return false;
@@ -461,7 +461,7 @@ export default {
         type: "warning"
       }).then(async () => {
         let result = await this.$$request.post(
-          "api/financeManage/expendType/set",
+          "/financeManage/expendType/set",
           params
         );
         if (!result) return false;

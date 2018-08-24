@@ -8,8 +8,8 @@
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
             <div class="fifter-toolbar mt-30">
-                <ul class="d-f">                   
-                    <li v-if="activeTab !== 'birthday'">    
+                <ul class="d-f">
+                    <li v-if="activeTab !== 'birthday'">
                         <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
                             <el-option label="全部课程" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
@@ -68,7 +68,7 @@
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
                             <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c"> 
+                            <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
                                         <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
@@ -91,7 +91,7 @@
                             </ul>
                         </template>
                     </el-table-column>
-                    
+
                     <el-table-column label="剩余课时" class-name="table-item" align="center">
                         <template slot-scope="scope">
                             <ul class="table-item-list">
@@ -130,7 +130,7 @@
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
                             <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c"> 
+                            <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
                                         <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
@@ -176,7 +176,7 @@
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
                             <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c"> 
+                            <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
                                         <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
@@ -227,7 +227,7 @@
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
                             <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c"> 
+                            <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
                                         <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
@@ -287,7 +287,7 @@
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
                             <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c"> 
+                            <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
                                         <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
@@ -328,11 +328,11 @@
                 </el-table>
             </div>
             <el-pagination v-if="studentTable.total"
-                class="d-f f-j-c mt-50 mb-20" 
-                :page-size="studentTable.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="studentTable.total" 
-                :current-page.sync="studentTable.current_page" 
+                class="d-f f-j-c mt-50 mb-20"
+                :page-size="studentTable.per_page"
+                background layout="total, prev, pager, next"
+                :total="studentTable.total"
+                :current-page.sync="studentTable.current_page"
                 @current-change="paginationClick"
                 @next-click="nextClick"
                 @prev-click="prevClick"
@@ -438,16 +438,16 @@ export default {
             },
 
             listStudentId: '',
-            
+
             monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
 
             svg_src: null,
             searchKeyWord: '',
-            classRoomInfo: {course_name: '', sc_id: '', classLists: []},  //分班，班级列表 
+            classRoomInfo: {course_name: '', sc_id: '', classLists: []},  //分班，班级列表
             divideClassRadio: '',
             tabLists: [],
             loading: true,
-            studentTable: {},  //学员table列表  
+            studentTable: {},  //学员table列表
             studentMaskStatus: false,   //编辑学员信息弹窗
             classMaskStatus: false,   //分班弹窗
             searchFilter: {  //学员搜索筛选条件
@@ -500,7 +500,7 @@ export default {
         tabClick(tab) {
             this.searchKeyWord = '';
 
-            if(tab.type != this.activeTab) { 
+            if(tab.type != this.activeTab) {
                 this.loading = true;
                 for(let key in this.searchFilter) if(key != 'month') this.searchFilter[key] = '';
                 this.activeTab = tab.type;
@@ -514,27 +514,27 @@ export default {
         //table列表合并单元格
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
             if(this.activeTab === 'absent') return 0;
-            if (!this.now_col_row_num[column.property]) {  
-                this.now_col_row_num[column.property] = Object.assign([], this.column_row_offset[column.property]);  
-                let a = this.now_col_row_num[column.property].shift();  
+            if (!this.now_col_row_num[column.property]) {
+                this.now_col_row_num[column.property] = Object.assign([], this.column_row_offset[column.property]);
+                let a = this.now_col_row_num[column.property].shift();
                 this.now_col_offset[column.property] = a;
-                return {  
-                    rowspan: a,  
-                    colspan: 1  
-                };  
-            } else if (rowIndex >= this.now_col_offset[column.property]) {  
-                let a = this.now_col_row_num[column.property].shift();  
-                this.now_col_offset[column.property] += a;  
-                return {  
-                    rowspan: a,  
-                    colspan: 1  
-                };  
-            } else {  
-                return {  
-                    rowspan: 0,  
-                    colspan: 0  
-                };  
-            } 
+                return {
+                    rowspan: a,
+                    colspan: 1
+                };
+            } else if (rowIndex >= this.now_col_offset[column.property]) {
+                let a = this.now_col_row_num[column.property].shift();
+                this.now_col_offset[column.property] += a;
+                return {
+                    rowspan: a,
+                    colspan: 1
+                };
+            } else {
+                return {
+                    rowspan: 0,
+                    colspan: 0
+                };
+            }
         },
         //关闭弹窗
         dialogClose(form) {
@@ -559,7 +559,7 @@ export default {
             }).catch(() => {return 0});
         },
         async grantGiftHandle(id) {
-            let result = await this.$$request.post('api/sign/gift', {student_id: id});
+            let result = await this.$$request.post('/sign/gift', {student_id: id});
             console.log(result);
 
             if(!result) return 0;
@@ -575,7 +575,7 @@ export default {
                 else if(v == 'birthday') this.studentForm[v] = data.birthday > 0 ? data.birthday  * 1000 : '';
                 else this.studentForm[v] = data[v];
             });
-            
+
             this.studentMaskStatus = true;
         },
         //分班按钮点击
@@ -592,7 +592,7 @@ export default {
         },
         //列表顾问选择
         async listAdvisorChange(val) {
-            let result = await this.$$request.post('api/student/distribute', {student_id: this.listStudentId, advisor_id: val});
+            let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
             this.getTabLists();
@@ -613,7 +613,7 @@ export default {
             }).catch(() => {return 0});
         },
         async lossHandle(id) {
-            let result = await this.$$request.post('api/sign/setLoss', {student_id: id});
+            let result = await this.$$request.post('/sign/setLoss', {student_id: id});
             console.log(result);
 
             if(!result) return 0;
@@ -631,7 +631,7 @@ export default {
             }).catch(() => {return 0});
         },
         async deleteHandle(id) {
-            let result = await this.$$request.post('api/sign/delete', {student_id: id});
+            let result = await this.$$request.post('/sign/delete', {student_id: id});
             if(!result) return 0;
             this.$message.success('已删除');
             this.getTabLists();
@@ -659,7 +659,7 @@ export default {
                 params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
             };
 
-            let result = await this.$$request.post('api/sign/edit', params);
+            let result = await this.$$request.post('/sign/edit', params);
             setTimeout(d => {this.submitLoading.student = false}, 500);
             console.log(result);
             if(!result) return 0;
@@ -678,7 +678,7 @@ export default {
                 grade_id: this.divideClassRadio,
                 student_id: this.classRoomInfo.student_id
             }
-            let result = await this.$$request.post('api/studentGrade/add', params);
+            let result = await this.$$request.post('/studentGrade/add', params);
             this.submitLoading.divideClass = false;
             if(!result) return 0;
             this.$message.success('分班成功');
@@ -686,7 +686,7 @@ export default {
         },
         //获取tab列表
         async getTabLists() {
-            let result = await this.$$request.post('api/sign/tab');
+            let result = await this.$$request.post('/sign/tab');
             console.log(result);
             if(!result) return 0;
 
@@ -702,7 +702,7 @@ export default {
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(id) {
-            let result = await this.$$request.post('api/sign/gradeLists', {id: id});
+            let result = await this.$$request.post('/sign/gradeLists', {id: id});
             console.log(result);
             if(!result) return 0;
             this.classRoomInfo.courseLists = result.lists;
@@ -713,7 +713,7 @@ export default {
         async getStudentLists(currentPage) {
             this.loading = true;
 
-            let params = {};           
+            let params = {};
 
             if(this.searchKeyWord) {
                 if(isNaN(this.searchKeyWord)) {
@@ -727,7 +727,7 @@ export default {
                 params.mobile = '';
                 params.name = '';
             }
-            
+
             if(this.activeTab === 'birthday') {
                 params.gift_status = this.searchFilter.gift_status;
                 params.month = this.searchFilter.month;
@@ -741,16 +741,16 @@ export default {
                 else if(this.activeTab === 'absent') params.what_time = this.searchFilter.absent_what_time;
 
             }
-            
+
             let newParams = {data: params};
 
             if(currentPage) newParams.page = currentPage;
 
             console.log(newParams);
 
-            let result = await this.$$request.post(`api/sign/${this.activeTab}`, newParams);
+            let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
             if(!result) return 0;
-            
+
             console.log(result)
 
             result.lists.data = this.mergeHandle(result.lists.data);
@@ -800,7 +800,7 @@ export default {
             };
 
             if(this.activeTab === 'birthday') return data;
-            
+
             return dest;
         }
     },
@@ -812,7 +812,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
-        if(from.name == 'signedDetail') to.meta.keepAlive = true; 
+        if(from.name == 'signedDetail') to.meta.keepAlive = true;
         else to.meta.keepAlive = false;
         next();   //来到页面，包括通过返回
     },
@@ -895,7 +895,7 @@ export default {
         border-collapse: collapse;
     }
     .ground-route-table td{
-        border: 1px solid #dfe6ec;    
+        border: 1px solid #dfe6ec;
     }
 
 </style>

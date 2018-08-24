@@ -6,15 +6,15 @@
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
-                        <el-date-picker size="small" :editable="false" :clearable="false" 
-                            @change="dateChange" v-model="searchFilter.begin_time" 
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilter.begin_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
-                        <el-date-picker size="small" :editable="false" :clearable="false" 
-                            @change="dateChange" v-model="searchFilter.end_time" 
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilter.end_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
@@ -31,7 +31,7 @@
                             <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li class="ml-20">    
+                    <li class="ml-20">
                         <el-select size="small" placeholder="全部使用类型" v-model="searchFilter.use_type" @change="searchHandle">
                             <el-option label="全部使用类型" value=""></el-option>
                             <el-option label="内部使用" :value="1"></el-option>
@@ -64,11 +64,11 @@
             </el-table>
 
             <el-pagination v-if="storageTable.total"
-                class="d-f f-j-c mt-50 mb-50" 
-                :page-size="storageTable.per_page" 
-                background layout="total, prev, pager, next" 
-                :total="storageTable.total" 
-                :current-page="storageTable.current_page" 
+                class="d-f f-j-c mt-50 mb-50"
+                :page-size="storageTable.per_page"
+                background layout="total, prev, pager, next"
+                :total="storageTable.total"
+                :current-page="storageTable.current_page"
                 @current-change="paginationClick">
             </el-pagination>
         </el-card>
@@ -83,7 +83,7 @@ export default {
     data() {
         return {
             loading: false,
-            storageLists: [],   
+            storageLists: [],
             dialogStatus: {addStorage: false},
             searchFilter: {
                 begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
@@ -124,7 +124,7 @@ export default {
 
             if(page) params.page = page;
 
-            let result = await this.$$request.get('api/repertory/storageLists', params);
+            let result = await this.$$request.get('/repertory/storageLists', params);
             console.log(result);
 
             if(!result) return 0;
@@ -133,7 +133,7 @@ export default {
         },
         //获取物品类型列表
         async getCommodityTypeLists() {
-            let result = await this.$$request.get('api/goodsType/goodsTypeLists');
+            let result = await this.$$request.get('/goodsType/goodsTypeLists');
             console.log(result);
             if(!result) return 0;
 

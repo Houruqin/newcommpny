@@ -412,7 +412,7 @@ export default {
         page_num: this.page_info.page_num
       };
       this.$$request
-        .post("api/eduCount/classEliminationLists", params)
+        .post("/eduCount/classEliminationLists", params)
         .then(res => {
           let data = res.lists.data;
           let data_map = new Map();
@@ -457,7 +457,7 @@ export default {
         page_num: this.page_info.page_num
       };
       this.$$request
-        .post("api/leaveTicket/processedLists", params)
+        .post("/leaveTicket/processedLists", params)
         .then(res => {
           this.leave_info.data = res.lists.data;
           this.page_info.total = res.lists.total;
@@ -476,7 +476,7 @@ export default {
         },
         page: this.page_info.page
       };
-      this.$$request.post("api/sign/absent", params).then(res => {
+      this.$$request.post("/sign/absent", params).then(res => {
         this.absenteeism_info.data = res.lists.data;
         this.page_info.total = res.lists.total;
       });
@@ -491,7 +491,7 @@ export default {
         course_id: this.dialog.c_record.course_id,
         type: this.dialog.c_record.type
       }
-      this.$$request.post('api/eduCount/studentClassEliminationLists',params)
+      this.$$request.post('/eduCount/studentClassEliminationLists',params)
       .then(res => {
         console.log(res)
         this.dialog.c_record.data = res.lists.data;

@@ -5,7 +5,7 @@
   "author": "tushen <tushen_kun@163.com>",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --color -d --watch --env local",
+    "start": "webpack-dev-server --color -d --watch --inline --hot --env local",
     "dev": "webpack -p --color --env dev",
     "dev-pre": "webpack -p --color --env dev-pre",
     "dev-test": "webpack -p --color --env dev-test",

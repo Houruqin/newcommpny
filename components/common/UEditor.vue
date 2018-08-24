@@ -33,7 +33,7 @@ export default {
     this.ue = UE.getEditor("container", {
       BaseUrl: "",
       UEDITOR_HOME_URL: "static/UE/",
-    //   serverUrl: "api/ueditor/server"
+    //   serverUrl: "/ueditor/server"
     });
   },
   //编辑器实例只渲染一次 路由跳转后回到该页面编辑器内容显示空白  所以必须在组件销毁前销毁编辑器实例
