@@ -701,7 +701,6 @@ import jquery from 'jquery'
             }).on('click', '[' + ITEM_MONTH + ']', function() {
                 var y = Number(_this.$disMonth.html()),
                     m = parseInt(this.innerHTML);
-
                 _this.updateDateView(y, m);
                 vc('date', y, m);
                 _this.options.onSelected.call(this, 'month', new Date(y, m - 1));

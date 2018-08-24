@@ -3,6 +3,7 @@
         <el-card shadow="hover">
             <TableHeader title="有班课表">
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
+                <MyButton @click.native="setNewDate">测试</MyButton>
             </TableHeader>
 
             <div class="content-box">
@@ -87,9 +88,10 @@
                     <div>
                         <i class="iconfont icon-icon--left fc-m cursor-pointer" @click="lastWeekLists"></i>
                         <el-popover placement="bottom" width="260" trigger="click" ref="calendarPopover" popper-class="calendar-popover">
-                            <span slot="reference" class="cursor-pointer ml-5 mr-5">
+                            <span slot="reference" class="cursor-pointer ml-5 mr-5" v-if="tableType == 'week'">
                                 {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
                             </span>
+                            <span v-if="tableType == 'day'" slot="reference">{{$$tools.format(todayDate / 1000)}}</span>
                             <div id="myCalendar"></div>
                         </el-popover>
                         <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
@@ -512,6 +514,9 @@ export default {
                 {id: 'room', name: '教室'}
             ],
 
+            CalendatObj: null,
+            todayDate: new Date().getTime(),
+
             submitLoading: {timetable: false},
 
             nowTime: new Date().getTime(),//时间选择器，选中的当天日期
@@ -635,6 +640,16 @@ export default {
         }
     },
     methods: {
+        setNewDate() {
+            this.todayDate = this.todayDate + 60*60*24*1000;
+            let now = new Date(this.todayDate);
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            let day = now.getDate();
+
+            this.CalendatObj.data('calendar').updateDateView(year, month);
+            this.CalendatObj.data('calendar').selectedDay(day);
+        },
         tableHeader(elem, {column, $index}) {
             let weekList = this.defaultWeekList;
             return elem('div', {'class': 'header-box'}, [
@@ -1376,7 +1391,7 @@ export default {
         }
     },
     mounted() {
-        Jquery('#myCalendar').calendar({
+        this.CalendatObj = Jquery('#myCalendar').calendar({
             width: 260,
             height: 280,
             customClass: 'my-calender',

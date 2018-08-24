@@ -144,7 +144,7 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <div v-if="scope.row.unscheduled > 0">
+                                <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
                                         <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
