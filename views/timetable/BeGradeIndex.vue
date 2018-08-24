@@ -3,7 +3,6 @@
         <el-card shadow="hover">
             <TableHeader title="有班课表">
                 <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
-                <MyButton @click.native="setNewDate">测试</MyButton>
             </TableHeader>
 
             <div class="content-box">
@@ -88,10 +87,10 @@
                     <div>
                         <i class="iconfont icon-icon--left fc-m cursor-pointer" @click="lastWeekLists"></i>
                         <el-popover placement="bottom" width="260" trigger="click" ref="calendarPopover" popper-class="calendar-popover">
-                            <span slot="reference" class="cursor-pointer ml-5 mr-5" v-if="tableType == 'week'">
+                            <span slot="reference" class="cursor-pointer ml-5 mr-5 transition-box">
                                 {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
                             </span>
-                            <span v-if="tableType == 'day'" slot="reference">{{$$tools.format(todayDate / 1000)}}</span>
+                            <!-- <span v-if="tableType == 'day'" slot="reference" class="transition-box">{{$$tools.format(calendar.time)}}</span> -->
                             <div id="myCalendar"></div>
                         </el-popover>
                         <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
@@ -515,7 +514,6 @@ export default {
             ],
 
             CalendatObj: null,
-            todayDate: new Date().getTime(),
 
             submitLoading: {timetable: false},
 
@@ -640,16 +638,15 @@ export default {
         }
     },
     methods: {
-        setNewDate() {
-            this.todayDate = this.todayDate + 60*60*24*1000;
-            let now = new Date(this.todayDate);
-            let year = now.getFullYear();
-            let month = now.getMonth() + 1;
-            let day = now.getDate();
+        // setNewDate() {
+        //     let now = new Date(this.calendar.time * 1000);
+        //     let year = now.getFullYear();
+        //     let month = now.getMonth() + 1;
+        //     let day = now.getDate();
 
-            this.CalendatObj.data('calendar').updateDateView(year, month);
-            this.CalendatObj.data('calendar').selectedDay(day);
-        },
+        //     this.CalendatObj.data('calendar').updateDateView(year, month);
+        //     this.CalendatObj.data('calendar').selectedDay(day);
+        // },
         tableHeader(elem, {column, $index}) {
             let weekList = this.defaultWeekList;
             return elem('div', {'class': 'header-box'}, [
@@ -671,17 +668,34 @@ export default {
         },
         //上一周翻页
         lastWeekLists() {
+            // if(this.tableType == 'week') {
+            //     let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
+            //     this.calendar.time = last / 1000;
+            //     this.getWeekList(last, 'default');
+            // }else {
+            //     this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
+            //     this.setNewDate();
+            // }
             let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
             this.calendar.time = last / 1000;
-            this.getAllTableLists();
             this.getWeekList(last, 'default');
+            this.getAllTableLists();
         },
         //下一周翻页
         nextWeekLists() {
+            // if(this.tableType == 'week') {
+            //     let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
+            //     this.calendar.time = next / 1000;
+            //     this.getWeekList(next, 'default');
+            // }else {
+            //     this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
+            //     this.setNewDate();
+            //     // this.getWeekList(this.calendar.time, 'default');
+            // }
             let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
             this.calendar.time = next / 1000;
-            this.getAllTableLists();
             this.getWeekList(next, 'default');
+            this.getAllTableLists();
         },
         dialogClose() {
             this.formAddDate.splice(0, this.formAddDate.length);

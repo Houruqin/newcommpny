@@ -100,6 +100,7 @@ export default {
             loading: false,
             dialogStatus: {giveBack: false},
             submitLoading: {back: false},
+            activePage: 1,
             searchFilter: {
                 begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
                 end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
@@ -115,7 +116,9 @@ export default {
                     {validator: this.$$tools.formOtherValidate('int')},
                     {validator: this.$$tools.formOtherValidate('total', 5000)}
                 ],
-                explain: []
+                explain: [
+                    {max: 18,  message: '长度不能超过18个字符'}
+                ]
             }
         }
     },
@@ -155,7 +158,7 @@ export default {
 
             this.$message.success('归还成功');
             this.dialogStatus.giveBack = false;
-            this.getBorrowLists();
+            this.getBorrowLists(this.activePage);
         },
         //获取借用记录列表
         async getBorrowLists(page) {
@@ -178,6 +181,7 @@ export default {
             console.log(result);
             if(!result) return 0;
 
+            if(page) this.activePage = page;
             this.borrowTable = result.lists;
             this.loading = false;
         }

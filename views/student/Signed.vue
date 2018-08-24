@@ -430,6 +430,9 @@ export default {
         return {
             activeTab: 'onCourse',
             currPage: false,
+
+            activePage: 1,
+
             hasContact: true,
             contactDot: 0,
 
@@ -564,7 +567,7 @@ export default {
 
             if(!result) return 0;
             this.$message.success('礼品发放状态修改成功');
-            this.getStudentLists();
+            this.getStudentLists(this.activePage);
         },
         //修改学员信息
         editStudent(data) {
@@ -595,7 +598,7 @@ export default {
             let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
-            this.getTabLists();
+            this.getTabLists(true);
         },
         //表单确定
         doneHandle(type) {
@@ -666,7 +669,7 @@ export default {
 
             this.studentMaskStatus = false;
             this.$message.success('修改成功');
-            this.getTabLists();
+            this.getTabLists(true);
         },
         //提交分班信息
         async submitDivideClass() {
@@ -685,7 +688,7 @@ export default {
             this.classMaskStatus = false;
         },
         //获取tab列表
-        async getTabLists() {
+        async getTabLists(isCurrPage) {
             let result = await this.$$request.post('/sign/tab');
             console.log(result);
             if(!result) return 0;
@@ -698,7 +701,8 @@ export default {
                 });
             };
 
-            this.getStudentLists();
+            if(isCurrPage) this.getStudentLists(this.activePage);
+            else this.getStudentLists();
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(id) {
@@ -749,10 +753,10 @@ export default {
             console.log(newParams);
 
             let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
+            console.log(result);
             if(!result) return 0;
-
-            console.log(result)
-
+            
+            this.activePage = currentPage ? currentPage: 1;
             result.lists.data = this.mergeHandle(result.lists.data);
 
             this.studentTable = result.lists;
@@ -761,12 +765,6 @@ export default {
         //签约学员合并
         mergeHandle(data) {
             var obj = {};
-
-            // data.forEach((v, d) => {
-            //     let objArray = obj[v.student_id] || [];
-            //     objArray.push(v);
-            //     obj[v.student_id] = [];
-            // });
 
             let map = {}, dest = [];
 

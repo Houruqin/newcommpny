@@ -258,7 +258,9 @@ export default {
                 typeSetting: false,
                 addStorage: false,
                 removeStorage: false,
-                borrow: false
+                borrow: false,
+
+                activePage: 1
             },
 
             operationCommodity: 'add',   //操作物品，默认为新增  可编辑
@@ -275,7 +277,7 @@ export default {
             loading: false,
             studentCourseLists: [],
             commodityTypeStatus: 'add',
-            receivePeopleType: 1,
+            receivePeopleType: 1,    //出库人员类型  user/student
             submitLoading: {
                 add: false, commodityType: false, typeSetting: false, addStorage:false, removeStorage: false
             },
@@ -301,7 +303,8 @@ export default {
 
             commodityTypeRules: {
                 name: [
-                    {required: true, message: '请输入物品类型'}
+                    {required: true, message: '请输入物品类型'},
+                    {max: 18,  message: '长度不能超过10个字符'}
                 ]
             },
             addRules: {
@@ -351,6 +354,9 @@ export default {
                 ],
                 student_course: [
                     {required: true, message: '请选择课程', trigger: 'change'}
+                ],
+                remark: [
+                    {max: 18,  message: '长度不能超过18个字符'}
                 ]
             },
             borrowRules: {
@@ -401,10 +407,6 @@ export default {
         //分页
         paginationClick(current) {
             this.getCommodityLists(current);
-        },
-        //使用类型  change
-        useTypeChange() {
-
         },
         //入库点击
         addStorage(data) {
@@ -593,7 +595,8 @@ export default {
             console.log(result);
             if(!result) return 0;
 
-            this.getCommodityLists();
+            if(this.operationCommodity == 'edit') this.getCommodityLists(this.activePage);
+            else this.getCommodityLists();
 
             this.$message.success(`${this.operationCommodity == 'add' ? '添加' : '修改'}物品成功`);
             this.dialogStatus.addCommodity = false;
@@ -610,7 +613,7 @@ export default {
             if(!result) return 0;
 
             this.getCommodityTypeLists();
-            if(this.commodityTypeStatus == 'edit') this.getCommodityLists();
+            if(this.commodityTypeStatus == 'edit') this.getCommodityLists(this.activePage);
 
             this.$message.success(`${this.commodityTypeStatus == 'add' ? '添加' : '修改'}物品类型成功`);
             this.dialogStatus.commodityType = false;
@@ -630,15 +633,17 @@ export default {
             if(!result) return 0;
 
             this.$message.success('入库成功');
-            this.getCommodityLists();
+            this.getCommodityLists(this.activePage);
             this.dialogStatus.addStorage = false;
         },
         //提交 出库数据
         async submitRemoveStorage() {
-            if(this.removeStoageBtn.one) return this.$message.warning(this.removeStorageWaringText.one);
-            if(this.removeStoageBtn.two) return this.$message.warning(this.removeStorageWaringText.two);
-            if(this.removeStoageBtn.three) return this.$message.warning(this.removeStorageWaringText.three);
-
+            if(this.receivePeopleType == 2) {
+                if(this.removeStoageBtn.one) return this.$message.warning(this.removeStorageWaringText.one);
+                if(this.removeStoageBtn.two) return this.$message.warning(this.removeStorageWaringText.two);
+                if(this.removeStoageBtn.three) return this.$message.warning(this.removeStorageWaringText.three);
+            };
+            
             let params = {
                 goods_id: this.removeStorageForm.goods_id,
                 num: this.removeStorageForm.num,
@@ -654,7 +659,7 @@ export default {
             if(!result) return 0;
 
             this.$message.success('出库成功');
-            this.getCommodityLists();
+            this.getCommodityLists(this.activePage);
             this.dialogStatus.removeStorage = false;
         },
         //提交借用数据
@@ -673,6 +678,7 @@ export default {
 
             this.$message.success('借用成功');
             this.dialogStatus.borrow = false;
+            this.getCommodityLists(this.activePage);
         },
         //获取物品列表
         async getCommodityLists(page) {
@@ -694,6 +700,7 @@ export default {
             console.log(result);
             if(!result) return 0;
 
+            if(page) this.activePage = page;
             this.commodityTable = result.lists;
             this.loading = false;
         },

@@ -126,6 +126,7 @@ export default {
             tabLists: [],
 
             currPage: false,
+            activePage: 1,
 
             listStudentId: '',
 
@@ -216,16 +217,13 @@ export default {
             if(type == 'course') return this.dialogStatus.course = false;
         },
         //登记成功，刷新列表
-        CB_addStudent() {
-            this.getTabLists();
+        CB_addStudent(type) {
+            if(type == 'edit') this.getTabLists(true);
+            else this.getTabLists();
             this.dialogStatus.student = false;
         },
         //登记成功，购课回调
         CB_buyCourse(data) {
-            // this.buyCourseData = data;
-            // this.dialogStatus.student = false;
-            // this.dialogStatus.course = true;
-
             let params = {
                 student_id: data.id,
                 advisor_id: data.advisor_id,
@@ -235,12 +233,6 @@ export default {
 
             this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
         },
-        //购课成功，合约回调
-        // CB_contract(data) {
-        //     this.contractData = data;
-        //     this.dialogStatus.course = false;
-        //     this.dialogStatus.contract = true;
-        // },
         //单元格时间格式化
         dateForamt(row, column, cellValue) {
             return this.$$tools.format(cellValue)
@@ -254,7 +246,7 @@ export default {
             let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
-            this.getTabLists();
+            this.getTabLists(true);
         },
         //修改学员信息
         editStudent(data) {
@@ -292,12 +284,14 @@ export default {
             this.currPage = false;
         },
         //获取tab列表
-        async getTabLists() {
+        async getTabLists(isCurrPage) {
             let result = await this.$$request.post('/student/tab');
             console.log(result);
             if(!result) return 0;
             this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
-            this.getStudentLists();
+
+            if(isCurrPage) this.getStudentLists(this.activePage);
+            else this.getStudentLists();
         },
         //获取学员列表
         async getStudentLists(currentPage) {
@@ -321,6 +315,8 @@ export default {
             let result = await this.$$request.post('/student/lists', params);
             console.log(result);
             if(!result) return 0;
+
+            this.activePage = currentPage ? currentPage: 1;
             this.studentTable = result.lists;
             this.loading = false;
         }

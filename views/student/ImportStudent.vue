@@ -211,6 +211,20 @@
                             </template>
                         </el-table-column>
 
+                        <el-table-column align="center" :render-header="payWayHeader">
+                            <template slot-scope="scope">
+                                <el-popover placement="bottom" width="170" trigger="click" popper-class="payway-popper">
+                                    <el-select v-model="scope.row.pay_way.data" placeholder="付款方式" size="small" @change="scope.row.expire.error = false">
+                                        <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.name"></el-option>
+                                    </el-select>
+
+                                    <div class="cell-box" slot="reference">
+                                        <span class="out-line" :class="{'red': scope.row.pay_way.error}">{{scope.row.pay_way.data}}</span>
+                                    </div>
+                                </el-popover>
+                            </template>
+                        </el-table-column>
+
                         <el-table-column label="业绩归属" align="center">
                             <template slot-scope="scope">
                                 <el-popover placement="bottom" width="170" trigger="click">
@@ -276,6 +290,7 @@ import MyButton from '../../components/common/MyButton'
 import config from 'config'
 import XLSX from 'xlsx'
 import {excelHeader} from '../../script/static'
+import {StudentStatic} from '../../script/static'
 
 export default {
     components: {TableHeader, MyButton},
@@ -290,6 +305,7 @@ export default {
             uploadParams: {excel_type: 'unsign_new'},
             excelfileExtend: '.xls,.xlsx',    //文件格式
             fileInput: '',
+            paymentMethod: StudentStatic.paymentMethod, //付款方式
             errTableEdit: false,
             classPattern: 0,
             submitLoading: {
@@ -298,10 +314,10 @@ export default {
             tableAllHeader: {
                 student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
                 course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
-                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
+                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
                 ],
                 course_begrade: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
-                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'advisor_name'
+                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
                 ]
             },
             previewData: [],    //错误冲突列表数据
@@ -375,6 +391,9 @@ export default {
         },
         expireHeader(h, {column, $index}) {
             return this.requestTableHeader(h, '购课日期');
+        },
+        payWayHeader(h, {column, $index}) {
+            return this.requestTableHeader(h, '支付方式');
         },
         sexHeader(h, {column, $index}) {
             return this.requestTableHeader(h, '学员性别');
@@ -454,7 +473,6 @@ export default {
                     this.previewData = list.map((d, e) => {
                         let itemlist = {index: `student_${e}`};
                         this.tableAllHeader[tab].forEach((v, n) => {
-                            console.log(d[n])
                             itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
                         });
                         return itemlist;
