@@ -114,7 +114,6 @@ export default {
             this.studentDialogStatus = newVal;
         },
         type(newVal, oldVal) {
-            console.log(newVal);
             this.studentType = newVal;
         },
         editDetail(newVal, oldVal) {
@@ -247,7 +246,7 @@ export default {
             if(this.studentType == 'edit') {
                 this.submitLoading.student = false;
                 if(result.status) this.$message.success('修改成功');
-                this.$emit('CB-addStudent');
+                this.$emit('CB-addStudent', 'edit');
             }else {
                 if(result.status) {
                     this.$confirm('已存在该账号，是否将学员添加至该账号下？', '提示', {

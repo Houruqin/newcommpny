@@ -123,6 +123,7 @@ const excelHeader = {
         '材料费用': 'textbook_price',
         '购课总额': 'total_price',
         '购课日期': 'expire',
+        '支付方式': 'pay_way',
         '业绩归属': 'advisor_name'
     },
     nosign_request: [
@@ -135,7 +136,7 @@ const excelHeader = {
         '学员姓名', '学员性别', '联系电话'
     ],
     course_request: [
-        '学员姓名', '联系电话', '课程名称', '购买课时', '剩余课时', '购课日期', '购课总额'
+        '学员姓名', '联系电话', '课程名称', '购买课时', '剩余课时', '购课日期', '购课总额', '支付方式'
     ]
 };
 

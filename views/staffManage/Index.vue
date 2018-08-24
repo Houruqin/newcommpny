@@ -81,6 +81,9 @@ export default {
             editDetail: {},
             type: 'add',
             currPage: false,
+
+            activePage: 1,
+
             //所有权限列表
             authorityAllLists: [
                 {id: 'paike', name: '排课', checked: false},
@@ -106,11 +109,11 @@ export default {
         },
         CB_addStaff() {
             this.dialogStatus = false;
-            this.getUserLists();
+            this.getUserLists(this.activePage);
         },
         CB_dimission() {
             this.dialogStatus = false;
-            this.getUserLists();
+            this.getUserLists(this.activePage);
         },
         //员工状态筛选
         filterChange() {
@@ -180,6 +183,8 @@ export default {
             console.log(result);
 
             if(!result) return 0;
+
+            this.activePage = currentPage ? currentPage: 1;
             this.staffListInfo = result.lists;
             this.loading = false;
         },

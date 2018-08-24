@@ -21,7 +21,6 @@ export default {
         if(!result) this.$router.replace({path: '/login'});
         else if(result && result.status == 0) {
             this.$router.push({path: '/addschool'});
-            this.$store.dispatch('guideChange', true);   //首次创建校区，进入引导页
         }
     }
   }
