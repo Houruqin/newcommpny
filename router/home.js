@@ -2,8 +2,11 @@ import Cache from '@/script/cache'
 
 import Workbench from '@/views/workbench/Index'
 import EditNotice from '@/views/workbench/EditNotice'
+
 import BasicSet from '@/views/BasicSetting/Index'
+import WechatSetting from '@/views/BasicSetting/WechatSetting'
 import SchoolSetting from '@/views/BasicSetting/SchoolSetting'
+
 import NoSign from '@/views/student/NoSign'
 import Signed from '@/views/student/Signed'
 import NosignDetail from '@/views/student/NosignDetail'
@@ -42,7 +45,9 @@ const homeRouter = [
     {path: 'workbench', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench/editNotice', component: EditNotice, meta: {needlogin: true, menu: '/home/workbench'}},
     {path: 'workbench/schoolsetting', component: SchoolSetting, meta: {needlogin: true, menu: '/home/workbench'}},
+
     {path: 'setting', component: BasicSet, meta: {needlogin: true, menu: '/home/setting'}},
+    {path: 'setting/wechat', component: WechatSetting, meta: {needlogin: true, menu: '/setting/wechat'}},
 
     {path: 'student/signed', component: Signed, meta: {keepAlive: true, needlogin: true, menu: '/student/signed'}},
     {path: 'student/nosign', component: NoSign, meta: {keepAlive: true, needlogin: true, menu: '/student/nosign'}},
