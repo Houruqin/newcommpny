@@ -11,11 +11,11 @@
           el-row(v-for="(name, index) in LEFT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
-              el-switch(v-model="setting[name].status")
+              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label {{ setting[name].prefix }}
                 el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
-                .button(:class="{ disabled: !setting[name].status }") 保存
+                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
         el-col.student_alarm(:span="9" :offset="3")
@@ -24,11 +24,11 @@
           el-row(v-for="(name, index) in RIGHT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
-              el-switch(v-model="setting[name].status")
+              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label {{ setting[name].prefix }}
                 el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
-                .button(:class="{ disabled: !setting[name].status }") 保存
+                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>
 import TableHeader from "../../components/common/TableHeader";
@@ -47,28 +47,28 @@ export default {
           studentCourse: { status: 0, label: '学员-购买通知'},
           studentGrade: { status: 0, label: '学员-分班通知' },
           timetableStudent: { status: 0, label: '学员-排课通知' },
-          studentLessonRemind: { status: 0, label: '学员-上课提醒', num: 0, prefix: '提前多少小时' },
+          studentLessonRemind: { status: 0, label: '学员-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
           studentLessonEnd: { status: 0, label: '学员-课时消耗提醒' },
           studentLeaveTicketProcessRemind: { status: 0, label: '学员-请假审核通知' },
           studentTimetableChange: { status: 0, label: '学员-修改课表' },
           studentTimetableCancel: { status: 0, label: '学员-课程取消' },
-          studentLessonRemainRemind: { status: 0, label: '学员-学费即将到期提醒', num: 0, prefix: '剩余多少小时' },
+          studentLessonRemainRemind: { status: 0, label: '学员-学费即将到期提醒', oldval: 0, num: 0, prefix: '剩余多少小时' },
           studentLessonEndRemind: { status: 0, label: '学员-结课通知' },
           timetableTeacher: { status: 0, label: '教师-排课通知' },
-          teacherLessonRemind: { status: 0, label: '老师-上课提醒', num: 0, prefix: '提前多少小时' },
-          teacherLessonEndReminding: { status: 0, label: '老师-课程结束未结课时间提醒', num: 0, prefix: '课后多少小时' },
+          teacherLessonRemind: { status: 0, label: '老师-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
+          teacherLessonEndReminding: { status: 0, label: '老师-课程结束未结课时间提醒', oldval: 0, num: 0, prefix: '课后多少小时' },
           teacherLeaveTicketRemind: { status: 0, label: '教师-学员请假提醒' },
           teacherTimetableChange: { status: 0, label: '老师-修改课表' },
           teacherTimetableCancel: { status: 0, label: '教师-课程取消' },
-          teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', num: 0, prefix: '剩余多少小时' },
+          teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', oldval: 0, num: 0, prefix: '剩余多少小时' },
           sellerStudentDistribute: { status: 0, label: '顾问-学员分配提醒' },
-          sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', num: 0, prefix: '提前多少小时' },
+          sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
           sellerStudentSign: { status: 0, label: '顾问-签约成功通知' },
       }
     };
   },
   methods: {
-    async getWechatSettings() {
+    async getWechatSettings () {
       let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
 
       if (!datas) return void 0;
@@ -76,8 +76,36 @@ export default {
       Object.keys(this.setting).forEach(v => {
         this.setting[v].status = !!datas[v].status;
         this.setting[v].label = datas[v].description;
-        if ('num' in this.setting[v]) this.setting[v].num = datas[v].num;
+        if ('num' in this.setting[v]) {
+          this.setting[v].num = datas[v].num;
+          this.setting[v].oldval = datas[v].num;
+        }
       });
+    },
+    async saveWechatSettings (name) {
+      return await this.$$request.post('school/weixinRemindSet', { [name]: { name, ...this.setting[name] } });
+    },
+    async switchChangeHandler (name) {
+      let result = await this.saveWechatSettings(name);
+
+      // 保存失败
+      if (null === result) {
+        this.setting[name].status = !this.setting[name].status;
+      }
+    },
+    async buttonClickHandler (name) {
+      if (!this.setting[name].status) return void 0;
+
+      let result = await this.saveWechatSettings(name);
+
+      // 保存失败
+      if (null === result) {
+        return void 0;
+      }
+
+      // 保存成功
+      this.setting[name].oldval = this.setting[name].num;
+      this.$message.success('保存成功');
     }
   },
   created() {
