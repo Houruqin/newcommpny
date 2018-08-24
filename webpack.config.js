@@ -85,12 +85,9 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.vue$/, loader: 'vue-loader', options: {
-        loaders: VueCssLoader({
-          sourceMap: true,
-          extract: true
-        })
-      } },
+      { test: /\.vue$/, loader: 'vue-loader'
+      // , options: { loaders: VueCssLoader({ sourceMap: true, extract: true }) }
+      },
       { test: /\.pug$/, loader: `pug-loader?pretty` },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.(?:yml|yaml)$/, loader: 'json-loader!yaml-loader' },
@@ -102,6 +99,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue', '.json', '.less'],
     alias: {
+      'vue$': 'vue/dist/vue.esm.js',
       '@': path.join(__dirname),
       config$: path.join(__dirname, `config/${argv.env}`)
     }
