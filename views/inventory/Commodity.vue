@@ -643,7 +643,7 @@ export default {
                 if(this.removeStoageBtn.two) return this.$message.warning(this.removeStorageWaringText.two);
                 if(this.removeStoageBtn.three) return this.$message.warning(this.removeStorageWaringText.three);
             };
-            
+
             let params = {
                 goods_id: this.removeStorageForm.goods_id,
                 num: this.removeStorageForm.num,
