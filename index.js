@@ -19,9 +19,9 @@ import './script/Export2Excel.js'
 import 'element-ui/lib/theme-chalk/index.css'
 // import './font/iconfont.css'
 
-import './styles/common'; //公共样式
-import './styles/cover'; //覆盖elementUI组件的样式
-import './styles/calendar'; //日历样式
+import '!style-loader!css-loader!less-loader!./styles/common'; //公共样式
+import '!style-loader!css-loader!less-loader!./styles/cover'; //覆盖elementUI组件的样式
+import '!style-loader!css-loader!less-loader!./styles/calendar'; //日历样式
 
 Vue.config.productionTip = false
 Vue.use(Element)
