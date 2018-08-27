@@ -31,8 +31,8 @@ export default {
   },
   mounted() {
     this.ue = UE.getEditor("container", {
-      BaseUrl: "",
-      UEDITOR_HOME_URL: "static/UE/",
+      BaseUrl: "/",
+      UEDITOR_HOME_URL: "/static/UE/",
     //   serverUrl: "/ueditor/server"
     });
   },
