@@ -75,7 +75,7 @@
                                         <!-- <a class="unfold-icon cursor-pointer el-dropdown-link">
                                             <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
                                         </a> -->
-                                        <span class="fc-m ml-10 cursor-pointer el-dropdown-link">其他</span>
+                                        <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                                         <el-dropdown-menu slot="dropdown" class="operation-lists">
                                             <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
                                                 <!--未开课-->
