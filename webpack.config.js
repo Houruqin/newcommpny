@@ -1,6 +1,5 @@
 const
   path = require('path'),
-  fs = require('fs'),
   argv = require('yargs').argv,
   webpack = require('webpack'),
   CleanWebpackPlugin = require('clean-webpack-plugin'),
