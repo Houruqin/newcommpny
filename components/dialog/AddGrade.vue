@@ -62,7 +62,7 @@
                     </el-form-item>
 
                     <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
-                        <el-input type="number" v-model.number="classForm.limit_num"></el-input><span class="pl-10">课时</span>
+                        <el-input type="number" v-model.number="classForm.limit_num"></el-input>
                     </el-form-item>
 
                     <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
@@ -87,7 +87,7 @@
             </el-form-item>
 
             <div class="d-f f-j-c">
-                <MyButton @click.native="doneHandle" :loading="submitLoading.grade">确定</MyButton>
+                <MyButton @click.native="doneHandle('gradeForm')" :loading="submitLoading.grade">确定</MyButton>
             </div>
         </el-form>
 
