@@ -134,7 +134,10 @@ export default {
             if(!Object.keys(newVal).length) return 0;
 
             this.courseType = newVal.course_type;
-            this.getGradeFill(newVal.course_id, newVal.id);
+            this.courseId = newVal.course_id;
+            this.gradeId = newVal.id;
+
+            this.getGradeFill();
 
             console.log(this.gradeType);
 
@@ -164,6 +167,7 @@ export default {
             userRole: '',
 
             courseType: 1,
+            courseId: '',
             studentLists: [],
             classSelectInfo: {},
             allStudentLists: [],
@@ -238,8 +242,9 @@ export default {
             this.userRole = false;
             this.userDialogStatus = false;
         },
-        CB_addStaff() {
-
+        CB_addStaff(data) {
+            this.getGradeFill();
+            this.classForm.teacher_ids = data.id;
         },
         //班级学员checkbox，全选
         studentCheckAllChange(val) {
@@ -267,9 +272,8 @@ export default {
             }});
         },
         //获取老师列表、上课教室等附加信息
-        async getGradeFill(course_id, grade_id) {
-            let params = {course_id: course_id};
-            if(grade_id) params.grade_id = grade_id;
+        async getGradeFill() {
+            let params = {course_id: this.courseId, grade_id: this.gradeId};
 
             let result = await this.$$request.post('/grade/fill', params);
             console.log(result)
