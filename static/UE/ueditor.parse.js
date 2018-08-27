@@ -6,7 +6,7 @@
 
 (function(){
 
-(function(){
+  (function(){
     UE = window.UE || {};
     var isIE = !!window.ActiveXObject;
     //定义utils工具
