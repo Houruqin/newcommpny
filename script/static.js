@@ -7,27 +7,27 @@ const StudentStatic = {
         status: [
             // {id: -2, name: '已签约'},
             {id: -1, name: '无效'},
-            // {id: 0, name: '未跟进'}, 
-            {id: 1, name: '已沟通'}, 
-            {id: 2, name: '邀约到访'}, 
-            // {id: 3, name: '已到访'}, 
+            // {id: 0, name: '未跟进'},
+            {id: 1, name: '已沟通'},
+            {id: 2, name: '邀约到访'},
+            // {id: 3, name: '已到访'},
             {id: 4, name: '邀约试听'},
             // {id: 5, name: '已试听'},
             {id: 6, name: '未接通'}
         ],
         wayId: [
-            {id: 1, name: '面谈'}, 
-            {id: 2, name: '微信'}, 
+            {id: 1, name: '面谈'},
+            {id: 2, name: '微信'},
             {id: 3, name: '短信'},
             {id: 4, name: '电话'},
             {id: 5, name: '其他'}
         ],
         typeId: [
-            {id: 1, name: '学员登记'}, 
-            {id: 2, name: '购课'}, 
-            {id: 3, name: '顾问变更'}, 
-            {id: 4, name: '续约'}, 
-            {id: 5, name: '售前跟进'}, 
+            {id: 1, name: '学员登记'},
+            {id: 2, name: '购课'},
+            {id: 3, name: '顾问变更'},
+            {id: 4, name: '续约'},
+            {id: 5, name: '售前跟进'},
             {id: 6, name: '售后跟进'}
         ]
     },
@@ -42,20 +42,20 @@ const StudentStatic = {
         {id: 3, name: '低'}
     ],
     paymentMethod: [
-        {id: 1, name: '现金付款'},
-        {id: 2, name: '支付宝付款'},
-        {id: 3, name: '微信付款'},
-        {id: 4, name: '银行卡付款'}
+        {id: 1, name: '现金付款', icon: 'icon-xianjin', font_color: '#FFB349'},
+        {id: 2, name: '支付宝付款', icon: 'icon-zhifubao', font_color: '#1AACEB'},
+        {id: 3, name: '微信付款', icon: 'icon-weixinhover', font_color: '#08BB08'},
+        {id: 4, name: '银行卡付款', icon: 'icon-icon-yinhangqia2', font_color: '#1FAED4'}
     ]
 };
 
 const courseStatic = {
     classRoomStatus: [
-        {type: 'begin', text: '开课', icon: 'icon-renwuweikaishi'}, 
-        {type: 'plan', text: '排课', icon: 'icon-paike1'}, 
-        {type: 'over', text: '结课', icon: 'icon-jieke'}, 
-        {type: 'stop', text: '停课', icon: 'icon-tingke'}, 
-        {type: 'edit', text: '编辑', icon: 'icon-icon1'}, 
+        {type: 'begin', text: '开课', icon: 'icon-renwuweikaishi'},
+        {type: 'plan', text: '排课', icon: 'icon-paike1'},
+        {type: 'over', text: '结课', icon: 'icon-jieke'},
+        {type: 'stop', text: '停课', icon: 'icon-tingke'},
+        {type: 'edit', text: '编辑', icon: 'icon-icon1'},
         {type: 'delete', text: '删除', icon: 'icon-shanchu'}
     ]
 };
@@ -67,48 +67,48 @@ const timeTableStatic = {
         {id: -3, name: '迟到'},
         {id: -2, name: '请假拒绝'},
         {id: -1, name: '请假通过'},
-        {id: 0, name: '审核中'}, 
-        {id: 1, name: '正常'}, 
-        {id: 2, name: '试听'}, 
-        {id: 3, name: '补课'}, 
-        {id: 4, name: '正常签到'}, 
+        {id: 0, name: '审核中'},
+        {id: 1, name: '正常'},
+        {id: 2, name: '试听'},
+        {id: 3, name: '补课'},
+        {id: 4, name: '正常签到'},
     ]
 };
 
 const excelHeader = {
     student: {
-        '学员姓名': 'student_name', 
+        '学员姓名': 'student_name',
         '学员性别': 'sex',
-        '联系电话': 'mobile', 
+        '联系电话': 'mobile',
         '学员生日': 'birthday',
         '课程顾问': 'course_advisor',
         '渠道来源': 'source'
     },
     nosign: {
-        '学员姓名': 'school_name', 
-        '学员性别': 'sex', 
-        '学员生日': 'birthday', 
-        '家长姓名': 'parent_name', 
-        '家长手机号': 'mobile', 
-        '家长称呼': 'relation', 
+        '学员姓名': 'school_name',
+        '学员性别': 'sex',
+        '学员生日': 'birthday',
+        '家长姓名': 'parent_name',
+        '家长手机号': 'mobile',
+        '家长称呼': 'relation',
         '渠道来源': 'source',
         '意向课程': 'course_name',
         '课程顾问': 'course_advisor'
     },
     signed: {
-        '学员姓名': 'school_name', 
-        '学员性别': 'sex', 
-        '学员生日': 'birthday', 
-        '家长姓名': 'parent_name', 
-        '家长手机号': 'mobile', 
-        '家长称呼': 'relation', 
+        '学员姓名': 'school_name',
+        '学员性别': 'sex',
+        '学员生日': 'birthday',
+        '家长姓名': 'parent_name',
+        '家长手机号': 'mobile',
+        '家长称呼': 'relation',
         '渠道来源': 'source',
         '签约课程': 'course_name',
         '所在班级': 'grade_name',
         '购课时数': 'lesson_num',
         '剩余课时': 'remain_num',
         '赠送课时': 'given_num',
-        '合约金额': 'real_price', 
+        '合约金额': 'real_price',
         '签约日期': 'created_at',
         '课程顾问': 'course_advisor'
     },

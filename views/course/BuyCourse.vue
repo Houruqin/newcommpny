@@ -128,7 +128,10 @@
                 <div class="mt-20">
                     <el-form-item label="付款方式：" prop="pay_way">
                         <el-select v-model="courseForm.pay_way" placeholder="付款方式">
-                            <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id">
+                                <span class="iconfont pr-5" :class="item.icon" :style="{color: item.font_color}"></span>
+                                <span>{{item.name}}</span>
+                            </el-option>
                         </el-select>
                     </el-form-item>
 

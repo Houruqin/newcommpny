@@ -139,7 +139,7 @@ export default {
             this.dialogStatus.giveBack = true;
         },
         doneHandle() {
-            this.$refs.backForm.validate(valid => {this.submitBackForm()});
+            this.$refs.backForm.validate(valid => {if(valid) this.submitBackForm()});
         },
         paginationClick(current) {
             this.getBorrowLists(current);

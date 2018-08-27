@@ -359,7 +359,7 @@
                     <div class="list-item">
                         <el-form-item label="教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
                         <el-form-item label="教材实际退费：" prop="textbook_quitprice">
-                            <el-input type="number" placeholder="课时实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
+                            <el-input type="number" placeholder="教材实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
                         </el-form-item>
                     </div>
                     <div class="list-item">
@@ -737,7 +737,7 @@ export default {
                     {validator: this.quitPriceValidate('lesson')}
                 ],
                 textbook_quitprice: [
-                    {required: true, message: '请输入教材实际退费'},
+                    // {required: true, message: '请输入教材实际退费'},
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
                     {validator: this.quitPriceValidate('textbook')}
                 ]
