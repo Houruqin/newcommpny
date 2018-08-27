@@ -48,10 +48,13 @@
                                 <template slot-scope="scope">
                                     <div v-if="course.type === 2">{{scope.row.student.length}}</div>
                                     <div v-else class="d-f f-a-c f-j-c">
-                                        <div :class="scope.row.student.length < scope.row.limit_num ? 'fc-5' : scope.row.student.length == scope.row.limit_num ? 'fc-m' : 'fc-r'">{{scope.row.student.length}}/{{scope.row.limit_num}}</div>
-                                        <el-popover v-if="scope.row.student.length > scope.row.limit_num" popper-class="grade-student-popver" placement="right" width="325" trigger="click" content="该班级人数已经超过最大上限，请给多余学员另外分班！">
-                                            <div slot="reference" class="ml-5 cursor-pointer"><img src="../../images/common/zhuyi.png" alt=""></div>
+                                        <el-popover v-if="scope.row.student.length > scope.row.limit_num" popper-class="grade-student-popver" placement="right" width="325" trigger="hover" content="该班级人数已经超过最大上限，请给多余学员另外分班！">
+                                            <div slot="reference" class="cursor-pointer">
+                                              <span class="fc-r">{{scope.row.student.length}}/{{scope.row.limit_num}}</span>
+                                              <i class="iconfont icon-zhuyidapx fc-r"></i>
+                                            </div>
                                         </el-popover>
+                                        <div v-else :class="scope.row.student.length < scope.row.limit_num ? 'fc-5' : 'fc-m'">{{scope.row.student.length}}/{{scope.row.limit_num}}</div>
                                     </div>
                                 </template>
                             </el-table-column>

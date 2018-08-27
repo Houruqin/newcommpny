@@ -71,7 +71,7 @@ const homeRouter = [
     {path: 'course/index', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/begrade', component: BeGradeCourse, meta: {needlogin: true, menu: '/course/begrade'}},
     {path: 'course/nograde', component: NoGradeCourse, meta: {needlogin: true, menu: '/course/nograde'}},
-    {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/detail'}},
+    {path: 'course/detail', component: GradeDetail, meta: {needlogin: true, menu: '/course/begrade'}},
 
     {path: 'finance/income', component: IncomeStatistics, meta: {needlogin: true}},
     {path: 'finance/outlay', component: OutlayStatistics, meta: {needlogin: true}},

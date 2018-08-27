@@ -6,27 +6,35 @@
 
         //- 左侧设置列表
         el-col.student_alarm(:span="9" :offset="1")
-          el-row #[el-col 学员提醒]#[el-col]
+          el-row
+            el-col
+              span.iconfont.icon-renshu.pr-10
+              i 学员提醒
+            el-col
 
           el-row(v-for="(name, index) in LEFT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
-                label {{ setting[name].prefix }}
+                label.mr-10 {{ setting[name].prefix }}
                 el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
         el-col.student_alarm(:span="9" :offset="3")
-          el-row #[el-col 员工提醒]#[el-col]
+          el-row
+            el-col
+              span.iconfont.icon-laoshi.pr-10
+              i 员工提醒
+            el-col
 
           el-row(v-for="(name, index) in RIGHT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
-                label {{ setting[name].prefix }}
+                label.mr-10 {{ setting[name].prefix }}
                 el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
@@ -70,7 +78,7 @@ export default {
   methods: {
     async getWechatSettings () {
       let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
-
+      console.log(datas)
       if (!datas) {
         return void 0;
       }

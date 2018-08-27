@@ -2,7 +2,7 @@
     <div class="flex1">
         <el-card shadow="hover">
             <TableHeader title="有班课表">
-                <MyButton type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton>
+                <MyButton type="border" @click.native="addTimetableHandle('multiple')" fontColor="fc-m">批量排课</MyButton>
             </TableHeader>
 
             <div class="content-box">
@@ -117,7 +117,7 @@
                                             :item="item" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due"
                                             :class="{'hover': scope.row.week_one.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
                                             <div v-show="scope.row.week_one.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -131,7 +131,7 @@
                                             :item="item" :pastdue="scope.row.week_two.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due"
                                             :class="{'hover': scope.row.week_two.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
                                             <div v-show="scope.row.week_two.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -145,7 +145,7 @@
                                             :item="item" :pastdue="scope.row.week_three.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due"
                                             :class="{'hover': scope.row.week_three.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
                                             <div v-show="scope.row.week_three.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -159,7 +159,7 @@
                                             :item="item" :pastdue="scope.row.week_four.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due"
                                             :class="{'hover': scope.row.week_four.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
                                             <div v-show="scope.row.week_four.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -173,7 +173,7 @@
                                             :item="item" :pastdue="scope.row.week_five.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due"
                                             :class="{'hover': scope.row.week_five.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
                                             <div v-show="scope.row.week_five.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -187,7 +187,7 @@
                                             :item="item" :pastdue="scope.row.week_six.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due"
                                             :class="{'hover': scope.row.week_six.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
                                             <div v-show="scope.row.week_six.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -201,7 +201,7 @@
                                             :item="item" :pastdue="scope.row.week_seven.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due"
                                             :class="{'hover': scope.row.week_seven.operate == true}"
-                                            @click="addTimetable('single', scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
+                                            @click="addTimetableHandle('single', scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
                                             <div v-show="scope.row.week_seven.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
@@ -705,7 +705,7 @@ export default {
 
             Object.keys(this.timetableForm).forEach(v => {
                 if(v == 'grade_info') this.timetableForm[v] = [];
-                else if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
+                // else if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
                 else if(v == 'loop') this.timetableForm[v] = 'no';
                 else this.timetableForm[v] = '';
             });
@@ -872,7 +872,7 @@ export default {
             this.getAddTimeTableFull();
         },
         //新增排课  type: single / multiple
-        addTimetable(type, time, full_day, week) {
+        addTimetableHandle(type, time, full_day, week) {
             this.addTableType = type;
 
             if(type === 'single') {

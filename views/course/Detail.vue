@@ -1,8 +1,8 @@
 <template>
     <div class="flex1">
         <el-card shadow="hover">
-            <TableHeader title="班级详情" :icon="true" @clicked="editCourseDetail">
-                <MyButton type="subm" @click.native="deleteGrade">删除</MyButton>
+            <TableHeader title="班级详情">
+                <!-- <MyButton type="subm" @click.native="deleteGrade">删除</MyButton> -->
             </TableHeader>
 
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>
@@ -127,11 +127,11 @@ export default {
             this.dialogStatus.grade = false;
         },
         //编辑详情
-        editCourseDetail() {
-            this.gradeType = 'edit';
-            this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
-            this.dialogStatus.grade = true;
-        },
+        // editCourseDetail() {
+        //     this.gradeType = 'edit';
+        //     this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
+        //     this.dialogStatus.grade = true;
+        // },
         paginationClick(curr) {
             this.getTimeTableLists(curr);
         },

@@ -43,10 +43,10 @@
                     <template slot-scope="scope">
                         <div v-if="scope.row.total_num > scope.row.warning">{{scope.row.total_num}}</div>
                         <div v-else class="d-f f-j-c">
-                            <el-popover popper-class="grade-student-popver" placement="right" trigger="click" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
+                            <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
                                 <div slot="reference" class="ml-5 cursor-pointer">
-                                    <span>{{scope.row.total_num}}</span>
-                                    <img src="../../images/common/zhuyi.png" alt="">
+                                    <span class="fc-r">{{scope.row.total_num}}</span>
+                                    <i class="iconfont icon-zhuyidapx fc-r"></i>
                                 </div>
                             </el-popover>
                         </div>
