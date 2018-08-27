@@ -161,7 +161,7 @@ export default {
 
             if(!result) return 0;
 
-            this.$emit('CB-AddStaff');
+            this.$emit('CB-AddStaff', result.user_add);
             this.staffDialogStatus = false;
             this.$store.dispatch('getAdvisor');   //更新员工顾问信息
             this.$store.dispatch('getTeacher');
