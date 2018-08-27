@@ -927,6 +927,7 @@ var utils = UE.utils = {
             }
             var element = doc.createElement(obj.tag);
             delete obj.tag;
+
             for (var p in obj) {
                 element.setAttribute(p, obj[p]);
             }
@@ -1300,6 +1301,8 @@ var utils = UE.utils = {
         return u;
     },
     isCrossDomainUrl:function (url) {
+      // TODO 强行不跨域
+        return false;
         var a = document.createElement('a');
         a.href = url;
         if (browser.ie) {
@@ -14493,6 +14496,7 @@ UE.plugin.register('copy', function () {
                     if (window.ZeroClipboard) {
                         initZeroClipboard();
                     } else {
+                      console.log('--------',me.options)
                         utils.loadFile(document, {
                             src: me.options.UEDITOR_HOME_URL + "third-party/zeroclipboard/ZeroClipboard.js",
                             tag: "script",
