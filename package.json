@@ -7,10 +7,10 @@
   "scripts": {
     "start": "webpack-dev-server --color -d --watch --inline --hot --env local",
     "dev": "node build --env dev",
-    "dev-pre": "node build --env dev-pre",
-    "dev-test": "node build --env dev-test",
+    "dev_pre": "node build --env dev_pre",
+    "dev_test": "node build --env dev_test",
     "master": "node build --env master",
-    "master-test": "node build --env master-test"
+    "master_test": "node build --env master_test"
   },
   "dependencies": {
     "axios": "^0.18.0",
