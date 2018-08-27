@@ -383,7 +383,7 @@ export default {
             };
 
             params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
-            params.textbook = this.textbookFormLists.map(k => {return {goods_id: k.goods_id, num: k.num}});
+            params.textbook = this.textbookFormLists.map(k => {return {goods_id: k.goods_id, num: k.num, price: +(k.unit_price) * +(k.num)}});
             params.preferential_price = this.courseForm.preferential_class_price + this.courseForm.preferential_textbook_price;
 
             console.log(params);
