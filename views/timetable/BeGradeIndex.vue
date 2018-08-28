@@ -273,10 +273,10 @@
 
             <!-- 新增排课弹窗 -->
             <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="860px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
-                <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
-                    <div class="form-box" id="form-box" v-if="Object.keys(timetableFull).length">
-                        <el-row>
-                            <el-col :span="11">
+                <el-form label-width="100px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
+                    <div class="form-box pr-20 pl-20" id="form-box" v-if="Object.keys(timetableFull).length">
+                        <div class="d-f">
+                            <div class="flex1">
                                 <el-form-item label="选择班级：" prop="grade_info">
                                     <el-cascader :options="timetableFull.course" v-model="timetableForm.grade_info" @change="formGradeChange" expand-trigger="hover"></el-cascader>
                                 </el-form-item>
@@ -303,9 +303,9 @@
                                         <el-option label="按周循环" value="yes"></el-option>
                                     </el-select>
                                 </el-form-item>
-                            </el-col>
+                            </div>
 
-                            <el-col :span="11" :offset="1">
+                            <div class="flex1">
                                 <el-form-item label="课程属性：">
                                     <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
                                     <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
@@ -353,53 +353,50 @@
                                 <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1">
                                     <el-input type="number" v-model.number="timetableForm.loop_time" :disabled="timetableForm.loop == 'no'"></el-input><span class="pl-10">次</span>
                                 </el-form-item>
-                            </el-col>
-                        </el-row>
+                            </div>
+                        </div>
 
+                        <div class="d-f">
+                            <div class="add-date-box d-f">
+                                <div class="title p-r is-required">上课时间：</div>
+                                <div class="flex1">
+                                    <div class="list">
+                                        <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
+                                            <div class="p-r d-f">
+                                                <div :class="addTableType == 'edit' ? 'date-change' : 'flex1' ">
+                                                    <el-form-item v-if="addTableType == 'edit'">
+                                                        <el-date-picker v-model="addDate.week" @change="formEditDateChange"
+                                                            :picker-options="pickerBeginDateAfter" type="date" :editable="false"
+                                                            placeholder="选择日期" value-format="yyyy/MM/dd">
+                                                        </el-date-picker>
+                                                    </el-form-item>
+                                                    <el-form-item label-width="0" prop="week" v-else>
+                                                        <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
+                                                            <el-option v-for="(item, index) in timetableWeekList" :key="index" :disabled="(addTableType == 'single' || addTableType == 'edit') && !item.day.past_due" :label="item.name" :value="item.id"></el-option>
+                                                        </el-select>
+                                                    </el-form-item>
+                                                </div>
 
-                        <el-row>
-                            <el-col :span="12">
-                                <el-row class="add-date-box d-f">
-                                    <el-col class="title p-r is-required">上课时间：</el-col>
-                                    <el-col class="flex1">
-                                        <div class="list">
-                                            <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
-                                                <el-row class="p-r">
-                                                    <el-col :span="addTableType == 'edit' ? 12 : 8">
-                                                        <el-form-item v-if="addTableType == 'edit'">
-                                                            <el-date-picker v-model="addDate.week" @change="formEditDateChange"
-                                                                :picker-options="pickerBeginDateAfter" type="date" :editable="false"
-                                                                placeholder="选择日期" value-format="yyyy/MM/dd">
-                                                            </el-date-picker>
-                                                        </el-form-item>
-                                                        <el-form-item label-width="0" prop="week" v-else>
-                                                            <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
-                                                                <el-option v-for="(item, index) in timetableWeekList" :key="index" :disabled="(addTableType == 'single' || addTableType == 'edit') && !item.day.past_due" :label="item.name" :value="item.id"></el-option>
-                                                            </el-select>
-                                                        </el-form-item>
-                                                    </el-col>
+                                                <div class="pl-15 flex1">
+                                                    <el-form-item label-width="0" prop="begin_time" class="p-r begin-time-form">
+                                                        <el-time-select
+                                                            :editable="false"
+                                                            v-model="addDate.begin_time"
+                                                            :picker-options="timePicker"
+                                                            placeholder="时间">
+                                                        </el-time-select>
+                                                    </el-form-item>
+                                                </div>
 
-                                                    <el-col :span="addTableType == 'edit' ? 8 : 12" class="p-r" :offset="1">
-                                                        <el-form-item  label-width="0" prop="begin_time" class="p-r">
-                                                            <el-time-select
-                                                                :editable="false"
-                                                                v-model="addDate.begin_time"
-                                                                :picker-options="timePicker"
-                                                                placeholder="时间">
-                                                            </el-time-select>
-                                                        </el-form-item>
-                                                    </el-col>
+                                                <i v-if="addTableType == 'multiple' && formAddDate.length > 1" @click.native="deleteDateHandle(num)" class="p-a delete-time el-tag__close el-icon-close"></i>
+                                            </div>
+                                        </el-form>
+                                    </div>
+                                    <div class="d-f mt-10" v-if="addTableType == 'multiple'"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
+                                </div>
+                            </div>
 
-                                                    <el-col :span="2" v-if="addTableType == 'multiple' && formAddDate.length > 1" class="p-r delete-time ml-5" @click.native="deleteDateHandle(num)"><i class="el-tag__close el-icon-close"></i></el-col>
-                                                </el-row>
-                                            </el-form>
-                                        </div>
-                                        <div class="d-f mt-10" v-if="addTableType == 'multiple'"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
-                                    </el-col>
-                                </el-row>
-                            </el-col>
-
-                            <el-col :span="11" class="d-f f-a-s addtimetable-student" v-if="addTableType == 'single' || addTableType == 'edit' || (addTableType == 'multiple' && courseType === 1)">
+                            <div class="d-f f-a-s flex1 addtimetable-student pl-25" v-if="addTableType == 'single' || addTableType == 'edit' || (addTableType == 'multiple' && courseType === 1)">
                                 <div class="label"><span>上课学员：</span></div>
                                 <div class="flex1" :class="{'d-f f-a-c': courseType === 2}">
                                     <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w" >
@@ -415,8 +412,8 @@
 
                                     <span class="fc-m ml-10" v-if="courseType === 2 && timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}  </span>
                                 </div>
-                            </el-col>
-                        </el-row>
+                            </div>
+                        </div>
                     </div>
                     <div class="d-f f-j-c mt-30">
                         <MyButton @click.native="doneHandle('addTimeTable')" :loading="submitLoading.timetable">确定</MyButton>
@@ -1633,16 +1630,13 @@ export default {
         max-height: 450px;
         overflow: hidden;
         overflow-y: auto;
-        .el-select, .el-date-editor {
-            width: 100%;
-        }
         .add-date {
             position: absolute;
             right: -35px;
             top: 5px;
         }
-        .lesson-num .el-input {
-            width: 180px;
+        /deep/ .el-input {
+            width: 240px;
         }
         .el-cascader {
             display: block;
@@ -1664,11 +1658,12 @@ export default {
             }
         }
         .add-date-box {
+            width: 340px;
             .title {
                 text-align: right;
-                width: 120px;
-                padding-right: 13px;
-                padding-top: 3px;
+                width: 88px;
+                padding-right: 12px;
+                padding-top: 4px;
                 &.is-required {
                     &:before {
                         content: '*';
@@ -1678,8 +1673,15 @@ export default {
                 }
             }
             .delete-time {
-                top: 5px;
+                top: 10px;
+                right: -20px;
                 cursor: pointer;
+            }
+            /deep/ .el-input {
+                width: 100%;
+            }
+            .date-change {
+                width: 130px;
             }
         }
         .addtimetable-student {

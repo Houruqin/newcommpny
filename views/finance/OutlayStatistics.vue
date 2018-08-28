@@ -76,7 +76,7 @@
         <el-form :model="dialog.add.data" label-width="125px" ref="add" size="small" :rules="addRules" class="form-box">
           <el-row>
             <el-col :span="11">
-              <el-form-item label="支出人员：" prop="name">
+              <el-form-item label="支出人员：" prop="together_id">
                 <el-select v-model="dialog.add.data.together_id" filterable placeholder="请输入支出人员" remote>
                   <el-option v-if="item.user_type !== 2" @click.native="dialog.add.data.id = item.id;dialog.add.data.name = item.name;dialog.add.data.user_type = item.user_type" v-for="item in $store.state.allUser" :key="item.id" :label="item.name" :value="item.together_id">
                     <span style="float: left">{{ item.name }}</span>
@@ -245,7 +245,7 @@ export default {
       timeout: null,
       filted_user: "",
       addRules: {
-        name: [{ required: true, message: "请输入支出人员" }],
+        together_id: [{ required: true, message: "请选择支出人员", trigger: "change"}],
         type: [
           { required: true, message: "请选择支出类型", trigger: "change" }
         ],

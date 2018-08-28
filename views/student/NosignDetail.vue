@@ -169,7 +169,7 @@
                         <el-input type="textarea" :rows="6" v-model.trim="followUpForm.content" placeholder="请输入跟进内容"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="下次跟进：" class="mt-30"  >
+                    <el-form-item label="下次跟进：" class="mt-30" prop="next_at">
                         <el-date-picker type="datetime" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
@@ -256,7 +256,8 @@ export default {
                 content: [
                     {required: true, message: '请填写跟进内容'},
                     {max: 150, message: '长度不能超过150个字符'}
-                ]
+                ],
+                next_at: []
             },
             sourceRules: {
                 name: [
@@ -394,7 +395,7 @@ export default {
                 this.followUpForm.status = 4;
                 this.followUpForm.content = '无跟进内容记录';
 
-                this.submitFollowUpInfo();
+                // this.submitFollowUpInfo();
             }else {
                 this.listenCourseLists.forEach(v => {
                     if(v.id === this.checkListen[0]) {
@@ -436,11 +437,14 @@ export default {
             if(this.submitLoading) return 0;
             this.submitLoading = true;
 
-            for(let key in this.followUpForm) {if((key == 'invited_at' || key == 'next_at')) this.followUpForm[key] = this.followUpForm[key] / 1000};
+            let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
 
-            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {this.submitLoading = false;return this.$message.warning('邀约试听，试听课程不能为空!');}
+            for(let key in this.followUpForm) params[key] = key == 'invited_at' || key == 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
 
-            let params = {...this.followUpForm, type_id: 5, student_id: this.detail.id};  //type_id默认售前跟进5
+            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
+                this.submitLoading = false;
+                return this.$message.warning('邀约试听，试听课程不能为空!');
+            }
 
             if(this.listenType == 'default' && this.checkListen.length) {
                 params.timetable_id = this.checkListen[0];
@@ -457,7 +461,6 @@ export default {
             this.maskFollowUp = false;
             this.maskAudition = false;
             this.listenCourseInit();
-            for(let key in this.followUpForm) this.followUpForm[key] = '';
             this.getFollowUpLists();
         },
         //获取跟进列表

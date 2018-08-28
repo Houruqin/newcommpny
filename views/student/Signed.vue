@@ -3,6 +3,7 @@
         <el-card shadow="hover">
             <TableHeader title="签约学员">
                 <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
+                <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </TableHeader>
             <div class="header-tab-box d-f f-j-b">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
@@ -424,6 +425,8 @@ import MyButton from '../../components/common/MyButton'
 import Classify from '../../components/common/StudentClassify'
 import {StudentStatic} from '../../script/static'
 import Bus from '../../script/bus'
+import qs from 'qs'
+import config from 'config'
 
 export default {
     data() {
@@ -538,6 +541,41 @@ export default {
                     colspan: 0
                 };
             }
+        },
+        //导出学员
+        async exportStudent() {
+            let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+            let params = {type: this.activeTab, token: token.replace('bearer ', '')};
+
+            if(this.searchKeyWord) {
+                if(isNaN(this.searchKeyWord)) {
+                    params.name = this.searchKeyWord;
+                    params.mobile = '';
+                }else {
+                    params.mobile = this.searchKeyWord;
+                    params.name = '';
+                }
+            }else {
+                params.mobile = '';
+                params.name = '';
+            }
+
+            if(this.activeTab === 'birthday') {
+                params.gift_status = this.searchFilter.gift_status;
+                params.month = this.searchFilter.month;
+            }else {
+                params.course_id = this.searchFilter.course_id;
+                if(this.activeTab === 'onCourse') {
+                    params.advisor_id = this.searchFilter.advisor_id;
+                    params.what_time = this.searchFilter.sign_what_time;
+                    params.teacher_id = '';
+                }else if(this.activeTab === 'noGrade') params.advisor_id = this.searchFilter.advisor_id;
+                else if(this.activeTab === 'absent') params.what_time = this.searchFilter.absent_what_time;
+            }
+
+            console.log(params)
+
+            window.location.href = `${config.api}sign/export?${qs.stringify(params)}`;
         },
         //关闭弹窗
         dialogClose(form) {
@@ -716,7 +754,6 @@ export default {
         //获取学员列表
         async getStudentLists(currentPage) {
             this.loading = true;
-
             let params = {};
 
             if(this.searchKeyWord) {
@@ -755,7 +792,7 @@ export default {
             let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
             console.log(result);
             if(!result) return 0;
-            
+
             this.activePage = currentPage ? currentPage: 1;
             result.lists.data = this.mergeHandle(result.lists.data);
 

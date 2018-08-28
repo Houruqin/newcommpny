@@ -4,6 +4,7 @@
             <TableHeader title="未签约学员">
                 <MyButton class="mr-20" @click.native="addStudent">登记学员</MyButton>
                 <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
+                <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </TableHeader>
 
             <div class="header-tab-box d-f f-j-b mt-50">
@@ -117,6 +118,8 @@ import ContractDialog from '../../components/dialog/Contract'
 
 import {StudentStatic} from '../../script/static'
 import Bus from '../../script/bus'
+import qs from 'qs'
+import config from 'config'
 
 export default {
     data() {
@@ -205,6 +208,27 @@ export default {
         addStudent() {
             this.studentType = 'add';
             this.dialogStatus.student = true;
+        },
+        //导出学员
+        async exportStudent() {
+            if(this.searchKeyWord) {
+                if(isNaN(this.searchKeyWord)) {
+                    this.searchFilter.name = this.searchKeyWord;
+                    this.searchFilter.mobile = '';
+                }else {
+                    this.searchFilter.mobile = this.searchKeyWord;
+                    this.searchFilter.name = '';
+                }
+            }else {
+                this.searchFilter.mobile = '';
+                this.searchFilter.name = '';
+            }
+
+            let baseUrl = config.api;
+            let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+            let params = {data: this.searchFilter, token: token.replace('bearer ', '')};
+
+            window.location.href = `${baseUrl}student/lists?${qs.stringify(params)}`;
         },
         //弹窗变比，改变dialog状态回调
         CB_dialogStatus(type) {

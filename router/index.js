@@ -25,7 +25,7 @@ const routers = [
 
 
 const router = new Router({
-  mode: 'history',   //build之后本地不能访问 hash
+    mode: 'history',   //build之后本地不能访问 hash
     routes: routers
 });
 

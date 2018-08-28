@@ -78,7 +78,7 @@ export default {
   methods: {
     async getWechatSettings () {
       let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
-      console.log(datas)
+
       if (!datas) {
         return void 0;
       }
@@ -96,6 +96,9 @@ export default {
       return await this.$$request.post('school/weixinRemindSet', { [name]: { name, ...this.setting[name] } });
     },
     async switchChangeHandler (name) {
+      if (!this.setting[name].status && 'num' in this.setting[name]) {
+        this.setting[name].num = this.setting[name].oldval;
+      }
       let result = await this.saveWechatSettings(name);
 
       // 保存失败
