@@ -1,8 +1,28 @@
-import Vue from 'vue';
-import Cache from '@/script/cache';
-import Router from 'vue-router';
+import Vue from 'vue'
+import Cache from '@/script/cache'
+import Router from 'vue-router'
+import Home from '@/views/Home'
+import Login from '@/views/Login'
+import HomeRouter from './home'
+import SchoolArea from '@/views/SchoolArea'
+import Refresh from '@/views/Refresh'
+import Contract from '@/views/Contract'
+import RefundPrint from '@/views/RefundPrint'
+import NotFoundComponent from '@/views/NotFound'
 
-Vue.use(Router);
+Vue.use(Router)
+
+const routers = [
+    {path: '', component: Home, children: HomeRouter},
+    {path: '/login', component: Login, meta: {needlogin: false}},
+    {path: '/addschool', component: SchoolArea, meta: {needlogin: true}},
+    {path: '/home', component: Home, children: HomeRouter},
+    {path: '/contract', component: Contract, name: 'contractView'},
+    {path: '/refundPrint', component: RefundPrint, name: 'RefundPrint'},
+    {path: '/refresh', component: Refresh},
+    {path: '*', component: NotFoundComponent}
+];
+
 
 const router = new Router({
     mode: 'history',   //build之后本地不能访问 hash
