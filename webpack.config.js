@@ -30,7 +30,14 @@ module.exports = {
   module: {
     rules: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.vue$/, loader: 'vue-loader' },
+      { test: /\.vue$/, loader: 'vue-loader',
+        options: {
+          loaders: {
+            css: ExtractTextPlugin.extract({ fallback: 'vue-style-loader', use: 'css-loader!postcss-loader' }),
+            less: ExtractTextPlugin.extract({ fallback: 'vue-style-loader', use: 'css-loader!postcss-loader!less-loader' })
+          }
+        }
+      },
       { test: /\.pug$/, loader: `pug-loader?pretty` },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.(?:yml|yaml)$/, loader: 'json-loader!yaml-loader' },
