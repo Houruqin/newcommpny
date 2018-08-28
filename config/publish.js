@@ -1,4 +1,4 @@
 export default {
-    version: '1.2.1',
-    api: 'http://api.saas.jiaoyf.com/'
+    version: '1.2.2',
+    api: 'https://api.saas.jiaoyf.com/'
   }
