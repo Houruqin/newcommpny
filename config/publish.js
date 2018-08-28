@@ -1,4 +1,6 @@
+import version from './version';
+
 export default {
-    version: '1.2.2',
+    version,
     api: 'https://api.saas.jiaoyf.com/'
   }
