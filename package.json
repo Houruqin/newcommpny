@@ -11,8 +11,8 @@
     "dev_test": "node build --env dev_test",
     "master": "node build --env master",
     "master_test": "node build --env master_test",
-    "saas": "node build --env saas",
-    "saas_pre": "node build --env saas_pre"
+    "publish": "node build --env publish",
+    "publish_pre": "node build --env publish_pre"
   },
   "dependencies": {
     "axios": "^0.18.0",
