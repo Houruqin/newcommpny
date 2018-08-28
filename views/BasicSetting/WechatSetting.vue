@@ -7,7 +7,7 @@
         //- 左侧设置列表
         el-col.student_alarm(:span="9" :offset="1")
           el-row
-            el-col
+            el-col(:style="{ color: '#999' }")
               span.iconfont.icon-renshu.pr-10
               i 学员提醒
             el-col
@@ -24,7 +24,7 @@
         //- 右侧设置列表
         el-col.student_alarm(:span="9" :offset="3")
           el-row
-            el-col
+            el-col(:style="{ color: '#999' }")
               span.iconfont.icon-laoshi.pr-10
               i 员工提醒
             el-col
