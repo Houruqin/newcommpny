@@ -18,7 +18,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" @blur="inputBlurHandler(name)")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
@@ -35,7 +35,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" @blur="inputBlurHandler(name)")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>
@@ -78,7 +78,7 @@ export default {
   methods: {
     async getWechatSettings () {
       let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
-      console.log(datas)
+
       if (!datas) {
         return void 0;
       }
@@ -95,7 +95,13 @@ export default {
     async saveWechatSettings (name) {
       return await this.$$request.post('school/weixinRemindSet', { [name]: { name, ...this.setting[name] } });
     },
+    inputBlurHandler (name) {
+      this.setting[name].num = this.setting[name].oldval;
+    },
     async switchChangeHandler (name) {
+      if (!this.setting[name].status && 'num' in this.setting[name]) {
+        this.setting[name].num = this.setting[name].oldval;
+      }
       let result = await this.saveWechatSettings(name);
 
       // 保存失败
