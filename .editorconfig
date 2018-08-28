@@ -1,9 +1,10 @@
 root = true
 
 [*]
-charset = utf-8
-indent_style = space
-indent_size = 2
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
+charset = utf-8 # 默认utf-8编码
+
+indent_style = space # 缩进使用空格
+indent_size = 4 # 缩进长度为2
+translate_tabs_to_spaces = true # 转化tab为空格
+
+trim_trailing_whitespace = true # 删除行尾的空格
