@@ -412,19 +412,6 @@ export default {
                 loop_time: ''
             },
             formAddDate: [],
-            classForm: {
-                id: '',
-                course_name: '',   //课程名称
-                course_id: '',   //课程id
-                lesson_num: '',   //课程课时
-                name: '',     //班级名称
-                teacher_ids: '',  //任课老师id
-                start_time: '',   //开课日期
-                limit_num: '',    //人数上限
-                counselor_ids: '',    // 辅助老师id
-                room_id: '',    //所选教室id
-                is_listen: ''    //是否试听
-            },
             timeRules: {
                 begin_time: [
                     {required: true, message: '请选择起始时间', trigger: 'change'}
@@ -449,31 +436,6 @@ export default {
                 ],
                 lesson_time: [
                     {required: true, message: '请输入课节时长'}
-                ]
-            },
-            classRules: {
-                name: [
-                    {required: true, message: '请输入班级名称'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入班级课时'}
-                ],
-                teacher_ids: [
-                    {required: true, message: '请选择任课老师', trigger: 'change'}
-                ],
-                counselor_ids: [],
-                start_time: [
-                    {required: true, message: '请选择开课日期', trigger: 'change'}
-                ],
-                limit_num: [
-                    {required: true, message: '请设置人数上限'}
-                ],
-                room_id: [
-                    {required: true, message: '请选择上课教室', trigger: 'change'}
-                ],
-                is_listen: [
-                    {required: true, message: '请设置可否试听', trigger: 'change'}
                 ]
             },
             timetableRules: {
@@ -664,10 +626,6 @@ export default {
             this.gradeType = 'edit';
             this.dialogStatus.grade = true;
         },
-        //form表单确定按钮
-        // doneHandle() {
-        //     this.$refs.classRoomForm.validate(valid => {if(valid) this.submitClassRoom()});
-        // },
         //班级操作列表点击回调
         handleCommand(option) {
             switch(option.type) {
@@ -701,7 +659,7 @@ export default {
             this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
 
             if(this.courseType == 1) this.timetableForm.no_timetable = option.grade_info.unscheduled;
-            this.getGradeFill(option.grade_info.course_id, option.grade_info.id, 'timetable')
+            this.getGradeFill(option.grade_info.course_id, option.grade_info.id)
 
             this.timetableForm.class_name = `${option.course_info.name}/${option.grade_info.name}`;
             this.timetableForm.lesson_time = option.course_info.lesson_time;
@@ -863,7 +821,7 @@ export default {
             }
         },
         //获取老师列表、上课教室等附加信息
-        async getGradeFill(course_id, grade_id, type) {
+        async getGradeFill(course_id, grade_id) {
             let params = {course_id: course_id};
             if(grade_id) params.grade_id = grade_id;
 
@@ -872,22 +830,10 @@ export default {
             if(!result) return 0;
             this.classSelectInfo = result.lists;
 
-            if(type === 'add') {
-                this.allStudentLists = result.lists.student_course;
-            }else {
-                this.allStudentLists = result.lists.student_course.concat(result.lists.student_grade);
-                if(type === 'edit') {
-                    this.studentLists = result.lists.student_grade;
-                    if(!result.lists.student_course.length && result.lists.student_grade.length) this.studentCheckAll = true;
-                }else {
-                    this.timetable_studentLists = result.lists.student_grade.map(v => {return v.student_id});
-                    this.checkStudentForm = this.timetable_studentLists;
-                    if(!result.lists.student_course.length && result.lists.student_grade.length) this.timetable_studentCheckAll = true;
-                }
-            };
-
-            this.classForm.course_name = result.lists.course.name;
-            this.classForm.course_id = result.lists.course.id;
+            this.allStudentLists = result.lists.student_course.concat(result.lists.student_grade);
+            this.timetable_studentLists = result.lists.student_grade.map(v => {return v.student_id});
+            this.checkStudentForm = this.timetable_studentLists;
+            if(!result.lists.student_course.length && result.lists.student_grade.length) this.timetable_studentCheckAll = true;
         },
         //班级课程结课、停课、开课
         classCourseState(option) {
@@ -919,53 +865,6 @@ export default {
             this.$message.success('已删除');
             this.getCourseLists(data.course_id);
         },
-        //新增、编辑班级提交数据
-        // submitClassRoom() {
-        //     if(this.courseType === 1) {
-        //         if(this.classForm.limit_num < this.studentLists.length) {
-        //             this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
-        //                 confirmButtonText: '确定',
-        //                 cancelButtonText: '取消',
-        //                 type: 'warning'
-        //             }).then(() => {
-        //                 this.submitClassRoomHandle();
-        //             }).catch(() => {return 0});
-        //         }else {
-        //             this.submitClassRoomHandle();
-        //         }
-        //     }else {
-        //         this.submitClassRoomHandle();
-        //     }
-        // },
-        // async submitClassRoomHandle() {
-        //     if(this.submitLoading.grade) return 0;
-        //     this.submitLoading.grade = true;
-
-        //     let url = this.classEdit ? '/grade/edit' : '/grade/add';
-        //     let params = {};
-
-        //     for(let key in this.classForm) {
-        //         if(key == 'teacher_ids' || key == 'counselor_ids') {
-        //             params[key] = `,${this.classForm[key]},`;
-        //         }else if(key == 'start_time'){
-        //             params[key] = this.classForm[key] / 1000;
-        //         }else params[key] = this.classForm[key];
-        //     };
-
-        //     params.students = this.studentLists.map(v => {return {student_id: v.student_id}});
-        //     console.log(params)
-
-        //     let result = await this.$$request.post(url, params);
-        //     this.submitLoading.grade = false;
-        //     console.log(result);
-        //     if(!result) return 0;
-        //     this.$message.success(this.classEdit ? '修改成功' : '添加成功');
-
-        //     this.getCourseLists(params.course_id);
-        //     this.$store.dispatch('getCourse');
-        //     this.dialogStatus.grade = false;
-        //     this.studentLists.splice(0, this.studentLists.length);  //成功以后，studentLists选中的学员列表清空
-        // },
         //获取课程列表
         async getCourseLists(course_id) {
             let active = '';

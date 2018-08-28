@@ -5,6 +5,7 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 const router = new Router({
+<<<<<<< HEAD
   mode: 'history',   //build之后本地不能访问 hash
   routes: [
     { path: '/', component: () => import(/* webpackChunkName: 'page-layout' */ '@/views/Layout'), children: [
@@ -57,6 +58,10 @@ const router = new Router({
     { path: '/refresh', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Refresh') },
     { path: '*', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/NotFound') },
   ]
+=======
+    mode: 'history',   //build之后本地不能访问 hash
+    routes: routers
+>>>>>>> 112901e4fa6b16e00392c8a8698937163017e940
 });
 
 
