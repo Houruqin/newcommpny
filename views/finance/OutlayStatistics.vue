@@ -93,7 +93,7 @@
             </el-col>
 
             <el-col :span="11">
-              <el-form-item label="支出类型：" prop="type" class="p-r">
+              <el-form-item label="支出类型：" prop="type_id" class="p-r">
                 <el-select v-model="dialog.add.data.type_id" placeholder="请选择">
                   <el-option v-if="type.status === 1" @click.native="dialog.add.data.type = type.name" v-for="type of dialog.add.data.type_lists" :key="type.id" :label="type.name" :value="type.id"></el-option>
                 </el-select>
@@ -246,7 +246,7 @@ export default {
       filted_user: "",
       addRules: {
         together_id: [{ required: true, message: "请选择支出人员", trigger: "change"}],
-        type: [
+        type_id: [
           { required: true, message: "请选择支出类型", trigger: "change" }
         ],
         price: [
