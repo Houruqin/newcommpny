@@ -111,7 +111,7 @@
                         <i class="iconfont" :class="guideData[guideSetup].icon"></i><span class="fs-16 pl-10">{{guideData[guideSetup].text}}</span>
                     </div>
                 </div>
-                <div class="bg-img p-a">
+                <div class="bg-img p-a guide-right-box">
                     <div class="right p-a fc-f d-f f-d-c f-a-c">
                         <p class="d-f fs-26 f-a-c f-j-c"><span>新手第</span><span class="step fs-16 t-a-c btn-m">{{guideSetup + 1}}</span><span>步</span></p>
                         <template v-if="guideSetup === 0">
@@ -670,8 +670,10 @@ export default {
         mymenuPosition() {
             if(this.guideSetup < 5) {
                 let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
+                let rightBox = document.querySelector('.guide-right-box').clientHeight;
+
                 document.querySelector('.guide-box').style.left = '0';
-                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + mymenu.clientHeight - 30}px`;
+                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + 192 - rightBox + mymenu.clientHeight}px`;
             }else if(this.guideSetup == 5){
                 document.querySelector('.guide-box').style.left = 'auto';
                 document.querySelector('.guide-box').style.top = '50px';
@@ -871,7 +873,7 @@ export default {
             background-color: #2A3C50;
             color: #45DAD5;
             left: 0;
-            top: 166px;
+            top: 170px;
             .tab-title {
                 border-right: 5px #45DAD5 solid;
                 height: 100%;

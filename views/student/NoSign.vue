@@ -4,14 +4,13 @@
             <TableHeader title="未签约学员">
                 <MyButton class="mr-20" @click.native="addStudent">登记学员</MyButton>
                 <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
-                <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </TableHeader>
 
             <div class="header-tab-box d-f f-j-b mt-50">
                 <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
             </div>
-            <div class="fifter-toolbar mt-30">
-                <ul class="d-f">
+            <div class="fifter-toolbar mt-30 d-f">
+                <ul class="d-f flex1">
                     <li v-if="activeTab != 'no_advisor'">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
@@ -33,6 +32,8 @@
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
+
+                <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
             <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe>
