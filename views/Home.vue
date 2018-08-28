@@ -57,7 +57,7 @@
                                     <i class="iconfont icon-weixingongzhonghao fc-9"></i>
                                     <span class="pl-10">微信公众号</span>
                                     <div class="p-a qr-code" v-show="qr_code_show">
-                                        <img src="http://saas.jiaoyf.com/wechat/common/qrcode" alt="">
+                                        <img :src="apiUrl + 'wechat/common/qrcode'" alt="">
                                     </div>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -318,10 +318,13 @@ import BuyCourseDialog from '../components/dialog/BuyCourse'
 import ContractDialog from '../components/dialog/Contract'
 import AddCourseDialog from '../components/dialog/AddCourse'
 
+import config from 'config';
+
 export default {
     data() {
         return {
             loading: false,
+            apiUrl: config.api,
             search_student_info: '',  //搜索学员信息
             search_result: [],     //搜索结果
             settingShow: false,
