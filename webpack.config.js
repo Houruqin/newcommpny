@@ -15,8 +15,18 @@ const config = {
   host: '0.0.0.0'
 };
 
+let isLocalEnv = 'local' === argv.env;
+
+// 本地开发环境的配置项
+let localDevConf = {
+  devtool: '#source-map'
+}
+
+// 生产环境的配置项
+let publishDevConf = {}
+
 module.exports = {
-  devtool: '#source-map',
+  ...(isLocalEnv ? localDevConf : publishDevConf),
   entry: {
     [`${config.staticDir}index`]: ['babel-polyfill', './index.js']
   },
