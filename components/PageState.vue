@@ -18,7 +18,6 @@ export default {
     },
     watch: {
         state (v) {
-            console.log(v);
             if (this.$route.path === this.fullpath && 'loaded' === v) {
                 this.loaded();
             }

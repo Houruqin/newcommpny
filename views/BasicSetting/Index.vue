@@ -204,10 +204,23 @@ export default {
                 this.sourceForm.name = '';
                 this.sourceMaskStatus = false;
             }
+        },
+        setLoaded () {
+          if ('loaded' === this.$store.state.sourceState && 'loaded' === this.$store.state.classRoomState) {
+            this.state = 'loaded';
+          }
         }
     },
     mounted () {
-      this.state = 'loaded';
+      this.setLoaded();
+    },
+    watch: {
+      ['$store.state.sourceState']() {
+        this.setLoaded();
+      },
+      ['$store.state.classRoomState']() {
+        this.setLoaded();
+      }
     },
     components: {TableHeader, MyButton}
 }

@@ -13,7 +13,9 @@ const state = {
     advisor: [],    //顾问列表
     teacherList: [],   //老师列表
     source: [],   //渠道列表
+    sourceState: 'loading',
     classRoom: [],   //教室列表
+    classRoomState: 'loading',
     course: [],   //课程列表
     grade: [],    //班级列表
     listen_grade: [],    //试听班级列表
@@ -72,14 +74,14 @@ const mutations = {
         let result = await Request.post('/source/lists');
         console.log(result)
         if(!result) return 0;
-
+        state.sourceState = 'loaded';
         state.source = result.lists;
     },
     async getClassRoom() {
         let result = await Request.post('/classRoom/lists');
         console.log(result)
         if(!result) return 0;
-
+        state.classRoomState = 'loaded';
         state.classRoom = result.lists;
     },
     async getCourse(state) {
