@@ -590,6 +590,7 @@ import ContractDialog from '../../components/dialog/Contract'
 export default {
   data() {
     return {
+      state: 'loading',
       activeName: "leave",
       follow_up_activeName: "visit",
       notice_activeName: "receive",

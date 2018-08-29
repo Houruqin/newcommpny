@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-row>
             <el-col :span="24">
                 <el-card shadow="hover">
@@ -86,6 +87,7 @@ let organization_id, school_name, user_name, user_mobile, school_contact, school
 export default {
     data() {
         return {
+            state: 'loading',
             loading: false,
             schoolNum: 3,  //可用的校区数量
             maskStatus: false,   //新增、修改form
@@ -273,8 +275,8 @@ export default {
         async getSchoolLists(type) {
             this.loading = true;
             let result = await this.$$request.get('/school/lists');
-            console.log(result)
-            if(!result) return 0;
+
+            if(!result) return void 0;
             this.schoolLists = result.lists;
 
             if(type === 'edit') {
@@ -288,17 +290,19 @@ export default {
             };
 
             this.loading = false;
+            return true;
         },
         //获取机构列表
         async getOrgLists() {
             let orgLists = await this.$$request.post('/user/orgLists');
-            if(!orgLists) return 0;
+            if(!orgLists) return void 0;
             this.organizationInfo = orgLists.lists;
+            return true;
         }
     },
-    created() {
-        this.getOrgLists();
-        this.getSchoolLists();
+    async created() {
+        let [r1, r2] = await Promise.all([this.getOrgLists(), this.getSchoolLists()]);
+        if (r1 && r2) this.state = 'loaded';
     },
     beforeDestroy() {
         Bus.$off('refreshSchoolId');

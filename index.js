@@ -23,6 +23,9 @@ import './styles/common'; //公共样式
 import './styles/cover'; //覆盖elementUI组件的样式
 import './styles/calendar'; //日历样式
 
+import PageState from './components/PageState';
+Vue.component('PageState', PageState);
+
 Vue.config.productionTip = false
 Vue.use(Element)
 

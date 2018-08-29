@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+      <PageState :state="state"/>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-card shadow="hover">
@@ -72,6 +73,7 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            state: 'loading',
             classroomLists: [],
             submitLoading: false,
             sourceLists: [],
@@ -202,7 +204,23 @@ export default {
                 this.sourceForm.name = '';
                 this.sourceMaskStatus = false;
             }
+        },
+        setLoaded () {
+          if ('loaded' === this.$store.state.sourceState && 'loaded' === this.$store.state.classRoomState) {
+            this.state = 'loaded';
+          }
         }
+    },
+    mounted () {
+      this.setLoaded();
+    },
+    watch: {
+      ['$store.state.sourceState']() {
+        this.setLoaded();
+      },
+      ['$store.state.classRoomState']() {
+        this.setLoaded();
+      }
     },
     components: {TableHeader, MyButton}
 }

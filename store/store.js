@@ -6,11 +6,16 @@ import Request from '../script/request'
 Vue.use(Vuex);
 
 const state = {
+    pageState: 'loading', // 页面加载状态  loading loaded error
+    pageErrorText: '',
+    errorType: '',
     guide: false,     //是否引导页
     advisor: [],    //顾问列表
     teacherList: [],   //老师列表
     source: [],   //渠道列表
+    sourceState: 'loading',
     classRoom: [],   //教室列表
+    classRoomState: 'loading',
     course: [],   //课程列表
     grade: [],    //班级列表
     listen_grade: [],    //试听班级列表
@@ -21,6 +26,22 @@ const state = {
 };
 
 const mutations = {
+    stateChange (state, pageStateObj) {
+        state.pageState = pageStateObj.state;
+        switch (pageStateObj.state) {
+            case 'loading':
+                // document.title = '加载中...';
+                state.pageErrorText = '';
+            break;
+            case 'loaded':
+                // document.title = pageStateObj.title;
+                state.pageErrorText = '';
+            break;
+            default:
+                state.errorType = pageStateObj.errorType;
+                state.pageErrorText = pageStateObj.errorMsg;
+        }
+    },
     //引导页改变
     guideChange(state, type) {
         state.guide = type;
@@ -53,14 +74,14 @@ const mutations = {
         let result = await Request.post('/source/lists');
         console.log(result)
         if(!result) return 0;
-
+        state.sourceState = 'loaded';
         state.source = result.lists;
     },
     async getClassRoom() {
         let result = await Request.post('/classRoom/lists');
         console.log(result)
         if(!result) return 0;
-
+        state.classRoomState = 'loaded';
         state.classRoom = result.lists;
     },
     async getCourse(state) {
