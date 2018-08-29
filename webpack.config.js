@@ -5,6 +5,7 @@ const
   CleanWebpackPlugin = require('clean-webpack-plugin'),
   ExtractTextPlugin = require('extract-text-webpack-plugin'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
+  UglifyJsPlugin = require('uglifyjs-webpack-plugin'),
   CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config = {
@@ -17,9 +18,18 @@ const config = {
 
 let isLocalEnv = 'local' === argv.env;
 
+let productPlugins = [];
+
+if (!isLocalEnv) {
+  process.env.NODE_ENV = 'production';
+  productPlugins = [
+    new UglifyJsPlugin()
+  ];
+}
+
 // 本地开发环境的配置项
 let localDevConf = {
-  devtool: '#source-map'
+  devtool: 'cheap-module-eval-source-map'
 }
 
 // 生产环境的配置项
@@ -65,6 +75,7 @@ module.exports = {
     }
   },
   plugins: [
+    ...productPlugins,
     new CleanWebpackPlugin([config.distDir]),
     new ExtractTextPlugin('[name].css'),
     new webpack.optimize.CommonsChunkPlugin(`${config.staticDir}common`),
