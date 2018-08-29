@@ -255,7 +255,7 @@ export default {
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
           { validator: this.$$tools.formOtherValidate("total", 999999) }
         ],
-        remark: [{ required: true, message: "请输入备注" }]
+        // remark: [{ required: true, message: "请输入备注" }]
       },
       addTypeRules: {
         type: [{ required: true, message: "请输入支出类型" }]

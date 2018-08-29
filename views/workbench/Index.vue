@@ -1604,7 +1604,7 @@ export default {
     &::after {
       content: "";
       display: inline-block;
-      width: 14px;
+      width: 9px;
       height: 30px;
       position: absolute;
       left: 0px;
