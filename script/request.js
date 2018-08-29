@@ -5,6 +5,7 @@ import qs from 'qs'
 import cache from './cache'
 import config from 'config'
 import Bus from '../script/bus'
+import store from '../store/store'
 import { Message } from 'element-ui';
 
 //全局配置baseURL和超时时间  根据当前环境 development开发/ production生产正式,申明不同的baseURL
@@ -47,25 +48,24 @@ axios.interceptors.response.use(res => {
             Message.warning(result.message);
             return null;
         default:
-            Message.warning(result.message);
+            let errorMsg = result.message || '请求错误，请稍后再试';
+            store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
             return null;
     }
 }, error => {
-    let result = error.response;
-    if (!result) {
-        Message.warning('网络错误，请稍后再试');
-        return null;
-    }
+    let result = error.response || {};
+    let errorMsg = '';
     switch (result.status) {
         case 403:
-            Message.warning('您没有操作权限');
+            errorMsg = '您没有操作权限';
             break;
         case 401:
-            cache.loginOut();
-            break;
+            return cache.loginOut();
         default:
-            Message.warning('请求失败，请稍后再试');
+            errorMsg = '请求失败，请稍后再试';
     }
+
+    store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
     return null;
 });
 

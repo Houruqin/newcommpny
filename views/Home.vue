@@ -87,8 +87,15 @@
                 <div class="border-bottom"></div>
             </el-header>
             <el-container class="home-main-box">
+                <div class="inner-page-loading-box page-loadding-box" v-if="'loading' === $store.state.pageState">
+                  <div class="loading-icon"><span>加载中</span><i></i></div>
+                  <p class="loading-text">正在努力加载，请耐心等候</p>
+                </div>
+                <div class="page-error-box" v-if="'error' === $store.state.pageState">
+                  {{ $store.state.pageErrorText }}
+                </div>
                 <!-- <keep-alive><router-view v-if="$route.meta.keepAlive"></router-view></keep-alive>  v-if="!$route.meta.keepAlive"-->
-                <router-view></router-view>
+                <router-view v-show="'loaded' === $store.state.pageState"></router-view>
             </el-container>
         </el-container>
 
@@ -797,6 +804,18 @@ export default {
                 }
             }
         }
+    }
+    .inner-page-loading-box, .page-error-box {
+      position: fixed;
+      left: 230px;
+      top: 90px;
+      bottom: 0;
+      right: 0;
+      width: auto;
+      height: auto;;
+    }
+    .page-error-box {
+      z-index: 100000;
     }
     .content-right {
         padding-left: 230px;

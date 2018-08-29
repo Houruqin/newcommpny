@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+      <PageState :state="state"/>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-card shadow="hover">
@@ -72,6 +73,7 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            state: 'loading',
             classroomLists: [],
             submitLoading: false,
             sourceLists: [],
@@ -203,6 +205,9 @@ export default {
                 this.sourceMaskStatus = false;
             }
         }
+    },
+    mounted () {
+      this.state = 'loaded';
     },
     components: {TableHeader, MyButton}
 }

@@ -1,5 +1,6 @@
 <template lang="pug">
   .flex1.alarm_setting
+    PageState(:state="state")
     el-card(shadow="hover")
       TableHeader(title="微信设置")
       el-row
@@ -48,6 +49,7 @@ const RIGHT_SETTING_SORT = ['timetableTeacher', 'teacherLessonRemind', 'teacherL
 export default {
   data () {
     return {
+      state: 'loading',
       LEFT_SETTING_SORT,
       RIGHT_SETTING_SORT,
       setting: {
@@ -76,22 +78,6 @@ export default {
     };
   },
   methods: {
-    async getWechatSettings () {
-      let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
-
-      if (!datas) {
-        return void 0;
-      }
-
-      Object.keys(this.setting).forEach(v => {
-        this.setting[v].status = !!datas[v].status;
-        this.setting[v].label = datas[v].description;
-        if ('num' in this.setting[v]) {
-          this.setting[v].num = datas[v].num;
-          this.setting[v].oldval = datas[v].num;
-        }
-      });
-    },
     async saveWechatSettings (name) {
       return await this.$$request.post('school/weixinRemindSet', { [name]: { name, ...this.setting[name] } });
     },
@@ -123,8 +109,22 @@ export default {
       this.$message.success('保存成功');
     }
   },
-  created () {
-    this.getWechatSettings();
+  async created () {
+    let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
+
+      if (!datas) {
+        return void 0;
+      }
+
+      Object.keys(this.setting).forEach(v => {
+        this.setting[v].status = !!datas[v].status;
+        this.setting[v].label = datas[v].description;
+        if ('num' in this.setting[v]) {
+          this.setting[v].num = datas[v].num;
+          this.setting[v].oldval = datas[v].num;
+        }
+      });
+      this.state = 'loaded';
   },
   components: {
     TableHeader
