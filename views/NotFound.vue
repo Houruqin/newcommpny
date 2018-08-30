@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         goHome() {
-            this.$router.replace({path: '/home'});
+            this.$router.replace({path: '/'});
         }
     },
     components: {MyButton}

@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <div class="table-header d-f f-a-c f-j-b fc-5">
                 <div class="d-f f-a-c">
@@ -658,6 +659,7 @@ export default {
                 student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
             },
 
+            state: 'loading',
             dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
 
             studentId: '',     //学员id
@@ -1388,7 +1390,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'studentDetail', result.detail);
-            this.getBottomTabLists();
+            return true;
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(url, data) {
@@ -1436,6 +1438,7 @@ export default {
             this[dataLists] = result.lists;
 
             this.loading = false;
+            return true;
         },
         //获取试听填充列表
         async getListenLists() {
@@ -1464,14 +1467,16 @@ export default {
             this.listenCourseLists = result.lists;
         }
     },
-    created() {
+    async created() {
         this.studentId = this.$route.query.id;
-        this.getStudentDetail();
+        let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
+        if(a && b) this.state = 'loaded';
     },
     watch: {
         $route: function(val,oldval) {
             this.studentId = val.query.id;
             this.getStudentDetail();
+            this.getBottomTabLists();
         }
     },
     components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}

@@ -1,8 +1,15 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader title="出入库记录"></TableHeader>
+            <TableHeader title="出入库明细"></TableHeader>
 
+            <el-tabs v-model="listType" @tab-click="tabClick" class="tab-toolbar">
+                <el-tab-pane label="出入库记录" name="record"></el-tab-pane>
+                <el-tab-pane label="作废记录" name="cancellation"></el-tab-pane>
+            </el-tabs>
+
+            <div></div>
             <div class="fifter-toolbar mt-30">
                 <ul class="d-f f-a-c">
                     <li>
@@ -18,7 +25,7 @@
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
-                    <li class="ml-20">
+                    <li class="ml-20" v-if="listType == 'record'">
                         <el-select size="small" placeholder="全部类别" v-model="searchFilter.storage_type" @change="searchHandle">
                             <el-option label="全部类别" value=""></el-option>
                             <el-option label="入库" :value="2"></el-option>
@@ -43,34 +50,75 @@
                 </ul>
             </div>
 
-            <el-table class="mt-20 bor-t" :data="storageTable.data" v-loading="loading" stripe>
-                <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="物品名称" prop="goods_name" align="center"></el-table-column>
-                <el-table-column label="类别" align="center">
-                    <template slot-scope="scope">{{scope.row.type == 1 ? '出库' : '入库'}}</template>
-                </el-table-column>
-                <el-table-column label="物品类型" prop="goods_types_name" align="center"></el-table-column>
-                <el-table-column label="使用类型" align="center">
-                    <template slot-scope="scope">{{scope.row.use_type == 1 ? '内部使用' : '对外销售'}}</template>
-                </el-table-column>
-                <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
-                <el-table-column label="操作时间" align="center">
-                    <template slot-scope="scope">
-                        {{$$tools.format(scope.row.updated_at)}}
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作数量" prop="num" align="center"></el-table-column>
-                <el-table-column label="领用人" prop="receive_name" align="center"></el-table-column>
-            </el-table>
+            <div v-if="listType == 'record'" key="record">
+                <el-table class="mt-20 bor-t" :data="storageTable.data" v-loading="loading" stripe>
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="物品名称" prop="goods_name" align="center"></el-table-column>
+                    <el-table-column label="类别" align="center">
+                        <template slot-scope="scope">{{scope.row.type == 1 ? '出库' : '入库'}}</template>
+                    </el-table-column>
+                    <el-table-column label="物品类型" prop="goods_types_name" align="center"></el-table-column>
+                    <el-table-column label="使用类型" align="center">
+                        <template slot-scope="scope">{{scope.row.use_type == 1 ? '内部使用' : '对外销售'}}</template>
+                    </el-table-column>
+                    <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
+                    <el-table-column label="操作时间" align="center">
+                        <template slot-scope="scope">
+                            {{$$tools.format(scope.row.updated_at)}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作数量" prop="num" align="center"></el-table-column>
+                    <el-table-column label="领用人" prop="receive_name" align="center"></el-table-column>
+                    <el-table-column label="备注" prop="remark" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.type == 2" class="fc-m cursor-pointer" @click="cancellationClick(scope.row.id)">作废</span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-pagination v-if="storageTable.total"
+                    class="d-f f-j-c mt-50 mb-50"
+                    :page-size="storageTable.per_page"
+                    background layout="total, prev, pager, next"
+                    :total="storageTable.total"
+                    :current-page="storageTable.current_page"
+                    @current-change="paginationClick">
+                </el-pagination>
+            </div>
 
-            <el-pagination v-if="storageTable.total"
-                class="d-f f-j-c mt-50 mb-50"
-                :page-size="storageTable.per_page"
-                background layout="total, prev, pager, next"
-                :total="storageTable.total"
-                :current-page="storageTable.current_page"
-                @current-change="paginationClick">
-            </el-pagination>
+            <div v-else key="cancellation">
+                <el-table class="mt-20 bor-t" :data="cancellationTable.data" v-loading="loading" stripe>
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="入库时间" align="center">
+                        <template slot-scope="scope">{{$$tools.format(scope.row.created_at)}}</template>
+                    </el-table-column>
+                    <el-table-column label="物品名称" prop="goods_name" align="center"></el-table-column>
+                    <el-table-column label="类别" align="center">
+                        <template slot-scope="scope">{{scope.row.type == 1 ? '出库' : '入库'}}</template>
+                    </el-table-column>
+                    <el-table-column label="物品类型" prop="goods_types_name" align="center"></el-table-column>
+                    <el-table-column label="使用类型" align="center">
+                        <template slot-scope="scope">{{scope.row.use_type == 1 ? '内部使用' : '对外销售'}}</template>
+                    </el-table-column>
+                    <el-table-column label="入库操作人" prop="user_name" align="center"></el-table-column>
+
+                    <el-table-column label="操作数量" prop="num" align="center"></el-table-column>
+                    <el-table-column label="作废时间" align="center">
+                        <template slot-scope="scope">
+                            {{$$tools.format(scope.row.updated_at)}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="作废操作人" align="center" prop="cancel_name"></el-table-column>
+                </el-table>
+                <el-pagination v-if="cancellationTable.total"
+                    class="d-f f-j-c mt-50 mb-50"
+                    :page-size="cancellationTable.per_page"
+                    background layout="total, prev, pager, next"
+                    :total="cancellationTable.total"
+                    :current-page="cancellationTable.current_page"
+                    @current-change="paginationClick">
+                </el-pagination>
+            </div>
         </el-card>
     </div>
 </template>
@@ -82,7 +130,10 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            state: 'loading',
+            listType: 'record',
             loading: false,
+            activePage: 1,
             storageLists: [],
             dialogStatus: {addStorage: false},
             searchFilter: {
@@ -90,7 +141,9 @@ export default {
                 end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
                 storage_type: '', commodity_type: '', use_type: '', keyword: ''
             },
+
             storageTable: {},
+            cancellationTable: {},
 
             commodityTypeLists: []
         }
@@ -104,7 +157,27 @@ export default {
             this.getStorageLists();
         },
         paginationClick(current) {
-            this.getStorageLists(current);
+           this.getStorageLists(current);
+        },
+        tabClick() {
+            this.getStorageLists();
+        },
+        // 作废
+        cancellationClick(id) {
+            this.$confirm('确定作废该记录吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.cancellationHandle(id);
+            }).catch(() => {return 0});
+        },
+        async cancellationHandle(id) {
+            let result = await this.$$request.post('/repertory/cancellation', {id: id});
+            console.log(result);
+            if(!result) return 0;
+            this.$message.success('已作废');
+            this.getStorageLists(this.activePage);
         },
         //获取出入库记录列表
         async getStorageLists(page) {
@@ -114,7 +187,8 @@ export default {
                     name: this.searchFilter.keyword,
                     use_type: this.searchFilter.use_type,
                     goods_type: this.searchFilter.commodity_type,
-                    storage_type: this.searchFilter.storage_type,
+                    storage_type: this.listType == 'record' ? this.searchFilter.storage_type : '',
+                    type: this.listType,
                     time: {
                         start: this.searchFilter.begin_time / 1000,
                         end: this.searchFilter.end_time / 1000
@@ -126,10 +200,14 @@ export default {
 
             let result = await this.$$request.get('/repertory/storageLists', params);
             console.log(result);
-
             if(!result) return 0;
-            this.storageTable = result.lists;
+
+            if(this.listType == 'record') this.storageTable = result.lists;
+            else this.cancellationTable = result.lists;
+            if(page) this.activePage = page;
+
             this.loading = false;
+            return true;
         },
         //获取物品类型列表
         async getCommodityTypeLists() {
@@ -138,11 +216,12 @@ export default {
             if(!result) return 0;
 
             this.commodityTypeLists = result.lists;
+            return true;
         }
     },
-    created() {
-        this.getStorageLists();
-        this.getCommodityTypeLists();
+    async created() {
+        let [a, b] = await Promise.all([this.getStorageLists(), this.getCommodityTypeLists()]);
+        if(a && b) this.state = 'loaded';
     },
     components: {TableHeader, MyButton}
 }

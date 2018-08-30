@@ -1324,7 +1324,7 @@ export default {
 
     //发通知
     edit_notice() {
-      this.$router.push({ path: "/home/workbench/editNotice" });
+      this.$router.push({ path: "/workbench/editNotice" });
     },
     //获取员工通知列表
     async get_notice_list() {

@@ -1,7 +1,6 @@
 'use strict';
 
 process.env.NODE_ENV = 'production';
-process.env.PROJECT_ENV = '';
 
 const ora = require('ora');
 const chalk = require('chalk');

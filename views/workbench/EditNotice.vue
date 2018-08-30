@@ -170,7 +170,7 @@ export default {
       };
       this.$$request.post("/notification/send", params).then(res => {
         this.$message.success("已发送");
-        this.$router.replace({ path: "/home" });
+        this.$router.replace({ path: "/" });
       });
     }
   },

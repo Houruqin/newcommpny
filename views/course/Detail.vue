@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="班级详情">
                 <!-- <MyButton type="subm" @click.native="deleteGrade">删除</MyButton> -->
@@ -84,6 +85,7 @@ export default {
     components: {TableHeader, MyButton, AddGradeDialog},
     data() {
         return {
+            state: 'loading',
             gradeId: 167,
             gradeDetail: {},
             timeTableLists: [],
@@ -122,7 +124,7 @@ export default {
             }
         },
         CB_addGrade() {
-            this.getGradeDetail();
+            this.getPageData();
             this.editDetail = {};
             this.dialogStatus.grade = false;
         },
@@ -178,6 +180,10 @@ export default {
             this.timetableCheckbox = !this.timetableCheckbox;
             if(!this.timetableCheckbox) this.$refs.timetable.clearSelection();
         },
+        async getPageData() {
+            let [a, b] = await Promise.all([this.getGradeDetail(), this.getTimeTableLists()]);
+            return a && b;
+        },
         async getGradeDetail() {
             let result = await this.$$request.get('/grade/detail', {grade_id: this.gradeId});
             console.log(result);
@@ -185,7 +191,7 @@ export default {
             if(!result) return 0;
             this.gradeDetail = result.grade;
             this.courseType = this.gradeDetail.course.type;
-            this.getTimeTableLists();
+            return true;
         },
         async getTimeTableLists(curr_page) {
             let params = {grade_id: this.gradeId};
@@ -196,11 +202,13 @@ export default {
 
             if(!result) return 0;
             this.timeTableLists = result.timetable;
+            return true;
         }
     },
-    created() {
+    async created() {
         if(this.$route.query.grade_id) this.gradeId = this.$route.query.grade_id;
-        this.getGradeDetail();
+        let datas = await this.getPageData();
+        if(datas) this.state = 'loaded';
     }
 }
 </script>
