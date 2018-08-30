@@ -11,7 +11,7 @@
           span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
         .login-btn(@click="onLogin") 立即登录
-      .login-inner-footer #[a(href="") 官网]#[a 帮助]#[a 申请试用]
+      .login-inner-footer #[span 官网]#[span(@click="$router.push('/help')") 帮助]#[span 申请试用]
     .login-footer
 </template>
 
@@ -207,7 +207,7 @@ export default {
   margin-top: 85px;
   color: #45dad5;
   font-size: 16px;
-  a {
+  span {
     height: 30px;
     padding: 0 15px;
     border-radius: 15px;
@@ -219,6 +219,7 @@ export default {
       margin-right: 56px;
     }
     &:hover {
+      cursor: pointer;
       color: #fff;
       background: #45dad5;
     }
