@@ -34,15 +34,19 @@
                 <el-table-column label="职位性质" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
                 </el-table-column>
-                <el-table-column prop="status" label="任职状态" align="center">
+                <el-table-column label="任职状态" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.status == 1 ? '在职' : '离职'}}</span></template>
+                </el-table-column>
+                <el-table-column label="账号状态" align="center">
+                    <template slot-scope="scope"><span>{{!scope.row.status ? '--' : scope.row.is_enable == 1 ? '正常' : '禁用'}}</span></template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <div>
-                            <a class="cursor-pointer fc-m" v-if="scope.row.status" @click="modifyHandle(scope.row)">编辑</a>
-                            <a class="cursor-pointer fc-subm" v-else @click="deleteUserInfo(scope.row)">删除</a>
-                        </div>
+                        <span class="cursor-pointer fc-m" v-if="scope.row.status" @click="modifyHandle(scope.row)">编辑</span>
+                        <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
+                        <span class="cursor-pointer fc-m ml-10" v-if="scope.row.operable" @click="forbidClick(scope.row)">
+                            {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
+                        </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -155,6 +159,24 @@ export default {
             this.type = 'edit';
             this.editDetail = data;
             this.dialogStatus = true;
+        },
+        //禁用账号
+        forbidClick(data) {
+            this.$confirm(`确定${data.is_enable ? '禁' : '启'}用该账号吗?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.forbideHandle(data);
+            }).catch(() => {return 0});
+        },
+        async forbideHandle(data) {
+            console.log(data);
+            let result = await this.$$request.post(`user/${data.is_enable ? 'disable' : 'enable'}`, {user_id: data.id});
+            console.log(result);
+            if(!result) return 0;
+            this.$message.success(`${data.is_enable ? '禁' : '启'}用操作成功!`);
+            this.getUserLists(this.activePage);
         },
         //删除用户
         deleteUserInfo(scope) {

@@ -64,7 +64,7 @@ const router = new Router({
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
   store.commit('stateChange', { state: 'loading' });
-  if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/home/workbench'});
+  if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/workbench'});
   if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
   next();
 });
