@@ -1,5 +1,6 @@
 <template>
   <div class="content flex1 workbench_container">
+    <PageState :state="state" />
     <el-row :gutter="20" class="top_content">
       <el-card shadow="hover" >
         <el-col :span="11" v-if="statitics_info.sign !== ''">
@@ -803,19 +804,20 @@ export default {
     async get_data() {
       switch (this.activeName) {
         case "leave":
-          this.get_leave_data();
+          await this.get_leave_data();
+          return true;
           break;
         case "divide":
-          this.get_divide_data();
+          await this.get_divide_data();
           break;
         case "renewal":
-          this.get_renewal_data();
+          await this.get_renewal_data();
           break;
         case "birth":
-          this.get_birth_data();
+          await this.get_birth_data();
           break;
         case "memo":
-          this.get_memo_data();
+          await this.get_memo_data();
       }
     },
     //打开历史记录弹窗
@@ -910,19 +912,18 @@ export default {
       this.memo_info.readonly = true;
     },
     //获取待处理请假列表
-    get_leave_data() {
+    async get_leave_data() {
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request
-        .get("/student/undisposedLeaveTicketLists", params)
-        .then(res => {
-          this.leave_info.data = res.lists;
-          this.page_info.total = res.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.get("/student/undisposedLeaveTicketLists", params);
+      if(!res) return false;
+      this.leave_info.data = res.lists;
+      this.page_info.total = res.total;
+      this.loading = false;
+      return true;
     },
     //处理请假
     leave_handle(id, status) {
@@ -1160,11 +1161,11 @@ export default {
     },
     //================财务统计模块================
     async get_finance_data() {
-      this.$$request.get('/financial/statistics')
-      .then(res => {
+      let res = await this.$$request.get('/financial/statistics');
+      if(!res) return false;
         this.statitics_info.sign = res.sign;
         this.statitics_info.eliminate = res.eliminate;
-      })
+        return true;
     },
     //================今日课程模块================
     //按需获取今日跟进所有数据
@@ -1199,39 +1200,43 @@ export default {
           },
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("/student/lists", params).then(res => {
-          this[`${this.follow_up_activeName}_list`] = res.lists.data;
-          this.follow_up_page_info.total = res.lists.total;
-          this.follow_loading = false;
-        });
+        let res = await this.$$request.post("/student/lists", params);
+        if(!res) return false;
+        this[`${this.follow_up_activeName}_list`] = res.lists.data;
+        this.follow_up_page_info.total = res.lists.total;
+        this.follow_loading = false;
+        return true;
       }else if(type === "followup") {
         params = {
           page_num: 5,
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("/followUp/needFollow", params).then(res => {
-          this[`${this.follow_up_activeName}_list`] = res.followUps.data;
-          this.follow_up_page_info.total = res.followUps.total;
-          this.follow_loading = false;
-        });
+        let res = await this.$$request.post("/followUp/needFollow", params);
+        if(!res) return false;
+        this[`${this.follow_up_activeName}_list`] = res.followUps.data;
+        this.follow_up_page_info.total = res.followUps.total;
+        this.follow_loading = false;
+        return true;
       }else{
         params = {
           page_num: 5,
           type: type,
           page: this.follow_up_page_info.current_page
         };
-        this.$$request.post("/followUp/todayLists", params).then(res => {
-          this[`${this.follow_up_activeName}_list`] = res.lists;
-          this.follow_up_page_info.total = res.total;
-          this.follow_loading = false;
-        });
+        let res = await this.$$request.post("/followUp/todayLists", params);
+        if(!res) return false;
+        this[`${this.follow_up_activeName}_list`] = res.lists;
+        this.follow_up_page_info.total = res.total;
+        this.follow_loading = false;
+        return true;
       }
     },
     //获取今日课程列表
     async get_today_course() {
-      this.$$request.get("/timetable/todayLists").then(res => {
-        this.today_course_list = res.lists;
-      });
+      let res = await this.$$request.get("/timetable/todayLists");
+      if(!res) return false;
+      this.today_course_list = res.lists;
+      return true;
     },
     //查看全部学员
     view_all_student(obj) {
@@ -1327,12 +1332,13 @@ export default {
       const params = {
         page: this.notice_page_info.current_page
       };
-      this.$$request.get("/notification/personalLists", params).then(res => {
+      let res = await this.$$request.get("/notification/personalLists", params);
+      if(!res) return false;
         this.notice_lists = res.lists;
         this.notice_page_info.total = res.total;
         this.unread_num = res.unread < 1 ? "" : res.unread;
         this.notice_loading = false;
-      });
+        return true;
     },
     //获取员工发送通知列表
     get_notice_send_list() {
@@ -1348,15 +1354,15 @@ export default {
     },
 
     //查看通知
-    notice_detail(notice) {
+    async notice_detail(notice) {
       switch (this.notice_activeName) {
         case "receive":
           const params = {
             notification_id: notice.notification.id
           };
-          this.$$request.post("/notification/read", params).then(res => {
-            this.get_notice_list();
-          });
+          let res = await this.$$request.post("/notification/read", params);
+          if(!res) return false;
+          this.get_notice_list();
           this.notice_info.title = notice.notification.title;
           this.notice_info.content = notice.notification.content;
           this.notice_info.sender = notice.notification.sender.name;
@@ -1501,10 +1507,9 @@ export default {
         end: this.search_time[1],
         groupby: this.search_type
       };
-      this.$$request
-        .post("/classElimination/statistics", params)
-        .then(res => {
-          let pie_data = [
+      let res = await this.$$request.post("/classElimination/statistics", params);
+      if(!res) return false;
+      let pie_data = [
             { value: res.actual, name: "已消课时", total: res.should },
             {
               value: res.should - res.actual,
@@ -1512,29 +1517,33 @@ export default {
               total: res.should
             }
           ];
-          let bar_data = {
+      let bar_data = {
             x_data: [],
             s_data_1: [],
             s_data_2: []
           };
-          for (let info of res.detail) {
+      for (let info of res.detail) {
             bar_data.x_data.push(info.name);
             bar_data.s_data_1.push(info.actual);
             bar_data.s_data_2.push(info.should - info.actual);
-            // bar_data.s_data_3.push(info.should);
           }
           this.init_pie_charts(pie_data);
           this.init_bar_charts(bar_data);
-        });
+          return true;
     }
   },
-  created() {
+  async created() {
     this.user_info = this.$$cache.getMemberInfo();
     this.activeName = this.user_info.class_pattern !== 2 ? "leave" : "renewal";
-    this.get_data();
-    this.get_finance_data();
-    this.get_follow_up_data();
-    this.get_today_course();
+    // this.get_data();
+    // this.get_finance_data();
+    
+    let [r1,r2,r3,r4,r5] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list()])
+    // let [r1,r2,r3,r4,r5,r6] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list(),this.get_course_info()])
+    // if(r1 && r2 && r3 && r4 && r5 && r6) this.state = "loaded";
+    if(r1 && r2 && r3 && r4 && r5) this.state = "loaded";
+    // this.get_follow_up_data();
+    // this.get_today_course();
     this.get_notice_list();
     let now = new Date().setDate(1);
     let next = now + 31 * 24 * 60 * 60 * 1000;

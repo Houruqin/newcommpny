@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover" class="container">
       <TableHeader title="业绩分配">
       </TableHeader>
@@ -166,6 +167,7 @@ import { StudentStatic } from "../../script/static";
 export default {
   data() {
     return {
+      state: "loading",
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
@@ -278,7 +280,7 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         time_type: "custom",
@@ -291,13 +293,15 @@ export default {
         page_num: this.page_info.page_num
       };
       console.log(params);
-      this.$$request
-        .get("/financeManage/achievement/lists", params)
-        .then(res => {
-          this.assign_info.data = res.lists.data;
-          this.page_info.total = res.lists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.get(
+        "/financeManage/achievement/lists",
+        params
+      );
+      if (!res) return false;
+      this.assign_info.data = res.lists.data;
+      this.page_info.total = res.lists.total;
+      this.loading = false;
+      return true;
     },
     //获取全部员工+学员信息
     get_all_user() {
@@ -410,9 +414,11 @@ export default {
       }
     }
   },
-  created() {
-    this.get_data();
+  async created() {
+    let res = await this.get_data();
+    if (!res) return false;
     this.get_all_user();
+    this.state = "loaded";
   },
   components: { TableHeader, MyButton, NameRoute }
 };
