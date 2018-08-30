@@ -52,11 +52,12 @@ const router = new Router({
       { path: '/statistics', component: () => import(/* webpackChunkName: 'page-statistics-index' */ '@/views/statistics/Index'), meta: { needlogin: true } },
     ] },
     { path: '/login', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Login'), meta: {needlogin: false} },
-    { path: '/addschool', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/SchoolArea'), meta: {needlogin: true} },
-    { path: '/contract', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Contract') },
-    { path: '/refundPrint', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/RefundPrint') },
-    { path: '/refresh', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Refresh') },
-    { path: '*', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/NotFound') },
+    { path: '/addschool', component: () => import(/* webpackChunkName: 'page-addschool' */ '@/views/SchoolArea'), meta: {needlogin: true} },
+    { path: '/contract', component: () => import(/* webpackChunkName: 'page-contract' */ '@/views/Contract') },
+    { path: '/refundPrint', component: () => import(/* webpackChunkName: 'page-refundPrint' */ '@/views/RefundPrint') },
+    { path: '/refresh', component: () => import(/* webpackChunkName: 'page-refresh' */ '@/views/Refresh') },
+    { path: '/help', component: () => import(/* webpackChunkName: 'page-help' */ '@/views/Help') },
+    { path: '*', component: () => import(/* webpackChunkName: 'page-404' */ '@/views/NotFound') },
   ]
 });
 
