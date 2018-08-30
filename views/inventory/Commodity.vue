@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="物品管理">
                 <MyButton @click.native="typeSetting" type="border" fontColor="fc-m">类型设置</MyButton>
@@ -263,6 +264,7 @@ export default {
                 activePage: 1
             },
 
+            state: 'loading',
             operationCommodity: 'add',   //操作物品，默认为新增  可编辑
 
             operationLists: [
@@ -703,6 +705,7 @@ export default {
             if(page) this.activePage = page;
             this.commodityTable = result.lists;
             this.loading = false;
+            return true;
         },
         //获取物品类型列表
         async getCommodityTypeLists() {
@@ -711,12 +714,14 @@ export default {
             if(!result) return 0;
 
             this.commodityTypeLists = result.lists;
+            return true;
         }
     },
-    created() {
-        this.getCommodityLists();
-        this.getCommodityTypeLists();
+    async created() {
         this.$store.dispatch('getAllUser');
+
+        let [a, b] = await Promise.all([this.getCommodityLists(), this.getCommodityTypeLists()]);
+        if(a && b) this.state = 'loaded';
     },
     components: {TableHeader, MyButton}
 }

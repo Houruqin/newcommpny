@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="无班课表">
                 <!-- <MyButton  type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton> -->
@@ -457,6 +458,7 @@ const ONE_DAY_LONG = 24*60*60*1000;
 export default {
     data() {
         return {
+            state: 'loading',
             conflictType: {
                 reason1: '老师冲突 请修改时间',
                 reason2: '教室冲突 请修改时间或教室',
@@ -1106,6 +1108,7 @@ export default {
             if(!result) return 0;
 
             this.planCourseLists = result.course;
+            return true;
         },
         //默认获取全部课表
         async getAllTableLists() {
@@ -1127,6 +1130,8 @@ export default {
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
+
+            return true;
         },
         //班级获取课表
         async getGradeTableLists() {
@@ -1320,19 +1325,19 @@ export default {
             }
         });
     },
-    created() {
+    async created() {
         for(let a = 9; a <= 21; a++) {this.hourData.push({id: a, name: `${a}:00`})};
         this.getWeekList(null, 'default');
         this.getWeekList(null, 'timetable');
-        this.getAllTableLists();
-        this.getAddTimeTableFull();
 
+        let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
+        if(a && b) this.state = 'loaded';
 
         this.$nextTick(v => {
             let width = document.querySelector('.home-main-box').clientWidth;
             if(width <= 1070) document.querySelector('.week-table').style.width = '990px';
             else document.querySelector('.week-table').style.width = (width - 80) + 'px';
-        })
+        });
     },
     components: {TableHeader, MyButton, TimetablePopver}
 }

@@ -18,8 +18,8 @@ const router = new Router({
       { path: '/setting', component: () => import(/* webpackChunkName: 'page-setting-index' */ '@/views/BasicSetting/Index'), meta: {needlogin: true, menu: '/setting'} },
       { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting'} },
 
-      { path: '/student/signed', component: () => import(/* webpackChunkName: 'page-student-signed' */ '@/views/student/NoSign'), meta: { needlogin: true, menu: '/student/signed' } },
-      { path: '/student/nosign', component: () => import(/* webpackChunkName: 'page-student-nosign' */ '@/views/student/Signed'), meta: { needlogin: true, menu: '/student/nosign' } },
+      { path: '/student/signed', component: () => import(/* webpackChunkName: 'page-student-signed' */ '@/views/student/Signed'), meta: { needlogin: true, menu: '/student/signed' } },
+      { path: '/student/nosign', component: () => import(/* webpackChunkName: 'page-student-nosign' */ '@/views/student/NoSign'), meta: { needlogin: true, menu: '/student/nosign' } },
       { path: '/student/nosigndetail', component: () => import(/* webpackChunkName: 'page-student-nosigndetail' */ '@/views/student/NosignDetail'), meta: { needlogin: true, menu: '/student/nosign' } },
       { path: '/student/signeddetail', component: () => import(/* webpackChunkName: 'page-student-signeddetail' */ '@/views/student/SignedDetail'), meta: { needlogin: true, menu: '/student/signed' } },
       { path: '/student/importstudent', component: () => import(/* webpackChunkName: 'page-student-importstudent' */ '@/views/student/ImportStudent'), meta: { needlogin: true, menu: '/student/nosign' } },

@@ -33,7 +33,7 @@ export default {
         return {
             menuLists: [
                 {id: "/workbench", text: "工作台", item: false, icon: "icon-zhuye-copy"},
-                {id: "/student/signed", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
+                {id: "/student/nosign", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
                     { id: "/student/nosign", text: "未签约学员" }, { id: "/student/signed", text: "签约学员" }
                 ]},
                 {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
@@ -62,7 +62,7 @@ export default {
                 {id: "/inventory", text: "库存管理", item: false, icon: "icon-kucunguanli", item: true,
                     itemList: [
                         {id: '/inventory/commodity', text: '物品管理'},
-                        {id: '/inventory/storage', text: '出入库记录'},
+                        {id: '/inventory/storage', text: '出入库明细'},
                         {id: '/inventory/borrow', text: '借用记录'}
                     ]
                 },

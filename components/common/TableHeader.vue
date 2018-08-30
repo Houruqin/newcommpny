@@ -1,4 +1,4 @@
-<template> 
+<template>
     <div class="table-header d-f f-a-c f-j-b fc-5">
         <div class="d-f f-a-c">
             <span class="fs-16">{{title}}</span>

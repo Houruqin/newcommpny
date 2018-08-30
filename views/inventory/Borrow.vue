@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="借用记录"></TableHeader>
 
@@ -97,6 +98,7 @@ import MyButton from '../../components/common/MyButton'
 export default {
     data() {
         return {
+            state: 'loading',
             loading: false,
             dialogStatus: {giveBack: false},
             submitLoading: {back: false},
@@ -184,6 +186,7 @@ export default {
             if(page) this.activePage = page;
             this.borrowTable = result.lists;
             this.loading = false;
+            this.state = 'loaded';
         }
     },
     created() {

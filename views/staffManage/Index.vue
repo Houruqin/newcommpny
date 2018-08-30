@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state" />
         <el-card shadow="hover">
             <TableHeader title="员工管理">
                 <MyButton @click.native="addUser">添加员工</MyButton>
@@ -73,6 +74,7 @@ import AddStaffDialog from '../../components/dialog/AddStaff'
 export default {
     data() {
         return {
+            state: 'loading',
             staffType: 'all',
             staffListInfo: {},
             filterVal: '',
@@ -187,6 +189,8 @@ export default {
             this.activePage = currentPage ? currentPage: 1;
             this.staffListInfo = result.lists;
             this.loading = false;
+
+            return true;
         },
         //权限列表
         async getAuthorityLists() {
@@ -197,8 +201,9 @@ export default {
             this.authorityAllLists = result.lists;
         }
     },
-    created() {
-        this.getUserLists();
+    async created() {
+        let datas = await this.getUserLists();
+        if(datas) this.state = 'loaded';
     },
     components: {TableHeader, MyButton, AddStaffDialog}
 }

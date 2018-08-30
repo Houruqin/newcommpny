@@ -80,7 +80,7 @@ export default {
 
             console.log(result);
             if(!result) return 0;
-            
+
             this.$store.dispatch('guideChange', result.user.is_boot);   //判断用户是否需要进入引导页
 
             this.$$cache.removeMemberInfo();    //request拦截器统一做了token处理，已经保存过一次值，登录重新赋值
@@ -105,7 +105,7 @@ export default {
             if(!result.status) {
                 this.$router.push({path: '/addschool'});
             }else {
-                this.$router.replace({path: '/home'});
+                this.$router.replace({path: '/'});
             }
 
             this.$$cache.set('phone',this.phone.trim())
