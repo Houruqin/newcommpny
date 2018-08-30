@@ -156,10 +156,12 @@
                     <img src="../images/common/speedy.png" alt="">
                 </div>
                 <el-dropdown-menu slot="dropdown" class="speedy-lists">
-                    <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index">
+                    <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
+                        v-if="item.id != 'addListen' || (item.id == 'addListen' && $$cache.getMemberInfo().class_pattern != 2)">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>
+
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
@@ -374,7 +376,7 @@ export default {
                 {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
                 // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
                 {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
-                // {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
+                {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
@@ -474,7 +476,7 @@ export default {
         //新增课程成功，回调
         CB_addCourse() {
             this.dialogStatus.addCourse = false;
-            if(this.$route.path == '/home/course') Bus.$emit('refreshCourseLists');  //如果是在课程列表页面，刷新课程列表
+            if(this.$route.path == '/course') Bus.$emit('refreshCourseLists');  //如果是在课程列表页面，刷新课程列表
         },
         //试听窗口关闭
         dialogClose(type) {
@@ -603,8 +605,8 @@ export default {
         },
         //设置下拉
         settingHandleCommand(val) {
-            if(val == 'usersetting') return this.$router.push({path: '/home/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
-            if(val == 'schoolsetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
+            if(val == 'usersetting') return this.$router.push({path: '/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
+            if(val == 'schoolsetting') return this.$router.push({path: '/workbench/schoolsetting'});
             if(val == 'loginOut') this.loginOut();
         },
         //校区切换
@@ -710,7 +712,6 @@ export default {
             this.getSchoolLists();
             this.memberInfo = this.$$cache.getMemberInfo();
             this.schoolId = this.$$cache.getMemberInfo().school_id;
-            if(this.$$cache.getMemberInfo().class_pattern != 2) this.speedyLists.push({id: 'addListen', name: '办理试听', icon: 'icon-shiting'});
         }
     },
     mounted() {

@@ -1,5 +1,6 @@
 <template>
      <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="无班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
@@ -180,6 +181,7 @@ export default {
     components: {TableHeader, MyButton, AddCourseDialog},
     data() {
         return {
+            state: 'loading',
             conflictType: {
                 reason1: '老师冲突 请修改时间',
                 reason2: '教室冲突 请修改时间或教室',
@@ -280,6 +282,7 @@ export default {
                     dom.style.height = `${child.offsetHeight}px`;
                 }
             });
+            return true;
         },
         //快速时间选择change
         beginTimeChange(val) {
@@ -460,8 +463,9 @@ export default {
             this.getCourseLists();
         }
     },
-    created() {
-        this.getCourseLists();
+    async created() {
+        let datas = await this.getCourseLists();
+        if(datas) this.state = 'loaded';
     }
 }
 </script>

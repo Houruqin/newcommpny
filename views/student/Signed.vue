@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="签约学员">
                 <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
@@ -432,6 +433,7 @@ import config from 'config'
 export default {
     data() {
         return {
+            state: 'loading',
             activeTab: 'onCourse',
             currPage: false,
 
@@ -637,7 +639,7 @@ export default {
             let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
-            this.getTabLists(true);
+            this.getAllLists(true);
         },
         //表单确定
         doneHandle(type) {
@@ -660,7 +662,7 @@ export default {
 
             if(!result) return 0;
             this.$message.success('已改为流失学员');
-            this.getTabLists();
+            this.getAllLists();
         },
         //删除学员
         deleteStudent(id) {
@@ -676,7 +678,7 @@ export default {
             let result = await this.$$request.post('/sign/delete', {student_id: id});
             if(!result) return 0;
             this.$message.success('已删除');
-            this.getTabLists();
+            this.getAllLists();
         },
         nextClick(currentPage) {
             this.currPage = true;
@@ -708,7 +710,7 @@ export default {
 
             this.studentMaskStatus = false;
             this.$message.success('修改成功');
-            this.getTabLists(true);
+            this.getAllLists(true);
         },
         //提交分班信息
         async submitDivideClass() {
@@ -726,6 +728,10 @@ export default {
             this.$message.success('分班成功');
             this.classMaskStatus = false;
         },
+        async getAllLists(isCurrPage) {
+            let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
+            return a && b;
+        },
         //获取tab列表
         async getTabLists(isCurrPage) {
             let result = await this.$$request.post('/sign/tab');
@@ -740,8 +746,7 @@ export default {
                 });
             };
 
-            if(isCurrPage) this.getStudentLists(this.activePage);
-            else this.getStudentLists();
+            return true;
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(id) {
@@ -788,8 +793,6 @@ export default {
 
             if(currentPage) newParams.page = currentPage;
 
-            console.log(newParams);
-
             let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
             console.log(result);
             if(!result) return 0;
@@ -799,6 +802,7 @@ export default {
 
             this.studentTable = result.lists;
             this.loading = false;
+            return true;
         },
         //签约学员合并
         mergeHandle(data) {
@@ -840,9 +844,10 @@ export default {
             return dest;
         }
     },
-    created() {
+    async created() {
         this.searchFilter.month = new Date().getMonth() + 1;
-        this.getTabLists();
+        let datas = await this.getAllLists();
+        if(datas) this.state = 'loaded';
         //监听如果详情修改，那么刷新学员列表
         Bus.$on('refreshSignedStudentLists', () => {this.getStudentLists()});
     },

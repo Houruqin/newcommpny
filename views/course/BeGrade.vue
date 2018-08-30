@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="有班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
@@ -346,6 +347,7 @@ import jquery from 'jquery'
 export default {
     data() {
         return {
+            state: 'loading',
             submitLoading: {
                 grade: false, timetable: false
             },
@@ -892,6 +894,7 @@ export default {
                     dom.style.height = `${child.offsetHeight}px`;
                 }
             });
+            return true;
         },
         //周数据做处理
         getWeek(time) {
@@ -925,9 +928,10 @@ export default {
             });
         }
     },
-    created() {
-        this.getCourseLists();
+    async created() {
         this.getWeek();
+        let datas = await this.getCourseLists();
+        if(datas) this.state = 'loaded';
     },
     components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog}
 }

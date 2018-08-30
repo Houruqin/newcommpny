@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+        <PageState :state="state"/>
         <!-- 年龄及性别统计 -->
         <el-card shadow="hover">
             <TableHeader title="校区统计"></TableHeader>
@@ -27,25 +28,6 @@
                     <div class="right-chart" ref="ageChart"></div>
                 </el-col>
             </el-row>
-            <!-- <div class="echart-box d-f">
-                <div class="p-r left-chart">
-                    <div ref="sexChart" class="left-chart"></div>
-                    <div class="student-total p-a t-a-c">
-                        <p class="fs-30">{{sex.data.total_num}}</p><span class="fs-12">学员总数</span>
-                    </div>
-                    <div class="sex-num p-a d-f f-j-b">
-                        <div class="boy-num t-a-c">
-                            <img :src="boyIcon" alt="">
-                            <p>{{sex.data.man_percentage}}</p>
-                        </div>
-                        <div class="girl-num t-a-c">
-                            <img :src="girlIcon" alt="">
-                            <p>{{sex.data.woman_percentage}}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="right-chart flex1 ml-50" ref="ageChart"></div>
-            </div> -->
         </el-card>
 
         <!-- 签约学员统计 -->
@@ -174,25 +156,15 @@ import Echart from 'echarts'
 import boyIcon from '../../images/common/boy.png'
 import girlIcon from '../../images/common/girl.png'
 
+let sexChartObj = null, ageChartObj = null, studentLeftObj = null, studentRightObj = null, courseChartObj = null, sourceLeftObj = null, sourceRightObj = null;
 
 export default {
     data() {
         return {
+            state: 'loading',
             monthArr: [],
             boyIcon: boyIcon,
             girlIcon: girlIcon,
-
-            sexChartObj: null,   //性别图表对象
-            ageChartObj: null,   //年龄折线图表对象
-
-            studentLeftObj: null,  //学员统计饼图
-            studentRightObj: null,   //学员统计折线图对象
-
-            courseChartObj: null,   //课程及考勤折线图对象
-
-            sourceLeftObj: null,    //渠道统计饼图
-            sourceRightObj: null,    //渠道统计折线图
-
             sex: {
                 start_time: new Date().getTime() -  60*60*24*365*1000,
                 end_time: new Date().getTime(),
@@ -360,7 +332,7 @@ export default {
                 if(params == '女') return `${params}：${this.sex.data.woman_num}`;
                 if(params == '男') return `${params}：${this.sex.data.man_num}`;
             };
-            this.sexChartObj.setOption(options, true);
+            sexChartObj.setOption(options, true);
         },
         //年龄及性别统计 right
         ageChartInit() {
@@ -387,7 +359,7 @@ export default {
                     {name: '男', type: 'bar', label: {show: true}, barWidth: 30, barGap: 0, data: this.sex.data.lists.map(v => {return v.man_num})}
                 ]
             };
-            this.ageChartObj.setOption(options, true);
+            ageChartObj.setOption(options, true);
         },
         //签约学员统计 left
         studentChartInit() {
@@ -415,7 +387,7 @@ export default {
                 if(params == '结业学员') return `${params}：${this.student.total_lists.expired_num}`;
             };
 
-            this.studentLeftObj.setOption(options, true);
+            studentLeftObj.setOption(options, true);
         },
         //签约学员统计 right
         studentRightInit() {
@@ -427,7 +399,7 @@ export default {
             });
 
             options.series = grid_lists;
-            this.studentRightObj.setOption(options, true);
+            studentRightObj.setOption(options, true);
         },
         //课程及考勤
         courseChartInit() {
@@ -439,7 +411,7 @@ export default {
             });
 
             options.series = grid_lists;
-            this.courseChartObj.setOption(options, true);
+            courseChartObj.setOption(options, true);
         },
         //渠道统计 left
         sourceChartInit() {
@@ -464,7 +436,7 @@ export default {
                 data: this.source.data.map(v => {return {value: v.total, name: v.source_name}})
             }]
 
-            this.sourceLeftObj.setOption(options, true);
+            sourceLeftObj.setOption(options, true);
         },
         getSourceItemNum(text) {
             let num = 0;
@@ -501,7 +473,7 @@ export default {
                 })
             };
 
-            this.sourceRightObj.setOption(options, true);
+            sourceRightObj.setOption(options, true);
         },
         //获取性别、年龄学员列表
         async getSexLists() {
@@ -514,9 +486,7 @@ export default {
             result.woman_percentage = result.woman_num == 0 ? '0%' : `${(result.woman_num / result.total_num * 100).toFixed(1)}%`;
 
             this.sex.data = result;
-
-            this.sexChartInit();
-            this.ageChartInit();
+            return true;
         },
         //获取签约学员列表
         async getStudentLists() {
@@ -528,9 +498,7 @@ export default {
             this.student.total_lists = result.lists.total_lists;
 
             this.student.data = result.lists;
-
-            this.studentChartInit();
-            this.studentRightInit();
+            return true;
         },
         //课程及考勤统计列表
         async getCourseLists() {
@@ -539,8 +507,7 @@ export default {
             if(!result) return 0;
 
             this.course.data = result.lists;
-
-            this.courseChartInit();
+            return true;
         },
         //销售统计列表
         async getSellLists() {
@@ -549,6 +516,7 @@ export default {
             if(!result) return 0;
 
             this.sell.sell_lists = result.lists;
+            return true;
         },
         //渠道统计列表
         async getSourseLists() {
@@ -568,45 +536,42 @@ export default {
 
             let total_num = result.lists.map(v => {return v.total}).reduce((a, b) => {return a + b});
             this.source.total_num = total_num;
+            return true;
+        },
+        allEChartInit() {
+            sexChartObj = Echart.init(this.$refs.sexChart);
+            ageChartObj = Echart.init(this.$refs.ageChart);
+
+            studentLeftObj = Echart.init(this.$refs.studentLeft);
+            studentRightObj = Echart.init(this.$refs.studentRight);
+
+            courseChartObj = Echart.init(this.$refs.courseChart);
+
+            sourceLeftObj = Echart.init(this.$refs.sourceLeft);
+            sourceRightObj = Echart.init(this.$refs.sourceRight);
+        }
+    },
+    async created() {
+        let arr = [];
+        for(let i = 1; i <= 12; i++) {this.monthArr.push(`${i}月`)};
+
+        let [a, b, c, d, e] = await Promise.all([this.getSexLists(), this.getStudentLists(), this.getCourseLists(), this.getSellLists(), this.getSourseLists()]);
+        if(a && b && c && d && e) this.state = 'loaded';
+
+        this.$nextTick(() => {
+            this.allEChartInit();
+
+            this.sexChartInit();
+            this.ageChartInit();
+
+            this.studentChartInit();
+            this.studentRightInit();
+
+            this.courseChartInit();
 
             this.sourceChartInit();
             this.sourceRightInit();
-        },
-        allEChartInit() {
-            this.sexChartObj = Echart.init(this.$refs.sexChart);
-            this.ageChartObj = Echart.init(this.$refs.ageChart);
-
-            this.studentLeftObj = Echart.init(this.$refs.studentLeft);
-            this.studentRightObj = Echart.init(this.$refs.studentRight);
-
-            this.courseChartObj = Echart.init(this.$refs.courseChart);
-
-            this.sourceLeftObj = Echart.init(this.$refs.sourceLeft);
-            this.sourceRightObj = Echart.init(this.$refs.sourceRight);
-        }
-    },
-    created() {
-        let arr = [];
-        for(let i = 1; i <= 12; i++) {this.monthArr.push(`${i}月`)};
-    },
-    mounted() {
-        //定义所有图表对象
-        this.allEChartInit();
-
-        //年龄性别统计
-        this.getSexLists();
-
-        //签约学员统计
-        this.getStudentLists();
-
-        //课程考勤统计
-        this.getCourseLists();
-
-        //销售统计
-        this.getSellLists();
-
-        //渠道统计
-        this.getSourseLists();
+        });
     },
     components: {TableHeader, MyButton}
 }
