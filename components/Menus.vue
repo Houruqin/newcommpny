@@ -32,41 +32,41 @@ export default {
     data() {
         return {
             menuLists: [
-                {id: "/home/workbench", text: "工作台", item: false, icon: "icon-zhuye-copy"},
-                {id: "/student/signed", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
+                {id: "/workbench", text: "工作台", item: false, icon: "icon-zhuye-copy"},
+                {id: "/student/nosign", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
                     { id: "/student/nosign", text: "未签约学员" }, { id: "/student/signed", text: "签约学员" }
                 ]},
-                {id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`, 
-                    text: "排课管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-paike", 
+                {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
+                    text: "排课管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-paike",
                     itemList: [
-                    // { id: `/home/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}`, text: '课程表'},
+                    // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}`, text: '课程表'},
                     // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_teacher`, text: "老师课表" },
                     // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_class`, text: "教室课表" }
                         {id: '/timetable/begrade', text: '有班课表'},
                         {id: '/timetable/nograde', text: '无班课表'}
                     ]
                 },
-                {id: "/home/academic/classElimination", text: "教务统计", item: true, icon: "icon-jiaowuguanli", itemList: [
+                {id: "/academic/classElimination", text: "教务统计", item: true, icon: "icon-jiaowuguanli", itemList: [
                     { id: "/academic/classElimination", text: "学员消课记录" },
                     { id: "/academic/audition", text: "试听课记录" },
                     { id: "/academic/buy", text: "购课记录" }
                 ]},
-                {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`, 
-                    text: "课程管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-kecheng-", 
+                {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
+                    text: "课程管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-kecheng-",
                     itemList: [
                         {id: '/course/begrade', text: '有班课程'},
                         {id: '/course/nograde', text: '无班课程'}
                     ]
                 },
-                {id: "/home/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
-                {id: "/home/inventory", text: "库存管理", item: false, icon: "icon-kucunguanli", item: true,
+                {id: "/staff", text: "员工管理", item: false, icon: "icon-yuangongguanli"},
+                {id: "/inventory", text: "库存管理", item: false, icon: "icon-kucunguanli", item: true,
                     itemList: [
                         {id: '/inventory/commodity', text: '物品管理'},
-                        {id: '/inventory/storage', text: '出入库记录'},
+                        {id: '/inventory/storage', text: '出入库明细'},
                         {id: '/inventory/borrow', text: '借用记录'}
                     ]
                 },
-                {id: "/home/finance", text: "财务管理", item: true, icon: "icon-finance",
+                {id: "/finance", text: "财务管理", item: true, icon: "icon-finance",
                     itemList: [
                         {id: '/finance/income', text: '收款管理'},
                         {id: '/finance/outlay', text: '支出管理'},
@@ -74,15 +74,15 @@ export default {
                         {id: '/finance/assign', text: '业绩分配'}
                     ]
                 },
-                {id: "/home/setting", text: "基础设置", item: true, icon: "icon-shezhi1",
+                {id: "/setting", text: "基础设置", item: true, icon: "icon-shezhi1",
                     itemList: [
-                        {id: '/home/setting', text: '教室渠道'},
+                        {id: '/setting', text: '教室渠道'},
                         {id: '/setting/wechat', text: '微信设置'}
                     ]
                 },
-                {id: "/home/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
+                {id: "/statistics", text: "校区统计", item: false, icon: "icon-xuexiao"}
                 // {
-                //   id: '/home/statistics',
+                //   id: '/statistics',
                 //   text: '更新日志',
                 //   item: false,
                 //   icon: 'icon-xiaoqutongji'

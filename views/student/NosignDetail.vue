@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader :title="detail.name" :icon="true" @clicked="editStudent">
                 <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
@@ -208,6 +209,8 @@ export default {
     data() {
         return {
             submitLoading: false,
+
+            state: 'loading',
 
             detail: {},
             studentId: '',
@@ -473,6 +476,7 @@ export default {
             if(!result) return 0;
             this.followUpLists = result.lists;
             this.loading = false;
+            return true;
         },
         //获取学员详情
         async getStudentDetail() {
@@ -480,6 +484,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'detail', result.detail);
+            return true;
         },
         //获取试听填充列表
         async getListenLists() {
@@ -512,7 +517,7 @@ export default {
             this.listenCourseLists = result.lists;
         }
     },
-    created() {
+    async created() {
         if(this.$route.query.student_id) this.studentId = this.$route.query.student_id;
 
         if(this.$$cache.getMemberInfo().class_pattern === 2) {
@@ -520,8 +525,8 @@ export default {
             StudentStatic.followUp.status.forEach(v => {if(v.id != 4) this.resultArr.push(v)});
         }else this.resultArr = StudentStatic.followUp.status;
 
-        this.getStudentDetail();
-        this.getFollowUpLists();
+        let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
+        if(a && b) this.state = 'loaded';
     },
     watch: {
         $route: function(val,oldval) {

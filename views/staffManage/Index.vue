@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state" />
         <el-card shadow="hover">
             <TableHeader title="员工管理">
                 <MyButton @click.native="addUser">添加员工</MyButton>
@@ -33,15 +34,19 @@
                 <el-table-column label="职位性质" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
                 </el-table-column>
-                <el-table-column prop="status" label="任职状态" align="center">
+                <el-table-column label="任职状态" align="center">
                     <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.status == 1 ? '在职' : '离职'}}</span></template>
+                </el-table-column>
+                <el-table-column label="账号状态" align="center">
+                    <template slot-scope="scope"><span>{{!scope.row.status ? '--' : scope.row.is_enable == 1 ? '正常' : '禁用'}}</span></template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <div>
-                            <a class="cursor-pointer fc-m" v-if="scope.row.status" @click="modifyHandle(scope.row)">编辑</a>
-                            <a class="cursor-pointer fc-subm" v-else @click="deleteUserInfo(scope.row)">删除</a>
-                        </div>
+                        <span class="cursor-pointer fc-m" v-if="scope.row.status" @click="modifyHandle(scope.row)">编辑</span>
+                        <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
+                        <span class="cursor-pointer fc-m ml-10" v-if="scope.row.operable" @click="forbidClick(scope.row)">
+                            {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
+                        </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -73,6 +78,7 @@ import AddStaffDialog from '../../components/dialog/AddStaff'
 export default {
     data() {
         return {
+            state: 'loading',
             staffType: 'all',
             staffListInfo: {},
             filterVal: '',
@@ -154,6 +160,24 @@ export default {
             this.editDetail = data;
             this.dialogStatus = true;
         },
+        //禁用账号
+        forbidClick(data) {
+            this.$confirm(`确定${data.is_enable ? '禁' : '启'}用该账号吗?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.forbideHandle(data);
+            }).catch(() => {return 0});
+        },
+        async forbideHandle(data) {
+            console.log(data);
+            let result = await this.$$request.post(`user/${data.is_enable ? 'disable' : 'enable'}`, {user_id: data.id});
+            console.log(result);
+            if(!result) return 0;
+            this.$message.success(`${data.is_enable ? '禁' : '启'}用操作成功!`);
+            this.getUserLists(this.activePage);
+        },
         //删除用户
         deleteUserInfo(scope) {
             this.$confirm('确定删除该员工吗?', '提示', {
@@ -187,6 +211,8 @@ export default {
             this.activePage = currentPage ? currentPage: 1;
             this.staffListInfo = result.lists;
             this.loading = false;
+
+            return true;
         },
         //权限列表
         async getAuthorityLists() {
@@ -197,8 +223,9 @@ export default {
             this.authorityAllLists = result.lists;
         }
     },
-    created() {
-        this.getUserLists();
+    async created() {
+        let datas = await this.getUserLists();
+        if(datas) this.state = 'loaded';
     },
     components: {TableHeader, MyButton, AddStaffDialog}
 }

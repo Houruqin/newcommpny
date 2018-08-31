@@ -87,8 +87,20 @@
                 <div class="border-bottom"></div>
             </el-header>
             <el-container class="home-main-box">
+                <div class="inner-page-loading-box page-loadding-box" v-if="'loading' === $store.state.pageState">
+                  <div class="loading-icon"><span>加载中</span><i></i></div>
+                  <p class="loading-text">正在努力加载，请耐心等候</p>
+                </div>
+                <div class="page-error-box" v-if="'error' === $store.state.pageState">
+                  <img src="../images/state-500.png">
+                  <div class="page-error-inner">
+                    <p>很抱歉！</p>
+                    <span>{{ $store.state.pageErrorText }}</span>
+                    <i @click="reloadPage">刷新页面</i>
+                  </div>
+                </div>
                 <!-- <keep-alive><router-view v-if="$route.meta.keepAlive"></router-view></keep-alive>  v-if="!$route.meta.keepAlive"-->
-                <router-view></router-view>
+                <router-view v-show="'loaded' === $store.state.pageState"></router-view>
             </el-container>
         </el-container>
 
@@ -149,10 +161,12 @@
                     <img src="../images/common/speedy.png" alt="">
                 </div>
                 <el-dropdown-menu slot="dropdown" class="speedy-lists">
-                    <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index">
+                    <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
+                        v-if="item.id != 'addListen' || (item.id == 'addListen' && $$cache.getMemberInfo().class_pattern != 2)">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>
+
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
@@ -367,7 +381,7 @@ export default {
                 {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
                 // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
                 {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
-                // {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
+                {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
             ],
             pickListenDisable: {
                 disabledDate: (time) => {
@@ -467,7 +481,7 @@ export default {
         //新增课程成功，回调
         CB_addCourse() {
             this.dialogStatus.addCourse = false;
-            if(this.$route.path == '/home/course') Bus.$emit('refreshCourseLists');  //如果是在课程列表页面，刷新课程列表
+            if(this.$route.path == '/course') Bus.$emit('refreshCourseLists');  //如果是在课程列表页面，刷新课程列表
         },
         //试听窗口关闭
         dialogClose(type) {
@@ -596,8 +610,8 @@ export default {
         },
         //设置下拉
         settingHandleCommand(val) {
-            if(val == 'usersetting') return this.$router.push({path: '/home/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
-            if(val == 'schoolsetting') return this.$router.push({path: '/home/workbench/schoolsetting'});
+            if(val == 'usersetting') return this.$router.push({path: '/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
+            if(val == 'schoolsetting') return this.$router.push({path: '/workbench/schoolsetting'});
             if(val == 'loginOut') this.loginOut();
         },
         //校区切换
@@ -703,7 +717,10 @@ export default {
             this.getSchoolLists();
             this.memberInfo = this.$$cache.getMemberInfo();
             this.schoolId = this.$$cache.getMemberInfo().school_id;
-            if(this.$$cache.getMemberInfo().class_pattern != 2) this.speedyLists.push({id: 'addListen', name: '办理试听', icon: 'icon-shiting'});
+        },
+        reloadPage () {
+          // this.$store.replace(`/refresh?path=${this.$route.fullpath}`);
+          location.reload();
         }
     },
     mounted() {
@@ -797,6 +814,53 @@ export default {
                 }
             }
         }
+    }
+    .inner-page-loading-box, .page-error-box {
+      position: fixed;
+      left: 230px;
+      top: 90px;
+      bottom: 0;
+      right: 0;
+      width: auto;
+      height: auto;;
+    }
+    .page-error-box {
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        margin-right: 50px;
+        display: block;
+      }
+    }
+    .page-error-inner {
+      display: flex;
+      flex-direction: column;
+      margin-top: -45px;
+      p {
+        font-size: #555;
+        font-weight: bold;
+        font-size: 30px;
+      }
+      span {
+        font-size: 15px;
+        color: #777;
+        margin-top: 20px;
+      }
+      i {
+        border: 1px #45DAD5 solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #45DAD5;
+        height: 32px;
+        min-width: 94px;
+        padding: 0 18px;
+        margin-top: 25px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
     }
     .content-right {
         padding-left: 230px;

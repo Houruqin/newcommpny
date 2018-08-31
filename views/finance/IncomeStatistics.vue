@@ -1,9 +1,9 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="收款管理">
       </TableHeader>
-
       <div class="toolbar mt-20">
         <ul class="d-f date_type">
           <li @click="choose_date('current_month')">
@@ -108,6 +108,7 @@ import { StudentStatic } from "../../script/static";
 export default {
   data() {
     return {
+      state: "loading",
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
@@ -193,7 +194,7 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         time_type: "custom",
@@ -207,15 +208,17 @@ export default {
         page_num: this.page_info.page_num
       };
       console.log(params);
-      this.$$request
-        .get("/financeManage/studentCourse/lists", params)
-        .then(res => {
-          console.log(res);
-          this.income_info.data = res.lists.data;
-          this.income_info.total = res.total;
-          this.page_info.total = res.lists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.get(
+        "/financeManage/studentCourse/lists",
+        params
+      );
+      console.log(res)
+      if (!res) return false;
+      this.income_info.data = res.lists.data;
+      this.income_info.total = res.total;
+      this.page_info.total = res.lists.total;
+      this.loading = false;
+      return true;
     },
     //将时间转换为秒数
     get_seconde(date) {
@@ -223,12 +226,10 @@ export default {
     },
     //查看合约详情
     show_contract(id) {
-      this.$$request
-        .get("/studentCourse/detail", { sc_id: id })
-        .then(res => {
-          this.dialog.contract.data = res.data;
-          this.dialog.contract.show = true;
-        });
+      this.$$request.get("/studentCourse/detail", { sc_id: id }).then(res => {
+        this.dialog.contract.data = res.data;
+        this.dialog.contract.show = true;
+      });
     },
     //弹窗关闭回调
     close() {
@@ -258,8 +259,10 @@ export default {
       return sums;
     }
   },
-  created() {
-    this.get_data();
+  async created() {
+    let res = await this.get_data();
+    if (!res) return false;
+    this.state = "loaded";
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };

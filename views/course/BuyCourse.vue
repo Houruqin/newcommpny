@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state" />
         <el-card shadow="hover">
             <TableHeader title="购买课程"></TableHeader>
 
@@ -167,6 +168,7 @@ export default {
         return {
             dialogStatus: {contract: false},
 
+            state: 'loading',
             submitLoading: false,
 
             contractData: {},
@@ -413,6 +415,7 @@ export default {
             if(!result) return 0;
 
             this.textbookList = result.lists;
+            return true;
         },
         textbookNumValidate() {
             return (rule, value, callback, event, e, d) => {
@@ -424,7 +427,7 @@ export default {
             }
         }
     },
-    created() {
+    async created() {
         if(this.$route.query.buyCourseData) {
             let queryData = JSON.parse(this.$route.query.buyCourseData);
 
@@ -444,7 +447,8 @@ export default {
             this.courseForm.pay_at = new Date().getTime();
         };
 
-        this.getTextBookLists();
+        let datas = await this.getTextBookLists();
+        if(datas) this.state = 'loaded';
     },
     components: {TableHeader, MyButton, ContractDialog}
 }

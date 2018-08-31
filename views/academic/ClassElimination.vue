@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="学员消课记录">
       </TableHeader>
@@ -185,6 +186,7 @@ import NameRoute from "../../components/common/NameRoute";
 export default {
   data() {
     return {
+      state: 'loading',
       active: "elimination",
       //搜索信息
       search_info: {
@@ -385,10 +387,11 @@ export default {
       this.dialog.c_handle.show = true;
     },
     //====================获取数据方法====================
-    get_data() {
+    async get_data() {
       switch (this.active) {
         case "elimination":
-          this.get_elimination_data();
+          await this.get_elimination_data();
+          return true;
           break;
         case "leave":
           this.get_leave_data();
@@ -399,7 +402,7 @@ export default {
       }
     },
     //获取消课记录
-    get_elimination_data() {
+    async get_elimination_data() {
       this.row_span_num = new Map();
       this.row_span_index = new Map();
       this.loading = true;
@@ -411,28 +414,27 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      this.$$request
-        .post("/eduCount/classEliminationLists", params)
-        .then(res => {
-          let data = res.lists.data;
-          let data_map = new Map();
-          for (let i = 0; i < data.length; i++) {
-            //如果map里没有该学生数据  则存储
-            if (!data_map.get(data[i].student_id)) {
-              data_map.set(data[i].student_id, [data[i]]);
-            } else {
-              data_map.get(data[i].student_id).push(data[i]);
-            }
-          }
-          let data_sort = [];
-          for (let value of data_map) {
-            data_sort.push(...value[1]);
-          }
-          this.elimination_info.data = data_sort;
-          this.merge_data(data_sort);
-          this.page_info.total = res.lists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.post("/eduCount/classEliminationLists", params);
+      if (!res) return false;
+      let data = res.lists.data;
+      let data_map = new Map();
+      for (let i = 0; i < data.length; i++) {
+        //如果map里没有该学生数据  则存储
+        if (!data_map.get(data[i].student_id)) {
+          data_map.set(data[i].student_id, [data[i]]);
+        } else {
+          data_map.get(data[i].student_id).push(data[i]);
+        }
+      }
+      let data_sort = [];
+      for (let value of data_map) {
+        data_sort.push(...value[1]);
+      }
+      this.elimination_info.data = data_sort;
+      this.merge_data(data_sort);
+      this.page_info.total = res.lists.total;
+      this.loading = false;
+      return true;
     },
     merge_data(data) {
       let j = 0;
@@ -504,8 +506,10 @@ export default {
       return new Date(date).getTime() / 1000;
     }
   },
-  created() {
-    this.get_data();
+  async created() {
+    let res = await this.get_data();
+    if (!res) return false;
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, NameRoute }
 };

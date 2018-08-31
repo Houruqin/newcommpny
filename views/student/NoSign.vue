@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="未签约学员">
                 <MyButton class="mr-20" @click.native="addStudent">登记学员</MyButton>
@@ -125,6 +126,7 @@ import config from 'config'
 export default {
     data() {
         return {
+            state: 'loading',
             activeTab: 'unsign',
             loading: true,
             tabLists: [],
@@ -243,8 +245,7 @@ export default {
         },
         //登记成功，刷新列表
         CB_addStudent(type) {
-            if(type == 'edit') this.getTabLists(true);
-            else this.getTabLists();
+            this.getAllLists(type == 'edit');
             this.dialogStatus.student = false;
         },
         //登记成功，购课回调
@@ -271,7 +272,8 @@ export default {
             let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
             console.log(result);
             if(!result) return 0;
-            this.getTabLists(true);
+
+            this.getAllLists(true);
         },
         //修改学员信息
         editStudent(data) {
@@ -292,7 +294,7 @@ export default {
         async deleteHandle(id) {
             let result = await this.$$request.post('/student/delete', {id: id});
             if(!result) return 0;
-            this.getTabLists();
+            this.getAllLists();
             this.$message.success('已删除');
         },
         nextClick(currentPage) {
@@ -308,15 +310,17 @@ export default {
             if(!this.currPage) this.getStudentLists(currentPage);
             this.currPage = false;
         },
+        async getAllLists(isCurrPage) {
+            let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
+            return a && b;
+        },
         //获取tab列表
         async getTabLists(isCurrPage) {
             let result = await this.$$request.post('/student/tab');
             console.log(result);
             if(!result) return 0;
             this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
-
-            if(isCurrPage) this.getStudentLists(this.activePage);
-            else this.getStudentLists();
+            return true;
         },
         //获取学员列表
         async getStudentLists(currentPage) {
@@ -344,10 +348,12 @@ export default {
             this.activePage = currentPage ? currentPage: 1;
             this.studentTable = result.lists;
             this.loading = false;
+            return true;
         }
     },
-    created() {
-        this.getTabLists();
+    async created() {
+        let datas = await this.getAllLists();
+        if(datas) this.state = 'loaded';
     },
     beforeRouteEnter(to, from, next) {
         //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面

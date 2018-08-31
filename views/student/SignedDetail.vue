@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <div class="table-header d-f f-a-c f-j-b fc-5">
                 <div class="d-f f-a-c">
@@ -327,15 +328,16 @@
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <div class="d-f">
+                <!-- <div class="d-f">
                     <div class="list-item">
                         <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
                     </div>
                     <div class="list-item">
                         <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
                     </div>
-                </div>
-                <div class="d-f">
+                </div> -->
+                <p class="pl-35 fs-17">上课学员：<span>{{studentDetail.name}}</span></p>
+                <div class="d-f mt-20">
                     <div class="list-item">
                         <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
                         <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
@@ -346,7 +348,7 @@
 
                     <div class="list-item">
                         <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
-                        <el-form-item label="课时费：">{{quitCourseInfo.lesson_price}}</el-form-item>
+                        <el-form-item label="实交课时费：">{{quitCourseInfo.lesson_price}}</el-form-item>
                     </div>
 
                     <div class="list-item">
@@ -357,7 +359,7 @@
 
                 <div class="d-f mt-10">
                     <div class="list-item">
-                        <el-form-item label="教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="实交教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
                         <el-form-item label="教材实际退费：" prop="textbook_quitprice">
                             <el-input type="number" placeholder="教材实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
                         </el-form-item>
@@ -658,6 +660,7 @@ export default {
                 student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
             },
 
+            state: 'loading',
             dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
 
             studentId: '',     //学员id
@@ -1388,7 +1391,7 @@ export default {
             console.log(result);
             if(!result) return 0;
             this.$set(this, 'studentDetail', result.detail);
-            this.getBottomTabLists();
+            return true;
         },
         //课程列表，点击分班，获取班级列表
         async getStudentGradeLists(url, data) {
@@ -1436,6 +1439,7 @@ export default {
             this[dataLists] = result.lists;
 
             this.loading = false;
+            return true;
         },
         //获取试听填充列表
         async getListenLists() {
@@ -1464,14 +1468,16 @@ export default {
             this.listenCourseLists = result.lists;
         }
     },
-    created() {
+    async created() {
         this.studentId = this.$route.query.id;
-        this.getStudentDetail();
+        let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
+        if(a && b) this.state = 'loaded';
     },
     watch: {
         $route: function(val,oldval) {
             this.studentId = val.query.id;
             this.getStudentDetail();
+            this.getBottomTabLists();
         }
     },
     components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}

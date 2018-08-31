@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="导入学员信息">
                 <MyButton class="mr-20" v-if="stepActive == 2" type="border" @click.native="timetableEditClick" fontColor="fc-m">
@@ -296,6 +297,7 @@ export default {
     components: {TableHeader, MyButton},
     data() {
         return {
+            state: 'loading',
             stepActive: 1,
             activeTab: 'student',
             tabLists: {student: '学员基础信息', course: '课程基础信息'},
@@ -563,6 +565,9 @@ export default {
     created() {
         this.importUrlChange();
         this.classPattern = this.$$cache.getMemberInfo().class_pattern;
+    },
+    mounted () {
+        this.state = 'loaded';
     }
 }
 </script>

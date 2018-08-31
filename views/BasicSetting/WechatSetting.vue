@@ -1,5 +1,6 @@
 <template lang="pug">
   .flex1.alarm_setting
+    PageState(:state="state")
     el-card(shadow="hover")
       TableHeader(title="微信设置")
       el-row
@@ -18,7 +19,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
@@ -35,7 +36,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>
@@ -48,6 +49,7 @@ const RIGHT_SETTING_SORT = ['timetableTeacher', 'teacherLessonRemind', 'teacherL
 export default {
   data () {
     return {
+      state: 'loading',
       LEFT_SETTING_SORT,
       RIGHT_SETTING_SORT,
       setting: {
@@ -71,27 +73,11 @@ export default {
         teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', oldval: 0, num: 0, prefix: '剩余多少课时' },
         sellerStudentDistribute: { status: 0, label: '顾问-学员分配提醒' },
         sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
-        sellerStudentSign: { status: 0, label: '顾问-签约成功通知' },
+        sellerStudentSign: { status: 0, label: '顾问-签约成功通知' }
       }
     };
   },
   methods: {
-    async getWechatSettings () {
-      let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
-
-      if (!datas) {
-        return void 0;
-      }
-
-      Object.keys(this.setting).forEach(v => {
-        this.setting[v].status = !!datas[v].status;
-        this.setting[v].label = datas[v].description;
-        if ('num' in this.setting[v]) {
-          this.setting[v].num = datas[v].num;
-          this.setting[v].oldval = datas[v].num;
-        }
-      });
-    },
     async saveWechatSettings (name) {
       return await this.$$request.post('school/weixinRemindSet', { [name]: { name, ...this.setting[name] } });
     },
@@ -123,8 +109,22 @@ export default {
       this.$message.success('保存成功');
     }
   },
-  created () {
-    this.getWechatSettings();
+  async created () {
+    let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
+
+    if (!datas) {
+      return void 0;
+    }
+
+    Object.keys(this.setting).forEach(v => {
+      this.setting[v].status = !!datas[v].status;
+      this.setting[v].label = datas[v].description;
+      if ('num' in this.setting[v]) {
+        this.setting[v].num = datas[v].num;
+        this.setting[v].oldval = datas[v].num;
+      }
+    });
+    this.state = 'loaded';
   },
   components: {
     TableHeader

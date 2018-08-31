@@ -1,5 +1,6 @@
 <template>
   <div class="flex1 outlay_form">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="支出管理">
         <MyButton @click.native="open_setting_dialog" type="border" fontColor="fc-m">类型设置</MyButton>
@@ -116,8 +117,8 @@
 
       <!-- 添加支出确认弹窗 -->
       <el-dialog class="outlay" title="确认添加？" width="720px" center :visible.sync="dialog.add_confirm.show" :close-on-click-modal="false">
-        <el-row class="t-a-c">请确认信息是否无误！</el-row>
-        <el-row class="outlay_info">
+        <el-row class="t-a-c">支出添加之后不能修改与删除，请确认信息准确无误！</el-row>
+        <!-- <el-row class="outlay_info">
           <el-col :span="8">支出人员：
             <span>{{dialog.add.data.name}}</span>
           </el-col>
@@ -130,10 +131,10 @@
           <el-col :span="24">备注：
             <span>{{dialog.add.data.remark}}</span>
           </el-col>
-        </el-row>
+        </el-row> -->
         <div class="d-f f-j-c mt-20">
-          <MyButton type="border" class="fc-m" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
-          <MyButton class="ml-20" @click.native="add_outlay">确定</MyButton>
+          <MyButton @click.native="add_outlay">确定</MyButton>
+          <MyButton type="border" class="fc-m ml-20" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
         </div>
       </el-dialog>
 
@@ -187,6 +188,7 @@ import NameRoute from "../../components/common/NameRoute";
 export default {
   data() {
     return {
+      state: "loading",
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
@@ -245,7 +247,9 @@ export default {
       timeout: null,
       filted_user: "",
       addRules: {
-        together_id: [{ required: true, message: "请选择支出人员", trigger: "change"}],
+        together_id: [
+          { required: true, message: "请选择支出人员", trigger: "change" }
+        ],
         type_id: [
           { required: true, message: "请选择支出类型", trigger: "change" }
         ],
@@ -254,8 +258,8 @@ export default {
           //   { validator: this.$$tools.formOtherValidate("price") }
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
           { validator: this.$$tools.formOtherValidate("total", 999999) }
-        ],
-        remark: [{ required: true, message: "请输入备注" }]
+        ]
+        // remark: [{ required: true, message: "请输入备注" }]
       },
       addTypeRules: {
         type: [{ required: true, message: "请输入支出类型" }]
@@ -314,7 +318,7 @@ export default {
       this.get_data();
     },
     //获取支出记录数据
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         time_type: "custom",
@@ -325,19 +329,22 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      console.log(params);
-      this.$$request.get("/financeManage/expend/lists", params).then(res => {
-        this.outlay_info.data = res.expendRecords.data;
-        this.outlay_info.total = res.total;
-        this.page_info.total = res.expendRecords.total;
-        this.loading = false;
-      });
+      let res = await this.$$request.get("/financeManage/expend/lists", params);
+      if (!res) return false;
+      console.log(res)
+      this.outlay_info.data = res.expendRecords.data;
+      this.outlay_info.total = res.total;
+      this.page_info.total = res.expendRecords.total;
+      this.loading = false;
+      return true;
     },
     //获取支出类型
     async get_outlay_type() {
-      await this.$$request.get("/financeManage/expendType/lists").then(res => {
-        this.dialog.add.data.type_lists = res.expendTypes;
-      });
+      let res = await this.$$request.get("/financeManage/expendType/lists");
+      if (!res) return false;
+      console.log(res)
+      this.dialog.add.data.type_lists = res.expendTypes;
+      return true;
     },
     //添加支出类型
     add_outlay_type(formName) {
@@ -354,7 +361,9 @@ export default {
             if (!result) return false;
             this.get_outlay_type().then(() => {
               let length = this.dialog.add.data.type_lists.length - 1;
-              this.dialog.add.data.type_id = this.dialog.add.data.type_lists[length].id
+              this.dialog.add.data.type_id = this.dialog.add.data.type_lists[
+                length
+              ].id;
             });
             this.$message.success("已添加！");
             this.dialog.addType.show = false;
@@ -384,12 +393,10 @@ export default {
     },
     //查看合约详情
     show_contract(id) {
-      this.$$request
-        .get("/studentCourse/detail", { sc_id: id })
-        .then(res => {
-          this.dialog.contract.data = res.data;
-          this.dialog.contract.show = true;
-        });
+      this.$$request.get("/studentCourse/detail", { sc_id: id }).then(res => {
+        this.dialog.contract.data = res.data;
+        this.dialog.contract.show = true;
+      });
     },
     //添加支出弹窗
     open_outlay_dialog() {
@@ -495,9 +502,9 @@ export default {
       return sums;
     }
   },
-  created() {
-    this.get_outlay_type();
-    this.get_data();
+  async created() {
+    let [r1, r2] = await Promise.all([this.get_outlay_type(), this.get_data()]);
+    if (r1 && r2) this.state = "loaded";
     this.$store.dispatch("getAllUser");
     // this.$nextTick(() => {
     //   this.all_user = this.$store.state.allUser;

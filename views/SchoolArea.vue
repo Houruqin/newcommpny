@@ -174,7 +174,7 @@ export default {
             this.$$cache.setMemberInfo(memberInfo);
 
             this.formLists.splice(0, this.formLists.length);
-            this.$router.replace({path: '/home'});
+            this.$router.replace({path: '/'});
         }
     },
     async created() {

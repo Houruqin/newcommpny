@@ -1,8 +1,13 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader title="无班课表">
-                <!-- <MyButton  type="border" @click.native="addTimetable('multiple')" fontColor="fc-m">批量排课</MyButton> -->
+            <TableHeader title="无班课表" :other="true">
+                <div class="flex1 d-f f-j-b">
+                  <div class="table-header-btn d-f ml-20 f-a-c">
+                      <span v-for="item in timetableType" :key="item.type" @click="tableTypeChange(item.type)" class="mr-10 fs-12 cursor-pointer" :class="{'active': tableType == item.type}">{{item.text}}</span>
+                  </div>
+                </div>
             </TableHeader>
 
             <div class="content-box">
@@ -77,19 +82,16 @@
                                     </el-scrollbar>
                                 </div>
                             </div>
-                            <span slot="reference" class="cursor-pointer"><i class="iconfont icon-zhankai3 mr-5"></i>本周全部课表</span>
+                            <span slot="reference" class="cursor-pointer fc-m"><i class="iconfont icon-zhankai3 mr-5"></i>本{{tableType == 'week' ? '周' : '日'}}全部课表</span>
                         </el-popover>
-                        <el-radio-group v-model="tableType" size="small" class="table-type-radio ml-50" @change="tableTypeChange">
-                            <el-radio-button label="week">按周</el-radio-button>
-                            <el-radio-button label="day">按日</el-radio-button>
-                        </el-radio-group>
                     </div>
                     <div>
                         <i class="iconfont icon-icon--left fc-m cursor-pointer" @click="lastWeekLists"></i>
                         <el-popover placement="bottom" width="260" trigger="click" ref="calendarPopover" popper-class="calendar-popover">
-                            <span slot="reference" class="cursor-pointer ml-5 mr-5">
+                            <span slot="reference" class="cursor-pointer ml-5 mr-5 out-line" v-if="tableType == 'week'">
                                 {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
                             </span>
+                            <span v-if="tableType == 'day'" slot="reference" class="out-line">{{$$tools.format(calendar.time)}}</span>
                             <div id="myCalendar"></div>
                         </el-popover>
                         <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
@@ -385,11 +387,11 @@
                     <template v-if="courseType === 1">
                         <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                         <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
-                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.id" :key="index">{{item.name}}</el-checkbox>
+                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.id" :key="index" :disabled="item.disabled">{{item.name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
                     <el-radio-group v-model="studentRadio" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :disabled="!item.scheduled"
+                        <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled"
                         :key="index" :label="item.id">{{item.name}}</el-radio>
                     </el-radio-group>
 
@@ -457,6 +459,7 @@ const ONE_DAY_LONG = 24*60*60*1000;
 export default {
     data() {
         return {
+            state: 'loading',
             conflictType: {
                 reason1: '老师冲突 请修改时间',
                 reason2: '教室冲突 请修改时间或教室',
@@ -468,6 +471,11 @@ export default {
                 {id: 'room', name: '教室'}
             ],
 
+            timetableType: [
+                {type: 'week', text: '按周'}, {type: 'day', text: '按日'}
+            ],
+
+            CalendatObj: null,
             submitLoading: {timetable: false},
 
             nowTime: new Date().getTime(),//时间选择器，选中的当天日期
@@ -593,6 +601,15 @@ export default {
         }
     },
     methods: {
+        setNewDate() {
+            let now = new Date(this.calendar.time * 1000);
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            let day = now.getDate();
+
+            this.CalendatObj.data('calendar').updateDateView(year, month);
+            this.CalendatObj.data('calendar').selectedDay(day);
+        },
         tableHeader(elem, {column, $index}) {
             let weekList = this.defaultWeekList;
             return elem('div', {'class': 'header-box'}, [
@@ -614,17 +631,31 @@ export default {
         },
         //上一周翻页
         lastWeekLists() {
-            let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
-            this.calendar.time = last / 1000;
+            if(this.tableType == 'week') {
+                let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
+                this.calendar.time = last / 1000;
+                this.getWeekList(last, 'default');
+            }else {
+                this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
+                this.setNewDate();
+                this.getWeekList(this.calendar.time, 'default');
+            }
+
             this.getAllTableLists();
-            this.getWeekList(last, 'default');
         },
         //下一周翻页
         nextWeekLists() {
-            let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
-            this.calendar.time = next / 1000;
+            if(this.tableType == 'week') {
+                let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
+                this.calendar.time = next / 1000;
+                this.getWeekList(next, 'default');
+            }else {
+                this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
+                this.setNewDate();
+                this.getWeekList(this.calendar.time, 'default');
+            }
+
             this.getAllTableLists();
-            this.getWeekList(next, 'default');
         },
         dialogClose() {
             this.formAddDate.splice(0, this.formAddDate.length);
@@ -649,24 +680,6 @@ export default {
             this.checkStudentForm = [];
             this.radioStudentForm = '';
         },
-        //班级课表radio   一对一，一对多切换
-        // gradeRadioChange() {
-        //     this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
-        //     let num = 0;
-
-        //     this.timeTableInfo.course_info.forEach(v => {
-        //         if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
-        //             this.gradeInfoCheckLists.lists.push(v);
-        //             num+= v.num;
-        //         }
-        //     });
-
-        //     this.gradeInfoCheckLists.total_num = num;
-
-        //     this.timetable_courseAll = true;
-        //     this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
-        //     this.getGradeTableLists();
-        // },
         //排课班级全选
         gradeCheckAllChange(val) {
             this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
@@ -702,7 +715,14 @@ export default {
         },
 
         //按周、日展示切换
-        tableTypeChange() {
+        tableTypeChange(type) {
+          if(type == this.tableType) return 0;
+            this.tableType = type;
+
+            this.calendar.time = new Date().getTime() / 1000;
+            this.getWeekList(null, 'default');
+            this.getWeekList(null, 'timetable');
+            this.setNewDate();
             this.getAllTableLists();
         },
         //批量排课，新增多个时间段
@@ -773,6 +793,13 @@ export default {
                 this.radioStudentForm = detail.student_grades[0].student_id;
                 this.studentRadio = this.radioStudentForm;
             }
+
+            this.allStudentLists.forEach(m => {
+                if(this.checkStudentForm.indexOf(m.student_id) != -1) m.disabled = false;
+                else m.disabled = !m.scheduled;
+            });
+
+            console.log(this.allStudentLists);
 
             this.addTimetableMask = true;
         },
@@ -867,6 +894,10 @@ export default {
                     });
                 }
             });
+
+            this.allStudentLists.forEach(m => {m.disabled = !m.scheduled});
+
+            console.log(this.allStudentLists)
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
@@ -1106,6 +1137,7 @@ export default {
             if(!result) return 0;
 
             this.planCourseLists = result.course;
+            return true;
         },
         //默认获取全部课表
         async getAllTableLists() {
@@ -1127,6 +1159,8 @@ export default {
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
+
+            return true;
         },
         //班级获取课表
         async getGradeTableLists() {
@@ -1306,7 +1340,7 @@ export default {
         }
     },
     mounted() {
-        Jquery('#myCalendar').calendar({
+        this.CalendatObj = Jquery('#myCalendar').calendar({
             width: 260,
             height: 280,
             customClass: 'my-calender',
@@ -1320,19 +1354,19 @@ export default {
             }
         });
     },
-    created() {
+    async created() {
         for(let a = 9; a <= 21; a++) {this.hourData.push({id: a, name: `${a}:00`})};
         this.getWeekList(null, 'default');
         this.getWeekList(null, 'timetable');
-        this.getAllTableLists();
-        this.getAddTimeTableFull();
 
+        let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
+        if(a && b) this.state = 'loaded';
 
         this.$nextTick(v => {
             let width = document.querySelector('.home-main-box').clientWidth;
             if(width <= 1070) document.querySelector('.week-table').style.width = '990px';
             else document.querySelector('.week-table').style.width = (width - 80) + 'px';
-        })
+        });
     },
     components: {TableHeader, MyButton, TimetablePopver}
 }
@@ -1708,5 +1742,19 @@ export default {
         }
     }
 
+    .table-header-btn {
+        span {
+            width: 48px;
+            line-height: 24px;
+            text-align: center;
+            border: 1px #45DAD5 solid;
+            border-radius: 3px;
+            color: #45DAD5;
+            &.active {
+                background-color: #45DAD5;
+                color: #fff;
+            }
+        }
+    }
 </style>
 

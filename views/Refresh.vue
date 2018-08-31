@@ -1,5 +1,5 @@
 <template>
-    
+
 </template>
 
 <script>
@@ -9,7 +9,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.$router.replace('home/workbench');
+            vm.$router.replace('/');
         })
     }
 }

@@ -1,96 +1,97 @@
 <template>
     <div class="flex1">
+        <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader title="有班课表">
-                <MyButton type="border" @click.native="addTimetableHandle('multiple')" fontColor="fc-m">批量排课</MyButton>
+            <TableHeader title="有班课表" :other="true">
+              <div class="flex1 d-f f-j-b">
+                <div class="table-header-btn d-f ml-20 f-a-c">
+                    <span v-for="item in timetableType" :key="item.type" @click="tableTypeChange(item.type)" class="mr-10 fs-12 cursor-pointer" :class="{'active': tableType == item.type}">{{item.text}}</span>
+                </div>
+                <MyButton @click.native="addTimetableHandle('multiple')">批量排课</MyButton>
+              </div>
             </TableHeader>
 
-            <div class="content-box">
+
+            <div class="content-box" v-loading="loading">
                 <div class="d-f f-j-b f-a-c mt-20 fc-7">
-                    <div>
-                        <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
-                            <div class="timetable-filter-tab">
-                                <ul class="d-f">
-                                    <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
-                                </ul>
+                    <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
+                        <div class="timetable-filter-tab">
+                            <ul class="d-f">
+                                <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
+                            </ul>
 
-                                <div class="grade-checkbox my-scrollbar">
-                                    <el-scrollbar style="height: 100%;">
-                                        <!-- 班级课表 -->
-                                        <div v-if="timetableFilter == 'grade'" key="default">
-                                            <div class="timetable-gradecheckbox my-scrollbar">
-                                                <div class="check-item">
-                                                    <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
-                                                        <span>全选</span>
-                                                        <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
+                            <div class="grade-checkbox my-scrollbar">
+                                <el-scrollbar style="height: 100%;">
+                                    <!-- 班级课表 -->
+                                    <div v-if="timetableFilter == 'grade'" key="default">
+                                        <div class="timetable-gradecheckbox my-scrollbar">
+                                            <div class="check-item">
+                                                <el-checkbox v-model="timetable_gradeAll" @change="gradeCheckAllChange" class="p-r">
+                                                    <span>全选</span>
+                                                    <span class="p-a num">{{gradeInfoCheckLists.total_num}}</span>
+                                                </el-checkbox>
+                                            </div>
+                                            <el-checkbox-group v-model="timetable_gradeCheck" @change="gradeCheckChange">
+                                                <div v-for="(item, index) in gradeInfoCheckLists.lists" :key="index" class="check-item">
+                                                    <el-checkbox :label="item" class="p-r">
+                                                        <span>{{item.name}}</span>
+                                                        <span class="p-a num">{{item.num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                                <el-checkbox-group v-model="timetable_gradeCheck" @change="gradeCheckChange">
-                                                    <div v-for="(item, index) in gradeInfoCheckLists.lists" :key="index" class="check-item">
-                                                        <el-checkbox :label="item" class="p-r">
-                                                            <span>{{item.name}}</span>
-                                                            <span class="p-a num">{{item.num}}</span>
-                                                        </el-checkbox>
-                                                    </div>
-                                                </el-checkbox-group>
-                                            </div>
+                                            </el-checkbox-group>
                                         </div>
+                                    </div>
 
-                                        <!-- 老师课表 -->
-                                        <div v-else-if="timetableFilter == 'teacher'" key="teacher">
-                                            <div class="timetable-gradecheckbox my-scrollbar">
-                                                <div class="check-item">
-                                                    <el-checkbox v-model="timetable_teacherAll" @change="teacherCheckAllChange" class="p-r">
-                                                        <span>全选</span>
-                                                        <span class="p-a num">{{timeTableInfo.total_num}}</span>
+                                    <!-- 老师课表 -->
+                                    <div v-else-if="timetableFilter == 'teacher'" key="teacher">
+                                        <div class="timetable-gradecheckbox my-scrollbar">
+                                            <div class="check-item">
+                                                <el-checkbox v-model="timetable_teacherAll" @change="teacherCheckAllChange" class="p-r">
+                                                    <span>全选</span>
+                                                    <span class="p-a num">{{timeTableInfo.total_num}}</span>
+                                                </el-checkbox>
+                                            </div>
+                                            <el-checkbox-group v-model="timetable_teacherCheck" @change="teacherCheckChange">
+                                                <div v-for="(item, index) in timeTableInfo.teacher_info" :key="index" class="check-item">
+                                                    <el-checkbox :label="item" class="p-r">
+                                                        <span>{{item.name}}</span>
+                                                        <span class="p-a num">{{item.num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                                <el-checkbox-group v-model="timetable_teacherCheck" @change="teacherCheckChange">
-                                                    <div v-for="(item, index) in timeTableInfo.teacher_info" :key="index" class="check-item">
-                                                        <el-checkbox :label="item" class="p-r">
-                                                            <span>{{item.name}}</span>
-                                                            <span class="p-a num">{{item.num}}</span>
-                                                        </el-checkbox>
-                                                    </div>
-                                                </el-checkbox-group>
-                                            </div>
+                                            </el-checkbox-group>
                                         </div>
+                                    </div>
 
-                                        <div v-else>
-                                            <div class="timetable-gradecheckbox my-scrollbar">
-                                                <div class="check-item">
-                                                    <el-checkbox v-model="timetable_roomAll" @change="roomCheckAllChange" class="p-r">
-                                                        <span>全选</span>
-                                                        <span class="p-a num">{{timeTableInfo.total_num}}</span>
+                                    <div v-else>
+                                        <div class="timetable-gradecheckbox my-scrollbar">
+                                            <div class="check-item">
+                                                <el-checkbox v-model="timetable_roomAll" @change="roomCheckAllChange" class="p-r">
+                                                    <span>全选</span>
+                                                    <span class="p-a num">{{timeTableInfo.total_num}}</span>
+                                                </el-checkbox>
+                                            </div>
+                                            <el-checkbox-group v-model="timetable_roomCheck" @change="roomCheckChange">
+                                                <div v-for="(item, index) in timeTableInfo.room_info" :key="index" class="check-item">
+                                                    <el-checkbox :label="item" class="p-r">
+                                                        <span>{{item.name}}</span>
+                                                        <span class="p-a num">{{item.num}}</span>
                                                     </el-checkbox>
                                                 </div>
-                                                <el-checkbox-group v-model="timetable_roomCheck" @change="roomCheckChange">
-                                                    <div v-for="(item, index) in timeTableInfo.room_info" :key="index" class="check-item">
-                                                        <el-checkbox :label="item" class="p-r">
-                                                            <span>{{item.name}}</span>
-                                                            <span class="p-a num">{{item.num}}</span>
-                                                        </el-checkbox>
-                                                    </div>
-                                                </el-checkbox-group>
-                                            </div>
+                                            </el-checkbox-group>
                                         </div>
-                                    </el-scrollbar>
-                                </div>
+                                    </div>
+                                </el-scrollbar>
                             </div>
-                            <span slot="reference" class="cursor-pointer"><i class="iconfont icon-zhankai3 mr-5"></i>本周全部课表</span>
-                        </el-popover>
-                        <el-radio-group v-model="tableType" size="small" class="table-type-radio ml-50" @change="tableTypeChange">
-                            <el-radio-button label="week">按周</el-radio-button>
-                            <el-radio-button label="day">按日</el-radio-button>
-                        </el-radio-group>
-                    </div>
-                    <div>
+                        </div>
+                        <span slot="reference" class="cursor-pointer fc-m"><i class="iconfont icon-zhankai3 mr-5"></i>本{{tableType == 'week' ? '周' : '日'}}全部课表</span>
+                    </el-popover>
+                    <div class="date-change-box">
                         <i class="iconfont icon-icon--left fc-m cursor-pointer" @click="lastWeekLists"></i>
                         <el-popover placement="bottom" width="260" trigger="click" ref="calendarPopover" popper-class="calendar-popover">
-                            <span slot="reference" class="cursor-pointer ml-5 mr-5 transition-box">
+                            <span slot="reference" class="cursor-pointer ml-5 mr-5 out-line" v-if="tableType == 'week'">
                                 {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
                             </span>
-                            <!-- <span v-if="tableType == 'day'" slot="reference" class="transition-box">{{$$tools.format(calendar.time)}}</span> -->
+                            <span v-if="tableType == 'day'" slot="reference" class="out-line">{{$$tools.format(calendar.time)}}</span>
                             <div id="myCalendar"></div>
                         </el-popover>
                         <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
@@ -103,7 +104,7 @@
                     </div>
                 </div>
 
-                <div class="timetable-box mt-20" v-loading="loading">
+                <div class="timetable-box mt-20">
                     <!-- 周课表 -->
                     <div class="fc-5 week-table" v-if="tableType === 'week'" ref="myTimetable">
                         <el-table :data="weekTableLists" border header-row-class-name="time-table-header" @cell-mouse-enter="timeTableHover" @cell-mouse-leave="timeTableleave"
@@ -425,11 +426,11 @@
                         <template v-if="courseType === 1">
                             <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                             <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
-                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="!(item.buy_lesson_num - item.scheduled)">{{item.student_name}}</el-checkbox>
+                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="item.disabled">{{item.student_name}}</el-checkbox>
                             </el-checkbox-group>
                         </template>
                         <el-radio-group v-model="studentRadio" v-else>
-                            <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.buy_lesson_num - item.scheduled)"
+                            <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled"
                             :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                         </el-radio-group>
 
@@ -499,6 +500,7 @@ const ONE_DAY_LONG = 24*60*60*1000;
 export default {
     data() {
         return {
+            state: 'loading',
             conflictType: {
                 reason1: '老师冲突 请修改时间',
                 reason2: '教室冲突 请修改时间或教室',
@@ -508,6 +510,10 @@ export default {
                 {id: 'grade', name: '班级'},
                 {id: 'teacher', name: '老师'},
                 {id: 'room', name: '教室'}
+            ],
+
+            timetableType: [
+                {type: 'week', text: '按周'}, {type: 'day', text: '按日'}
             ],
 
             CalendatObj: null,
@@ -635,15 +641,15 @@ export default {
         }
     },
     methods: {
-        // setNewDate() {
-        //     let now = new Date(this.calendar.time * 1000);
-        //     let year = now.getFullYear();
-        //     let month = now.getMonth() + 1;
-        //     let day = now.getDate();
+        setNewDate() {
+            let now = new Date(this.calendar.time * 1000);
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            let day = now.getDate();
 
-        //     this.CalendatObj.data('calendar').updateDateView(year, month);
-        //     this.CalendatObj.data('calendar').selectedDay(day);
-        // },
+            this.CalendatObj.data('calendar').updateDateView(year, month);
+            this.CalendatObj.data('calendar').selectedDay(day);
+        },
         tableHeader(elem, {column, $index}) {
             let weekList = this.defaultWeekList;
             return elem('div', {'class': 'header-box'}, [
@@ -665,33 +671,30 @@ export default {
         },
         //上一周翻页
         lastWeekLists() {
-            // if(this.tableType == 'week') {
-            //     let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
-            //     this.calendar.time = last / 1000;
-            //     this.getWeekList(last, 'default');
-            // }else {
-            //     this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
-            //     this.setNewDate();
-            // }
-            let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
-            this.calendar.time = last / 1000;
-            this.getWeekList(last, 'default');
+            if(this.tableType == 'week') {
+                let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
+                this.calendar.time = last / 1000;
+                this.getWeekList(last, 'default');
+            }else {
+                this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
+                this.setNewDate();
+                this.getWeekList(this.calendar.time, 'default');
+            }
+
             this.getAllTableLists();
         },
         //下一周翻页
         nextWeekLists() {
-            // if(this.tableType == 'week') {
-            //     let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
-            //     this.calendar.time = next / 1000;
-            //     this.getWeekList(next, 'default');
-            // }else {
-            //     this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
-            //     this.setNewDate();
-            //     // this.getWeekList(this.calendar.time, 'default');
-            // }
-            let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
-            this.calendar.time = next / 1000;
-            this.getWeekList(next, 'default');
+            if(this.tableType == 'week') {
+                let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
+                this.calendar.time = next / 1000;
+                this.getWeekList(next, 'default');
+            }else {
+                this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
+                this.setNewDate();
+                this.getWeekList(this.calendar.time, 'default');
+            }
+
             this.getAllTableLists();
         },
         dialogClose() {
@@ -718,22 +721,6 @@ export default {
             this.checkStudentForm = [];
             this.radioStudentForm = '';
         },
-        //班级课表radio  班级课表radio   一对一，一对多切换
-        // gradeRadioChange() {
-        //     this.gradeInfoCheckLists.lists.splice(0, this.gradeInfoCheckLists.lists.length);
-        //     let num = 0;
-        //     this.timeTableInfo.grade_info.forEach(v => {
-        //         if(this.gradeTimeTableRadio == 0 || v.type == this.gradeTimeTableRadio) {
-        //             this.gradeInfoCheckLists.lists.push(v);
-        //             num+= v.num;
-        //         }
-        //     });
-        //     this.gradeInfoCheckLists.total_num = num;
-
-        //     this.timetable_gradeAll = true;
-        //     this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
-        //     this.getGradeTableLists();
-        // },
         //排课班级全选
         gradeCheckAllChange(val) {
             this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
@@ -769,7 +756,14 @@ export default {
         },
 
         //按周、日展示切换
-        tableTypeChange() {
+        tableTypeChange(type) {
+            if(type == this.tableType) return 0;
+            this.tableType = type;
+
+            this.calendar.time = new Date().getTime() / 1000;
+            this.getWeekList(null, 'default');
+            this.getWeekList(null, 'timetable');
+            this.setNewDate();
             this.getAllTableLists();
         },
         //批量排课，新增多个时间段
@@ -843,6 +837,12 @@ export default {
                 this.studentRadio = this.radioStudentForm;
             }
 
+            this.allStudentLists.forEach(m => {
+              if(this.checkStudentForm.indexOf(m.student_id) != -1) m.disabled = false;
+              else m.disabled = !(m.buy_lesson_num - m.scheduled);
+            });
+
+            console.log(this.allStudentLists)
 
             this.addTimetableMask = true;
         },
@@ -924,6 +924,10 @@ export default {
             this.timetableForm.grade_info = val;
             this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
 
+            this.allStudentLists.forEach(m => {m.disabled = !(m.buy_lesson_num - m.scheduled)});   //手动判断学员是够还能排课
+
+            console.log(this.allStudentLists)
+
             if(this.courseType === 1) {
                 this.studentLists.splice(0, this.studentLists.length);
                 this.gradeInfo.student_grade.forEach(k => {if(k.buy_lesson_num - k.scheduled > 0) this.studentLists.push(k.student_id)});
@@ -948,8 +952,6 @@ export default {
 
             if(this.addTableType == 'multiple') this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);  //上课教室
             else this.timetableForm.room_id = this.gradeInfo.room_id;
-
-            console.log(this.timetableForm)
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
@@ -983,7 +985,6 @@ export default {
             return name;
         },
         addStudentClick() {
-            console.log(this.allStudentLists)
             if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
             this.addStudentDialog = true;
 
@@ -1201,6 +1202,7 @@ export default {
             });
 
             this.timetableFull = result.lists;
+            return true;
         },
         //默认获取全部课表
         async getAllTableLists() {
@@ -1222,6 +1224,8 @@ export default {
             this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
             this.timetable_teacherCheck = result.lists.teacher_info;
             this.timetable_roomCheck = result.lists.room_info;
+
+            return true;
         },
         //班级获取课表
         async getGradeTableLists() {
@@ -1401,7 +1405,21 @@ export default {
             else this.timetableWeekList = weekLists;
         }
     },
+    async created() {
+        for(let a = 9; a <= 21; a++) {this.hourData.push({id: a, name: `${a}:00`})};
+        this.getWeekList(null, 'default');
+        this.getWeekList(null, 'timetable');
+
+        let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
+        if(a && b) this.state = 'loaded';
+
+        Bus.$on('home_refreshTimeTable', () => {this.getAllTableLists()});
+    },
     mounted() {
+        let width = document.querySelector('.home-main-box').clientWidth;
+        if(width <= 1070) document.querySelector('.week-table').style.width = '990px';
+        else document.querySelector('.week-table').style.width = (width - 80) + 'px';
+
         this.CalendatObj = Jquery('#myCalendar').calendar({
             width: 260,
             height: 280,
@@ -1416,21 +1434,6 @@ export default {
                 this.$refs.calendarPopover.showPopper = false;
             }
         });
-    },
-    created() {
-        for(let a = 9; a <= 21; a++) {this.hourData.push({id: a, name: `${a}:00`})};
-        this.getWeekList(null, 'default');
-        this.getWeekList(null, 'timetable');
-        this.getAllTableLists();
-        this.getAddTimeTableFull();
-
-        this.$nextTick(v => {
-            let width = document.querySelector('.home-main-box').clientWidth;
-            if(width <= 1070) document.querySelector('.week-table').style.width = '990px';
-            else document.querySelector('.week-table').style.width = (width - 80) + 'px';
-        });
-
-        Bus.$on('home_refreshTimeTable', () => {this.getAllTableLists()});
     },
     components: {TableHeader, MyButton, TimetablePopver}
 }
@@ -1797,6 +1800,22 @@ export default {
                 &:hover {
                     color: #45DAD5;
                 }
+            }
+        }
+    }
+
+
+    .table-header-btn {
+        span {
+            width: 48px;
+            line-height: 24px;
+            text-align: center;
+            border: 1px #45DAD5 solid;
+            border-radius: 3px;
+            color: #45DAD5;
+            &.active {
+                background-color: #45DAD5;
+                color: #fff;
             }
         }
     }
