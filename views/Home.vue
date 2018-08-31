@@ -92,7 +92,12 @@
                   <p class="loading-text">正在努力加载，请耐心等候</p>
                 </div>
                 <div class="page-error-box" v-if="'error' === $store.state.pageState">
-                  {{ $store.state.pageErrorText }}
+                  <img src="../images/state-500.png">
+                  <div class="page-error-inner">
+                    <p>很抱歉！</p>
+                    <span>{{ $store.state.pageErrorText }}</span>
+                    <i @click="reloadPage">刷新页面</i>
+                  </div>
                 </div>
                 <!-- <keep-alive><router-view v-if="$route.meta.keepAlive"></router-view></keep-alive>  v-if="!$route.meta.keepAlive"-->
                 <router-view v-show="'loaded' === $store.state.pageState"></router-view>
@@ -712,6 +717,10 @@ export default {
             this.getSchoolLists();
             this.memberInfo = this.$$cache.getMemberInfo();
             this.schoolId = this.$$cache.getMemberInfo().school_id;
+        },
+        reloadPage () {
+          // this.$store.replace(`/refresh?path=${this.$route.fullpath}`);
+          location.reload();
         }
     },
     mounted() {
@@ -817,6 +826,41 @@ export default {
     }
     .page-error-box {
       z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        margin-right: 50px;
+        display: block;
+      }
+    }
+    .page-error-inner {
+      display: flex;
+      flex-direction: column;
+      margin-top: -45px;
+      p {
+        font-size: #555;
+        font-weight: bold;
+        font-size: 30px;
+      }
+      span {
+        font-size: 15px;
+        color: #777;
+        margin-top: 20px;
+      }
+      i {
+        border: 1px #45DAD5 solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #45DAD5;
+        height: 32px;
+        min-width: 94px;
+        padding: 0 18px;
+        margin-top: 25px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
     }
     .content-right {
         padding-left: 230px;
