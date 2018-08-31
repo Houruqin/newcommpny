@@ -10,7 +10,7 @@
           input(placeholder="请输入验证码" v-model="verificationCode" @keydown.enter="onLogin")
           span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
-        .login-btn(@click="onLogin") 立即登录
+        .login-btn(@click="onLogin" :class="{ loading: loginState }") {{ loginState ? '登录中...' : '立即登录' }}
       .login-inner-footer #[span 官网]#[span 申请试用]#[span(@click="$router.push('/help')") 帮助]
     .login-footer
 </template>
@@ -20,11 +20,12 @@ export default {
   data () {
     return {
       state: 'loading',
+      loginState: false,
       phone: this.$$cache.get('phone') || '',
       verificationCode: '',
       checked: true,
       codeTime: 0
-    }
+    };
   },
   methods: {
     async sendCode() {
@@ -43,14 +44,22 @@ export default {
     },
     async onLogin() {
 
+      if (this.loginState) {
+        return void 0;
+      }
+
       if(!this.$$tools.validate('phone', this.phone.trim())) return 0;
 
       if(!this.$$tools.validate('code', this.verificationCode.trim())) return 0;
+
+      this.loginState = true;
 
       let result = await this.$$request.post('/auth/login', {
         mobile: this.phone.trim(),
         sms_code: this.verificationCode.trim()
       });
+
+      this.loginState = false;
 
       if(!result) return 0;
 
@@ -135,7 +144,7 @@ export default {
     font-size: 24px;
     color: #45dad5;
     text-align: center;
-    padding-top: 69px;
+    padding-top: 60px;
     padding-bottom: 24px;
   }
 }
@@ -199,6 +208,9 @@ export default {
   justify-content: center;
   margin-top: 32px;
   cursor: pointer;
+  &.loading {
+    background: #a3f3f0;
+  }
 }
 .login-inner-footer {
   display: flex;
@@ -209,7 +221,7 @@ export default {
   font-size: 16px;
   span {
     height: 30px;
-    padding: 0 15px;
+    padding: 0 20px;
     border-radius: 15px;
     border: 1px solid #45dad5;
     display: flex;
