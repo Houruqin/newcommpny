@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="购课记录">
       </TableHeader>
@@ -76,6 +77,7 @@ import NameRoute from "../../components/common/NameRoute"
 export default {
   data() {
     return {
+      state: 'loading',
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
@@ -141,7 +143,7 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         start_date: this.get_seconde(this.search_info.begin),
@@ -150,13 +152,12 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      this.$$request
-        .post("/eduCount/studentCourseLists", params)
-        .then(res => {
-          this.buy_info.data = res.studentCourseLists.data;
-          this.page_info.total = res.studentCourseLists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.post("/eduCount/studentCourseLists", params);
+      if (!res) return false;
+      this.buy_info.data = res.studentCourseLists.data;
+      this.page_info.total = res.studentCourseLists.total;
+      this.loading = false;
+      return true;
     },
     //将时间转换为秒数
     get_seconde(date) {
@@ -178,8 +179,10 @@ export default {
       this.dialog.contract.show = false;
     }
   },
-  created() {
-    this.get_data();
+  async created() {
+    let res = await this.get_data();
+    if (!res) return false;
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute}
 };

@@ -1,9 +1,9 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="退费管理">
       </TableHeader>
-
       <div class="toolbar mt-20">
         <ul class="d-f date_type">
           <li @click="choose_date('current_month')">
@@ -95,10 +95,13 @@ import NameRoute from "../../components/common/NameRoute";
 export default {
   data() {
     return {
+      state: "loading",
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
+          0
+        ),
         name: "",
         date_type: "current_month",
         course_id: 0,
@@ -136,7 +139,9 @@ export default {
           this.search_info.begin = new Date(
             this.$format_date(new Date(), "yyyy/MM/01")
           );
-          this.search_info.end = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
+          this.search_info.end = new Date(
+            new Date().setMonth(new Date().getMonth() + 1)
+          ).setDate(0);
           break;
         case "last_month":
           this.search_info.begin = new Date(
@@ -173,7 +178,7 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         time_type: "custom",
@@ -186,14 +191,16 @@ export default {
         page_num: this.page_info.page_num
       };
       console.log(params);
-      this.$$request
-        .get("/financeManage/studentCourse/quitCourseLists", params)
-        .then(res => {
-          this.refund_info.data = res.lists.data;
-          this.refund_info.total = res.total;
-          this.page_info.total = res.lists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.get(
+        "/financeManage/studentCourse/quitCourseLists",
+        params
+      );
+      if (!res) return false;
+      this.refund_info.data = res.lists.data;
+      this.refund_info.total = res.total;
+      this.page_info.total = res.lists.total;
+      this.loading = false;
+      return true;
     },
     //将时间转换为秒数
     get_seconde(date) {
@@ -240,8 +247,10 @@ export default {
       return sums;
     }
   },
-  created() {
-    this.get_data();
+  async created() {
+    let res = await this.get_data();
+    if(!res) return false;
+    this.state = 'loaded'
   },
   components: { TableHeader, MyButton, RefundDialog, NameRoute }
 };

@@ -19,7 +19,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
@@ -36,7 +36,7 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status")
+                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>
