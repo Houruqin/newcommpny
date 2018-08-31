@@ -4,7 +4,7 @@
             <span class="fs-16">{{title}}</span>
             <i v-if="icon" class="iconfont icon-bianji ml-10 cursor-pointer" @click="imgClick"></i>
         </div>
-        <div class="d-f"><slot></slot></div>
+        <div class="d-f" :class="{'flex1': other}"><slot></slot></div>
     </div>
 </template>
 
@@ -13,6 +13,7 @@
 export default {
     props: {
         title: {default: ''},
+        other: {default: false},
         icon: {default: false}
     },
     data() {

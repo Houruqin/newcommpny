@@ -2,15 +2,15 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <div class="table-header d-f f-j-b f-a-c fc-5">
-                <div class="d-f f-a-c">
-                    <span class="fs-16">有班课表</span>
-                    <div class="table-header-btn d-f ml-50">
-                        <span v-for="item in timetableType" :key="item.type" @click="tableTypeChange(item.type)" class="mr-10 cursor-pointer" :class="{'active': tableType == item.type}">{{item.text}}</span>
-                    </div>
+            <TableHeader title="有班课表" :other="true">
+              <div class="flex1 d-f f-j-b">
+                <div class="table-header-btn d-f ml-20 f-a-c">
+                    <span v-for="item in timetableType" :key="item.type" @click="tableTypeChange(item.type)" class="mr-10 fs-12 cursor-pointer" :class="{'active': tableType == item.type}">{{item.text}}</span>
                 </div>
                 <MyButton @click.native="addTimetableHandle('multiple')">批量排课</MyButton>
-            </div>
+              </div>
+            </TableHeader>
+
 
             <div class="content-box" v-loading="loading">
                 <div class="d-f f-j-b f-a-c mt-20 fc-7">
@@ -426,11 +426,11 @@
                         <template v-if="courseType === 1">
                             <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                             <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
-                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="!(item.buy_lesson_num - item.scheduled)">{{item.student_name}}</el-checkbox>
+                                <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="item.disabled">{{item.student_name}}</el-checkbox>
                             </el-checkbox-group>
                         </template>
                         <el-radio-group v-model="studentRadio" v-else>
-                            <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.buy_lesson_num - item.scheduled)"
+                            <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled"
                             :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                         </el-radio-group>
 
@@ -837,6 +837,12 @@ export default {
                 this.studentRadio = this.radioStudentForm;
             }
 
+            this.allStudentLists.forEach(m => {
+              if(this.checkStudentForm.indexOf(m.student_id) != -1) m.disabled = false;
+              else m.disabled = !(m.buy_lesson_num - m.scheduled);
+            });
+
+            console.log(this.allStudentLists)
 
             this.addTimetableMask = true;
         },
@@ -918,6 +924,10 @@ export default {
             this.timetableForm.grade_info = val;
             this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
 
+            this.allStudentLists.forEach(m => {m.disabled = !(m.buy_lesson_num - m.scheduled)});   //手动判断学员是够还能排课
+
+            console.log(this.allStudentLists)
+
             if(this.courseType === 1) {
                 this.studentLists.splice(0, this.studentLists.length);
                 this.gradeInfo.student_grade.forEach(k => {if(k.buy_lesson_num - k.scheduled > 0) this.studentLists.push(k.student_id)});
@@ -942,8 +952,6 @@ export default {
 
             if(this.addTableType == 'multiple') this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);  //上课教室
             else this.timetableForm.room_id = this.gradeInfo.room_id;
-
-            console.log(this.timetableForm)
         },
         //排课弹窗，选择一周某一天
         formWeekChange(val) {
@@ -977,7 +985,6 @@ export default {
             return name;
         },
         addStudentClick() {
-            console.log(this.allStudentLists)
             if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
             this.addStudentDialog = true;
 
@@ -1800,8 +1807,8 @@ export default {
 
     .table-header-btn {
         span {
-            width: 50px;
-            line-height: 25px;
+            width: 48px;
+            line-height: 24px;
             text-align: center;
             border: 1px #45DAD5 solid;
             border-radius: 3px;
@@ -1811,10 +1818,6 @@ export default {
                 color: #fff;
             }
         }
-    }
-    .table-header {
-        height: 50px;
-        border-bottom: 1px #e3e3e3 solid;
     }
 </style>
 
