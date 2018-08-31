@@ -11,7 +11,7 @@
           span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
         .login-btn(@click="onLogin") 立即登录
-      .login-inner-footer #[span 官网]#[span(@click="$router.push('/help')") 帮助]#[span 申请试用]
+      .login-inner-footer #[span 官网]#[span 申请试用]#[span(@click="$router.push('/help')") 帮助]
     .login-footer
 </template>
 
@@ -128,7 +128,7 @@ export default {
 .login-box-inner {
   width: 405px;
   height: 441px;
-  box-shadow: 0px 2px 10px rgba(69, 218, 213, 0.75);
+  box-shadow: 0px 8px 24px -5px rgba(69, 218, 213, 0.6);
   margin: @log-top + 120px + 64px auto 0;
   background: #fff;
   p {
