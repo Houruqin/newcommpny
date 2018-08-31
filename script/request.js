@@ -17,56 +17,56 @@ const DEFAULT_DATA = {}   //默认的公共参数
 
 //请求之前拦截器
 axios.interceptors.request.use(config => {
-        config.headers.Authorization = cache.get('TOKEN') || cache.getSession('TOKEN') || '';
-        return config;
-    }, error => {return Message.warning('请求错误，请稍后再试')}
+  config.headers.Authorization = cache.get('TOKEN') || cache.getSession('TOKEN') || '';
+  return config;
+}, error => { return Message.warning('请求错误，请稍后再试') }
 );
 
 
 //请求完成之后的拦截器
 axios.interceptors.response.use(res => {
-    if(config.version !== res.headers.version) return window.location.reload(true);
+  if (config.version !== res.headers.version) return window.location.reload(true);
 
-    let result = res.data;
-    switch (result.code) {
-        case 1:
-            if(result.data.token) {
-                if(cache.get('isRemember')) cache.set('TOKEN', result.data.token);    //是否记住密码，保存不同的位置
-                else cache.setSession('TOKEN', result.data.token);
-                cache.setMemberInfo(result.data.user);
-                Bus.$emit('refreshSchoolLists');
-            };
+  let result = res.data;
+  switch (result.code) {
+    case 1:
+      if (result.data.token) {
+        if (cache.get('isRemember')) cache.set('TOKEN', result.data.token);    //是否记住密码，保存不同的位置
+        else cache.setSession('TOKEN', result.data.token);
+        cache.setMemberInfo(result.data.user);
+        Bus.$emit('refreshSchoolLists');
+      };
 
-            // if(result.data.user) cache.setMemberInfo(result.data.user);
+      // if(result.data.user) cache.setMemberInfo(result.data.user);
 
-            return result.data;
-        // case 3:
-        //     Message.warning(result.message);
-        //     return null;
-        case 1001:
-            cache.loginOut();
-            Message.warning(result.message);
-            return null;
-        default:
-            let errorMsg = result.message || '请求错误，请稍后再试';
-            store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
-            return null;
-    }
+      return result.data;
+    // case 3:
+    //     Message.warning(result.message);
+    //     return null;
+    case 1001:
+      cache.loginOut();
+      Message.warning(result.message);
+      return null;
+    default:
+      let errorMsg = result.message || '请求错误，请稍后再试';
+      store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
+      return null;
+  }
 }, error => {
-    let result = error.response || {};
-    let errorMsg = '';
-    switch (result.status) {
-        case 403:
-            errorMsg = '您没有操作权限';
-            break;
-        case 401:
-            return cache.loginOut();
-        default:
-            errorMsg = '请求失败，请稍后再试';
-    }
+  let result = error.response || {};
+  let errorMsg = '';
+  switch (result.status) {
+    case 403:
+      errorMsg = '您没有操作权限';
+      break;
+    case 401:
+      return cache.loginOut();
+    default:
+      errorMsg = '请求失败，请稍后再试';
+  }
 
-    store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
-    return null;
+  store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
+  return null;
 });
 
 
@@ -77,14 +77,14 @@ const Request = {
 	 * @param {Object} params 请求参数
      * @param {object} options 请求配置config
 	 */
-    get(url, data, options) {
-        let params = { ...DEFAULT_DATA, ...data };
-        return axios.get(`${url}?${qs.stringify(params)}`, { options });
-    },
+  get(url, data, options) {
+    let params = { ...DEFAULT_DATA, ...data };
+    return axios.get(`${url}?${qs.stringify(params)}`, { options });
+  },
 
-    post(url, data, options) {
-        return axios.post(url, { ...DEFAULT_DATA, ...data }, { options });
-    }
+  post(url, data, options) {
+    return axios.post(url, { ...DEFAULT_DATA, ...data }, { options });
+  }
 };
 
 
