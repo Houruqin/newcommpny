@@ -328,15 +328,16 @@
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <div class="d-f">
+                <!-- <div class="d-f">
                     <div class="list-item">
                         <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
                     </div>
                     <div class="list-item">
                         <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
                     </div>
-                </div>
-                <div class="d-f">
+                </div> -->
+                <p class="pl-35 fs-17">上课学员：<span>{{studentDetail.name}}</span></p>
+                <div class="d-f mt-20">
                     <div class="list-item">
                         <el-form-item label="购买课时：">{{quitCourseInfo.lesson_num}}</el-form-item>
                         <el-form-item label="课时单价：">{{quitCourseInfo.unit_price}}元/课</el-form-item>
@@ -347,7 +348,7 @@
 
                     <div class="list-item">
                         <el-form-item label="赠送课时：">{{quitCourseInfo.given_num}}</el-form-item>
-                        <el-form-item label="课时费：">{{quitCourseInfo.lesson_price}}</el-form-item>
+                        <el-form-item label="实交课时费：">{{quitCourseInfo.lesson_price}}</el-form-item>
                     </div>
 
                     <div class="list-item">
@@ -358,7 +359,7 @@
 
                 <div class="d-f mt-10">
                     <div class="list-item">
-                        <el-form-item label="教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
+                        <el-form-item label="实交教材费：">{{quitCourseInfo.textbook_price}}</el-form-item>
                         <el-form-item label="教材实际退费：" prop="textbook_quitprice">
                             <el-input type="number" placeholder="教材实际退费" v-model.number="quitCourseForm.textbook_quitprice"></el-input>
                         </el-form-item>

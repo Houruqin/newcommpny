@@ -38,9 +38,28 @@
                     <template slot-scope="scope">{{scope.row.stock_price}}元</template>
                 </el-table-column>
                 <el-table-column label="销售单价" align="center">
-                    <template slot-scope="scope">{{scope.row.price}}元</template>
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.use_type == 1">--</span>
+                      <span v-else>{{scope.row.price}}元</span>
+                    </template>
                 </el-table-column>
-                <el-table-column label="库存数量" align="center">
+                <el-table-column label="实际库存" prop="real_num" align="center">
+                  <template slot-scope="scope">
+                      <div v-if="scope.row.real_num > scope.row.warning">{{scope.row.real_num}}</div>
+                      <div v-else class="d-f f-j-c">
+                          <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
+                              <div slot="reference" class="ml-5 cursor-pointer">
+                                  <span class="fc-r">{{scope.row.real_num}}</span>
+                                  <i class="iconfont icon-zhuyidapx fc-r"></i>
+                              </div>
+                          </el-popover>
+                      </div>
+                  </template>
+                </el-table-column>
+
+                <el-table-column label="待售库存" prop="organ_has" align="center"></el-table-column>
+                <el-table-column label="学员库存" prop="student_total" align="center"></el-table-column>
+                <!-- <el-table-column label="库存数量" align="center">
                     <template slot-scope="scope">
                         <div v-if="scope.row.total_num > scope.row.warning">{{scope.row.total_num}}</div>
                         <div v-else class="d-f f-j-c">
@@ -52,14 +71,14 @@
                             </el-popover>
                         </div>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
-                <el-table-column label="操作" align="center" width="200">
+                <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <span class="fc-m cursor-pointer" @click="addStorage(scope.row)">入库</span>
-                        <span class="fc-m ml-20 cursor-pointer" @click="removeStorage(scope.row)">出库</span>
+                        <span class="fc-m ml-10 cursor-pointer" @click="removeStorage(scope.row)">出库</span>
                         <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
-                            <span class="fc-m ml-20 cursor-pointer el-dropdown-link">更多</span>
+                            <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                             <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
                                     :disabled="operation.type == 'borrow' && scope.row.use_type == 2"
@@ -186,7 +205,8 @@
                         <el-form-item label="物品名称：">{{removeStorageForm.name}}</el-form-item>
                         <el-form-item label="领取人：" prop="receive_people">
                             <el-select v-model="removeStorageForm.receive_people" placeholder="请选择" filterable @change="receivePeopleChange">
-                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id">
+                                <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id"
+                                  v-if="removeStorageForm.use_type == 2 || (removeStorageForm.use_type == 1 && item.user_type == 1)">
                                     <span style="float: left">{{ item.name }}</span>
                                     <span style="float: right; color: #8492a6; font-size: 12px" v-if="item.user_type == 2">学员</span>
                                 </el-option>
@@ -200,7 +220,7 @@
                     </div>
 
                     <div class="flex1">
-                        <el-form-item label="库存数量：">{{removeStorageForm.total_num}}件</el-form-item>
+                        <el-form-item label="库存数量：">{{removeStorageForm.real_num}}件</el-form-item>
                         <el-form-item label="出库数量：" prop="num">
                             <el-input type="number" placeholder="出库数量" v-model.number="removeStorageForm.num"></el-input>
                         </el-form-item>
@@ -233,7 +253,7 @@
                         </el-form-item>
                     </div>
                     <div class="ml-20">
-                        <el-form-item label="库存数量：">{{borrowForm.total_num}}</el-form-item>
+                        <el-form-item label="库存数量：">{{borrowForm.real_num}}</el-form-item>
                         <el-form-item label="借用数量：" prop="borrow_num">
                             <el-input type="number" placeholder="借用数量" v-model.number="borrowForm.borrow_num"></el-input>
                         </el-form-item>
@@ -297,7 +317,7 @@ export default {
             removeStorageForm: {
                 name: '', goods_id: '', num: '', receive_people: '', remark: '', price: '',
                 total_num: '', student_course: '', student_total_num: '',
-                student_course: ''
+                student_course: '', use_type: ''
             },   //出库表单
             borrowForm: {
                 name: '', goods_id: '', borrow_num: '', borrow_people: '', total_num: '', borrow_people_type: ''
@@ -420,6 +440,7 @@ export default {
         //出库点击
         removeStorage(data) {
             console.log(data);
+            this.removeStorageForm.use_type = data.use_type;
             this.removeStorageForm.goods_id = data.id;
             this.removeStorageForm.name = data.name;
             this.removeStorageForm.total_num = data.total_num;
@@ -455,6 +476,7 @@ export default {
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
+                        if(info.data.total_num) return this.$message.warning('还有库存，不能删除！');
                         this.deleteCommodity(info.data.id);
                     }).catch(() => {return 0});
                     break;
