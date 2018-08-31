@@ -16,7 +16,7 @@ const router = new Router({
       { path: '/workbench/schoolsetting', component: () => import(/* webpackChunkName: 'page-workbench-schoolsetting' */ '@/views/BasicSetting/SchoolSetting'), meta: {needlogin: true, menu: '/workbench'} },
 
       { path: '/setting', component: () => import(/* webpackChunkName: 'page-setting-index' */ '@/views/BasicSetting/Index'), meta: {needlogin: true, menu: '/setting'} },
-      { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting'} },
+      { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting/wechat'} },
 
       { path: '/student/signed', component: () => import(/* webpackChunkName: 'page-student-signed' */ '@/views/student/Signed'), meta: { needlogin: true, menu: '/student/signed' } },
       { path: '/student/nosign', component: () => import(/* webpackChunkName: 'page-student-nosign' */ '@/views/student/NoSign'), meta: { needlogin: true, menu: '/student/nosign' } },

@@ -117,8 +117,8 @@
 
       <!-- 添加支出确认弹窗 -->
       <el-dialog class="outlay" title="确认添加？" width="720px" center :visible.sync="dialog.add_confirm.show" :close-on-click-modal="false">
-        <el-row class="t-a-c">请确认信息是否无误！</el-row>
-        <el-row class="outlay_info">
+        <el-row class="t-a-c">支出添加之后不能修改与删除，请确认信息准确无误！</el-row>
+        <!-- <el-row class="outlay_info">
           <el-col :span="8">支出人员：
             <span>{{dialog.add.data.name}}</span>
           </el-col>
@@ -131,10 +131,10 @@
           <el-col :span="24">备注：
             <span>{{dialog.add.data.remark}}</span>
           </el-col>
-        </el-row>
+        </el-row> -->
         <div class="d-f f-j-c mt-20">
-          <MyButton type="border" class="fc-m" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
-          <MyButton class="ml-20" @click.native="add_outlay">确定</MyButton>
+          <MyButton @click.native="add_outlay">确定</MyButton>
+          <MyButton type="border" class="fc-m ml-20" @click.native="dialog.add.show = true;dialog.add_confirm.show = false">返回编辑</MyButton>
         </div>
       </el-dialog>
 

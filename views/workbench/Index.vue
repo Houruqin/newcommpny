@@ -555,6 +555,13 @@
               <div :class="[scope.row.status2 === 1 ? 'signed' : (scope.row.status2 === 3 ? 'leaved' : 'no_sign'),'course_status']">{{scope.row.status2_describe}}</div>
           </template>
         </el-table-column>
+        <el-table-column label="上课确认" prop="confirm_status" align="center">
+          <template slot-scope="scope">
+              <div class='fc-7'>
+                {{scope.row.confirm_status === 0 ? '未确认' : (scope.row.confirm_status === 1 ? '确认上课' : '确认不上课')}}
+              </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
               <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
@@ -598,9 +605,9 @@ export default {
 
       user_info: '',
 
-        dialogStatus: {student: false, course: false, contract: false},
-        buyCourseData: {},
-        contractData: {}, //合约数据
+      dialogStatus: {student: false, course: false, contract: false},
+      buyCourseData: {},
+      contractData: {}, //合约数据
 
       rules: {
         parent_name: [
@@ -730,6 +737,12 @@ export default {
       //课消统计
       search_time: [],
       search_type: "course",
+      charts_data: {
+        pie_data: null,
+        bar_data: null
+      },
+
+
       loading: false,
       follow_loading: false,
       notice_loading: false,
@@ -802,6 +815,7 @@ export default {
     },
     //按需获取今日待办所有数据
     async get_data() {
+      console.log('activeName',this.activeName)
       switch (this.activeName) {
         case "leave":
           await this.get_leave_data();
@@ -812,6 +826,7 @@ export default {
           break;
         case "renewal":
           await this.get_renewal_data();
+          return true;
           break;
         case "birth":
           await this.get_birth_data();
@@ -998,33 +1013,34 @@ export default {
       });
     },
     //获取需续约学员列表
-    get_renewal_data() {
+    async get_renewal_data() {
       this.row_span_num = new Map();
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.post("/sign/contract", params).then(res => {
-        let data = res.lists.data;
-        let data_map = new Map();
-        for (let i = 0; i < data.length; i++) {
-          //如果map里没有该学生数据  则存储
-          if (!data_map.get(data[i].student_id)) {
-            data_map.set(data[i].student_id, [data[i]])
-          } else {
-            data_map.get(data[i].student_id).push(data[i])
-          }
+      let res = await this.$$request.post("/sign/contract", params);
+      if(!res) return false;
+      let data = res.lists.data;
+      let data_map = new Map();
+      for (let i = 0; i < data.length; i++) {
+        //如果map里没有该学生数据  则存储
+        if (!data_map.get(data[i].student_id)) {
+          data_map.set(data[i].student_id, [data[i]])
+        } else {
+          data_map.get(data[i].student_id).push(data[i])
         }
-        let data_sort = [];
-        for(let value of data_map){
-          data_sort.push(...value[1])
-        }
-        this.renewal_info.data = data_sort;
-        this.merge_data(data_sort);
-        this.page_info.total = res.lists.total;
-        this.loading = false;
-      });
+      }
+      let data_sort = [];
+      for(let value of data_map){
+        data_sort.push(...value[1])
+      }
+      this.renewal_info.data = data_sort;
+      this.merge_data(data_sort);
+      this.page_info.total = res.lists.total;
+      this.loading = false;
+      return true;
     },
     //续约
     renew(data) {
@@ -1527,32 +1543,27 @@ export default {
             bar_data.s_data_1.push(info.actual);
             bar_data.s_data_2.push(info.should - info.actual);
           }
-          this.init_pie_charts(pie_data);
-          this.init_bar_charts(bar_data);
+          this.charts_data = {
+            pie_data : pie_data,
+            bar_data : bar_data
+          }
           return true;
     }
   },
   async created() {
     this.user_info = this.$$cache.getMemberInfo();
     this.activeName = this.user_info.class_pattern !== 2 ? "leave" : "renewal";
-    // this.get_data();
-    // this.get_finance_data();
-    
-    let [r1,r2,r3,r4,r5] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list()])
-    // let [r1,r2,r3,r4,r5,r6] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list(),this.get_course_info()])
-    // if(r1 && r2 && r3 && r4 && r5 && r6) this.state = "loaded";
-    if(r1 && r2 && r3 && r4 && r5) this.state = "loaded";
-    // this.get_follow_up_data();
-    // this.get_today_course();
-    this.get_notice_list();
     let now = new Date().setDate(1);
     let next = now + 31 * 24 * 60 * 60 * 1000;
     let now_month = this.$format_date(new Date(), "yyyy-MM-01");
     let next_month = this.$format_date(new Date(next), "yyyy-MM-01");
     this.search_time = [now_month, next_month];
-  },
-  mounted() {
-    this.get_course_info();
+    let [r1,r2,r3,r4,r5,r6] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list(),this.get_course_info()])
+    if(r1 && r2 && r3 && r4 && r5 && r6) this.state = "loaded";
+    this.$nextTick(() => {
+      this.init_pie_charts(this.charts_data.pie_data);
+      this.init_bar_charts(this.charts_data.bar_data);
+    })
   },
   components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog }
 };

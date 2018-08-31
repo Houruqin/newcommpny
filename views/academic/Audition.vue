@@ -1,5 +1,6 @@
 <template>
   <div class="flex1">
+    <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="试听课记录">
       </TableHeader>
@@ -82,6 +83,7 @@ import NameRoute from  "../../components/common/NameRoute";
 export default {
   data() {
     return {
+      state: 'loading',
       //搜索信息
       search_info: {
         grade: 0,
@@ -155,7 +157,7 @@ export default {
       this.page_info.page = page;
       this.get_data();
     },
-    get_data() {
+    async get_data() {
       this.loading = true;
       const params = {
         start_date: this.get_seconde(this.search_info.begin),
@@ -166,23 +168,24 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      this.$$request
-        .post("/eduCount/listenCourseLists", params)
-        .then(res => {
-          this.audition_info.data = res.listenCourseLists.data;
-          this.page_info.total = res.listenCourseLists.total;
-          this.loading = false;
-        });
+      let res = await this.$$request.post("/eduCount/listenCourseLists", params);
+      if(!res) return false;
+      this.audition_info.data = res.listenCourseLists.data;
+      this.page_info.total = res.listenCourseLists.total;
+      this.loading = false;
+      return true;
     },
     //将时间转换为秒数
     get_seconde(date) {
       return new Date(date).getTime() / 1000;
     }
   },
-  created() {
+  async created() {
     this.$store.dispatch("getListenGrade");
     this.$store.dispatch("getStatus");
-    this.get_data();
+    let res = await this.get_data();
+    if(!res) return false;
+    this.state = "loaded";
   },
   components: { TableHeader, MyButton, NameRoute}
 };
