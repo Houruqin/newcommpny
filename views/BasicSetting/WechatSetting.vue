@@ -73,7 +73,7 @@ export default {
         teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', oldval: 0, num: 0, prefix: '剩余多少课时' },
         sellerStudentDistribute: { status: 0, label: '顾问-学员分配提醒' },
         sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
-        sellerStudentSign: { status: 0, label: '顾问-签约成功通知' },
+        sellerStudentSign: { status: 0, label: '顾问-签约成功通知' }
       }
     };
   },
@@ -112,19 +112,19 @@ export default {
   async created () {
     let { datas } = await this.$$request.get('school/weixinRemindSetLists') || {};
 
-      if (!datas) {
-        return void 0;
-      }
+    if (!datas) {
+      return void 0;
+    }
 
-      Object.keys(this.setting).forEach(v => {
-        this.setting[v].status = !!datas[v].status;
-        this.setting[v].label = datas[v].description;
-        if ('num' in this.setting[v]) {
-          this.setting[v].num = datas[v].num;
-          this.setting[v].oldval = datas[v].num;
-        }
-      });
-      this.state = 'loaded';
+    Object.keys(this.setting).forEach(v => {
+      this.setting[v].status = !!datas[v].status;
+      this.setting[v].label = datas[v].description;
+      if ('num' in this.setting[v]) {
+        this.setting[v].num = datas[v].num;
+        this.setting[v].oldval = datas[v].num;
+      }
+    });
+    this.state = 'loaded';
   },
   components: {
     TableHeader
