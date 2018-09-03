@@ -1,5 +1,6 @@
 <template>
   <div class="content flex1">
+    <PageState :state="state" />
     <el-row :gutter="20" class="card-box">
       <el-col :span="24">
         <el-card class="edit_content" shadow="hover">
@@ -50,6 +51,7 @@ import UEditor from "../../components/common/UEditor";
 export default {
   data() {
     return {
+      state: 'loading',
       title: "",
       all_authority: false,
       authority: [],
@@ -113,23 +115,25 @@ export default {
       }, []);
       this.show_notice_person = arr;
     },
-    get_notice_person() {
-      this.$$request.get("/notification/fill").then(res => {
-        this.master_lists = [...res.master];
-        this.teacher_lists = [...res.teacher];
-        this.seller_lists = [...res.seller];
-        this.educate_lists = [...res.register];
-        this.director_lists = [...res.director];
-        this.dean_lists = [...res.dean];
-        this.all_lists = [
-          ...this.master_lists,
-          ...this.teacher_lists,
-          ...this.seller_lists,
-          ...this.educate_lists,
-          ...this.director_lists,
-          ...this.dean_lists
-        ];
-      });
+    async get_notice_person() {
+      let res = await this.$$request.get("/notification/fill");
+      console.log(res)
+      if(!res) return false;
+      this.master_lists = [...res.master];
+      this.teacher_lists = [...res.teacher];
+      this.seller_lists = [...res.seller];
+      this.educate_lists = [...res.register];
+      this.director_lists = [...res.director];
+      this.dean_lists = [...res.dean];
+      this.all_lists = [
+        ...this.master_lists,
+        ...this.teacher_lists,
+        ...this.seller_lists,
+        ...this.educate_lists,
+        ...this.director_lists,
+        ...this.dean_lists
+      ];
+      return true;
     },
     del_person(i) {
       // console.log(i);
@@ -174,8 +178,11 @@ export default {
       });
     }
   },
-  created() {
-    this.get_notice_person();
+  async created() {
+    let res = await this.get_notice_person();
+    console.log(res)
+    if(!res) return false;
+    this.state = 'loaded';
   },
 
   components: {
