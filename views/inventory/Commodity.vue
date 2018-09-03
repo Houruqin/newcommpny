@@ -47,7 +47,7 @@
                   <template slot-scope="scope">
                       <div v-if="scope.row.real_num > scope.row.warning">{{scope.row.real_num}}</div>
                       <div v-else class="d-f f-j-c">
-                          <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
+                          <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" :content="`该物品库存已少于等于${scope.row.warning}件，请及时补充库存！`">
                               <div slot="reference" class="ml-5 cursor-pointer">
                                   <span class="fc-r">{{scope.row.real_num}}</span>
                                   <i class="iconfont icon-zhuyidapx fc-r"></i>
@@ -334,24 +334,24 @@ export default {
                 price: [
                     {required: true, message: '请输入销售价格'},
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.$$tools.formOtherValidate('total', 9999)}
+                    {validator: this.$$tools.formOtherValidate('total', 20000)}
                 ],
                 warning: [
                     {required: true, message: '请输入库存预警数量'},
                     {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 3000)}
+                    {validator: this.$$tools.formOtherValidate('total', 500)}
                 ]
             },
             addStorageRules: {
                 num: [
                     {required: true, message: '请输入入库数量'},
                     {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 3000)}
+                    {validator: this.$$tools.formOtherValidate('total', 5000)}
                 ],
                 stock_price: [
                     {required: true, message: '请输入进货单价'},
                     {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.$$tools.formOtherValidate('total', 9999)}
+                    {validator: this.$$tools.formOtherValidate('total', 20000)}
                 ]
             },
             removeStorageRules: {
@@ -460,7 +460,7 @@ export default {
                     this.dialogStatus.addCommodity = true;
                     break;
                 case 'delete':
-                    this.$confirm('确定删除该物品吗?', '提示', {
+                    this.$confirm('物品删除之后数据不能恢复，请确认进行删除操作！', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'

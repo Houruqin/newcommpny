@@ -206,7 +206,7 @@ export default {
         },
         // 作废
         cancellationClick(id) {
-            this.$confirm('确定作废该记录吗?', '提示', {
+            this.$confirm('记录作废之后数据不能还原，请确认进行作废操作！', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'

@@ -398,7 +398,7 @@ export default {
                 this.followUpForm.status = 4;
                 this.followUpForm.content = '无跟进内容记录';
 
-                // this.submitFollowUpInfo();
+                this.submitFollowUpInfo();
             }else {
                 this.listenCourseLists.forEach(v => {
                     if(v.id === this.checkListen[0]) {
