@@ -1,5 +1,6 @@
 <template>
     <div class="flex1">
+        <PageState :state="state" />
         <el-card shadow="hover">
             <div class="d-f ml-20 mt-40 mb-20 p-r mr-20">
                 <div class="mr-40">
@@ -131,6 +132,7 @@ export default {
     components: {TableHeader, MyButton, AddStaffDialog, ContractDialog},
     data() {
         return {
+            state: 'loading',
             loading: false,
             dialogStatus: {
                 detail: false,
@@ -208,6 +210,7 @@ export default {
             this.userDetail = result.user;
 
             this.getBottomLists();
+            return true;
         },
         //离职
         async dimissionClick() {
@@ -253,9 +256,10 @@ export default {
             this.dialogStatus.contract = true;
         }
     },
-    created() {
+    async created() {
         if(this.$route.query.user_id) this.userId = this.$route.query.user_id;
-        this.getDetail();
+        let datas = await this.getDetail();
+        if(datas) this.state = 'loaded';
     }
 }
 </script>

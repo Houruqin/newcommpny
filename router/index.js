@@ -53,8 +53,8 @@ const router = new Router({
     ] },
     { path: '/login', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Login'), meta: {needlogin: false} },
     { path: '/addschool', component: () => import(/* webpackChunkName: 'page-addschool' */ '@/views/SchoolArea'), meta: {needlogin: true} },
-    { path: '/contract', component: () => import(/* webpackChunkName: 'page-contract' */ '@/views/Contract') },
-    { path: '/refundPrint', component: () => import(/* webpackChunkName: 'page-refundPrint' */ '@/views/RefundPrint') },
+    { path: '/contract', component: () => import(/* webpackChunkName: 'page-contract' */ '@/views/Contract'), meta: {needlogin: true} },
+    { path: '/refundPrint', component: () => import(/* webpackChunkName: 'page-refundPrint' */ '@/views/RefundPrint'), meta: {needlogin: true} },
     { path: '/refresh', component: () => import(/* webpackChunkName: 'page-refresh' */ '@/views/Refresh') },
     { path: '/help', component: () => import(/* webpackChunkName: 'page-help' */ '@/views/Help') },
     { path: '*', component: () => import(/* webpackChunkName: 'page-404' */ '@/views/NotFound') },
@@ -67,13 +67,8 @@ router.beforeEach((to, from, next) => {
   store.commit('stateChange', { state: 'loading' });
   if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/workbench'});
   if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
+  window.scrollTo(0, 0);   //跳转之后，页面到最顶部
   next();
-});
-
-//跳转之后，页面到最顶部
-router.beforeEach((to, from, next) => {
-    window.scrollTo(0, 0);
-    next();
 });
 
 export default router
