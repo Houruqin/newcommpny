@@ -11,11 +11,13 @@
           span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
         .login-btn(@click="onLogin" :class="{ loading: loginState }") {{ loginState ? '登录中...' : '立即登录' }}
-      .login-inner-footer #[span 官网]#[span 申请试用]#[span(@click="$router.push('/help')") 帮助]
+      .login-inner-footer #[span(@click="footerClick('www')") 官网]#[span(@click="footerClick('use')") 申请试用]#[span(@click="footerClick('help')") 帮助]
     .login-footer
 </template>
 
 <script>
+import config from 'config';
+
 export default {
   data () {
     return {
@@ -90,6 +92,11 @@ export default {
       }
 
       this.$$cache.set('phone',this.phone.trim())
+    },
+    footerClick(type) {
+      if(type === 'www' ) return window.open('https://www.jiaoyf.com');
+      if(type === 'use' ) return window.open(`${config.www}apply.html`);
+      if(type === 'help') return window.open(`${location.protocol}//${location.host}/help`);
     }
   },
   mounted () {

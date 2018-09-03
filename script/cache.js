@@ -35,9 +35,9 @@ const Cache = {
 
     // 获取用户信息
     getMemberInfo() { return this.get('MEMBERINFO') || {} },
-    
+
     // 清除用户信息
-	removeMemberInfo() {
+	  removeMemberInfo() {
         this.remove('TOKEN');
         this.remove('MEMBERID');
         this.remove('MEMBERINFO');
@@ -46,7 +46,7 @@ const Cache = {
     //退出登录
     loginOut() {
         this.removeMemberInfo();
-        router.replace({path: '/login'});
+        if(router.app.$route.meta.needlogin) router.replace({path: '/login'});
     }
 };
 

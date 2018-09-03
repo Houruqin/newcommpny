@@ -59,19 +59,6 @@
 
                 <el-table-column label="待售库存" prop="organ_has" align="center"></el-table-column>
                 <el-table-column label="学员库存" prop="student_total" align="center"></el-table-column>
-                <!-- <el-table-column label="库存数量" align="center">
-                    <template slot-scope="scope">
-                        <div v-if="scope.row.total_num > scope.row.warning">{{scope.row.total_num}}</div>
-                        <div v-else class="d-f f-j-c">
-                            <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" :content="`该物品已少于等于${scope.row.warning}件，请及时补充库存！`">
-                                <div slot="reference" class="ml-5 cursor-pointer">
-                                    <span class="fc-r">{{scope.row.total_num}}</span>
-                                    <i class="iconfont icon-zhuyidapx fc-r"></i>
-                                </div>
-                            </el-popover>
-                        </div>
-                    </template>
-                </el-table-column> -->
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
@@ -142,18 +129,18 @@
                 <div class="d-f f-j-c mt-20"><MyButton @click.native="doneHandle('addCommodity')" :loading="submitLoading.add">确定</MyButton></div>
             </el-form>
 
-            <el-dialog title="添加物品类型" width="500px" center :visible.sync="dialogStatus.commodityType" :close-on-click-modal="false" @close="dialogClose('commodityType')" append-to-body>
-                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType" class="commodity-type-formbox">
+            <el-dialog title="添加物品类型" width="500px" center :visible.sync="dialogStatus.commodityType" :close-on-click-modal="false" @close="dialogClose('commodityType_add')" append-to-body>
+                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType_add" class="commodity-type-formbox">
                     <el-form-item label="物品类型：" prop="name" class="pl-50">
                         <el-input v-model.trim="commodityTypeForm.name" placeholder="请输入物品类型"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('commodityType')" :loading="submitLoading.commodityType">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('commodityType_add')" :loading="submitLoading.commodityType">确定</MyButton></div>
                 </el-form>
             </el-dialog>
         </el-dialog>
 
         <!-- 类型设置弹窗 -->
-        <el-dialog title="类型设置" width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false" @close="dialogClose">
+        <el-dialog title="类型设置" width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false">
             <div class="d-f f-j-e"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
 
             <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe height="400">
@@ -171,12 +158,13 @@
                 </el-table-column>
             </el-table>
 
-            <el-dialog :title="commodityTypeStatus == 'add' ? '添加' : '修改' + '物品类型'" width="500px" center :visible.sync="dialogStatus.commodityType" :close-on-click-modal="false" @close="dialogClose('commodityType')" append-to-body>
-                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType" class="commodity-type-formbox">
+            <el-dialog :title="commodityTypeStatus == 'add' ? '添加' : '修改' + '物品类型'" width="500px" center :visible.sync="dialogStatus.commodityType"
+                :close-on-click-modal="false" @close="dialogClose('commodityType_set')" append-to-body>
+                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType_set" class="commodity-type-formbox">
                     <el-form-item label="物品类型：" prop="name" class="pl-50">
                         <el-input v-model.trim="commodityTypeForm.name" placeholder="请输入物品类型"></el-input>
                     </el-form-item>
-                    <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('commodityType')" :loading="submitLoading.typeSetting">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-40 mb-10"><MyButton @click.native="doneHandle('commodityType_set')" :loading="submitLoading.commodityType">确定</MyButton></div>
                 </el-form>
             </el-dialog>
         </el-dialog>
@@ -301,7 +289,7 @@ export default {
             commodityTypeStatus: 'add',
             receivePeopleType: 1,    //出库人员类型  user/student
             submitLoading: {
-                add: false, commodityType: false, typeSetting: false, addStorage:false, removeStorage: false
+                add: false, commodityType: false, addStorage:false, removeStorage: false
             },
             searchFilter: {commodity_type: '', use_type: '', keyword: ''},
 
@@ -326,8 +314,9 @@ export default {
             commodityTypeRules: {
                 name: [
                     {required: true, message: '请输入物品类型'},
-                    {max: 18,  message: '长度不能超过10个字符'}
-                ]
+                    {max: 10,  message: '长度不能超过10个字符'}
+                ],
+                id: []
             },
             addRules: {
                 name: [
@@ -395,11 +384,11 @@ export default {
     },
     methods: {
         dialogClose(type) {
-            if(type) this.$refs[type].resetFields();
+            this.$refs[type].resetFields();
             if(type == 'removeStorage') {
                 this.receivePeopleType = 1;
                 this.studentCourseLists.splice(0, this.studentCourseLists.length);
-            }
+            };
         },
         removeStorageNumValidate(type) {
             return (rule, value, callback, event, e, d) => {
@@ -501,6 +490,19 @@ export default {
         },
         //物品类型删除、禁用
         async commodityTypeSubmit(type, id) {
+            if(type == 'delete') {
+              this.$confirm('确定删除该物品类型?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                  this.typeSubmitHandle(type, id);
+              }).catch(() => {return 0});
+            }else {
+              this.typeSubmitHandle(type, id);
+            }
+        },
+        async typeSubmitHandle(type, id) {
             let params = {id: id, type: type == 'delete' ? 'del' : type == 1 ? 'limit' : 'start'};
             console.log(params);
 
@@ -567,16 +569,17 @@ export default {
         },
         //表单确定
         doneHandle(type) {
-            console.log(type);
-
             this.$refs[type].validate(valid => {
                 if(valid) {
                     switch(type) {
                         case 'addCommodity':
                             this.submitAddCommodity();
                             break;
-                        case 'commodityType':
-                            this.submitCommodityType();
+                        case 'commodityType_add':
+                            this.submitCommodityType(type);
+                            break;
+                        case 'commodityType_set':
+                            this.submitCommodityType(type);
                             break;
                         case 'addStorage':
                             this.submitAddStorage();
@@ -626,18 +629,25 @@ export default {
             this.dialogStatus.addCommodity = false;
         },
         //提交 物品类型添加
-        async submitCommodityType() {
+        async submitCommodityType(type) {
+
+            if(this.submitLoading.commodityType) return 0;
+            this.submitLoading.commodityType = true;
+
             let params = {name: this.commodityTypeForm.name};
             let url = this.commodityTypeStatus == 'add' ? '/goodsType/goodsTypeAdd' : '/goodsType/goodsTypeEdit';
             if(this.commodityTypeStatus == 'edit') params.id = this.commodityTypeForm.id;
 
             let result = await this.$$request.post(url, params);
             console.log(result);
-
             if(!result) return 0;
 
-            this.getCommodityTypeLists();
             if(this.commodityTypeStatus == 'edit') this.getCommodityLists(this.activePage);
+
+            let datas = await this.getCommodityTypeLists();
+            this.submitLoading.commodityType = false;
+
+            if(type == 'commodityType_add' && datas) this.addCommodityForm.type = result.list.id;
 
             this.$message.success(`${this.commodityTypeStatus == 'add' ? '添加' : '修改'}物品类型成功`);
             this.dialogStatus.commodityType = false;

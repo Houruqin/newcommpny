@@ -314,6 +314,8 @@ export default {
                 textbookPrice += (num * v.unit_price);
             });
 
+            console.log(textbookPrice);
+
             if(textbookPrice > 0) {
                 this.preferentialDisabled = false;
             }else {
