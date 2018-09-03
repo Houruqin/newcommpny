@@ -94,7 +94,7 @@ export default {
       this.$$cache.set('phone',this.phone.trim())
     },
     footerClick(type) {
-      if(type === 'www' ) return window.open('https://www.jiaoyf.com');
+      if(type === 'www' ) return window.open(config.www);
       if(type === 'use' ) return window.open(`${config.www}apply.html`);
       if(type === 'help') return window.open(`${location.protocol}//${location.host}/help`);
     }

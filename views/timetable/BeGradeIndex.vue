@@ -389,7 +389,7 @@
                                                     </el-form-item>
                                                 </div>
 
-                                                <i v-if="addTableType == 'multiple' && formAddDate.length > 1" @click.native="deleteDateHandle(num)" class="p-a delete-time el-tag__close el-icon-close"></i>
+                                                <i v-if="addTableType == 'multiple' && formAddDate.length > 1" @click="deleteDateHandle(num)" class="p-a delete-time el-tag__close el-icon-close"></i>
                                             </div>
                                         </el-form>
                                     </div>

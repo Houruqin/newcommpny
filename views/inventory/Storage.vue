@@ -10,42 +10,73 @@
             </el-tabs>
 
             <div></div>
-            <div class="fifter-toolbar mt-30">
-                <ul class="d-f f-a-c">
+            <div class="fifter-toolbar">
+                <ul class="d-f f-a-c" v-if="listType == 'record'">
                     <li>
                         <el-date-picker size="small" :editable="false" :clearable="false"
-                            @change="dateChange" v-model="searchFilter.begin_time"
+                            @change="dateChange" v-model="searchFilterStorage.begin_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
                     <li class="ml-10 mr-10 text">至</li>
                     <li>
                         <el-date-picker size="small" :editable="false" :clearable="false"
-                            @change="dateChange" v-model="searchFilter.end_time"
+                            @change="dateChange" v-model="searchFilterStorage.end_time"
                             type="date" placeholder="选择日期" value-format="timestamp">
                         </el-date-picker>
                     </li>
-                    <li class="ml-20" v-if="listType == 'record'">
-                        <el-select size="small" placeholder="全部类别" v-model="searchFilter.storage_type" @change="searchHandle">
+                    <li class="ml-20">
+                        <el-select size="small" placeholder="全部类别" v-model="searchFilterStorage.storage_type" @change="searchHandle">
                             <el-option label="全部类别" value=""></el-option>
                             <el-option label="入库" :value="2"></el-option>
                             <el-option label="出库" :value="1"></el-option>
                         </el-select>
                     </li>
                     <li class="ml-20">
-                        <el-select size="small" placeholder="全部物品类型" v-model="searchFilter.commodity_type" @change="searchHandle">
+                        <el-select size="small" placeholder="全部物品类型" v-model="searchFilterStorage.commodity_type" @change="searchHandle">
                             <el-option label="全部物品类型" value=""></el-option>
                             <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li class="ml-20">
-                        <el-select size="small" placeholder="全部使用类型" v-model="searchFilter.use_type" @change="searchHandle">
+                        <el-select size="small" placeholder="全部使用类型" v-model="searchFilterStorage.use_type" @change="searchHandle">
                             <el-option label="全部使用类型" value=""></el-option>
                             <el-option label="内部使用" :value="1"></el-option>
                             <el-option label="对外销售" :value="2"></el-option>
                         </el-select>
                     </li>
-                    <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilter.keyword"></el-input></li>
+                    <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilterStorage.keyword"></el-input></li>
+                    <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
+                </ul>
+
+                <ul class="d-f f-a-c" v-else>
+                    <li>
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilterCancel.begin_time"
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
+                    </li>
+                    <li class="ml-10 mr-10 text">至</li>
+                    <li>
+                        <el-date-picker size="small" :editable="false" :clearable="false"
+                            @change="dateChange" v-model="searchFilterCancel.end_time"
+                            type="date" placeholder="选择日期" value-format="timestamp">
+                        </el-date-picker>
+                    </li>
+                    <li class="ml-20">
+                        <el-select size="small" placeholder="全部物品类型" v-model="searchFilterCancel.commodity_type" @change="searchHandle">
+                            <el-option label="全部物品类型" value=""></el-option>
+                            <el-option v-for="(item, index) in commodityTypeLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </li>
+                    <li class="ml-20">
+                        <el-select size="small" placeholder="全部使用类型" v-model="searchFilterCancel.use_type" @change="searchHandle">
+                            <el-option label="全部使用类型" value=""></el-option>
+                            <el-option label="内部使用" :value="1"></el-option>
+                            <el-option label="对外销售" :value="2"></el-option>
+                        </el-select>
+                    </li>
+                    <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilterCancel.keyword"></el-input></li>
                     <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
             </div>
@@ -105,7 +136,7 @@
                     <el-table-column label="操作数量" prop="num" align="center"></el-table-column>
                     <el-table-column label="作废时间" align="center">
                         <template slot-scope="scope">
-                            {{$$tools.format(scope.row.updated_at)}}
+                            {{$$tools.format(scope.row.cancel_time)}}
                         </template>
                     </el-table-column>
                     <el-table-column label="作废操作人" align="center" prop="cancel_name"></el-table-column>
@@ -136,7 +167,13 @@ export default {
             activePage: 1,
             storageLists: [],
             dialogStatus: {addStorage: false},
-            searchFilter: {
+            searchFilterStorage: {
+                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
+                storage_type: '', commodity_type: '', use_type: '', keyword: ''
+            },
+
+            searchFilterCancel: {
                 begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
                 end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
                 storage_type: '', commodity_type: '', use_type: '', keyword: ''
@@ -150,7 +187,12 @@ export default {
     },
     methods: {
         dateChange() {
-            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            if(this.listType == 'record') {
+              if(this.searchFilterStorage.end_time < this.searchFilterStorage.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            }else {
+              if(this.searchFilterCancel.end_time < this.searchFilterCancel.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+            }
+
             this.getStorageLists();
         },
         searchHandle() {
@@ -182,16 +224,19 @@ export default {
         //获取出入库记录列表
         async getStorageLists(page) {
             this.loading = true;
+
+            let searchFilter = this.listType == 'record' ? this.searchFilterStorage : this.searchFilterCancel;
+
             let params = {
                 data: {
-                    name: this.searchFilter.keyword,
-                    use_type: this.searchFilter.use_type,
-                    goods_type: this.searchFilter.commodity_type,
-                    storage_type: this.listType == 'record' ? this.searchFilter.storage_type : '',
+                    name: searchFilter.keyword,
+                    use_type: searchFilter.use_type,
+                    goods_type: searchFilter.commodity_type,
+                    storage_type: this.listType == 'record' ? searchFilter.storage_type : '',
                     type: this.listType,
                     time: {
-                        start: this.searchFilter.begin_time / 1000,
-                        end: this.searchFilter.end_time / 1000
+                        start: searchFilter.begin_time / 1000,
+                        end: searchFilter.end_time / 1000
                     }
                 }
             };
