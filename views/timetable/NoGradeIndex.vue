@@ -382,15 +382,15 @@
                 </div>
             </el-form>
 
-            <el-dialog :title="courseType === 1 ? '选择普通上课学员' : '选择一对一上课学员'" width="600px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
+            <el-dialog :title="courseType === 1 ? '选择普通上课学员' : '选择一对一上课学员'" width="670px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
                 <div class="form-box">
                     <template v-if="courseType === 1">
-                        <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
-                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check">
+                        <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange" class="pl-20">全选</el-checkbox>
+                        <el-checkbox-group v-model="studentLists" @change="studentCheckChange" class="time-table-student-check pl-20 pr-20 mt-10">
                             <el-checkbox v-for="(item, index) in allStudentLists" :label="item.id" :key="index" :disabled="item.disabled">{{item.name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
-                    <el-radio-group v-model="studentRadio" v-else>
+                    <el-radio-group v-model="studentRadio" class="time-table-student-check pl-20 pr-20" v-else>
                         <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled"
                         :key="index" :label="item.id">{{item.name}}</el-radio>
                     </el-radio-group>
@@ -1637,9 +1637,10 @@ export default {
             max-height: 200px;
             overflow: hidden;
             overflow-y: auto;
-            .el-checkbox {
+            .el-checkbox, .el-radio {
                 margin-left: 0;
-                margin-right: 30px;
+                margin-bottom: 10px;
+                width: 140px;
             }
         }
     }

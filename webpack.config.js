@@ -23,7 +23,15 @@ let productPlugins = [];
 if (!isLocalEnv) {
   process.env.NODE_ENV = 'production';
   productPlugins = [
-    new UglifyJsPlugin()
+    new UglifyJsPlugin({
+      uglifyOptions: {
+        compress: {
+          warnings: false,
+          drop_debugger: true,
+          drop_console: true
+        }
+      }
+    })
   ];
 }
 

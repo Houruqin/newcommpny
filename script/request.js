@@ -17,7 +17,7 @@ const DEFAULT_DATA = {}   //默认的公共参数
 
 //请求之前拦截器
 axios.interceptors.request.use(config => {
-  config.headers.Authorization = cache.get('TOKEN') || cache.getSession('TOKEN') || '';
+  config.headers.Authorization = cache.get('TOKEN') || cache.getSession('TOKEN') || 'reset';
   return config;
 }, error => { return Message.warning('请求错误，请稍后再试') }
 );
