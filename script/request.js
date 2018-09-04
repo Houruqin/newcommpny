@@ -6,7 +6,8 @@ import cache from './cache'
 import config from 'config'
 import Bus from '../script/bus'
 import store from '../store/store'
-import { Message } from 'element-ui';
+import { Message } from 'element-ui'
+import Router from '../router'
 
 //全局配置baseURL和超时时间  根据当前环境 development开发/ production生产正式,申明不同的baseURL
 axios.defaults.baseURL = config.api;
@@ -46,7 +47,7 @@ axios.interceptors.response.use(res => {
     case 1001:
       if (!store.state.isOutOfLine) {
         cache.loginOut();
-        Message.warning(result.message);
+        if(Router.app.$route.path !== '/help') Message.warning(result.message);
         store.state.isOutOfLine = true;
       }
       return null;
