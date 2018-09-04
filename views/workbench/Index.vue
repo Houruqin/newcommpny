@@ -1397,6 +1397,7 @@ export default {
 
     //加载饼图
     init_pie_charts(pie_data) {
+      console.log(pie_data)
       let pie_charts = echarts.init(document.getElementById("pie"));
       let option = {
         color: ["#45DAD5", "#FFCC50"],
@@ -1451,6 +1452,7 @@ export default {
     },
     //加载柱状图
     init_bar_charts(bar_data) {
+      console.log(bar_data)
       let bar_charts = echarts.init(document.getElementById("bar"));
       let option = {
         color: ["#45DAD5", "#FFCC50", "transparent"],
@@ -1507,14 +1509,22 @@ export default {
       bar_charts.setOption(option);
     },
     //选择时间
-    choose_time(val) {
+    async choose_time(val) {
       this.search_time = val;
-      this.get_course_info();
+      await this.get_course_info();
+      await this.$nextTick(() => {
+        this.init_pie_charts(this.charts_data.pie_data);
+        this.init_bar_charts(this.charts_data.bar_data);
+      })
     },
     //选择类型
-    choose_type(type) {
+    async choose_type(type) {
       this.search_type = type;
-      this.get_course_info();
+      await this.get_course_info();
+      await this.$nextTick(() => {
+        this.init_pie_charts(this.charts_data.pie_data);
+        this.init_bar_charts(this.charts_data.bar_data);
+      })
     },
     //获取课消数据
     async get_course_info() {
@@ -1561,6 +1571,7 @@ export default {
     let [r1,r2,r3,r4,r5,r6] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list(),this.get_course_info()])
     if(r1 && r2 && r3 && r4 && r5 && r6) this.state = "loaded";
     this.$nextTick(() => {
+      console.log(this.charts_data.pie_data,this.charts_data.bar_data)
       this.init_pie_charts(this.charts_data.pie_data);
       this.init_bar_charts(this.charts_data.bar_data);
     })

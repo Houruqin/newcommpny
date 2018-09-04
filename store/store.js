@@ -6,6 +6,7 @@ import Request from '../script/request'
 Vue.use(Vuex);
 
 const state = {
+    isOutOfLine: false, // 是否被挤下线了  用于解决挤下线弹窗提示多次问题
     pageState: 'loading', // 页面加载状态  loading loaded error
     pageErrorText: '',
     errorType: '',

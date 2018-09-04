@@ -10,8 +10,7 @@ const router = new Router({
   routes: [
     { path: '/', component: () => import(/* webpackChunkName: 'page-home' */ '@/views/Home'), children: [
 
-      { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/workbench' } },
-      { path: '/workbench', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/workbench' } },
+      { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/' } },
       { path: '/workbench/editNotice', component: () => import(/* webpackChunkName: 'page-workbench-editnotice' */ '@/views/workbench/EditNotice'), meta: {needlogin: true, menu: '/workbench'} },
       { path: '/workbench/schoolsetting', component: () => import(/* webpackChunkName: 'page-workbench-schoolsetting' */ '@/views/BasicSetting/SchoolSetting'), meta: {needlogin: true, menu: '/workbench'} },
 
@@ -65,7 +64,7 @@ const router = new Router({
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
   store.commit('stateChange', { state: 'loading' });
-  if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/workbench'});
+  if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/'});
   if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
   window.scrollTo(0, 0);   //跳转之后，页面到最顶部
   next();
