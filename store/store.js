@@ -109,11 +109,13 @@ const mutations = {
     },
     async getRelation(state) {
         let result = await Request.post('/student/familyRelations');
+        if(!result) return 0;
         console.log(result);
         state.familyRelations = result.relations;
     },
     async getTeacher(state) {
         let result = await Request.get('/user/normalLists', {type: 'teacher'});
+        if(!result) return 0;
         console.log(result);
         state.teacherList = result.lists;
     }

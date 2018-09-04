@@ -8,7 +8,7 @@ Vue.use(Router);
 const router = new Router({
   mode: 'history',   //build之后本地不能访问 hash
   routes: [
-    { path: '/', component: () => import(/* webpackChunkName: 'page-home' */ '@/views/Home'), children: [
+    { path: '/', component: () => import(/* webpackChunkName: 'page-home' */ '@/views/Home'), meta: { needlogin: true }, children: [
 
       { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/' } },
       { path: '/workbench/editNotice', component: () => import(/* webpackChunkName: 'page-workbench-editnotice' */ '@/views/workbench/EditNotice'), meta: {needlogin: true, menu: '/workbench'} },
