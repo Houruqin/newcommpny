@@ -10,8 +10,7 @@ const router = new Router({
   routes: [
     { path: '/', component: () => import(/* webpackChunkName: 'page-home' */ '@/views/Home'), children: [
 
-      { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/workbench' } },
-      { path: '/workbench', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/workbench' } },
+      { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/' } },
       { path: '/workbench/editNotice', component: () => import(/* webpackChunkName: 'page-workbench-editnotice' */ '@/views/workbench/EditNotice'), meta: {needlogin: true, menu: '/workbench'} },
       { path: '/workbench/schoolsetting', component: () => import(/* webpackChunkName: 'page-workbench-schoolsetting' */ '@/views/BasicSetting/SchoolSetting'), meta: {needlogin: true, menu: '/workbench'} },
 
