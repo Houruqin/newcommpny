@@ -208,7 +208,7 @@
                     </div>
 
                     <div class="flex1">
-                        <el-form-item label="库存数量：">{{removeStorageForm.real_num}}件</el-form-item>
+                        <el-form-item label="库存数量：">{{removeStorageForm.total_num}}件</el-form-item>
                         <el-form-item label="出库数量：" prop="num">
                             <el-input type="number" placeholder="出库数量" v-model.number="removeStorageForm.num"></el-input>
                         </el-form-item>
@@ -241,7 +241,7 @@
                         </el-form-item>
                     </div>
                     <div class="ml-20">
-                        <el-form-item label="库存数量：">{{borrowForm.real_num}}</el-form-item>
+                        <el-form-item label="库存数量：">{{borrowForm.total_num}}</el-form-item>
                         <el-form-item label="借用数量：" prop="borrow_num">
                             <el-input type="number" placeholder="借用数量" v-model.number="borrowForm.borrow_num"></el-input>
                         </el-form-item>
@@ -432,7 +432,7 @@ export default {
             this.removeStorageForm.use_type = data.use_type;
             this.removeStorageForm.goods_id = data.id;
             this.removeStorageForm.name = data.name;
-            this.removeStorageForm.total_num = data.total_num;
+            this.removeStorageForm.total_num = data.real_num;
             this.removeStorageForm.price =  Number(data.price);
             this.dialogStatus.removeStorage = true;
         },
@@ -442,7 +442,7 @@ export default {
             switch(info.type) {
                 case 'borrow':
                     this.borrowForm.name = info.data.name;
-                    this.borrowForm.total_num = info.data.total_num;
+                    this.borrowForm.total_num = info.data.real_num;
                     this.borrowForm.goods_id = info.data.id;
                     this.dialogStatus.borrow = true;
                     break;
