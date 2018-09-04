@@ -32,7 +32,7 @@ export default {
     data() {
         return {
             menuLists: [
-                {id: "/workbench", text: "工作台", item: false, icon: "icon-zhuye-copy"},
+                {id: "/", text: "工作台", item: false, icon: "icon-zhuye-copy"},
                 {id: "/student/nosign", text: "学员管理", item: true, icon: "icon-xueyuanguanli", itemList: [
                     { id: "/student/nosign", text: "未签约学员" }, { id: "/student/signed", text: "签约学员" }
                 ]},

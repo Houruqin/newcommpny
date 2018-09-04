@@ -111,7 +111,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus.detail" :editDetail="editDetail" type="edit" origin="detail"
+        <AddStaffDialog :dialogStatus="dialogStatus.detail" :editDetail="editDetail" :type="userType" origin="detail"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
 
@@ -134,6 +134,7 @@ export default {
         return {
             state: 'loading',
             loading: false,
+            userType: '',
             dialogStatus: {
                 detail: false,
                 contract: false
@@ -149,12 +150,13 @@ export default {
     },
     methods: {
         editHandle() {
-            console.log(this.userDetail);
+            this.userType = 'edit';
             this.editDetail = this.userDetail;
             this.dialogStatus.detail = true;
         },
         CB_dialogStatus(type) {
             if(type == 'staff') {
+                this.userType = '';
                 this.editDetail = {};
                 this.dialogStatus.detail = false;
                 return 0;

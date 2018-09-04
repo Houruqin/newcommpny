@@ -351,8 +351,6 @@ export default {
                 textbookPrice += (num * v.unit_price);
             });
 
-            console.log(textbookPrice);
-
             if(textbookPrice > 0) {
                 this.preferentialDisabled = false;
             }else {
@@ -437,7 +435,7 @@ export default {
         },
         async getTextBookLists() {
             let result = await this.$$request.get('/goods/textbookList');
-            console.log(result);
+            console.log(result);2
             if(!result) return 0;
 
             this.textbookList = result.lists;

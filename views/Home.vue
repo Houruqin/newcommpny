@@ -92,7 +92,7 @@
                   <p class="loading-text">正在努力加载，请耐心等候</p>
                 </div>
                 <div class="page-error-box" v-if="'error' === $store.state.pageState">
-                  <img src="../images/state-500.png">
+                  <img :src="errorLoading">
                   <div class="page-error-inner">
                     <p>很抱歉！</p>
                     <span>{{ $store.state.pageErrorText }}</span>
@@ -332,12 +332,15 @@ import BuyCourseDialog from '../components/dialog/BuyCourse'
 import ContractDialog from '../components/dialog/Contract'
 import AddCourseDialog from '../components/dialog/AddCourse'
 
+import errorLoading from '!url-loader!../images/state-500.png';
+
 import config from 'config';
 
 export default {
     data() {
         return {
             loading: false,
+            errorLoading,
             apiUrl: config.api,
             search_student_info: '',  //搜索学员信息
             search_result: [],     //搜索结果

@@ -44,8 +44,11 @@ axios.interceptors.response.use(res => {
     //     Message.warning(result.message);
     //     return null;
     case 1001:
-      cache.loginOut();
-      Message.warning(result.message);
+      if (!store.state.isOutOfLine) {
+        cache.loginOut();
+        Message.warning(result.message);
+        store.state.isOutOfLine = true;
+      }
       return null;
     default:
       let errorMsg = result.message || '请求错误，请稍后再试';

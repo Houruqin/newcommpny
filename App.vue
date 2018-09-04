@@ -20,11 +20,8 @@ export default {
     let result = await this.$$request.post('/auth/index');
     if(!result) {
       this.loading = false;
-      this.$router.replace({path: '/login'});
-    }
-    else this.isSchoolArea();
-    // else this.$router.replace({path: '/addschool'});
-    // this.isSchoolArea();
+      this.$$cache.loginOut();
+    }else this.isSchoolArea();
   },
   methods: {
     async isSchoolArea() {
