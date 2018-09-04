@@ -693,7 +693,7 @@ export default {
                 let rightBox = document.querySelector('.guide-right-box').clientHeight;
 
                 document.querySelector('.guide-box').style.left = '0';
-                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + 192 - rightBox + mymenu.clientHeight}px`;
+                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + 180 - rightBox + mymenu.clientHeight}px`;
             }else if(this.guideSetup == 5){
                 document.querySelector('.guide-box').style.left = 'auto';
                 document.querySelector('.guide-box').style.top = '50px';
