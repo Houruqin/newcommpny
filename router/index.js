@@ -63,6 +63,7 @@ const router = new Router({
 
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
+  if(!navigator.onLine) return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
   store.commit('stateChange', { state: 'loading' });
   if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/'});
   if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
