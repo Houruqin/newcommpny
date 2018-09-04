@@ -5,10 +5,12 @@
       .login-box-inner
         p 欢迎登录
         div.login-input
-          input(placeholder="请输入手机号码" v-model="phone" @keydown.enter="onLogin")
-        div.login-input.check-code
-          input(placeholder="请输入验证码" v-model="verificationCode" @keydown.enter="onLogin")
-          span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
+          div.input-box.phone-input
+            input(placeholder="请输入手机号码" v-model="phone" @keydown.enter="onLogin")
+        div.login-input
+          div.input-box.check-code.d-f
+            input(placeholder="请输入验证码" v-model="verificationCode" @keydown.enter="onLogin")
+            span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
         .login-btn(@click="onLogin" :class="{ loading: loginState }") {{ loginState ? '登录中...' : '立即登录' }}
       .login-inner-footer #[span(@click="footerClick('www')") 官网]#[span(@click="footerClick('use')") 申请试用]#[span(@click="footerClick('help')") 帮助]
@@ -167,26 +169,47 @@ export default {
   overflow: hidden;
   margin-top: 28px;
   align-items: center;
+  box-sizing: border-box;
+  padding: 0 20px;
   input {
-    flex: 1;
-    width: 1px;
     outline: none;
     border: none;
     font-size: 14px;
     color: #999;
-    padding: 10px 24px 10px 48px;
-    background: url(../images/login/phone.png) no-repeat 20px center / 20px 20px;
   }
   .code-btn {
-    width: 108px;
+    width: 90px;
     text-align: center;
     border-left: 1px solid #fd965d;
     color: #fd965d;
     cursor: pointer;
   }
-  &.check-code {
-    input {
-      background-image: url(../images/login/verification.png);
+  .input-box {
+    position: relative;
+    padding-left: 30px;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+    }
+    &.phone-input {
+      &::before {
+        background: url(../images/login/phone.png) no-repeat;
+        background-size: cover;
+      }
+    }
+    &.check-code {
+      &::before {
+        background: url(../images/login/verification.png) no-repeat;
+        background-size: cover;
+      }
+      input {
+        width: 120px;
+      }
     }
   }
 }
