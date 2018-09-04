@@ -1,6 +1,6 @@
 <template>
     <div class="flex1">
-        <PageState :state="state"/>
+        <PageState :state="state" />
         <el-card shadow="hover">
             <TableHeader title="导入学员信息">
                 <MyButton class="mr-20" v-if="stepActive == 2" type="border" @click.native="timetableEditClick" fontColor="fc-m">
@@ -26,6 +26,7 @@
                     <span class="fc-5">选择上传文件</span>
                     <div class="input-box ml-10 pl-20 pr-20 fc-7 t-o-e" :title="fileInput">{{fileInput}}</div>
                     <el-upload
+                        accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         class="ml-20"
                         ref="excelUpload"
                         :action="importUrl"
@@ -410,57 +411,60 @@ export default {
             };
             let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
-            this.readFiles(file.raw);
+            this.fileInput = file.raw.name;
+
+            // this.readFiles(file.raw);
         },
         //读取文件
-        readFiles(file) {
-            this.fileInput = file.name;
-            FileReader.prototype.readAsBinaryString = () => {
-                let binary = "";
-                let pt = this;
-                var wb; //读取完成的数据
-                let reader = new FileReader();
-                reader.onload = () => {
-                    var bytes = new Uint8Array(reader.result);
-                    var length = bytes.byteLength;
-                    for(let i = 0; i < length; i++) {
-                        binary += String.fromCharCode(bytes[i]);
-                    }
-                    wb = this.rABS ? XLSX.read(btoa(fixdata(binary)),{type: 'base64'}) : XLSX.read(binary, {type: 'binary'});
-                    outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);   //outdata就是你想要的东西
-                    this.tableData = outdata.slice(1);
-                }
-                reader.readAsArrayBuffer(file);
-            };
+        // readFiles(file) {
+        //     this.fileInput = file.name;
+        //     FileReader.prototype.readAsBinaryString = () => {
+        //         let binary = "";
+        //         let pt = this;
+        //         var wb; //读取完成的数据
+        //         let reader = new FileReader();
+        //         reader.onload = () => {
+        //             var bytes = new Uint8Array(reader.result);
+        //             var length = bytes.byteLength;
+        //             for(let i = 0; i < length; i++) {
+        //                 binary += String.fromCharCode(bytes[i]);
+        //             }
+        //             wb = this.rABS ? XLSX.read(btoa(fixdata(binary)),{type: 'base64'}) : XLSX.read(binary, {type: 'binary'});
+        //             outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);   //outdata就是你想要的东西
+        //             this.tableData = outdata.slice(1);
+        //         }
+        //         reader.readAsArrayBuffer(file);
+        //     };
 
-            let reader = new FileReader(), outdata;
-            if(this.rABS) reader.readAsArrayBuffer(file);
-            else reader.readAsBinaryString(file);
-        },
+        //     let reader = new FileReader(), outdata;
+        //     if(this.rABS) reader.readAsArrayBuffer(file);
+        //     else reader.readAsBinaryString(file);
+        // },
         //提交excel
         submitHandle() {
             if(!this.fileInput) return this.$message.warning('请选择文件!');
-            this.verifyExcelFile();
+            this.$refs.excelUpload.submit();
+            // this.verifyExcelFile();
         },
         //验证文件
-        verifyExcelFile() {
-            if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
-            if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
+        // verifyExcelFile() {
+        //     if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
+        //     if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
 
-            let requestStatus = this.tableData.every((d, index) => {
-                let requestArr = [], excelRequest = this.activeTab == 'student' ? 'student_request' : 'course_request';
+        //     let requestStatus = this.tableData.every((d, index) => {
+        //         let requestArr = [], excelRequest = this.activeTab == 'student' ? 'student_request' : 'course_request';
 
-                for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
-                return requestArr.length == excelHeader[excelRequest].length;
-            });
+        //         for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
+        //         return requestArr.length == excelHeader[excelRequest].length;
+        //     });
 
-            if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
+        //     if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
 
-            if(this.submitLoading.submit_excel) return 0;
-            this.submitLoading.submit_excel = true;
+        //     if(this.submitLoading.submit_excel) return 0;
+        //     this.submitLoading.submit_excel = true;
 
-            this.$refs.excelUpload.submit();
-        },
+        //     this.$refs.excelUpload.submit();
+        // },
         //上传成功
         uploadSuccess(response, file, fileList) {
             if(response.code === 1) {
