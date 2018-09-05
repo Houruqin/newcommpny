@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Cache from '@/script/cache';
 import Router from 'vue-router';
 import store from '../store/store';
+import qs from 'qs';
 
 Vue.use(Router);
 
@@ -64,6 +65,10 @@ const router = new Router({
 
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
+
+  // 用于测试
+  if (from.query.debugger && !to.query.debugger) return location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+
   if(!navigator.onLine) return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
   store.commit('stateChange', { state: 'loading' });
   if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/'});

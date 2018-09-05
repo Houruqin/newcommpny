@@ -13,6 +13,12 @@ import Router from '../router'
 axios.defaults.baseURL = config.api;
 axios.defaults.timeout = 1e4;   //超时时间
 
+// 用于调试
+let query = qs.parse(location.search.replace(/^\?/, ''));
+if (query.debugger) {
+  axios.defaults.baseURL = /^http/.test(query.debugger) ? query.debugger : `http://${query.debugger}`;
+}
+
 const DEFAULT_DATA = {}   //默认的公共参数
 
 
