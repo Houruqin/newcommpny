@@ -63,7 +63,15 @@
         <el-table-column label="支出金额" prop="expend_price" align="center"></el-table-column>
         <el-table-column label="备注" align="center">
           <template slot-scope="scope">
-            <div>{{scope.row.remark}}</div>
+            <div v-if="scope.row.remark.length > 16" class="d-f f-j-c">
+                <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="scope.row.remark">
+                    <div slot="reference" class="ml-5 cursor-pointer">
+                        <span>{{scope.row.remark.substring(0, 16)}}</span>
+                        <i class="iconfont icon-zhuyidapx"></i>
+                    </div>
+                </el-popover>
+            </div>
+            <div v-else>{{scope.row.remark}}</div>
           </template>
         </el-table-column>
       </el-table>

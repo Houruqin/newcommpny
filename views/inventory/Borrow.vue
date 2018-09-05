@@ -53,7 +53,19 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="操作人" prop="user_name" align="center"></el-table-column>
-                <el-table-column label="备注" prop="remark" align="center"></el-table-column>
+                <el-table-column label="备注" align="center">
+                  <template slot-scope="scope">
+                      <div v-if="scope.row.remark.length > 16" class="d-f f-j-c">
+                          <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="scope.row.remark">
+                            <div slot="reference" class="ml-5 cursor-pointer">
+                                <span>{{scope.row.remark.substring(0, 16)}}</span>
+                                <i class="iconfont icon-zhuyidapx"></i>
+                            </div>
+                        </el-popover>
+                      </div>
+                      <div v-else>{{scope.row.remark}}</div>
+                  </template>
+                </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <span class="fc-m cursor-pointer" v-if="(scope.row.borrow_num - scope.row.return_num)" @click="giveBackClick(scope.row)">归还</span>

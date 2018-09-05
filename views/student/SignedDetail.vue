@@ -27,7 +27,18 @@
                     <span>联系电话：<i>{{studentDetail.parent_info.mobile}}</i></span>
                 </p>
                 <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
-                <p><span>学员备注：<i>{{studentDetail.remark}}</i></span></p>
+                <div class="mt-15 d-f">
+                  <a>学员备注：</a>
+                  <template v-if="studentDetail.remark && studentDetail.remark.length > 16">
+                      <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
+                          <div slot="reference" class="cursor-pointer">
+                              <a>{{studentDetail.remark.substring(0, 16)}}</a>
+                              <i class="iconfont icon-zhuyidapx"></i>
+                          </div>
+                      </el-popover>
+                  </template>
+                  <span v-else>{{studentDetail.remark}}</span>
+                </div>
             </div>
         </el-card>
 

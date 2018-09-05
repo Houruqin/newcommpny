@@ -13,6 +13,7 @@
                             <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                         </span>
                         <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
+                        <span class="syllabus fc-m ml-20" @click="syllabusClick(course.id)">课程大纲</span>
                     </div>
                     <div class="d-f f-a-c">
                         <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
@@ -329,6 +330,8 @@
                 </div>
             </div>
         </el-dialog>
+
+        <CourseSyllabus v-model="dialogStatus.syllabusEdit" @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse" :syllabus="syllabusParams"/>
     </div>
 </template>
 
@@ -339,6 +342,7 @@ import MyButton from '../../components/common/MyButton'
 import {courseStatic} from '../../script/static'
 import AddCourseDialog from '../../components/dialog/AddCourse'
 import AddGradeDialog from '../../components/dialog/AddGrade'
+import CourseSyllabus from '../../components/dialog/CourseSyllabus'
 import Bus from '../../script/bus'
 import Vue from 'vue';
 import jquery from 'jquery'
@@ -358,12 +362,14 @@ export default {
             },
             courseLists: [],
 
+            syllabusParams: {},
+
             conflictLists: [],   //冲突列表
             conflict_room: [],
 
             other_lists: [],   //正常排课列表
 
-            dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
+            dialogStatus: {timetable: false, conflict: false, course: false, grade: false, syllabusDetail: false, syllabusEdit: false},
             addStudentDialog: false,
 
             gradeType: '',
@@ -372,7 +378,7 @@ export default {
 
             classSelectInfo: {},
             classEdit: false,
-            courseOperate: '',
+            courseOperate: '',   //添加课程/编辑课程
 
             courseType: 1,  //课程类型  普通课程、一对一课程
 
@@ -487,6 +493,14 @@ export default {
             this.radioStudentForm = '';
 
             this.allStudentLists = [];
+        },
+        syllabusClick(id) {
+          this.syllabusParams = {
+            course_id: id,
+            content: id
+          };
+
+          this.dialogStatus.syllabusEdit = true;
         },
         listHeaderClick(course, index) {
             let dom = this.$refs['grade-table-content_' + index][0];
@@ -933,7 +947,7 @@ export default {
         let datas = await this.getCourseLists();
         if(datas) this.state = 'loaded';
     },
-    components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog}
+    components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus}
 }
 </script>
 
@@ -1007,13 +1021,19 @@ export default {
             }
         }
         .course_type{
-        display: inline-block;
-        border: 1px solid #a9a9a9;
-        height: 20px;
-        line-height: 20px;
-        padding: 0 5px;
-        border-radius: 4px;
-    }
+            border: 1px solid #a9a9a9;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+        .syllabus {
+            border: 1px solid #45DAD5;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
     }
     .course-lits-nothing {
         height: 100%;

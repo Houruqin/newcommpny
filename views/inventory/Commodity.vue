@@ -367,7 +367,7 @@ export default {
                     {required: true, message: '请选择课程', trigger: 'change'}
                 ],
                 remark: [
-                    {max: 18,  message: '长度不能超过18个字符'}
+                    {max: 200,  message: '长度不能超过200个字符'}
                 ]
             },
             borrowRules: {
