@@ -405,7 +405,7 @@
                                             <span>{{getStudentName(item)}}</span>
                                         </li>
                                     </ul>
-                                    <div class="d-f">
+                                    <div class="d-f mb-5" :class="{'mt-5': checkStudentForm.length}">
                                         <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
                                             {{addStudentBtnChange()}}
                                         </MyButton>
