@@ -14,7 +14,7 @@
           MyButton(@click.native="editClick") 编辑
           MyButton.ml-20(@click.native="delClick") 删除
         template(v-else)
-          MyButton(@click.native="doneClick" v-if="(type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit' && isSync == 0)") 提交
+          MyButton(@click.native="doneClick" v-if="(type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit')") 提交
 </template>
 
 <script>
@@ -31,9 +31,6 @@ export default {
       this.currentValue = newVal;
     },
     syllabus(newVal) {
-      console.log(newVal)
-      console.log(this.type);
-
       this.courseId = newVal.course_id;
       this.courseSyllabus = newVal.course_syllabus;
 
@@ -48,7 +45,6 @@ export default {
         this.syllabusDeatil = newVal.course_syllabus;
       }
 
-      console.log(this.syllabusDeatil);
       this.syllabusType = this.syllabusDeatil.length ? 'look' : 'edit';
     }
   },
@@ -71,23 +67,48 @@ export default {
     },
     doneClick() {
       this.submitSyllabusContent();
-      // this.$emit('refreshGradeDetail');
     },
     editClick() {
       this.syllabusType = 'edit';
     },
+    //删除大纲
     delClick() {
-
+      this.$confirm('确定删除大纲？', '提醒', {
+          confirmButtonText: '是',
+          cancelButtonText: '否',
+          type: 'warning'
+      }).then(() => {
+        //排课
+        this.submitDelSyllabus();
+      }).catch(() => {return 0});
     },
+    async submitDelSyllabus () {
+      let params = {outlineType: this.type == 'course' ? 1 : 2, courseId: this.courseId};
+      if(this.type == 'grade') params.gradeId = this.gradeId;
+
+      let result = await this.$$request.post('course/delOutline', params);
+      console.log(result);
+      if(!result) return 0;
+
+      this.currentValue = false;
+      this.$emit('input', this.currentValue);
+      if(this.type == 'grade') this.$emit('refreshGradeDetail');
+    },
+    //是否同步 radio change
     isSyncChange() {
-      console.log(this.isSync);
       if(this.isSync) this.syllabusDeatil = this.courseSyllabus;
+      else this.syllabusDeatil = this.gradeSyllabus;
     },
     //提交大纲内容
     async submitSyllabusContent() {
+      let content = '';
+
+      if(this.type == 'course') content = this.syllabusDeatil;
+      else content = this.isSync ? this.gradeSyllabus : this.syllabusDeatil;
+
       let params = {
         outlineType: this.type == 'course' ? 1 : 2,
-        outlineContent: this.syllabusDeatil,
+        outlineContent: content,
         courseId: this.courseId,
       };
 

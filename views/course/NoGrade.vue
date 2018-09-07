@@ -14,6 +14,7 @@
                             <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                         </span>
                         <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
+                        <span class="syllabus fc-m ml-20" @click="syllabusClick(course.id)">课程大纲</span>
                     </div>
                     <div class="d-f f-a-c">
                         <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
@@ -168,6 +169,9 @@
                 </div>
             </div>
         </el-dialog>
+
+        <!-- 课程大纲 -->
+        <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams"/>
      </div>
 </template>
 
@@ -176,9 +180,10 @@
 import TableHeader from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
 import AddCourseDialog from '../../components/dialog/AddCourse'
+import CourseSyllabus from '../../components/dialog/CourseSyllabus'
 
 export default {
-    components: {TableHeader, MyButton, AddCourseDialog},
+    components: {TableHeader, MyButton, AddCourseDialog, CourseSyllabus},
     data() {
         return {
             state: 'loading',
@@ -189,13 +194,17 @@ export default {
             },
             courseOperate: '',
             courseLists: [],
+
+            syllabusParams: {},
+
             editDetail: {},
             editTeacherLists: [],
             dialogStatus: {
                 course: false,
                 edit: false,
                 timetable: false,
-                conflictMask: false
+                conflictMask: false,
+                syllabus: false
             },
             submitLoading: {
                 edit: false,
@@ -258,6 +267,14 @@ export default {
             this.courseOperate = 'edit';
             this.editDetail = course;
             this.dialogStatus.course = true;
+        },
+        //课程大纲 点击
+        async syllabusClick(id) {
+          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
+          console.log(result);
+          if(!result) return 0;
+          this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
+          this.dialogStatus.syllabus = true;
         },
         //获取课程列表
         async getCourseLists(course_id) {
@@ -514,6 +531,13 @@ export default {
         .course_type{
             display: inline-block;
             border: 1px solid #a9a9a9;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+        .syllabus {
+            border: 1px solid #45DAD5;
             height: 20px;
             line-height: 20px;
             padding: 0 5px;
