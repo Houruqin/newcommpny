@@ -331,7 +331,8 @@
             </div>
         </el-dialog>
 
-        <CourseSyllabus v-model="dialogStatus.syllabusEdit" @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse" :syllabus="syllabusParams"/>
+        <!-- 课程大纲 -->
+        <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams"/>
     </div>
 </template>
 
@@ -369,7 +370,7 @@ export default {
 
             other_lists: [],   //正常排课列表
 
-            dialogStatus: {timetable: false, conflict: false, course: false, grade: false, syllabusDetail: false, syllabusEdit: false},
+            dialogStatus: {timetable: false, conflict: false, course: false, grade: false, syllabusDetail: false, syllabus: false},
             addStudentDialog: false,
 
             gradeType: '',
@@ -494,13 +495,13 @@ export default {
 
             this.allStudentLists = [];
         },
-        syllabusClick(id) {
-          this.syllabusParams = {
-            course_id: id,
-            content: id
-          };
-
-          this.dialogStatus.syllabusEdit = true;
+        //课程大纲 点击
+        async syllabusClick(id) {
+          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
+          console.log(result);
+          if(!result) return 0;
+          this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
+          this.dialogStatus.syllabus = true;
         },
         listHeaderClick(course, index) {
             let dom = this.$refs['grade-table-content_' + index][0];
@@ -646,7 +647,7 @@ export default {
         handleCommand(option) {
             switch(option.type) {
                 case 'begin':
-                    this.classCourseState(option);
+                    this.startCourseStatus(option);
                     break;
                 case 'stop':
                     this.classCourseState(option);
@@ -853,22 +854,67 @@ export default {
         },
         //班级课程结课、停课、开课
         classCourseState(option) {
-            if(option.type === 'over' || option.type === 'stop') {
-                let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
-                this.$confirm(text, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.submitChangeCourseStatus(option);
-                }).catch(() => {return 0});
-            }else {
-                this.submitChangeCourseStatus(option);
-            }
+            let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
+            this.$confirm(text, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.submitChangeCourseStatus(option, option.type == 'over' ?  -2 : -3);
+            }).catch(() => {return 0});
+        },
+        //开课 判断是不是需要排课
+        async startCourseStatus(option) {
+          let result = await this.$$request.post('/grade/changeStatus', {id: option.grade_info.id, status: 8});
+          console.log(result);
+          if(!result) return 0;
+
+          this.getCourseLists(option.course_info.id);
+
+          switch (result.status) {
+            case 1:  //没有剩余有效课表
+              this.$confirm('开课成功，您是否需要对该课程进行排课？', '排课提醒', {
+                  confirmButtonText: '是',
+                  cancelButtonText: '否',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 2:  //有剩余有效课表，但与停课后排的课表不冲突
+              this.$confirm('开课成功，您是否需要删除停课前所排课程表并进行重新排课？', '排课提醒', {
+                  confirmButtonText: '是',
+                  cancelButtonText: '否',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.submitChangeCourseStatus(option, 1);
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 3:  //有剩余有效课表，与停课后排的课表有冲突
+              this.$confirm('停课前所排课表与现有课表存在冲突，无法开课，请重新排课！', '排课提醒', {
+                  confirmButtonText: '重新排课',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.submitChangeCourseStatus(option, -1);
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 4:  //剩余课时为0，直接开课成功
+              this.$message.success('开课成功!');
+              break;
+          }
         },
         //改变班级状态 开课/结课/停课
-        async submitChangeCourseStatus(option) {
-            let params = {id: option.grade_info.id, status: option.type == 'over' ?  -2 : option.type == 'stop' ? -3 : 1};
+        async submitChangeCourseStatus(option, status) {
+            let params = {id: option.grade_info.id, status: status};
             let result = await this.$$request.post('/grade/changeStatus', params);
             if(!result) return 0;
             this.$message.success('修改状态成功');

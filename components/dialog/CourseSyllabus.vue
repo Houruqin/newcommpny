@@ -1,10 +1,12 @@
 <template lang="pug">
-  el-dialog(title="编辑课程大纲" width="800px" center :visible.sync="currentValue" :close-on-click-modal="false" @close="dialogClose")
+  el-dialog(:title="type == 'course' ? '编辑课程大纲' : '编辑班级大纲'" width="800px" center :visible.sync="currentValue" :close-on-click-modal="false" @close="dialogClose")
     div.form-box
-      el-input(type="textarea" :readonly="syllabusType == 'look'" placeholder="课程大纲" resize="none" :autosize="{ minRows: 15, maxRows: 20}" v-model.trim="syllabusForm.content")
-      p.mt-20
+      el-input.content-box(:class="{edit: (type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit' && isSync == 0)}" type="textarea"
+        :readonly="(type == 'course' && syllabusType == 'look') || (type == 'grade' && !(syllabusType == 'edit' && isSync == 0))"
+        placeholder="课程大纲" resize="none" :autosize="{ minRows: 15, maxRows: 20}" v-model.trim="syllabusDeatil")
+      p.mt-20(v-if="type == 'grade' && syllabusType == 'edit'")
         span 是否与课程栏的大纲同步？
-        el-radio-group.ml-10(v-model="radio")
+        el-radio-group.ml-10(v-model="isSync" @change="isSyncChange")
           el-radio(:label="1") 是
           el-radio(:label="0") 否
       div.d-f.f-j-c.mt-30
@@ -12,7 +14,7 @@
           MyButton(@click.native="editClick") 编辑
           MyButton.ml-20(@click.native="delClick") 删除
         template(v-else)
-          MyButton(@click.native="doneClick") 提交
+          MyButton(@click.native="doneClick" v-if="(type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit' && isSync == 0)") 提交
 </template>
 
 <script>
@@ -30,20 +32,36 @@ export default {
     },
     syllabus(newVal) {
       console.log(newVal)
-      this.syllabusForm.course_id = newVal.course_id;
-      this.syllabusForm.content = newVal.content;
-      this.syllabusType = newVal.content.length ? 'look' : 'edit';
+      console.log(this.type);
+
+      this.courseId = newVal.course_id;
+      this.courseSyllabus = newVal.course_syllabus;
+
+      if(this.type == 'grade') {
+        this.gradeId = newVal.grade_id;
+        this.gradeSyllabus = newVal.grade_syllabus;
+        this.isSync = newVal.is_sync;
+
+        if(this.isSync == 1) this.syllabusDeatil = newVal.course_syllabus;
+        else this.syllabusDeatil = newVal.grade_syllabus;
+      }else {
+        this.syllabusDeatil = newVal.course_syllabus;
+      }
+
+      console.log(this.syllabusDeatil);
+      this.syllabusType = this.syllabusDeatil.length ? 'look' : 'edit';
     }
   },
   data() {
     return {
       currentValue: this.value,
       syllabusType: 'look',
-      radio: 1,
-      syllabusForm: {
-        content: '',
-        course_id: ''
-      }
+      isSync: 1,
+      courseId: '',
+      gradeId: '',
+      courseSyllabus: '',   //课程大纲
+      gradeSyllabus: '',   //班级大纲
+      syllabusDeatil: ''   //大纲输入框 v-model 绑定值
     }
   },
   methods: {
@@ -52,13 +70,42 @@ export default {
       this.$emit('input', this.currentValue);
     },
     doneClick() {
-      console.log(this.syllabusForm.content)
+      this.submitSyllabusContent();
+      // this.$emit('refreshGradeDetail');
     },
     editClick() {
       this.syllabusType = 'edit';
     },
     delClick() {
 
+    },
+    isSyncChange() {
+      console.log(this.isSync);
+      if(this.isSync) this.syllabusDeatil = this.courseSyllabus;
+    },
+    //提交大纲内容
+    async submitSyllabusContent() {
+      let params = {
+        outlineType: this.type == 'course' ? 1 : 2,
+        outlineContent: this.syllabusDeatil,
+        courseId: this.courseId,
+      };
+
+      if(this.type == 'grade') {
+        params.gradeId = this.gradeId;
+        params.isSync = this.isSync;
+      };
+
+      console.log(params);
+
+      let result = await this.$$request.post('course/editOutline', params);
+      console.log(result);
+      if(!result) return 0;
+
+      this.$message.success(`修改${this.type == 'course' ? '课程' : '班级'}大纲成功!`);
+      this.currentValue = false;
+      this.$emit('input', this.currentValue);
+      if(this.type == 'grade') this.$emit('refreshGradeDetail');
     }
   },
   components: {MyButton}
@@ -68,9 +115,15 @@ export default {
 <style lang="less" scoped>
   .form-box {
     padding: 0 20px;
-    /deep/ .el-textarea__inner {
-      background-color: #F4F4F4;
-      border: none;
+    /deep/ .content-box {
+      &.edit {
+        .el-textarea__inner {
+           background-color: #F4F4F4;
+        }
+      }
+      .el-textarea__inner {
+        border: none;
+      }
     }
     /deep/ .el-radio {
       margin-left: 20px;
