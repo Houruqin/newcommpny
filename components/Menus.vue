@@ -47,10 +47,10 @@ export default {
                     ]
                 },
                 {id: "/academic/classElimination", text: "教务统计", item: true, icon: "icon-jiaowuguanli", itemList: [
+                    { id: "/academic/teacherLesson", text: "老师课时记录" },
                     { id: "/academic/classElimination", text: "学员消课记录" },
                     { id: "/academic/audition", text: "试听课记录" },
-                    { id: "/academic/buy", text: "购课记录" },
-                    { id: "/academic/teacherLesson", text: "老师课时记录" }
+                    { id: "/academic/buy", text: "购课记录" }
                 ]},
                 {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
                     text: "课程管理", item: !Cache.getMemberInfo().class_pattern, icon: "icon-kecheng-",
