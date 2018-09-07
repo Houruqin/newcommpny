@@ -27,7 +27,7 @@
                 <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </li>
-          <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilter.keyword"></el-input></li>
+          <li class="name ml-20"><el-input size="small" placeholder="请输入老师姓名" v-model.trim="searchFilter.keyword"></el-input></li>
           <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
         </ul>
       </div>

@@ -185,7 +185,7 @@ export default {
                     {required: true, message: '请选择渠道信息', trigger: 'change'}
                 ],
                 remark: [
-                    {max: 50, message: '长度不能超过50个字符'}
+                    // {max: 50, message: '长度不能超过50个字符'}
                 ]
             },
             sourceRules: {

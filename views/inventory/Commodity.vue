@@ -219,7 +219,7 @@
                     <el-input type="textarea" :rows="4" placeholder="请输入备注" v-model.trim="removeStorageForm.remark"></el-input>
                 </el-form-item>
 
-                <el-form-item label="出库金额：" prop="remark"><span class="fc-m fs-20">{{removeStorageForm.num * Number(removeStorageForm.price)}}元</span></el-form-item>
+                <el-form-item label="出库金额："><span class="fc-m fs-20">{{removeStorageForm.num * Number(removeStorageForm.price)}}元</span></el-form-item>
                 <div class="d-f f-j-c mt-20 mb-10"><MyButton @click.native="doneHandle('removeStorage')" :loading="submitLoading.removeStorage">确定</MyButton></div>
             </el-form>
         </el-dialog>
@@ -367,7 +367,7 @@ export default {
                     {required: true, message: '请选择课程', trigger: 'change'}
                 ],
                 remark: [
-                    {max: 200,  message: '长度不能超过200个字符'}
+                    // {max: 200,  message: '长度不能超过200个字符'}
                 ]
             },
             borrowRules: {

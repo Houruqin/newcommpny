@@ -26,7 +26,7 @@
                             <el-option label="未归还" :value="2"></el-option>
                         </el-select>
                     </li>
-                    <li class="name ml-20"><el-input size="small" placeholder="请输入物品名称" v-model.trim="searchFilter.keyword"></el-input></li>
+                    <li class="name ml-20"><el-input size="small" placeholder="请输入物品或领用人名称" v-model.trim="searchFilter.keyword"></el-input></li>
                     <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
             </div>
@@ -131,7 +131,7 @@ export default {
                     {validator: this.$$tools.formOtherValidate('total', 5000)}
                 ],
                 explain: [
-                    {max: 18,  message: '长度不能超过18个字符'}
+                    // {max: 18,  message: '长度不能超过18个字符'}
                 ]
             }
         }
