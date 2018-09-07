@@ -255,7 +255,7 @@
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
-                                <div class="d-f">
+                                <div class="d-f mt-10">
                                     <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
                                         {{addStudentBtnChange()}}
                                     </MyButton>
@@ -917,7 +917,7 @@ export default {
             let params = {id: option.grade_info.id, status: status};
             let result = await this.$$request.post('/grade/changeStatus', params);
             if(!result) return 0;
-            this.$message.success('修改状态成功');
+            if(status === -2 || status === -3) this.$message.success('修改状态成功');
             this.getCourseLists(option.course_info.id);
         },
         //删除班级

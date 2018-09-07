@@ -29,11 +29,11 @@
                 <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
                 <div class="mt-15 d-f">
                   <a>学员备注：</a>
-                  <template v-if="studentDetail.remark && studentDetail.remark.length > 16">
+                  <template v-if="studentDetail.remark && studentDetail.remark.length > 30">
                       <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
                           <div slot="reference" class="cursor-pointer">
-                              <a>{{studentDetail.remark.substring(0, 16)}}</a>
-                              <i class="iconfont icon-zhuyidapx"></i>
+                              <a class="fc-2">{{studentDetail.remark.substring(0, 30)}}...</a>
+                              <!-- <i class="iconfont icon-zhuyidapx"></i> -->
                           </div>
                       </el-popover>
                   </template>
