@@ -255,7 +255,7 @@
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
-                                <div class="d-f mt-10">
+                                <div class="d-f mb-5" :class="{'mt-5': checkStudentForm.length}">
                                     <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
                                         {{addStudentBtnChange()}}
                                     </MyButton>
@@ -1086,7 +1086,6 @@ export default {
     }
 
     .form-box {
-        padding: 0 10px;
         .add-lesson-bottom {
             padding-top: 30px;
             border-top: 1px #e3e3e3 solid;
