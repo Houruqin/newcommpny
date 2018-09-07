@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Cache from '@/script/cache';
 import Router from 'vue-router';
 import store from '../store/store';
+import qs from 'qs';
 
 Vue.use(Router);
 
@@ -31,6 +32,7 @@ const router = new Router({
       { path: '/academic/classElimination', component: () => import(/* webpackChunkName: 'page-academic-classElimination' */ '@/views/academic/ClassElimination'), meta: { needlogin: true } },
       { path: '/academic/audition', component: () => import(/* webpackChunkName: 'page-academic-audition' */ '@/views/academic/Audition'), meta: { needlogin: true } },
       { path: '/academic/buy', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/Buy'), meta: { needlogin: true } },
+      { path: '/academic/teacherLesson', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/TeacherLesson'), meta: { needlogin: true } },
 
       { path: '/staff', component: () => import(/* webpackChunkName: 'page-staff-index' */ '@/views/staffManage/Index'), meta: { needlogin: true } },
       { path: '/staff/detail', component: () => import(/* webpackChunkName: 'page-staff-detail' */ '@/views/staffManage/Detail'), meta: { needlogin: true, menu: '/staff' } },
@@ -63,6 +65,10 @@ const router = new Router({
 
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
+
+  // 用于测试
+  if (from.query.debugger && !to.query.debugger) return location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+
   if(!navigator.onLine) return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
   store.commit('stateChange', { state: 'loading' });
   if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/'});

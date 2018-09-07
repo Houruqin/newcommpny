@@ -18,7 +18,18 @@
                 </p>
 
                 <p v-if="detail.parent_info"><span>家庭住址：<i>{{detail.address}}</i></span></p>
-                <p><span>学员备注：<i>{{detail.remark}}</i></span></p>
+                <div class="mt-15 d-f">
+                  <a>学员备注：</a>
+                  <template v-if="detail.remark && detail.remark.length > 16">
+                      <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="detail.remark">
+                          <div slot="reference" class="cursor-pointer">
+                              <a>{{detail.remark.substring(0, 16)}}</a>
+                              <i class="iconfont icon-zhuyidapx"></i>
+                          </div>
+                      </el-popover>
+                  </template>
+                  <span v-else>{{detail.remark}}</span>
+                </div>
             </div>
         </el-card>
 
