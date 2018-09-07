@@ -20,11 +20,11 @@
                 <p v-if="detail.parent_info"><span>家庭住址：<i>{{detail.address}}</i></span></p>
                 <div class="mt-15 d-f">
                   <a>学员备注：</a>
-                  <template v-if="detail.remark && detail.remark.length > 16">
+                  <template v-if="detail.remark && detail.remark.length > 30">
                       <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="detail.remark">
                           <div slot="reference" class="cursor-pointer">
-                              <a>{{detail.remark.substring(0, 16)}}</a>
-                              <i class="iconfont icon-zhuyidapx"></i>
+                              <a class="fc-2">{{detail.remark.substring(0, 30)}}...</a>
+                              <!-- <i class="iconfont icon-zhuyidapx"></i> -->
                           </div>
                       </el-popover>
                   </template>
