@@ -31,7 +31,7 @@ Vue.use(Element)
 
 Vue.prototype.$format_date = $date;
 
-Vue.filter('date', function (val, type) {
+Vue.filter('date', function (val, type = 'yyyy-MM-dd') {
   if (!val) return '';
   return $date(val, type);
 });
