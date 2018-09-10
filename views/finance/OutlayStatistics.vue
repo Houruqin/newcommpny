@@ -266,8 +266,8 @@ export default {
           //   { validator: this.$$tools.formOtherValidate("price") }
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
           { validator: this.$$tools.formOtherValidate("total", 999999) }
-        ]
-        // remark: [{ required: true, message: "请输入备注" }]
+        ],
+        remark: [{ max: 100, message: "备注长度不能超过100" }]
       },
       addTypeRules: {
         type: [{ required: true, message: "请输入支出类型" }]
