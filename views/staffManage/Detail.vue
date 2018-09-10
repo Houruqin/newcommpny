@@ -7,7 +7,7 @@
                     <a class="t-a-c"><img src="../../images/staff/teacher.png" alt=""></a>
                     <div class="d-f f-a-c f-j-c cursor-pointer">
                         <span class="mr-10">{{userDetail.name}}</span>
-                        <i class="iconfont icon-bianji" @click="editHandle"></i>
+                        <i v-if="userDetail.is_enable == 1" class="iconfont icon-bianji" @click="editHandle"></i>
                     </div>
                 </div>
                 <div class="fc-7">

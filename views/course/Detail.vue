@@ -2,8 +2,8 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader title="班级详情">
-                <!-- <MyButton type="subm" @click.native="deleteGrade">删除</MyButton> -->
+            <TableHeader title="班级详情" :other="true">
+              <span class="syllabus fc-m ml-20 mt-2 cursor-pointer" @click="syllabusClick">班级大纲</span>
             </TableHeader>
 
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>
@@ -72,6 +72,9 @@
 
         <!-- 修改班级弹窗 -->
         <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" :editDetail="editDetail" :type="gradeType" @CB-addGrade="CB_addGrade"></AddGradeDialog>
+
+        <!-- 班级大纲 -->
+        <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams" type="grade" @refreshGradeDetail="getGradeDetail"/>
     </div>
 </template>
 
@@ -80,9 +83,10 @@
 import TableHeader from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
 import AddGradeDialog from '../../components/dialog/AddGrade'
+import CourseSyllabus from '../../components/dialog/CourseSyllabus'
 
 export default {
-    components: {TableHeader, MyButton, AddGradeDialog},
+    components: {TableHeader, MyButton, AddGradeDialog, CourseSyllabus},
     data() {
         return {
             state: 'loading',
@@ -92,7 +96,7 @@ export default {
 
             gradeType: '',
 
-            dialogStatus: {grade: false},
+            dialogStatus: {grade: false, syllabus: false},
             courseType: 1,
             classSelectInfo: {},
             studentLists: [],
@@ -100,6 +104,7 @@ export default {
             studentCheckAll: false,
 
             editDetail: {},
+            syllabusParams: {},
 
             deleteTimeTableLists: [],    //删除课表，选中的课表
             timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
@@ -121,12 +126,28 @@ export default {
                 this.gradeType = '';
                 this.editDetail = {};
                 this.dialogStatus.grade = false;
-            }
+                return 0;
+            };
         },
         CB_addGrade() {
             this.getPageData();
             this.editDetail = {};
             this.dialogStatus.grade = false;
+        },
+        //班级大纲点击
+        async syllabusClick(id) {
+          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
+          console.log(result);
+          if(!result) return 0;
+          this.syllabusParams = {
+            course_id: this.gradeDetail.course.id,
+            grade_id: this.gradeDetail.id,
+            is_sync: this.gradeDetail.is_sync,
+            course_syllabus: this.gradeDetail.course.course_outline,
+            grade_syllabus: this.gradeDetail.grade_outline
+          };
+
+          this.dialogStatus.syllabus = true;
         },
         //编辑详情
         // editCourseDetail() {
@@ -244,6 +265,13 @@ export default {
             width: 70px;
             text-align: left;
         }
+    }
+    .syllabus {
+        border: 1px solid #45DAD5;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 5px;
+        border-radius: 4px;
     }
 </style>
 

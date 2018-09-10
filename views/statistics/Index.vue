@@ -240,27 +240,27 @@ export default {
         //性别时间change
         sexDateChange(val) {
             if(this.sex.end_time < this.sex.start_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
-            this.getSexLists();
+            this.getSexLists(true);
         },
         //性别学员类型
         sexStudentTypeChange() {
-            this.getSexLists();
+            this.getSexLists(true);
         },
         //学员
         studentDateChange(val) {
-            this.getStudentLists();
+            this.getStudentLists(true);
         },
         //课程
         courseDateChange(val) {
-            this.getCourseLists();
+            this.getCourseLists(true);
         },
         //渠道
         sourceDateChange() {
-            this.getSourseLists();
+            this.getSourseLists(true);
         },
         //渠道学员类型change
         sourceStudentTypeChange() {
-            this.getSourseLists();
+            this.getSourseLists(true);
         },
         //销售
         sellDateChange() {
@@ -476,7 +476,7 @@ export default {
             sourceRightObj.setOption(options, true);
         },
         //获取性别、年龄学员列表
-        async getSexLists() {
+        async getSexLists(refresh) {
             let result = await this.$$request.post('/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000, type: this.sex.student_type});
             console.log(result);
             if(!result) return 0;
@@ -486,10 +486,16 @@ export default {
             result.woman_percentage = result.woman_num == 0 ? '0%' : `${(result.woman_num / result.total_num * 100).toFixed(1)}%`;
 
             this.sex.data = result;
+
+            if(refresh) {
+              this.sexChartInit();
+              this.ageChartInit();
+            };
+
             return true;
         },
         //获取签约学员列表
-        async getStudentLists() {
+        async getStudentLists(refresh) {
             let result = await this.$$request.post('/collect/signLists', {what_time: this.student.year / 1000});
             console.log(result);
             if(!result) return 0;
@@ -498,15 +504,24 @@ export default {
             this.student.total_lists = result.lists.total_lists;
 
             this.student.data = result.lists;
+
+            if(refresh) {
+              this.studentChartInit();
+              this.studentRightInit();
+            };
+
             return true;
         },
         //课程及考勤统计列表
-        async getCourseLists() {
+        async getCourseLists(refresh) {
             let result = await this.$$request.post('/collect/courseLists', {what_time: this.course.year / 1000});
             console.log(result);
             if(!result) return 0;
 
             this.course.data = result.lists;
+
+            if(refresh) this.courseChartInit();
+
             return true;
         },
         //销售统计列表
@@ -519,7 +534,7 @@ export default {
             return true;
         },
         //渠道统计列表
-        async getSourseLists() {
+        async getSourseLists(refresh) {
             let result = await this.$$request.post('/collect/sourceLists', {what_time: this.source.what_time / 1000, type: this.source.student_type});
             console.log(result);
             if(!result) return 0;
@@ -536,6 +551,12 @@ export default {
 
             let total_num = result.lists.map(v => {return v.total}).reduce((a, b) => {return a + b});
             this.source.total_num = total_num;
+
+            if(refresh) {
+              this.sourceChartInit();
+              this.sourceRightInit();
+            };
+
             return true;
         },
         allEChartInit() {

@@ -13,6 +13,7 @@
                             <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                         </span>
                         <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
+                        <span class="syllabus fc-m ml-20" @click="syllabusClick(course.id)">课程大纲</span>
                     </div>
                     <div class="d-f f-a-c">
                         <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
@@ -254,7 +255,7 @@
                                         <span>{{getStudentName(item)}}</span>
                                     </li>
                                 </ul>
-                                <div class="d-f">
+                                <div class="d-f mb-5" :class="{'mt-5': checkStudentForm.length}">
                                     <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
                                         {{addStudentBtnChange()}}
                                     </MyButton>
@@ -329,6 +330,9 @@
                 </div>
             </div>
         </el-dialog>
+
+        <!-- 课程大纲 -->
+        <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams"/>
     </div>
 </template>
 
@@ -339,6 +343,7 @@ import MyButton from '../../components/common/MyButton'
 import {courseStatic} from '../../script/static'
 import AddCourseDialog from '../../components/dialog/AddCourse'
 import AddGradeDialog from '../../components/dialog/AddGrade'
+import CourseSyllabus from '../../components/dialog/CourseSyllabus'
 import Bus from '../../script/bus'
 import Vue from 'vue';
 import jquery from 'jquery'
@@ -358,12 +363,14 @@ export default {
             },
             courseLists: [],
 
+            syllabusParams: {},
+
             conflictLists: [],   //冲突列表
             conflict_room: [],
 
             other_lists: [],   //正常排课列表
 
-            dialogStatus: {timetable: false, conflict: false, course: false, grade: false},
+            dialogStatus: {timetable: false, conflict: false, course: false, grade: false, syllabusDetail: false, syllabus: false},
             addStudentDialog: false,
 
             gradeType: '',
@@ -372,7 +379,7 @@ export default {
 
             classSelectInfo: {},
             classEdit: false,
-            courseOperate: '',
+            courseOperate: '',   //添加课程/编辑课程
 
             courseType: 1,  //课程类型  普通课程、一对一课程
 
@@ -487,6 +494,14 @@ export default {
             this.radioStudentForm = '';
 
             this.allStudentLists = [];
+        },
+        //课程大纲 点击
+        async syllabusClick(id) {
+          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
+          console.log(result);
+          if(!result) return 0;
+          this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
+          this.dialogStatus.syllabus = true;
         },
         listHeaderClick(course, index) {
             let dom = this.$refs['grade-table-content_' + index][0];
@@ -632,7 +647,7 @@ export default {
         handleCommand(option) {
             switch(option.type) {
                 case 'begin':
-                    this.classCourseState(option);
+                    this.startCourseStatus(option);
                     break;
                 case 'stop':
                     this.classCourseState(option);
@@ -839,25 +854,70 @@ export default {
         },
         //班级课程结课、停课、开课
         classCourseState(option) {
-            if(option.type === 'over' || option.type === 'stop') {
-                let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
-                this.$confirm(text, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.submitChangeCourseStatus(option);
-                }).catch(() => {return 0});
-            }else {
-                this.submitChangeCourseStatus(option);
-            }
+            let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
+            this.$confirm(text, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.submitChangeCourseStatus(option, option.type == 'over' ?  -2 : -3);
+            }).catch(() => {return 0});
+        },
+        //开课 判断是不是需要排课
+        async startCourseStatus(option) {
+          let result = await this.$$request.post('/grade/changeStatus', {id: option.grade_info.id, status: 8});
+          console.log(result);
+          if(!result) return 0;
+
+          this.getCourseLists(option.course_info.id);
+
+          switch (result.status) {
+            case 1:  //没有剩余有效课表
+              this.$confirm('开课成功，您是否需要对该课程进行排课？', '排课提醒', {
+                  confirmButtonText: '是',
+                  cancelButtonText: '否',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 2:  //有剩余有效课表，但与停课后排的课表不冲突
+              this.$confirm('开课成功，您是否需要删除停课前所排课程表并进行重新排课？', '排课提醒', {
+                  confirmButtonText: '是',
+                  cancelButtonText: '否',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.submitChangeCourseStatus(option, 1);
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 3:  //有剩余有效课表，与停课后排的课表有冲突
+              this.$confirm('停课前所排课表与现有课表存在冲突，无法开课，请重新排课！', '排课提醒', {
+                  confirmButtonText: '重新排课',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+              }).then(() => {
+                //排课
+                this.submitChangeCourseStatus(option, -1);
+                this.addTimetable(option);
+              }).catch(() => {return 0});
+              break;
+
+            case 4:  //剩余课时为0，直接开课成功
+              this.$message.success('开课成功!');
+              break;
+          }
         },
         //改变班级状态 开课/结课/停课
-        async submitChangeCourseStatus(option) {
-            let params = {id: option.grade_info.id, status: option.type == 'over' ?  -2 : option.type == 'stop' ? -3 : 1};
+        async submitChangeCourseStatus(option, status) {
+            let params = {id: option.grade_info.id, status: status};
             let result = await this.$$request.post('/grade/changeStatus', params);
             if(!result) return 0;
-            this.$message.success('修改状态成功');
+            if(status === -2 || status === -3) this.$message.success('修改状态成功');
             this.getCourseLists(option.course_info.id);
         },
         //删除班级
@@ -933,7 +993,7 @@ export default {
         let datas = await this.getCourseLists();
         if(datas) this.state = 'loaded';
     },
-    components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog}
+    components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus}
 }
 </script>
 
@@ -1007,20 +1067,25 @@ export default {
             }
         }
         .course_type{
-        display: inline-block;
-        border: 1px solid #a9a9a9;
-        height: 20px;
-        line-height: 20px;
-        padding: 0 5px;
-        border-radius: 4px;
-    }
+            border: 1px solid #a9a9a9;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+        .syllabus {
+            border: 1px solid #45DAD5;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
     }
     .course-lits-nothing {
         height: 100%;
     }
 
     .form-box {
-        padding: 0 10px;
         .add-lesson-bottom {
             padding-top: 30px;
             border-top: 1px #e3e3e3 solid;
