@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-dialog(:title="type == 'course' ? '课程大纲' : '班级大纲'" width="800px" center :visible.sync="currentValue" :close-on-click-modal="false" @close="dialogClose")
+  el-dialog(:title="(syllabusType == 'edit' ? '编辑' : '') + (type == 'course' ? '课程大纲' : '班级大纲')" width="800px" center :visible.sync="currentValue" :close-on-click-modal="false" @close="dialogClose")
     div.form-box
       el-input.content-box(:class="{edit: (type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit' && isSync == 0)}" type="textarea"
         :readonly="(type == 'course' && syllabusType == 'look') || (type == 'grade' && !(syllabusType == 'edit' && isSync == 0))"
