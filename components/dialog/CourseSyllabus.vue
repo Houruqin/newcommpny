@@ -67,7 +67,11 @@ export default {
       this.$emit('input', this.currentValue);
     },
     doneClick() {
-      this.submitSyllabusContent();
+      if (this.syllabusDeatil) {
+        this.submitSyllabusContent();
+      } else {
+        this.$message.error('内容不能为空');
+      }
     },
     editClick() {
       this.syllabusType = 'edit';
