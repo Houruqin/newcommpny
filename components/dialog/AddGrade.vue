@@ -197,7 +197,8 @@ export default {
                 lesson_num: [
                     {required: true, message: '请输入班级课时'},
                     {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)}
+                    {validator: this.$$tools.formOtherValidate('total', 200)},
+                    {validator: this.lessonNumValidator()}
                 ],
                 teacher_ids: [
                     {required: true, message: '请选择任课老师', trigger: 'change'}
@@ -245,6 +246,12 @@ export default {
         CB_addStaff(data) {
             this.getGradeFill();
             this.classForm.teacher_ids = data.id;
+        },
+        lessonNumValidator() {
+          return (rule, value, callback, event, e, d) => {
+            if(value == 0) return callback(new Error('班级课时不能为0'));
+            else return callback();
+          }
         },
         //班级学员checkbox，全选
         studentCheckAllChange(val) {

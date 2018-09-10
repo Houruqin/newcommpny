@@ -3,7 +3,7 @@
     div.form-box
       el-input.content-box(:class="{edit: (type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit' && isSync == 0)}" type="textarea"
         :readonly="(type == 'course' && syllabusType == 'look') || (type == 'grade' && !(syllabusType == 'edit' && isSync == 0))"
-        placeholder="课程大纲" resize="none" :autosize="{ minRows: 15, maxRows: 20}" v-model.trim="syllabusDeatil")
+        :placeholder="type == 'course' ? '课程大纲' : '班级大纲'" resize="none" :autosize="{ minRows: 15, maxRows: 20}" v-model.trim="syllabusDeatil")
       p.mt-20(v-if="type == 'grade' && syllabusType == 'edit'")
         span 是否与课程栏的大纲同步？
         el-radio-group.ml-10(v-model="isSync" @change="isSyncChange")
@@ -63,6 +63,7 @@ export default {
   methods: {
     dialogClose() {
       this.currentValue = false;
+      this.syllabusDeatil = '';
       this.$emit('input', this.currentValue);
     },
     doneClick() {

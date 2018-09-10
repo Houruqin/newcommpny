@@ -313,7 +313,7 @@
                                     <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
                                 </el-form-item>
 
-                                <template v-if="addTableType == 'multiple'">
+                                <div v-if="addTableType == 'multiple'" key="multiple">
                                     <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
                                         <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                     </el-form-item>
@@ -323,8 +323,8 @@
                                             <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                         </el-select>
                                     </el-form-item>
-                                </template>
-                                <template v-else>
+                                </div>
+                                <div v-else key="single">
                                     <el-form-item label="辅助老师：" prop="counselor_ids">
                                         <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
                                             <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -333,7 +333,7 @@
                                     <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
                                         <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                     </el-form-item>
-                                </template>
+                                </div>
                                 <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1">
                                     <el-select placeholder="请选择" v-model="timetableForm.loop">
                                         <el-option label="无" value="no"></el-option>
@@ -905,7 +905,10 @@ export default {
             this.studentLists = [];
             this.checkStudentForm = [];
             this.radioStudentForm = '';
+            this.timetableForm.lesson_num = '';
             this.timetableForm.no_timetable = '';
+
+            if(this.addTableType == 'multiple') this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
 
             this.timetableFull.course.forEach(v => {
                 if(v.id === val[0]) {

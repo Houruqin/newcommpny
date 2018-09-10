@@ -26,7 +26,7 @@ const Tools = {
 			else return callback();
 		}
 	},
-	
+
 	//表单非正则验证
 	formOtherValidate(type, num) {
 		return (rule, value, callback, event, e, d) => {
@@ -37,7 +37,7 @@ const Tools = {
                 else if(String(value).split('.')[1] && String(value).split('.')[1].length > num) return callback(new Error(`最多${num}位小数`));
                 else return callback();
             };
-            
+
             //整数验证
             if(type == 'int') {
                 if(isNaN(value)) return callback(new Error('请输入数字'));
@@ -45,12 +45,12 @@ const Tools = {
                 else if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
                 else return callback();
             };
-            
+
             //数值验证
             if(type == 'total') {
                 if(value > num) return callback(new Error(`数值不能大于${num}`));
                 else return callback();
-            }
+            };
 		}
 	},
 
