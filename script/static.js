@@ -180,6 +180,9 @@ const conflictLists = [
         },
         other_lists: []
     }
-]
+];
 
-export {StudentStatic, courseStatic, timeTableStatic, excelHeader, conflictLists};
+//排课时间选择范围
+const timePicker = {start: '08:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'};
+
+export {StudentStatic, courseStatic, timeTableStatic, excelHeader, conflictLists, timePicker};

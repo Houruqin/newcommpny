@@ -181,6 +181,7 @@ import TableHeader from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
 import AddCourseDialog from '../../components/dialog/AddCourse'
 import CourseSyllabus from '../../components/dialog/CourseSyllabus'
+import {timePicker} from '../../script/static'
 
 export default {
     components: {TableHeader, MyButton, AddCourseDialog, CourseSyllabus},
@@ -232,7 +233,7 @@ export default {
                     {required: true, message: '请输入扣课时数'}
                 ]
             },
-            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
+            timePicker: timePicker,
             disableStartTime: new Date().setHours(0, 0, 0, 0),
             pickerBeginDateAfter: {
                 disabledDate: (time) => {

@@ -12,7 +12,7 @@
       div.d-f.f-j-c.mt-30
         template(v-if="syllabusType == 'look'")
           MyButton(@click.native="syllabusType = 'edit'") 编辑
-          MyButton.ml-20(@click.native="delClick") 删除
+          MyButton.ml-20(@click.native="delClick" v-if="!isSync") 删除
         template(v-else)
           MyButton(@click.native="doneClick") 提交
 </template>
@@ -125,8 +125,6 @@ export default {
         params.gradeId = this.gradeId;
         params.isSync = this.isSync;
       };
-
-      console.log(params);
 
       let result = await this.$$request.post('course/editOutline', params);
       console.log(result);

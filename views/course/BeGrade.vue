@@ -340,7 +340,7 @@
 
 import TableHeader from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
-import {courseStatic} from '../../script/static'
+import {courseStatic, timePicker} from '../../script/static'
 import AddCourseDialog from '../../components/dialog/AddCourse'
 import AddGradeDialog from '../../components/dialog/AddGrade'
 import CourseSyllabus from '../../components/dialog/CourseSyllabus'
@@ -398,7 +398,7 @@ export default {
             timetable_studentLists: [],  //添加排课，选择学员弹窗checkbox暂时选中的值
 
             operationLists: courseStatic.classRoomStatus,
-            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
+            timePicker: timePicker,
             weekList: [
                 {id: 1, name: '周一', day: {}},
                 {id: 2, name: '周二', day: {}},

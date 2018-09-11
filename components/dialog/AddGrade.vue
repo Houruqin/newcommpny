@@ -1,84 +1,83 @@
 <template>
     <!-- 修改班级弹窗 -->
-    <el-dialog :title="gradeType == 'add' ? '添加班级' : '修改班级'" width="750px" center :visible.sync="gradeDialogStatus" :close-on-click-modal="false" @close="dialogClose('gradeForm')">
-        <el-form :model="classForm" label-width="120px" size="small" ref="gradeForm" :rules="classRules" class="form-box">
-            <el-row>
-                <el-col :span="11">
-                    <el-form-item label="课程名称："><span>{{classForm.course_name}}</span></el-form-item>
-                    <el-form-item label="班级名称：" prop="name">
-                        <el-input v-model.trim="classForm.name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="任课老师：" prop="teacher_ids" class="p-r">
-                        <el-select v-model="classForm.teacher_ids" placeholder="必选">
-                            <el-option
-                                v-for="(item, index) in classSelectInfo.teacher"
-                                :key="index"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                        <div class="p-a add-room ver-c cursor-pointer" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
-                    </el-form-item>
-                    <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
-                        <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </el-form-item>
-                    <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1" class="p-r">
-                        <el-select v-model="classForm.room_id" placeholder="请选择">
-                            <el-option
-                                v-for="item in classSelectInfo.room"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                        <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
-                    </el-form-item>
-                    <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
-                        <el-select v-model="classForm.is_listen" placeholder="请选择">
-                            <el-option label="是" :value="1"></el-option>
-                            <el-option label="否" :value="0"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
+    <el-dialog :title="gradeType == 'add' ? '添加班级' : '修改班级'" width="780px" center :visible.sync="gradeDialogStatus" :close-on-click-modal="false" @close="dialogClose('gradeForm')">
+        <el-form :model="classForm" label-width="120px" size="small" ref="gradeForm" :rules="classRules" class="form-box pl-20 pr-20">
+            <div class="d-f">
+              <div class="flex1">
+                  <el-form-item label="课程名称："><span>{{classForm.course_name}}</span></el-form-item>
+                  <el-form-item label="班级名称：" prop="name">
+                      <el-input v-model.trim="classForm.name"></el-input>
+                  </el-form-item>
+                  <el-form-item label="任课老师：" prop="teacher_ids" class="p-r">
+                      <el-select v-model="classForm.teacher_ids" placeholder="必选">
+                          <el-option
+                              v-for="(item, index) in classSelectInfo.teacher"
+                              :key="index"
+                              :label="item.name"
+                              :value="item.id">
+                          </el-option>
+                      </el-select>
+                      <div class="p-a add-room ver-c cursor-pointer" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
+                  </el-form-item>
+                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
+                      <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1" class="p-r">
+                      <el-select v-model="classForm.room_id" placeholder="请选择">
+                          <el-option
+                              v-for="item in classSelectInfo.room"
+                              :key="item.id"
+                              :label="item.name"
+                              :value="item.id">
+                          </el-option>
+                      </el-select>
+                      <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
+                  </el-form-item>
+                  <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
+                      <el-select v-model="classForm.is_listen" placeholder="请选择">
+                          <el-option label="是" :value="1"></el-option>
+                          <el-option label="否" :value="0"></el-option>
+                      </el-select>
+                  </el-form-item>
+              </div>
 
-                <el-col :span="11">
-                    <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
-                    <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
-                        <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
-                    </el-form-item>
-                    <el-form-item label="辅助老师：" prop="counselor_ids">
-                        <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
-                            <el-option
-                                v-for="(item, index) in classSelectInfo.teacher"
-                                :key="index"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+              <div class="flex1 ml-30">
+                  <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
+                  <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
+                      <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
+                  </el-form-item>
+                  <el-form-item label="辅助老师：" prop="counselor_ids">
+                      <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
+                          <el-option
+                              v-for="(item, index) in classSelectInfo.teacher"
+                              :key="index"
+                              :label="item.name"
+                              :value="item.id">
+                          </el-option>
+                      </el-select>
+                  </el-form-item>
 
-                    <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
-                        <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </el-form-item>
+                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
+                      <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                  </el-form-item>
 
-                    <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
-                        <el-input type="number" v-model.number="classForm.limit_num"></el-input>
-                    </el-form-item>
+                  <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
+                      <el-input type="number" v-model.number="classForm.limit_num"></el-input>
+                  </el-form-item>
 
-                    <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
-                        <el-select v-model="classForm.room_id" placeholder="请选择">
-                            <el-option
-                                v-for="item in $store.state.classRoom"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                        <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-
+                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
+                      <el-select v-model="classForm.room_id" placeholder="请选择">
+                          <el-option
+                              v-for="item in $store.state.classRoom"
+                              :key="item.id"
+                              :label="item.name"
+                              :value="item.id">
+                          </el-option>
+                      </el-select>
+                      <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
+                  </el-form-item>
+              </div>
+            </div>
             <el-form-item label="班级学员：">
                 <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                 <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length" class="grade-student-check">
@@ -93,13 +92,13 @@
 
         <!-- 添加教室 -->
         <el-dialog title="添加教室" width="500px" center :visible.sync="roomDialogStatus" :close-on-click-modal="false" @close="dialogClose('roomForm')" append-to-body>
-            <el-form :model="roomForm" label-width="100px" size="small" :rules="roomRules" ref="roomForm" class="form-box">
+            <el-form :model="roomForm" label-width="100px" size="small" :rules="roomRules" ref="roomForm" class="form-box pl-10 pr-10">
                 <div class="d-f f-j-c">
                     <el-form-item label="教室名称" prop="name">
                         <el-input v-model.trim="roomForm.name" placeholder="教室名称"></el-input>
                     </el-form-item>
                 </div>
-                <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('roomForm')" :loading="submitLoading.room">确定</MyButton></div>
+                <div class="d-f f-j-c mt-20"><MyButton @click.native="doneHandle('roomForm')" :loading="submitLoading.room">确定</MyButton></div>
             </el-form>
         </el-dialog>
 
@@ -366,12 +365,11 @@ export default {
 
 <style lang="less" scoped>
     .form-box {
-        padding: 0 10px;
         /deep/ .el-input {
             width: 150px;
         }
         .add-room {
-            right: 0px;
+            right: 20px;
             img {
                 display: block;
             }

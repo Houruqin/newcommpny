@@ -658,7 +658,7 @@
 import TableHeader  from '../../components/common/TableHeader'
 import MyButton from '../../components/common/MyButton'
 import RefundDialog from "../../components/dialog/Refund"
-import {StudentStatic, timeTableStatic} from '../../script/static'
+import {StudentStatic, timeTableStatic, timePicker} from '../../script/static'
 import Bus from '../../script/bus'
 
 import BuyCourseDialog from '../../components/dialog/BuyCourse'
@@ -713,7 +713,7 @@ export default {
             leaveNumDetailMask: false,
 
             //消课先关字段
-            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'},
+            timePicker: timePicker,
             removeTimetableDialog: false,    //手动消课弹窗
             gradeLists: [],   //手动消课填充数据
 

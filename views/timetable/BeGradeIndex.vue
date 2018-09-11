@@ -493,6 +493,7 @@ import TimetablePopver from '../../components/common/TimetablePopver'
 import Jquery from 'jquery'
 import '../../plugins/calendar'
 import Bus from '../../script/bus'
+import {timePicker} from '../../script/static'
 
 const ONE_DAY_LONG = 24*60*60*1000;
 
@@ -563,7 +564,7 @@ export default {
             studentCheckAll: false,
             allStudentLists: [],   //学员总数
 
-            timePicker: {start: '09:00', step: '00:05', end: '21:45', minTime: 0},
+            timePicker: timePicker,
 
             weekList: [
                 {id: 1, name: '周一', type: 'week_one'},
