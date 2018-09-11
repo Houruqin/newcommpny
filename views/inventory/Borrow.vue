@@ -131,7 +131,7 @@ export default {
                     {validator: this.$$tools.formOtherValidate('total', 5000)}
                 ],
                 explain: [
-                    // {max: 18,  message: '长度不能超过18个字符'}
+                    {max: 100,  message: '长度不能超过100个字符'}
                 ]
             }
         }

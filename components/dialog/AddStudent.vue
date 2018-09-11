@@ -184,7 +184,7 @@ export default {
                 source_id: [
                     {required: true, message: '请选择渠道信息', trigger: 'change'}
                 ],
-                remark: [{ max: 100, message: "备注长度不能超过100" }]
+                remark: [{ max: 100, message: '长度不能超过100个字符' }]
             },
             sourceRules: {
                 name: [
