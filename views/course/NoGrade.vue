@@ -177,315 +177,357 @@
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import AddCourseDialog from '../../components/dialog/AddCourse'
-import CourseSyllabus from '../../components/dialog/CourseSyllabus'
-import {timePicker} from '../../script/static'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import AddCourseDialog from '../../components/dialog/AddCourse';
+import CourseSyllabus from '../../components/dialog/CourseSyllabus';
+import {timePicker} from '../../script/static';
 
 export default {
-    components: {TableHeader, MyButton, AddCourseDialog, CourseSyllabus},
-    data() {
-        return {
-            state: 'loading',
-            conflictType: {
-                reason1: '老师冲突 请修改时间',
-                reason2: '教室冲突 请修改时间或教室',
-                reason3: '学员冲突 请修改时间'
-            },
-            courseOperate: '',
-            courseLists: [],
+  components: {TableHeader, MyButton, AddCourseDialog, CourseSyllabus},
+  data () {
+    return {
+      state: 'loading',
+      conflictType: {
+        reason1: '老师冲突 请修改时间',
+        reason2: '教室冲突 请修改时间或教室',
+        reason3: '学员冲突 请修改时间'
+      },
+      courseOperate: '',
+      courseLists: [],
 
-            syllabusParams: {},
+      syllabusParams: {},
 
-            editDetail: {},
-            editTeacherLists: [],
-            dialogStatus: {
-                course: false,
-                edit: false,
-                timetable: false,
-                conflictMask: false,
-                syllabus: false
-            },
-            submitLoading: {
-                edit: false,
-                timetable: false
-            },
-            conflictLists: [],   //冲突列表
-            other_lists: [],   //正常数据
-            teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
-            timetableForm: {
-                course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
-            },
-            teacherRules: {
-                techer_id: [
-                    {required: true, message: '请选择老师', trigger: 'change'}
-                ]
-            },
-            timetableRules: {
-                room_id: [
-                    {required: true, message: '请选择上课教室', trigger: 'change'}
-                ],
-                begin_time: [
-                    {required: true, message: '请选择上课时间', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入扣课时数'}
-                ]
-            },
-            timePicker: timePicker,
-            disableStartTime: new Date().setHours(0, 0, 0, 0),
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() < this.disableStartTime;
-                }
-            }
+      editDetail: {},
+      editTeacherLists: [],
+      dialogStatus: {
+        course: false,
+        edit: false,
+        timetable: false,
+        conflictMask: false,
+        syllabus: false
+      },
+      submitLoading: {
+        edit: false,
+        timetable: false
+      },
+      conflictLists: [], //冲突列表
+      other_lists: [], //正常数据
+      teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
+      timetableForm: {
+        course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
+      },
+      teacherRules: {
+        techer_id: [
+          {required: true, message: '请选择老师', trigger: 'change'}
+        ]
+      },
+      timetableRules: {
+        room_id: [
+          {required: true, message: '请选择上课教室', trigger: 'change'}
+        ],
+        begin_time: [
+          {required: true, message: '请选择上课时间', trigger: 'change'}
+        ],
+        lesson_num: [
+          {required: true, message: '请输入扣课时数'}
+        ]
+      },
+      timePicker: timePicker,
+      disableStartTime: new Date().setHours(0, 0, 0, 0),
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() < this.disableStartTime;
         }
+      }
+    };
+  },
+  methods: {
+    dialogClose (type) {
+      this.$refs[type].resetFields();
     },
-    methods: {
-        dialogClose(type) {
-            this.$refs[type].resetFields();
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            if(type == 'add_course')  {
-                this.editDetail = {};
-                this.dialogStatus.course = false;
-                this.courseOperate = '';
-            }
-        },
-        CB_addCourse() {
-            this.getCourseLists();
-            this.dialogStatus.course = false;
-        },
-        //新增课程
-        addCourse() {
-            this.courseOperate = 'add';
-            this.dialogStatus.course = true;
-        },
-        //编辑课程
-        editCourse(course) {
-            this.courseOperate = 'edit';
-            this.editDetail = course;
-            this.dialogStatus.course = true;
-        },
-        //课程大纲 点击
-        async syllabusClick(id) {
-          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
-          console.log(result);
-          if(!result) return 0;
-          this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
-          this.dialogStatus.syllabus = true;
-        },
-        //获取课程列表
-        async getCourseLists(course_id) {
-            let active = '';
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type == 'add_course') {
+        this.editDetail = {};
+        this.dialogStatus.course = false;
+        this.courseOperate = '';
+      }
+    },
+    CB_addCourse () {
+      this.getCourseLists();
+      this.dialogStatus.course = false;
+    },
+    //新增课程
+    addCourse () {
+      this.courseOperate = 'add';
+      this.dialogStatus.course = true;
+    },
+    //编辑课程
+    editCourse (course) {
+      this.courseOperate = 'edit';
+      this.editDetail = course;
+      this.dialogStatus.course = true;
+    },
+    //课程大纲 点击
+    async syllabusClick (id) {
+      let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
 
-            let result = await this.$$request.post('/course/orderLists');
-            console.log(result);
-            if(!result) return 0;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
+      this.dialogStatus.syllabus = true;
+    },
+    //获取课程列表
+    async getCourseLists (course_id) {
+      let active = '';
 
-            result.lists.forEach((d, num) => {
-                d.collapse = false;
+      let result = await this.$$request.post('/course/orderLists');
 
-                d.student_course.forEach(v => {v.operationStatus = false});
-            });
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
 
-            this.courseLists = result.lists;
-            console.log(active);
-            this.$nextTick(v => {
-                if(active !== '') {
-                    let dom = this.$refs['grade-table-content_' + active][0];
-                    let child = dom.firstChild;
-                    dom.style.height = `${child.offsetHeight}px`;
-                }
-            });
-            return true;
-        },
-        //快速时间选择change
-        beginTimeChange(val) {
-            if(new Date(val).toDateString() === new Date().toDateString()) {
-                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-            }else this.timePicker.minTime = 0;
-        },
-        listHeaderClick(course, index) {
-            let dom = this.$refs['grade-table-content_' + index][0];
-            let child = dom.firstChild;
+      result.lists.forEach((d, num) => {
+        d.collapse = false;
 
-            if(!course.collapse) {
-                dom.style.height = `${child.offsetHeight}px`;
-                course.collapse = true;
-            }else {
-                dom.style.height = 0;
-                course.collapse = false;
-            }
-        },
-        //班级操作列表点击回调
-        handleCommand(option) {
-            console.log(option)
-            switch(option.type) {
-                case 'plan':
-                    this.planTimeTable(option.course_info, option.grade_info);
-                    break;
-                case 'edit':
-                    this.editTeacher(option.course_info, option.grade_info);
-                    break;
-            }
-        },
-        //排课 click
-        planTimeTable(course, data) {
-            console.log(data);
-            this.timetableForm.course_id = course.id;
-            this.timetableForm.course_name = course.name;
-            this.timetableForm.student_id = data.student.id;
-            this.timetableForm.student_name = data.student.name;
-            this.timetableForm.teacher_id = data.teacher.id;
-            this.timetableForm.teacher_name = data.teacher.name;
-            this.timetableForm.lesson_time = course.lesson_time;
+        d.student_course.forEach(v => {
+          v.operationStatus = false;
+        });
+      });
 
-            this.dialogStatus.timetable = true;
-        },
-        //排课确定
-        timetableDone() {
-            this.$refs.timetableForm.validate(valid => {if(valid) this.submitTimeTable()});
-        },
-        //提交排课数据
-        submitTimeTable() {
-            if(this.submitLoading.timetable) return 0;
-            this.submitLoading.timetable = true;
+      this.courseLists = result.lists;
+      console.log(active);
+      this.$nextTick(v => {
+        if (active !== '') {
+          let dom = this.$refs[`grade-table-content_${ active}`][0];
+          let child = dom.firstChild;
 
-            let params = {
-                course_id: this.timetableForm.course_id,
-                // student_id: this.timetableForm.student_id,
-                student_lists: [{student_id: this.timetableForm.student_id}],
-                teacher_ids: this.timetableForm.teacher_id,
-                room_id: this.timetableForm.room_id,
-                lesson_num: this.timetableForm.lesson_num
-            };
-
-            params.begin_time = new Date(`${this.timetableForm.begin_day} ${this.timetableForm.begin_time}`).getTime() / 1000;
-            params.end_time = params.begin_time + this.timetableForm.lesson_time * 60 ;
-
-            this.getConflictLists(params);
-            // let result = await this.$$request.post('/timetable/order', params);
-            // console.log(result);
-
-            // if(!result) return 0;
-            // this.$message.success('快速排课成功!');
-            // this.dialogStatus.timetable = false;
-        },
-        //冲突页面确定修改
-        doneModify() {
-            console.log(this.conflict_room)
-            let lists = this.conflictLists.map(v => {
-                let item = {};
-                for(let key in v) {
-                    if(key != 'begin_hours' && key != 'conflict_data') {
-                        if(key == 'begin_time') {
-                            item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, "/")} ${v.begin_hours}`).getTime() / 1000;
-                        }else if(key == 'end_time'){
-                            item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
-                        }else if(key == 'room_id'){
-                            console.log(this.conflict_room)
-                            item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
-                        }else {
-                            item[key] = v[key];
-                        }
-                    }
-                };
-                return item;
-            });
-
-            console.log(lists);
-
-            lists = lists.concat(this.other_lists);
-
-            let params = {lists: lists};
-
-            this.getConflictLists(params);
-        },
-        //提交排课数据，验证冲突
-        async getConflictLists(params) {
-            console.log(params);
-
-            let result = await this.$$request.post('/timetable/notModelCourse', params);
-            this.submitLoading.timetable = false;
-            if(!result) return 0;
-
-            if(result.status === 0) return this.$message.warning('操作失败，请稍后再试!');
-
-            if(result.status === 1) {
-                this.$message.success('快速排课成功!');
-                this.dialogStatus.timetable = false;
-                this.dialogStatus.conflictMask = false;
-            }else if(result.status === -1) {
-                result.conflict_lists.forEach(v => {
-                    v.begin_time = v.begin_time * 1000;
-                    let nowtime = new Date(v.begin_time);
-                    v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-                    if(v.conflict_data.reason == 2) {
-                        if(v.conflict_data.data.constructor === Array) {
-                            this.conflict_room = v.conflict_data.data.map(k => {return k.id});
-                        }else {
-                            this.conflict_room = v.conflict_data.data.id;
-                        }
-                    };
-                });
-
-                this.conflictLists = result.conflict_lists;   //冲突列表
-                this.other_lists = result.lists;    //正常列表
-                this.dialogStatus.conflictMask = true;
-            }
-        },
-        //编辑修改老师信息 click
-        editTeacher(course, data) {
-            this.teacherForm.old_teacher_id = data.teacher.id;
-            this.teacherForm.techer_id = data.teacher.id;
-            this.teacherForm.course_id = course.id;
-            this.teacherForm.student_id = data.student.id;
-            console.log(data)
-            this.getEditTeacherLists(course.id);
-        },
-        //获取编辑老师列表
-        async getEditTeacherLists(id) {
-            let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
-            console.log(result);
-            if(!result) return 0;
-            this.editTeacherLists = result.teachers;
-            this.dialogStatus.edit = true;
-        },
-        //修改老师确定 click
-        editTeacherDone() {
-            this.$refs.teacherForm.validate(valid => {if(valid) this.submitEditTeacher()});
-        },
-        //提交修改老师数据
-        async submitEditTeacher() {
-            console.log(this.teacherForm)
-
-            if(this.submitLoading.edit) return 0;
-            this.submitLoading.edit = true;
-
-            let result = await this.$$request.post('/course/changeTeacher', {
-                id: this.teacherForm.old_teacher_id,
-                course_id: this.teacherForm.course_id,
-                teacher_id: this.teacherForm.techer_id,
-                student_id: this.teacherForm.student_id
-            });
-
-            console.log(result);
-            this.submitLoading.edit = false;
-            if(!result) return 0;
-
-            this.$message.success('修改老师成功');
-            this.dialogStatus.edit = false;
-            this.getCourseLists();
+          dom.style.height = `${child.offsetHeight}px`;
         }
+      });
+
+      return true;
     },
-    async created() {
-        let datas = await this.getCourseLists();
-        if(datas) this.state = 'loaded';
+    //快速时间选择change
+    beginTimeChange (val) {
+      if (new Date(val).toDateString() === new Date().toDateString()) {
+        this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+      } else {
+        this.timePicker.minTime = 0;
+      }
+    },
+    listHeaderClick (course, index) {
+      let dom = this.$refs[`grade-table-content_${ index}`][0];
+      let child = dom.firstChild;
+
+      if (!course.collapse) {
+        dom.style.height = `${child.offsetHeight}px`;
+        course.collapse = true;
+      } else {
+        dom.style.height = 0;
+        course.collapse = false;
+      }
+    },
+    //班级操作列表点击回调
+    handleCommand (option) {
+      console.log(option);
+      switch (option.type) {
+        case 'plan':
+          this.planTimeTable(option.course_info, option.grade_info);
+          break;
+        case 'edit':
+          this.editTeacher(option.course_info, option.grade_info);
+          break;
+      }
+    },
+    //排课 click
+    planTimeTable (course, data) {
+      console.log(data);
+      this.timetableForm.course_id = course.id;
+      this.timetableForm.course_name = course.name;
+      this.timetableForm.student_id = data.student.id;
+      this.timetableForm.student_name = data.student.name;
+      this.timetableForm.teacher_id = data.teacher.id;
+      this.timetableForm.teacher_name = data.teacher.name;
+      this.timetableForm.lesson_time = course.lesson_time;
+
+      this.dialogStatus.timetable = true;
+    },
+    //排课确定
+    timetableDone () {
+      this.$refs.timetableForm.validate(valid => {
+        if (valid) {
+          this.submitTimeTable();
+        }
+      });
+    },
+    //提交排课数据
+    submitTimeTable () {
+      if (this.submitLoading.timetable) {
+        return 0;
+      }
+      this.submitLoading.timetable = true;
+
+      let params = {
+        course_id: this.timetableForm.course_id,
+        // student_id: this.timetableForm.student_id,
+        student_lists: [{student_id: this.timetableForm.student_id}],
+        teacher_ids: this.timetableForm.teacher_id,
+        room_id: this.timetableForm.room_id,
+        lesson_num: this.timetableForm.lesson_num
+      };
+
+      params.begin_time = new Date(`${this.timetableForm.begin_day} ${this.timetableForm.begin_time}`).getTime() / 1000;
+      params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
+
+      this.getConflictLists(params);
+      // let result = await this.$$request.post('/timetable/order', params);
+      // console.log(result);
+
+      // if(!result) return 0;
+      // this.$message.success('快速排课成功!');
+      // this.dialogStatus.timetable = false;
+    },
+    //冲突页面确定修改
+    doneModify () {
+      console.log(this.conflict_room);
+      let lists = this.conflictLists.map(v => {
+        let item = {};
+
+        for (let key in v) {
+          if (key != 'begin_hours' && key != 'conflict_data') {
+            if (key == 'begin_time') {
+              item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, '/')} ${v.begin_hours}`).getTime() / 1000;
+            } else if (key == 'end_time') {
+              item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
+            } else if (key == 'room_id') {
+              console.log(this.conflict_room);
+              item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
+            } else {
+              item[key] = v[key];
+            }
+          }
+        }
+
+        return item;
+      });
+
+      console.log(lists);
+
+      lists = lists.concat(this.other_lists);
+
+      let params = {lists: lists};
+
+      this.getConflictLists(params);
+    },
+    //提交排课数据，验证冲突
+    async getConflictLists (params) {
+      console.log(params);
+
+      let result = await this.$$request.post('/timetable/notModelCourse', params);
+
+      this.submitLoading.timetable = false;
+      if (!result) {
+        return 0;
+      }
+
+      if (result.status === 0) {
+        return this.$message.warning('操作失败，请稍后再试!');
+      }
+
+      if (result.status === 1) {
+        this.$message.success('快速排课成功!');
+        this.dialogStatus.timetable = false;
+        this.dialogStatus.conflictMask = false;
+      } else if (result.status === -1) {
+        result.conflict_lists.forEach(v => {
+          v.begin_time = v.begin_time * 1000;
+          let nowtime = new Date(v.begin_time);
+
+          v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+          if (v.conflict_data.reason == 2) {
+            if (v.conflict_data.data.constructor === Array) {
+              this.conflict_room = v.conflict_data.data.map(k => {
+                return k.id;
+              });
+            } else {
+              this.conflict_room = v.conflict_data.data.id;
+            }
+          }
+        });
+
+        this.conflictLists = result.conflict_lists; //冲突列表
+        this.other_lists = result.lists; //正常列表
+        this.dialogStatus.conflictMask = true;
+      }
+    },
+    //编辑修改老师信息 click
+    editTeacher (course, data) {
+      this.teacherForm.old_teacher_id = data.teacher.id;
+      this.teacherForm.techer_id = data.teacher.id;
+      this.teacherForm.course_id = course.id;
+      this.teacherForm.student_id = data.student.id;
+      console.log(data);
+      this.getEditTeacherLists(course.id);
+    },
+    //获取编辑老师列表
+    async getEditTeacherLists (id) {
+      let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.editTeacherLists = result.teachers;
+      this.dialogStatus.edit = true;
+    },
+    //修改老师确定 click
+    editTeacherDone () {
+      this.$refs.teacherForm.validate(valid => {
+        if (valid) {
+          this.submitEditTeacher();
+        }
+      });
+    },
+    //提交修改老师数据
+    async submitEditTeacher () {
+      console.log(this.teacherForm);
+
+      if (this.submitLoading.edit) {
+        return 0;
+      }
+      this.submitLoading.edit = true;
+
+      let result = await this.$$request.post('/course/changeTeacher', {
+        id: this.teacherForm.old_teacher_id,
+        course_id: this.teacherForm.course_id,
+        teacher_id: this.teacherForm.techer_id,
+        student_id: this.teacherForm.student_id
+      });
+
+      console.log(result);
+      this.submitLoading.edit = false;
+      if (!result) {
+        return 0;
+      }
+
+      this.$message.success('修改老师成功');
+      this.dialogStatus.edit = false;
+      this.getCourseLists();
     }
-}
+  },
+  async created () {
+    let datas = await this.getCourseLists();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

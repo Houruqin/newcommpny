@@ -206,348 +206,405 @@
 </template>
 
 <script>
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import {StudentStatic} from '../../script/static'
-import Bus from '../../script/bus'
-import Tools from '../../script/tools'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import {StudentStatic} from '../../script/static';
+import Bus from '../../script/bus';
+import Tools from '../../script/tools';
 
-import AddStudentDialog from '../../components/dialog/AddStudent'
-import BuyCourseDialog from '../../components/dialog/BuyCourse'
-import ContractDialog from '../../components/dialog/Contract'
+import AddStudentDialog from '../../components/dialog/AddStudent';
+import BuyCourseDialog from '../../components/dialog/BuyCourse';
+import ContractDialog from '../../components/dialog/Contract';
 
 export default {
-    data() {
-        return {
-            submitLoading: false,
+  data () {
+    return {
+      submitLoading: false,
 
-            state: 'loading',
+      state: 'loading',
 
-            detail: {},
-            studentId: '',
-            loading: true,
+      detail: {},
+      studentId: '',
+      loading: true,
 
-            listenType: '',   //试听类型，直接试听、跟进邀约试听
-            listenCourseLists: [],   //试听课程列表
-            checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''},  //试听课程，跟进form显示
-            checkListen: [],
+      listenType: '', //试听类型，直接试听、跟进邀约试听
+      listenCourseLists: [], //试听课程列表
+      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
+      checkListen: [],
 
-            currPage: false,
+      currPage: false,
 
-            auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''},   //试听数据
-            contractData: {},  //合约数据
-            maskAudition: false, //试听弹窗
-            maskFollowUp: false,   //跟进弹窗
+      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
+      contractData: {}, //合约数据
+      maskAudition: false, //试听弹窗
+      maskFollowUp: false, //跟进弹窗
 
-            dialogStatus: {student: false, course: false, contract: false},
-            buyCourseData: {},
-            editDetail: {},
+      dialogStatus: {student: false, course: false, contract: false},
+      buyCourseData: {},
+      editDetail: {},
 
-            studentType: '',
+      studentType: '',
 
-            followupStatus: '',   //跟进结果
-            wayIdArr: StudentStatic.followUp.wayId,
-            resultArr: [],
+      followupStatus: '', //跟进结果
+      wayIdArr: StudentStatic.followUp.wayId,
+      resultArr: [],
 
-            followUpLists: [],   //跟进列表
-            followUpForm: {
-                way_id: '',   //跟进方式
-                status: '',   //跟进结果
-                invited_at: '',   //邀约时间
-                content: '',   //跟进内容
-                next_at: ''
-            },
-            followUpRules: {
-                way_id: [
-                    {required: true, message: '请选择跟进方式', trigger: 'change'}
-                ],
-                status: [
-                    {required: true, message: '请选择跟进结果', trigger: 'change'}
-                ],
-                invited_at: [
-                    {required: true, message: '请选择邀约时间', trigger: 'change'}
-                ],
-                content: [
-                    {required: true, message: '请填写跟进内容'},
-                    {max: 150, message: '长度不能超过150个字符'}
-                ],
-                next_at: []
-            },
-            sourceRules: {
-                name: [
-                    {required: true, message: '请输入渠道'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ]
-            },
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            },
-            pickListenDisable: {
-                disabledDate: (time) => {
-                    return time.getTime() < new Date().setHours(0, 0, 0, 0);
-                }
-            }
+      followUpLists: [], //跟进列表
+      followUpForm: {
+        way_id: '', //跟进方式
+        status: '', //跟进结果
+        invited_at: '', //邀约时间
+        content: '', //跟进内容
+        next_at: ''
+      },
+      followUpRules: {
+        way_id: [
+          {required: true, message: '请选择跟进方式', trigger: 'change'}
+        ],
+        status: [
+          {required: true, message: '请选择跟进结果', trigger: 'change'}
+        ],
+        invited_at: [
+          {required: true, message: '请选择邀约时间', trigger: 'change'}
+        ],
+        content: [
+          {required: true, message: '请填写跟进内容'},
+          {max: 150, message: '长度不能超过150个字符'}
+        ],
+        next_at: []
+      },
+      sourceRules: {
+        name: [
+          {required: true, message: '请输入渠道'},
+          {max: 20, message: '长度不能超过20个字符'}
+        ]
+      },
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
         }
-    },
-    methods: {
-        getRelations(id) {
-            let text = '';
-            this.$store.state.familyRelations.forEach(v => {
-                if(id == v.id) text = v.name;
-            });
-
-            return text;
-        },
-        dialogClose(form) {
-            if(form === 'listen') {
-                this.checkListen = [];
-                this.listenCourseLists = [];
-                this.auditionData = {
-                    time: new Date().getTime(),
-                    teacher_lists: [],
-                    course_lists: [],
-                    teacher_id: '',
-                    course_id: ''
-                };
-            }else{
-                this.listenCourseInit();
-                this.$refs[form].resetFields();
-            }
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            if(type == 'student') {
-                this.dialogStatus.student = false;
-                this.editDetail = {};
-                return 0;
-            };
-            // if(type == 'course') {
-            //     this.dialogStatus.course = false;
-            //     this.buyCourseData = {};
-            //     return 0;
-            // };
-        },
-        //修改详情成功，刷新列表
-        CB_addStudent() {
-            this.getStudentDetail();
-            this.dialogStatus.student = false;
-        },
-        //购课成功，合约回调
-        CB_contract(data) {
-            this.contractData = data;
-            this.getFollowUpLists();
-            this.dialogStatus.course = false;
-            this.dialogStatus.contract = true;
-        },
-        //添加跟进
-        addFollowUp() {
-            for(let key in this.followUpForm) this.followUpForm[key] = '';
-            this.followupStatus = '';
-            this.listenType = 'followup';    //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
-            this.maskFollowUp = true;
-        },
-        //跟进结果选择
-        followUpStatusChange(value) {
-            this.followupStatus = value;
-            if(value === 4) {
-                this.getListenLists();
-                this.maskAudition = true;
-            }else {
-                this.listenCourseInit();
-            }
-        },
-        //添加试听
-        addListenHandle() {
-            this.listenType = 'default';
-            this.getListenLists();
-            this.maskAudition = true;
-        },
-        //试听课程列表点击
-        listenCourseClick(list) {
-            console.log(list);
-            let index = this.checkListen.indexOf(list.id);
-
-            if(index === -1) {
-                if(this.checkListen.length) return this.$message.warning('最多选择一个');
-                this.checkListen.push(list.id);
-            }else this.checkListen.splice(index, 1);
-        },
-        //试听跟进弹窗关闭，数据重置
-        listenCourseInit() {
-            this.auditionData = {
-                time: new Date().getTime(),
-                teacher_lists: [],
-                course_lists: [],
-                teacher_id: '',
-                course_id: ''
-            };
-            this.checkListen = [];
-            this.listenCourseLists = [];
-            Object.keys(this.checkListenCourse).forEach(v => {this.checkListenCourse[v] = ''});
-        },
-        //购课
-        buyCourse() {
-            // this.dialogStatus.course = true;
-            // this.buyCourseData = this.detail;
-            let params = {
-                student_id: this.detail.id,
-                advisor_id: this.detail.advisor_id,
-                advisor: this.detail.advisor,
-                parent_id: this.detail.parent_id
-            };
-
-            this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },
-        //试听确定
-        listenDoneHandle() {
-            if(!this.checkListen.length) return this.$message.warning('试听课程不能为空!');
-
-            if(this.listenType == 'default') {
-                this.followUpForm.way_id = 5;
-                this.followUpForm.status = 4;
-                this.followUpForm.content = '无跟进内容记录';
-
-                this.submitFollowUpInfo();
-            }else {
-                this.listenCourseLists.forEach(v => {
-                    if(v.id === this.checkListen[0]) {
-                        this.checkListenCourse.timetable_id = v.id;
-                        this.checkListenCourse.course_name = v.course.name;
-                        this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
-                    }
-                });
-            }
-
-            this.listenCourseLists = [];    //试听课程列表重置
-            this.maskAudition = false;
-        },
-        //表单确定
-        followUpDoneHandle(type) {
-            this.$refs.followUpForm.validate(valid => {if(valid) this.submitFollowUpInfo()});
-        },
-        nextClick(currentPage) {
-            this.currPage = true;
-            this.getFollowUpLists(currentPage);
-        },
-        prevClick(currentPage) {
-            this.currPage = true;
-            this.getFollowUpLists(currentPage);
-        },
-        //跟进分页
-        paginationClick(currentPage) {
-            if(!this.currPage) this.getFollowUpLists(currentPage);
-            this.currPage = false;
-        },
-        //编辑
-        editStudent() {
-            this.studentType = 'edit';
-            this.editDetail = this.detail;
-            this.dialogStatus.student = true;
-        },
-        //提交跟进
-        async submitFollowUpInfo() {
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
-
-            let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
-
-            for(let key in this.followUpForm) params[key] = key == 'invited_at' || key == 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
-
-            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
-                this.submitLoading = false;
-                return this.$message.warning('邀约试听，试听课程不能为空!');
-            }
-
-            if(this.listenType == 'default' && this.checkListen.length) {
-                params.timetable_id = this.checkListen[0];
-            }else if(this.checkListenCourse.timetable_id) params.timetable_id = this.checkListenCourse.timetable_id;
-
-            console.log(params);
-
-            let result = await this.$$request.post('/followUp/add', params);
-            this.submitLoading = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('添加成功');
-
-            this.maskFollowUp = false;
-            this.maskAudition = false;
-            this.listenCourseInit();
-            this.getFollowUpLists();
-        },
-        //获取跟进列表
-        async getFollowUpLists(currentPage) {
-            this.loading = true;
-            let params = {student_id: this.studentId};
-            if(currentPage) params.page = currentPage;
-            let result = await this.$$request.post('/followUp/lists', params);
-            console.log(result);
-            if(!result) return 0;
-            this.followUpLists = result.lists;
-            this.loading = false;
-            return true;
-        },
-        //获取学员详情
-        async getStudentDetail() {
-            let result = await this.$$request.post('/student/detail', {id: this.studentId});
-            console.log(result);
-            if(!result) return 0;
-            this.$set(this, 'detail', result.detail);
-            return true;
-        },
-        //获取试听填充列表
-        async getListenLists() {
-            this.checkListen.splice(0, this.checkListen.length);
-
-            let select_time = this.auditionData.time / 1000;
-            let current_time = new Date().getTime() / 1000;
-            let old_time = select_time < current_time ? current_time : select_time;
-            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-
-            if(!result) return 0;
-            this.auditionData.teacher_lists = result.teacher;
-            this.auditionData.course_lists = result.course;
-            this.getListenCourseLists();
-        },
-        //获取试听课程列表
-        async getListenCourseLists() {
-            let select_time = this.auditionData.time / 1000;
-            let current_time = new Date().getTime() / 1000;
-            let old_time = select_time < current_time ? current_time : select_time;
-
-            let params = {
-                time: old_time,
-                teacher_id: this.auditionData.teacher_id,
-                course_id: this.auditionData.course_id
-            };
-
-            let result = await this.$$request.post('/listenCourse/lists', {data: params});
-            if(!result) return 0;
-            this.listenCourseLists = result.lists;
+      },
+      pickListenDisable: {
+        disabledDate: (time) => {
+          return time.getTime() < new Date().setHours(0, 0, 0, 0);
         }
-    },
-    async created() {
-        if(this.$route.query.student_id) this.studentId = this.$route.query.student_id;
+      }
+    };
+  },
+  methods: {
+    getRelations (id) {
+      let text = '';
 
-        if(this.$$cache.getMemberInfo().class_pattern === 2) {
-            this.resultArr.splice(0, this.resultArr.length);
-            StudentStatic.followUp.status.forEach(v => {if(v.id != 4) this.resultArr.push(v)});
-        }else this.resultArr = StudentStatic.followUp.status;
-
-        let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
-        if(a && b) this.state = 'loaded';
-    },
-    watch: {
-        $route: function(val,oldval) {
-            this.studentId = val.query.student_id;
-            this.getStudentDetail();
-            this.getFollowUpLists();
+      this.$store.state.familyRelations.forEach(v => {
+        if (id == v.id) {
+          text = v.name;
         }
+      });
+
+      return text;
     },
-    components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}
-}
+    dialogClose (form) {
+      if (form === 'listen') {
+        this.checkListen = [];
+        this.listenCourseLists = [];
+        this.auditionData = {
+          time: new Date().getTime(),
+          teacher_lists: [],
+          course_lists: [],
+          teacher_id: '',
+          course_id: ''
+        };
+      } else {
+        this.listenCourseInit();
+        this.$refs[form].resetFields();
+      }
+    },
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type == 'student') {
+        this.dialogStatus.student = false;
+        this.editDetail = {};
+
+        return 0;
+      }
+      // if(type == 'course') {
+      //     this.dialogStatus.course = false;
+      //     this.buyCourseData = {};
+      //     return 0;
+      // };
+    },
+    //修改详情成功，刷新列表
+    CB_addStudent () {
+      this.getStudentDetail();
+      this.dialogStatus.student = false;
+    },
+    //购课成功，合约回调
+    CB_contract (data) {
+      this.contractData = data;
+      this.getFollowUpLists();
+      this.dialogStatus.course = false;
+      this.dialogStatus.contract = true;
+    },
+    //添加跟进
+    addFollowUp () {
+      for (let key in this.followUpForm) {
+        this.followUpForm[key] = '';
+      }
+      this.followupStatus = '';
+      this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
+      this.maskFollowUp = true;
+    },
+    //跟进结果选择
+    followUpStatusChange (value) {
+      this.followupStatus = value;
+      if (value === 4) {
+        this.getListenLists();
+        this.maskAudition = true;
+      } else {
+        this.listenCourseInit();
+      }
+    },
+    //添加试听
+    addListenHandle () {
+      this.listenType = 'default';
+      this.getListenLists();
+      this.maskAudition = true;
+    },
+    //试听课程列表点击
+    listenCourseClick (list) {
+      console.log(list);
+      let index = this.checkListen.indexOf(list.id);
+
+      if (index === -1) {
+        if (this.checkListen.length) {
+          return this.$message.warning('最多选择一个');
+        }
+        this.checkListen.push(list.id);
+      } else {
+        this.checkListen.splice(index, 1);
+      }
+    },
+    //试听跟进弹窗关闭，数据重置
+    listenCourseInit () {
+      this.auditionData = {
+        time: new Date().getTime(),
+        teacher_lists: [],
+        course_lists: [],
+        teacher_id: '',
+        course_id: ''
+      };
+      this.checkListen = [];
+      this.listenCourseLists = [];
+      Object.keys(this.checkListenCourse).forEach(v => {
+        this.checkListenCourse[v] = '';
+      });
+    },
+    //购课
+    buyCourse () {
+      // this.dialogStatus.course = true;
+      // this.buyCourseData = this.detail;
+      let params = {
+        student_id: this.detail.id,
+        advisor_id: this.detail.advisor_id,
+        advisor: this.detail.advisor,
+        parent_id: this.detail.parent_id
+      };
+
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+    },
+    //试听确定
+    listenDoneHandle () {
+      if (!this.checkListen.length) {
+        return this.$message.warning('试听课程不能为空!');
+      }
+
+      if (this.listenType == 'default') {
+        this.followUpForm.way_id = 5;
+        this.followUpForm.status = 4;
+        this.followUpForm.content = '无跟进内容记录';
+
+        this.submitFollowUpInfo();
+      } else {
+        this.listenCourseLists.forEach(v => {
+          if (v.id === this.checkListen[0]) {
+            this.checkListenCourse.timetable_id = v.id;
+            this.checkListenCourse.course_name = v.course.name;
+            this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
+          }
+        });
+      }
+
+      this.listenCourseLists = []; //试听课程列表重置
+      this.maskAudition = false;
+    },
+    //表单确定
+    followUpDoneHandle (type) {
+      this.$refs.followUpForm.validate(valid => {
+        if (valid) {
+          this.submitFollowUpInfo();
+        }
+      });
+    },
+    nextClick (currentPage) {
+      this.currPage = true;
+      this.getFollowUpLists(currentPage);
+    },
+    prevClick (currentPage) {
+      this.currPage = true;
+      this.getFollowUpLists(currentPage);
+    },
+    //跟进分页
+    paginationClick (currentPage) {
+      if (!this.currPage) {
+        this.getFollowUpLists(currentPage);
+      }
+      this.currPage = false;
+    },
+    //编辑
+    editStudent () {
+      this.studentType = 'edit';
+      this.editDetail = this.detail;
+      this.dialogStatus.student = true;
+    },
+    //提交跟进
+    async submitFollowUpInfo () {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
+      let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
+
+      for (let key in this.followUpForm) {
+        params[key] = key == 'invited_at' || key == 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
+      }
+
+      if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
+        this.submitLoading = false;
+
+        return this.$message.warning('邀约试听，试听课程不能为空!');
+      }
+
+      if (this.listenType == 'default' && this.checkListen.length) {
+        params.timetable_id = this.checkListen[0];
+      } else if (this.checkListenCourse.timetable_id) {
+        params.timetable_id = this.checkListenCourse.timetable_id;
+      }
+
+      console.log(params);
+
+      let result = await this.$$request.post('/followUp/add', params);
+
+      this.submitLoading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('添加成功');
+
+      this.maskFollowUp = false;
+      this.maskAudition = false;
+      this.listenCourseInit();
+      this.getFollowUpLists();
+    },
+    //获取跟进列表
+    async getFollowUpLists (currentPage) {
+      this.loading = true;
+      let params = {student_id: this.studentId};
+
+      if (currentPage) {
+        params.page = currentPage;
+      }
+      let result = await this.$$request.post('/followUp/lists', params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.followUpLists = result.lists;
+      this.loading = false;
+
+      return true;
+    },
+    //获取学员详情
+    async getStudentDetail () {
+      let result = await this.$$request.post('/student/detail', {id: this.studentId});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$set(this, 'detail', result.detail);
+
+      return true;
+    },
+    //获取试听填充列表
+    async getListenLists () {
+      this.checkListen.splice(0, this.checkListen.length);
+
+      let select_time = this.auditionData.time / 1000;
+      let current_time = new Date().getTime() / 1000;
+      let old_time = select_time < current_time ? current_time : select_time;
+      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
+
+      if (!result) {
+        return 0;
+      }
+      this.auditionData.teacher_lists = result.teacher;
+      this.auditionData.course_lists = result.course;
+      this.getListenCourseLists();
+    },
+    //获取试听课程列表
+    async getListenCourseLists () {
+      let select_time = this.auditionData.time / 1000;
+      let current_time = new Date().getTime() / 1000;
+      let old_time = select_time < current_time ? current_time : select_time;
+
+      let params = {
+        time: old_time,
+        teacher_id: this.auditionData.teacher_id,
+        course_id: this.auditionData.course_id
+      };
+
+      let result = await this.$$request.post('/listenCourse/lists', {data: params});
+
+      if (!result) {
+        return 0;
+      }
+      this.listenCourseLists = result.lists;
+    }
+  },
+  async created () {
+    if (this.$route.query.student_id) {
+      this.studentId = this.$route.query.student_id;
+    }
+
+    if (this.$$cache.getMemberInfo().class_pattern === 2) {
+      this.resultArr.splice(0, this.resultArr.length);
+      StudentStatic.followUp.status.forEach(v => {
+        if (v.id != 4) {
+          this.resultArr.push(v);
+        }
+      });
+    } else {
+      this.resultArr = StudentStatic.followUp.status;
+    }
+
+    let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
+
+    if (a && b) {
+      this.state = 'loaded';
+    }
+  },
+  watch: {
+    $route: function (val, oldval) {
+      this.studentId = val.query.student_id;
+      this.getStudentDetail();
+      this.getFollowUpLists();
+    }
+  },
+  components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}
+};
 </script>
 
 <style lang="less" scoped>

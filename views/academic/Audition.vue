@@ -76,26 +76,26 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import NameRoute from  "../../components/common/NameRoute";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import NameRoute from '../../components/common/NameRoute';
 
 export default {
-  data() {
+  data () {
     return {
       state: 'loading',
       //搜索信息
       search_info: {
         grade: 0,
         status: 0,
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       },
       //消课信息
       audition_info: {
@@ -111,53 +111,55 @@ export default {
     };
   },
   computed: {
-    grade_option() {
+    grade_option () {
       return this.$store.state.listen_grade;
     },
-    status_option() {
+    status_option () {
       return this.$store.state.listen_status;
     }
   },
   methods: {
-    init_search_info() {
+    init_search_info () {
       let search_info = {
         grade: 0,
         status: 0,
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       };
+
       this.search_info = search_info;
     },
-    tab_change() {
+    tab_change () {
       this.page_info.page = 1;
       this.init_search_info();
       this.get_data();
     },
-    date_change() {
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
-    filter_change() {
+    filter_change () {
       this.page_info.page = 1;
       this.get_data();
     },
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
         start_date: this.get_seconde(this.search_info.begin),
@@ -168,24 +170,31 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      let res = await this.$$request.post("/eduCount/listenCourseLists", params);
-      if(!res) return false;
+      let res = await this.$$request.post('/eduCount/listenCourseLists', params);
+
+      if (!res) {
+        return false;
+      }
       this.audition_info.data = res.listenCourseLists.data;
       this.page_info.total = res.listenCourseLists.total;
       this.loading = false;
+
       return true;
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     }
   },
-  async created() {
-    this.$store.dispatch("getListenGrade");
-    this.$store.dispatch("getStatus");
+  async created () {
+    this.$store.dispatch('getListenGrade');
+    this.$store.dispatch('getStatus');
     let res = await this.get_data();
-    if(!res) return false;
-    this.state = "loaded";
+
+    if (!res) {
+      return false;
+    }
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, NameRoute}
 };

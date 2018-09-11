@@ -6,4 +6,4 @@ export default {
   // www: 'http://www.dev_pre.saas0.jiaoyf.com/'
   api: 'http://api.dev.saas0.jiaoyf.com/',
   www: 'http://www.dev.saas0.jiaoyf.com/'
-}
+};

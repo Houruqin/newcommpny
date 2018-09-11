@@ -71,164 +71,197 @@
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import AddStaffDialog from '../../components/dialog/AddStaff'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import AddStaffDialog from '../../components/dialog/AddStaff';
 
 export default {
-    data() {
-        return {
-            state: 'loading',
-            staffType: 'all',
-            staffListInfo: {},
-            filterVal: '',
-            dialogStatus: false,
-            loading: true,
-            editDetail: {},
-            type: 'add',
-            currPage: false,
+  data () {
+    return {
+      state: 'loading',
+      staffType: 'all',
+      staffListInfo: {},
+      filterVal: '',
+      dialogStatus: false,
+      loading: true,
+      editDetail: {},
+      type: 'add',
+      currPage: false,
 
-            activePage: 1,
+      activePage: 1,
 
-            //所有权限列表
-            authorityAllLists: [
-                {id: 'paike', name: '排课', checked: false},
-                {id: 'caiwu', name: '财务', checked: false},
-                {id: 'xueyuan', name: '学员管理', checked: false},
-                {id: 'course', name: '课程管理', checked: false},
-                {id: 'staff', name: '员工管理', checked: false}
-            ],
-            authorityAll: false,
-            authorityCheckList: [],   //选中的权限列表
-            load_lazy: false
+      //所有权限列表
+      authorityAllLists: [
+        {id: 'paike', name: '排课', checked: false},
+        {id: 'caiwu', name: '财务', checked: false},
+        {id: 'xueyuan', name: '学员管理', checked: false},
+        {id: 'course', name: '课程管理', checked: false},
+        {id: 'staff', name: '员工管理', checked: false}
+      ],
+      authorityAll: false,
+      authorityCheckList: [], //选中的权限列表
+      load_lazy: false
+    };
+  },
+  methods: {
+    addUser () {
+      this.type = 'add';
+      for (let key in this.form) {
+        this.form[key] = '';
+      }
+      this.dialogStatus = true;
+    },
+    CB_dialogStatus () {
+      this.dialogStatus = false;
+      this.editDetail = {};
+    },
+    CB_addStaff () {
+      this.dialogStatus = false;
+      this.getUserLists(this.activePage);
+    },
+    CB_dimission () {
+      this.dialogStatus = false;
+      this.getUserLists(this.activePage);
+    },
+    //员工状态筛选
+    filterChange () {
+      this.getUserLists();
+    },
+    //新增，选择角色
+    roleChange (val) {
+      this.$store.state.roleLists.forEach(v => {
+        if (v.name === val) {
+          this.form.role_id = v.id;
         }
+      });
     },
-    methods: {
-        addUser() {
-            this.type = 'add';
-            for(let key in this.form) {this.form[key] = ''};
-            this.dialogStatus = true;
-        },
-        CB_dialogStatus() {
-            this.dialogStatus = false;
-            this.editDetail = {};
-        },
-        CB_addStaff() {
-            this.dialogStatus = false;
-            this.getUserLists(this.activePage);
-        },
-        CB_dimission() {
-            this.dialogStatus = false;
-            this.getUserLists(this.activePage);
-        },
-        //员工状态筛选
-        filterChange() {
-            this.getUserLists();
-        },
-        //新增，选择角色
-        roleChange(val) {
-            this.$store.state.roleLists.forEach(v => {if(v.name === val) this.form.role_id = v.id});
-        },
-        tabClick(tab, event) {
-            this.getUserLists();
-        },
-        nextClick(currentPage) {
-            this.currPage = true;
-            this.getUserLists(currentPage);
-        },
-        prevClick(currentPage) {
-            this.currPage = true;
-            this.getUserLists(currentPage);
-        },
-        //分页
-        paginationClick(currentPage) {
-            if(!this.currPage) this.getUserLists(currentPage);
-            this.currPage = false;
-        },
-        //权限check全选
-        authorityCheckAllChange(val) {
-            this.authorityCheckList = val ? this.authorityAllLists : [];
-        },
-        //权限check勾选
-        authorityCheckChange(val) {
-            let checkedCount = val.length;
-            this.authorityAll = checkedCount === this.authorityAllLists.length;
-        },
-        //修改
-        modifyHandle(data) {
-            this.type = 'edit';
-            this.editDetail = data;
-            this.dialogStatus = true;
-        },
-        //禁用账号
-        forbidClick(data) {
-            this.$confirm(`确定${data.is_enable ? '禁' : '启'}用该账号吗?`, '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.forbideHandle(data);
-            }).catch(() => {return 0});
-        },
-        async forbideHandle(data) {
-            console.log(data);
-            let result = await this.$$request.post(`user/${data.is_enable ? 'disable' : 'enable'}`, {user_id: data.id});
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success(`${data.is_enable ? '禁' : '启'}用操作成功!`);
-            this.getUserLists(this.activePage);
-        },
-        //删除用户
-        deleteUserInfo(scope) {
-            this.$confirm('确定删除该员工吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(scope);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(scope) {
-            let result = await this.$$request.post('/user/delete', {id: scope.id});
-            console.log(result);
-
-            if(!result) return 0;
-            this.getUserLists();
-            this.$message.success('已删除');
-        },
-        //用户列表
-        async getUserLists(currentPage) {
-            this.loading = true;
-            let params = {type: this.staffType};
-            if(currentPage) params.page = currentPage;
-            if(this.filterVal === 0 || this.filterVal === 1) params.status = this.filterVal;
-            console.log(params)
-            let result = await this.$$request.get('/user/lists', params);
-            console.log(result);
-
-            if(!result) return 0;
-
-            this.activePage = currentPage ? currentPage: 1;
-            this.staffListInfo = result.lists;
-            this.loading = false;
-
-            return true;
-        },
-        //权限列表
-        async getAuthorityLists() {
-            let result = await this.$$request.post('/permission/lists');
-            console.log(result);
-
-            if(!result) return 0;
-            this.authorityAllLists = result.lists;
-        }
+    tabClick (tab, event) {
+      this.getUserLists();
     },
-    async created() {
-        let datas = await this.getUserLists();
-        if(datas) this.state = 'loaded';
+    nextClick (currentPage) {
+      this.currPage = true;
+      this.getUserLists(currentPage);
     },
-    components: {TableHeader, MyButton, AddStaffDialog}
-}
+    prevClick (currentPage) {
+      this.currPage = true;
+      this.getUserLists(currentPage);
+    },
+    //分页
+    paginationClick (currentPage) {
+      if (!this.currPage) {
+        this.getUserLists(currentPage);
+      }
+      this.currPage = false;
+    },
+    //权限check全选
+    authorityCheckAllChange (val) {
+      this.authorityCheckList = val ? this.authorityAllLists : [];
+    },
+    //权限check勾选
+    authorityCheckChange (val) {
+      let checkedCount = val.length;
+
+      this.authorityAll = checkedCount === this.authorityAllLists.length;
+    },
+    //修改
+    modifyHandle (data) {
+      this.type = 'edit';
+      this.editDetail = data;
+      this.dialogStatus = true;
+    },
+    //禁用账号
+    forbidClick (data) {
+      this.$confirm(`确定${data.is_enable ? '禁' : '启'}用该账号吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.forbideHandle(data);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async forbideHandle (data) {
+      console.log(data);
+      let result = await this.$$request.post(`user/${data.is_enable ? 'disable' : 'enable'}`, {user_id: data.id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success(`${data.is_enable ? '禁' : '启'}用操作成功!`);
+      this.getUserLists(this.activePage);
+    },
+    //删除用户
+    deleteUserInfo (scope) {
+      this.$confirm('确定删除该员工吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(scope);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (scope) {
+      let result = await this.$$request.post('/user/delete', {id: scope.id});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.getUserLists();
+      this.$message.success('已删除');
+    },
+    //用户列表
+    async getUserLists (currentPage) {
+      this.loading = true;
+      let params = {type: this.staffType};
+
+      if (currentPage) {
+        params.page = currentPage;
+      }
+      if (this.filterVal === 0 || this.filterVal === 1) {
+        params.status = this.filterVal;
+      }
+      console.log(params);
+      let result = await this.$$request.get('/user/lists', params);
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+
+      this.activePage = currentPage ? currentPage : 1;
+      this.staffListInfo = result.lists;
+      this.loading = false;
+
+      return true;
+    },
+    //权限列表
+    async getAuthorityLists () {
+      let result = await this.$$request.post('/permission/lists');
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.authorityAllLists = result.lists;
+    }
+  },
+  async created () {
+    let datas = await this.getUserLists();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  },
+  components: {TableHeader, MyButton, AddStaffDialog}
+};
 </script>
 
 <style lang="less" scoped>

@@ -422,446 +422,548 @@
 </template>
 
 <script>
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import Classify from '../../components/common/StudentClassify'
-import {StudentStatic} from '../../script/static'
-import Bus from '../../script/bus'
-import qs from 'qs'
-import config from 'config'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import Classify from '../../components/common/StudentClassify';
+import {StudentStatic} from '../../script/static';
+import Bus from '../../script/bus';
+import qs from 'qs';
+import config from 'config';
 
 export default {
-    data() {
+  data () {
+    return {
+      state: 'loading',
+      activeTab: 'onCourse',
+      currPage: false,
+
+      activePage: 1,
+
+      hasContact: true,
+      contactDot: 0,
+
+      submitLoading: {
+        student: false, divideClass: false
+      },
+
+      listStudentId: '',
+
+      monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
+
+      svg_src: null,
+      searchKeyWord: '',
+      classRoomInfo: {course_name: '', sc_id: '', classLists: []}, //分班，班级列表
+      divideClassRadio: '',
+      tabLists: [],
+      loading: true,
+      studentTable: {}, //学员table列表
+      studentMaskStatus: false, //编辑学员信息弹窗
+      classMaskStatus: false, //分班弹窗
+      searchFilter: { //学员搜索筛选条件
+        course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
+      },
+      studentForm: {id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
+      rules: {
+        parent_name: [
+          // {required: true, message: '请输入家长姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        relation: [
+          // {required: true, message: '请选择关系', trigger: 'change'}
+        ],
+        mobile: [
+          {required: true, message: '请输入家长电话'},
+          {validator: this.$$tools.formValidate('phone')}
+        ],
+        address: [
+          {max: 50, message: '长度不能超过50个字符'}
+        ],
+        school_name: [
+          {max: 20, message: '长度不能超过20个字符'}
+        ],
+        student_name: [
+          {required: true, message: '请输入学员姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        sex: [
+          {required: true, message: '请选择性别', trigger: 'change'}
+        ]
+      },
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
+        }
+      }
+    };
+  },
+  methods: {
+    getDays () {
+      let date = new Date();
+      let y = date.getFullYear();
+      let m = date.getMonth() + 1;
+
+      if (m == 2) {
+        return y % 4 == 0 ? 29 : 28;
+      } else if (m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10 || m == 12) {
+        return 31;
+      }
+
+      return 30;
+    },
+    //tab标签切换筛选列表
+    tabClick (tab) {
+      this.searchKeyWord = '';
+
+      if (tab.type != this.activeTab) {
+        this.loading = true;
+        for (let key in this.searchFilter) {
+          if (key != 'month') {
+            this.searchFilter[key] = '';
+          }
+        }
+        this.activeTab = tab.type;
+        this.getStudentLists();
+      }
+    },
+    //搜索
+    searchHandle () {
+      this.getStudentLists();
+    },
+    //table列表合并单元格
+    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
+      if (this.activeTab === 'absent') {
+        return 0;
+      }
+      if (!this.now_col_row_num[column.property]) {
+        this.now_col_row_num[column.property] = Object.assign([], this.column_row_offset[column.property]);
+        let a = this.now_col_row_num[column.property].shift();
+
+        this.now_col_offset[column.property] = a;
+
         return {
-            state: 'loading',
-            activeTab: 'onCourse',
-            currPage: false,
+          rowspan: a,
+          colspan: 1
+        };
+      } else if (rowIndex >= this.now_col_offset[column.property]) {
+        let a = this.now_col_row_num[column.property].shift();
 
-            activePage: 1,
+        this.now_col_offset[column.property] += a;
 
-            hasContact: true,
-            contactDot: 0,
+        return {
+          rowspan: a,
+          colspan: 1
+        };
+      }
 
-            submitLoading: {
-                student: false, divideClass: false
-            },
+      return {
+        rowspan: 0,
+        colspan: 0
+      };
 
-            listStudentId: '',
+    },
+    //导出学员
+    async exportStudent () {
+      let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+      let params = {type: this.activeTab, token: token.replace('bearer ', '')};
 
-            monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
-
-            svg_src: null,
-            searchKeyWord: '',
-            classRoomInfo: {course_name: '', sc_id: '', classLists: []},  //分班，班级列表
-            divideClassRadio: '',
-            tabLists: [],
-            loading: true,
-            studentTable: {},  //学员table列表
-            studentMaskStatus: false,   //编辑学员信息弹窗
-            classMaskStatus: false,   //分班弹窗
-            searchFilter: {  //学员搜索筛选条件
-                course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
-            },
-            studentForm: {id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
-            rules: {
-                parent_name: [
-                    // {required: true, message: '请输入家长姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                relation: [
-                    // {required: true, message: '请选择关系', trigger: 'change'}
-                ],
-                mobile: [
-                    {required: true, message: '请输入家长电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                address: [
-                    {max: 50, message: '长度不能超过50个字符'}
-                ],
-                school_name: [
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                student_name: [
-                    {required: true, message: '请输入学员姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                sex: [
-                    {required: true, message: '请选择性别', trigger: 'change'}
-                ]
-            },
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            }
+      if (this.searchKeyWord) {
+        if (isNaN(this.searchKeyWord)) {
+          params.name = this.searchKeyWord;
+          params.mobile = '';
+        } else {
+          params.mobile = this.searchKeyWord;
+          params.name = '';
         }
-    },
-    methods: {
-        getDays() {
-            let date = new Date();
-            let y = date.getFullYear();
-            let m = date.getMonth() + 1;
-            if(m == 2) return y % 4 == 0 ? 29 : 28;
-            else if(m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10 || m == 12) return 31;
-            else return 30;
-        },
-        //tab标签切换筛选列表
-        tabClick(tab) {
-            this.searchKeyWord = '';
+      } else {
+        params.mobile = '';
+        params.name = '';
+      }
 
-            if(tab.type != this.activeTab) {
-                this.loading = true;
-                for(let key in this.searchFilter) if(key != 'month') this.searchFilter[key] = '';
-                this.activeTab = tab.type;
-                this.getStudentLists();
-            }
-        },
-        //搜索
-        searchHandle() {
-            this.getStudentLists();
-        },
-        //table列表合并单元格
-        objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-            if(this.activeTab === 'absent') return 0;
-            if (!this.now_col_row_num[column.property]) {
-                this.now_col_row_num[column.property] = Object.assign([], this.column_row_offset[column.property]);
-                let a = this.now_col_row_num[column.property].shift();
-                this.now_col_offset[column.property] = a;
-                return {
-                    rowspan: a,
-                    colspan: 1
-                };
-            } else if (rowIndex >= this.now_col_offset[column.property]) {
-                let a = this.now_col_row_num[column.property].shift();
-                this.now_col_offset[column.property] += a;
-                return {
-                    rowspan: a,
-                    colspan: 1
-                };
-            } else {
-                return {
-                    rowspan: 0,
-                    colspan: 0
-                };
-            }
-        },
-        //导出学员
-        async exportStudent() {
-            let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
-            let params = {type: this.activeTab, token: token.replace('bearer ', '')};
-
-            if(this.searchKeyWord) {
-                if(isNaN(this.searchKeyWord)) {
-                    params.name = this.searchKeyWord;
-                    params.mobile = '';
-                }else {
-                    params.mobile = this.searchKeyWord;
-                    params.name = '';
-                }
-            }else {
-                params.mobile = '';
-                params.name = '';
-            }
-
-            if(this.activeTab === 'birthday') {
-                params.gift_status = this.searchFilter.gift_status;
-                params.month = this.searchFilter.month;
-            }else {
-                params.course_id = this.searchFilter.course_id;
-                if(this.activeTab === 'onCourse') {
-                    params.advisor_id = this.searchFilter.advisor_id;
-                    params.what_time = this.searchFilter.sign_what_time;
-                    params.teacher_id = '';
-                }else if(this.activeTab === 'noGrade') params.advisor_id = this.searchFilter.advisor_id;
-                else if(this.activeTab === 'absent') params.what_time = this.searchFilter.absent_what_time;
-            }
-
-            console.log(params)
-
-            window.location.href = `${config.api}sign/export?${qs.stringify(params)}`;
-        },
-        //关闭弹窗
-        dialogClose(form) {
-            this.$refs[form].resetFields();
-            Object.keys(this.studentForm).forEach(v => {this.studentForm[v] = ''});
-        },
-        //生日筛选点击
-        birthdayChange() {
-            if(this.searchFilter.end_time < this.searchFilter.start_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
-            this.searchHandle();
-        },
-        //发放礼品点击
-        grantGift(data) {
-            if(data.gift_status) return 0;
-
-            this.$confirm('确定发放礼品吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.grantGiftHandle(data.id);
-            }).catch(() => {return 0});
-        },
-        async grantGiftHandle(id) {
-            let result = await this.$$request.post('/sign/gift', {student_id: id});
-            console.log(result);
-
-            if(!result) return 0;
-            this.$message.success('礼品发放状态修改成功');
-            this.getStudentLists(this.activePage);
-        },
-        //修改学员信息
-        editStudent(data) {
-            console.log(data);
-
-            Object.keys(this.studentForm).forEach(v => {
-                if(v == 'id') this.studentForm[v] = data.student_id;
-                else if(v == 'birthday') this.studentForm[v] = data.birthday > 0 ? data.birthday  * 1000 : '';
-                else this.studentForm[v] = data[v];
-            });
-
-            this.studentMaskStatus = true;
-        },
-        //分班按钮点击
-        divideClass(data) {
-            this.classRoomInfo.course_name = data.course_name;   //课程名称
-            this.classRoomInfo.sc_id = data.id;     //购课id
-            this.classRoomInfo.student_id = data.student_id;
-            this.getStudentGradeLists(data.course_id);
-        },
-        //分配顾问点击
-        advisorClick(data) {
-            console.log(data);
-            this.listStudentId = data.student_id;
-        },
-        //列表顾问选择
-        async listAdvisorChange(val) {
-            let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
-            console.log(result);
-            if(!result) return 0;
-            this.getAllLists(true);
-        },
-        //表单确定
-        doneHandle(type) {
-            if(type === 'divideClass') return this.submitDivideClass();   //分班不做不做表单验证
-            this.$refs[type].validate(valid => {if(valid) this.submitStudentInfo()});
-        },
-        //流失学员
-        lossStudent(id) {
-            this.$confirm('确定改为流失学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.lossHandle(id);
-            }).catch(() => {return 0});
-        },
-        async lossHandle(id) {
-            let result = await this.$$request.post('/sign/setLoss', {student_id: id});
-            console.log(result);
-
-            if(!result) return 0;
-            this.$message.success('已改为流失学员');
-            this.getAllLists();
-        },
-        //删除学员
-        deleteStudent(id) {
-            this.$confirm('确定删除该学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(id) {
-            let result = await this.$$request.post('/sign/delete', {student_id: id});
-            if(!result) return 0;
-            this.$message.success('已删除');
-            this.getAllLists();
-        },
-        nextClick(currentPage) {
-            this.currPage = true;
-            this.getStudentLists(currentPage);
-        },
-        prevClick(currentPage) {
-            this.currPage = true;
-            this.getStudentLists(currentPage);
-        },
-        //列表分页点击
-        paginationClick(currentPage) {
-            if(!this.currPage) this.getStudentLists(currentPage);
-            this.currPage = false;
-        },
-        //提交学员信息
-        async submitStudentInfo() {
-            if(this.submitLoading.student) return 0;
-            this.submitLoading.student = true;
-
-            let params = {};
-            for(let key in this.studentForm) {
-                params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
-            };
-
-            let result = await this.$$request.post('/sign/edit', params);
-            setTimeout(d => {this.submitLoading.student = false}, 500);
-            console.log(result);
-            if(!result) return 0;
-
-            this.studentMaskStatus = false;
-            this.$message.success('修改成功');
-            this.getAllLists(true);
-        },
-        //提交分班信息
-        async submitDivideClass() {
-            if(this.submitLoading.divideClass) return 0;
-            this.submitLoading.divideClass = true;
-
-            let params = {
-                sc_id: this.classRoomInfo.sc_id,
-                grade_id: this.divideClassRadio,
-                student_id: this.classRoomInfo.student_id
-            }
-            let result = await this.$$request.post('/studentGrade/add', params);
-            this.submitLoading.divideClass = false;
-            if(!result) return 0;
-            this.$message.success('分班成功');
-            this.classMaskStatus = false;
-        },
-        async getAllLists(isCurrPage) {
-            let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
-            return a && b;
-        },
-        //获取tab列表
-        async getTabLists(isCurrPage) {
-            let result = await this.$$request.post('/sign/tab');
-            console.log(result);
-            if(!result) return 0;
-
-            this.tabLists = result.lists;
-
-            if(this.$$cache.getMemberInfo().class_pattern == 2) {
-                this.tabLists.forEach((v, n) => {
-                    if(v.type == 'noGrade') this.tabLists.splice(n ,1);
-                });
-            };
-
-            return true;
-        },
-        //课程列表，点击分班，获取班级列表
-        async getStudentGradeLists(id) {
-            let result = await this.$$request.post('/sign/gradeLists', {id: id});
-            console.log(result);
-            if(!result) return 0;
-            this.classRoomInfo.courseLists = result.lists;
-            this.divideClassRadio = result.lists[0].id;
-            this.classMaskStatus = true;
-        },
-        //获取学员列表
-        async getStudentLists(currentPage) {
-            this.loading = true;
-            let params = {};
-
-            if(this.searchKeyWord) {
-                if(isNaN(this.searchKeyWord)) {
-                    params.name = this.searchKeyWord;
-                    params.mobile = '';
-                }else {
-                    params.mobile = this.searchKeyWord;
-                    params.name = '';
-                }
-            }else {
-                params.mobile = '';
-                params.name = '';
-            }
-
-            if(this.activeTab === 'birthday') {
-                params.gift_status = this.searchFilter.gift_status;
-                params.month = this.searchFilter.month;
-            }else {
-                params.course_id = this.searchFilter.course_id;
-                if(this.activeTab === 'onCourse') {
-                    params.advisor_id = this.searchFilter.advisor_id;
-                    params.what_time = this.searchFilter.sign_what_time;
-                    params.teacher_id = '';
-                }else if(this.activeTab === 'noGrade') params.advisor_id = this.searchFilter.advisor_id;
-                else if(this.activeTab === 'absent') params.what_time = this.searchFilter.absent_what_time;
-
-            }
-
-            let newParams = {data: params};
-
-            if(currentPage) newParams.page = currentPage;
-
-            let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
-            console.log(result);
-            if(!result) return 0;
-
-            this.activePage = currentPage ? currentPage: 1;
-            result.lists.data = this.mergeHandle(result.lists.data);
-
-            this.studentTable = result.lists;
-            this.loading = false;
-            return true;
-        },
-        //签约学员合并
-        mergeHandle(data) {
-            var obj = {};
-
-            let map = {}, dest = [];
-
-            for(let i = 0, len = data.length; i < len; i++) {
-                let ai = data[i];
-                if(!map[ai.student_id]) {
-                    dest.push({
-                        student_id: ai.student_id,
-                        mobile: ai.mobile,
-                        advisor_id: ai.advisor_id,
-                        advisor_name: ai.advisor_name,
-                        student_name: ai.student_name,
-                        course_lists: [ai]
-                    });
-
-                    map[ai.student_id] = ai;
-                }else {
-                    for(let j = 0, len = dest.length; j < len; j++) {
-                        let dj = dest[j];
-                        if(dj.student_id == ai.student_id) {
-                            dj.course_lists.push(ai);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if(this.activeTab === 'absent') {
-                data.sort((a, b) => {return a.begin_time < b.begin_time});
-                return data;
-            };
-
-            if(this.activeTab === 'birthday') return data;
-
-            return dest;
+      if (this.activeTab === 'birthday') {
+        params.gift_status = this.searchFilter.gift_status;
+        params.month = this.searchFilter.month;
+      } else {
+        params.course_id = this.searchFilter.course_id;
+        if (this.activeTab === 'onCourse') {
+          params.advisor_id = this.searchFilter.advisor_id;
+          params.what_time = this.searchFilter.sign_what_time;
+          params.teacher_id = '';
+        } else if (this.activeTab === 'noGrade') {
+          params.advisor_id = this.searchFilter.advisor_id;
+        } else if (this.activeTab === 'absent') {
+          params.what_time = this.searchFilter.absent_what_time;
         }
+      }
+
+      console.log(params);
+
+      window.location.href = `${config.api}sign/export?${qs.stringify(params)}`;
     },
-    async created() {
-        this.searchFilter.month = new Date().getMonth() + 1;
-        let datas = await this.getAllLists();
-        if(datas) this.state = 'loaded';
-        //监听如果详情修改，那么刷新学员列表
-        Bus.$on('refreshSignedStudentLists', () => {this.getStudentLists()});
+    //关闭弹窗
+    dialogClose (form) {
+      this.$refs[form].resetFields();
+      Object.keys(this.studentForm).forEach(v => {
+        this.studentForm[v] = '';
+      });
     },
-    beforeRouteEnter(to, from, next) {
-        //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
-        if(from.name == 'signedDetail') to.meta.keepAlive = true;
-        else to.meta.keepAlive = false;
-        next();   //来到页面，包括通过返回
+    //生日筛选点击
+    birthdayChange () {
+      if (this.searchFilter.end_time < this.searchFilter.start_time) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
+      this.searchHandle();
     },
-    beforeDestroy() {
-        Bus.$off('refreshSignedStudentLists');
+    //发放礼品点击
+    grantGift (data) {
+      if (data.gift_status) {
+        return 0;
+      }
+
+      this.$confirm('确定发放礼品吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.grantGiftHandle(data.id);
+      }).catch(() => {
+        return 0;
+      });
     },
-    components: {TableHeader, Classify, MyButton}
-}
+    async grantGiftHandle (id) {
+      let result = await this.$$request.post('/sign/gift', {student_id: id});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('礼品发放状态修改成功');
+      this.getStudentLists(this.activePage);
+    },
+    //修改学员信息
+    editStudent (data) {
+      console.log(data);
+
+      Object.keys(this.studentForm).forEach(v => {
+        if (v == 'id') {
+          this.studentForm[v] = data.student_id;
+        } else if (v == 'birthday') {
+          this.studentForm[v] = data.birthday > 0 ? data.birthday * 1000 : '';
+        } else {
+          this.studentForm[v] = data[v];
+        }
+      });
+
+      this.studentMaskStatus = true;
+    },
+    //分班按钮点击
+    divideClass (data) {
+      this.classRoomInfo.course_name = data.course_name; //课程名称
+      this.classRoomInfo.sc_id = data.id; //购课id
+      this.classRoomInfo.student_id = data.student_id;
+      this.getStudentGradeLists(data.course_id);
+    },
+    //分配顾问点击
+    advisorClick (data) {
+      console.log(data);
+      this.listStudentId = data.student_id;
+    },
+    //列表顾问选择
+    async listAdvisorChange (val) {
+      let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.getAllLists(true);
+    },
+    //表单确定
+    doneHandle (type) {
+      if (type === 'divideClass') {
+        return this.submitDivideClass();
+      } //分班不做不做表单验证
+      this.$refs[type].validate(valid => {
+        if (valid) {
+          this.submitStudentInfo();
+        }
+      });
+    },
+    //流失学员
+    lossStudent (id) {
+      this.$confirm('确定改为流失学员吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.lossHandle(id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async lossHandle (id) {
+      let result = await this.$$request.post('/sign/setLoss', {student_id: id});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('已改为流失学员');
+      this.getAllLists();
+    },
+    //删除学员
+    deleteStudent (id) {
+      this.$confirm('确定删除该学员吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (id) {
+      let result = await this.$$request.post('/sign/delete', {student_id: id});
+
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('已删除');
+      this.getAllLists();
+    },
+    nextClick (currentPage) {
+      this.currPage = true;
+      this.getStudentLists(currentPage);
+    },
+    prevClick (currentPage) {
+      this.currPage = true;
+      this.getStudentLists(currentPage);
+    },
+    //列表分页点击
+    paginationClick (currentPage) {
+      if (!this.currPage) {
+        this.getStudentLists(currentPage);
+      }
+      this.currPage = false;
+    },
+    //提交学员信息
+    async submitStudentInfo () {
+      if (this.submitLoading.student) {
+        return 0;
+      }
+      this.submitLoading.student = true;
+
+      let params = {};
+
+      for (let key in this.studentForm) {
+        params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
+      }
+
+      let result = await this.$$request.post('/sign/edit', params);
+
+      setTimeout(d => {
+        this.submitLoading.student = false;
+      }, 500);
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.studentMaskStatus = false;
+      this.$message.success('修改成功');
+      this.getAllLists(true);
+    },
+    //提交分班信息
+    async submitDivideClass () {
+      if (this.submitLoading.divideClass) {
+        return 0;
+      }
+      this.submitLoading.divideClass = true;
+
+      let params = {
+        sc_id: this.classRoomInfo.sc_id,
+        grade_id: this.divideClassRadio,
+        student_id: this.classRoomInfo.student_id
+      };
+      let result = await this.$$request.post('/studentGrade/add', params);
+
+      this.submitLoading.divideClass = false;
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('分班成功');
+      this.classMaskStatus = false;
+    },
+    async getAllLists (isCurrPage) {
+      let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
+
+
+      return a && b;
+    },
+    //获取tab列表
+    async getTabLists (isCurrPage) {
+      let result = await this.$$request.post('/sign/tab');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.tabLists = result.lists;
+
+      if (this.$$cache.getMemberInfo().class_pattern == 2) {
+        this.tabLists.forEach((v, n) => {
+          if (v.type == 'noGrade') {
+            this.tabLists.splice(n, 1);
+          }
+        });
+      }
+
+      return true;
+    },
+    //课程列表，点击分班，获取班级列表
+    async getStudentGradeLists (id) {
+      let result = await this.$$request.post('/sign/gradeLists', {id: id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.classRoomInfo.courseLists = result.lists;
+      this.divideClassRadio = result.lists[0].id;
+      this.classMaskStatus = true;
+    },
+    //获取学员列表
+    async getStudentLists (currentPage) {
+      this.loading = true;
+      let params = {};
+
+      if (this.searchKeyWord) {
+        if (isNaN(this.searchKeyWord)) {
+          params.name = this.searchKeyWord;
+          params.mobile = '';
+        } else {
+          params.mobile = this.searchKeyWord;
+          params.name = '';
+        }
+      } else {
+        params.mobile = '';
+        params.name = '';
+      }
+
+      if (this.activeTab === 'birthday') {
+        params.gift_status = this.searchFilter.gift_status;
+        params.month = this.searchFilter.month;
+      } else {
+        params.course_id = this.searchFilter.course_id;
+        if (this.activeTab === 'onCourse') {
+          params.advisor_id = this.searchFilter.advisor_id;
+          params.what_time = this.searchFilter.sign_what_time;
+          params.teacher_id = '';
+        } else if (this.activeTab === 'noGrade') {
+          params.advisor_id = this.searchFilter.advisor_id;
+        } else if (this.activeTab === 'absent') {
+          params.what_time = this.searchFilter.absent_what_time;
+        }
+
+      }
+
+      let newParams = {data: params};
+
+      if (currentPage) {
+        newParams.page = currentPage;
+      }
+
+      let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.activePage = currentPage ? currentPage : 1;
+      result.lists.data = this.mergeHandle(result.lists.data);
+
+      this.studentTable = result.lists;
+      this.loading = false;
+
+      return true;
+    },
+    //签约学员合并
+    mergeHandle (data) {
+      let obj = {};
+
+      let map = {}, dest = [];
+
+      for (let i = 0, len = data.length; i < len; i++) {
+        let ai = data[i];
+
+        if (!map[ai.student_id]) {
+          dest.push({
+            student_id: ai.student_id,
+            mobile: ai.mobile,
+            advisor_id: ai.advisor_id,
+            advisor_name: ai.advisor_name,
+            student_name: ai.student_name,
+            course_lists: [ai]
+          });
+
+          map[ai.student_id] = ai;
+        } else {
+          for (let j = 0, len = dest.length; j < len; j++) {
+            let dj = dest[j];
+
+            if (dj.student_id == ai.student_id) {
+              dj.course_lists.push(ai);
+              break;
+            }
+          }
+        }
+      }
+
+      if (this.activeTab === 'absent') {
+        data.sort((a, b) => {
+          return a.begin_time < b.begin_time;
+        });
+
+        return data;
+      }
+
+      if (this.activeTab === 'birthday') {
+        return data;
+      }
+
+      return dest;
+    }
+  },
+  async created () {
+    this.searchFilter.month = new Date().getMonth() + 1;
+    let datas = await this.getAllLists();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+    //监听如果详情修改，那么刷新学员列表
+    Bus.$on('refreshSignedStudentLists', () => {
+      this.getStudentLists();
+    });
+  },
+  beforeRouteEnter (to, from, next) {
+    //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
+    if (from.name == 'signedDetail') {
+      to.meta.keepAlive = true;
+    } else {
+      to.meta.keepAlive = false;
+    }
+    next(); //来到页面，包括通过返回
+  },
+  beforeDestroy () {
+    Bus.$off('refreshSignedStudentLists');
+  },
+  components: {TableHeader, Classify, MyButton}
+};
 </script>
 
 <style lang="less" scoped>

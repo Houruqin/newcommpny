@@ -87,30 +87,30 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import RefundDialog from "../../components/dialog/Refund";
-import NameRoute from "../../components/common/NameRoute";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import RefundDialog from '../../components/dialog/Refund';
+import NameRoute from '../../components/common/NameRoute';
 
 export default {
-  data() {
+  data () {
     return {
-      state: "loading",
+      state: 'loading',
       //搜索信息
       search_info: {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
           0
         ),
-        name: "",
-        date_type: "current_month",
+        name: '',
+        date_type: 'current_month',
         course_id: 0,
         course_type_id: 0
       },
       //退费信息
       refund_info: {
         data: [],
-        total: ""
+        total: ''
       },
       //分页信息
       page_info: {
@@ -131,19 +131,19 @@ export default {
   },
   methods: {
     //选择时间
-    choose_date(type) {
+    choose_date (type) {
       console.log(type);
       this.search_info.date_type = type;
       switch (type) {
-        case "current_month":
+        case 'current_month':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
+            this.$format_date(new Date(), 'yyyy/MM/01')
           );
           this.search_info.end = new Date(
             new Date().setMonth(new Date().getMonth() + 1)
           ).setDate(0);
           break;
-        case "last_month":
+        case 'last_month':
           this.search_info.begin = new Date(
             new Date().getFullYear(),
             new Date().getMonth() - 1,
@@ -152,9 +152,9 @@ export default {
           );
           this.search_info.end = new Date(new Date().setDate(0));
           break;
-        case "current_year":
+        case 'current_year':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/01/01")
+            this.$format_date(new Date(), 'yyyy/01/01')
           );
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
@@ -163,56 +163,63 @@ export default {
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
-    date_change() {
-      this.search_info.date_type = "";
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      this.search_info.date_type = '';
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
-        time_type: "custom",
-        begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
-        end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
+        time_type: 'custom',
+        begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
+        end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
         course_id: this.search_info.course_id,
         course_type_id: this.search_info.course_type_id,
         user_name: this.search_info.name,
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
+
       console.log(params);
       let res = await this.$$request.get(
-        "/financeManage/studentCourse/quitCourseLists",
+        '/financeManage/studentCourse/quitCourseLists',
         params
       );
-      if (!res) return false;
+
+      if (!res) {
+        return false;
+      }
       this.refund_info.data = res.lists.data;
       this.refund_info.total = res.total;
       this.page_info.total = res.lists.total;
       this.loading = false;
+
       return true;
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //查看退费详情
-    show_refund(obj) {
+    show_refund (obj) {
       const params = {
         quit_course_id: obj.id
       };
+
       this.$$request
-        .get("/financeManage/quitCourseDetail", params)
+        .get('/financeManage/quitCourseDetail', params)
         .then(res => {
           console.log(res);
           this.dialog.refund.data = res;
@@ -220,37 +227,42 @@ export default {
         });
     },
     //弹窗关闭回调
-    close() {
+    close () {
       this.dialog.refund.data = {};
       // this.contract_data = {};
       this.dialog.refund.show = false;
     },
-    get_sum(param) {
+    get_sum (param) {
       let sums = [];
       const { columns, data } = param;
-      sums[1] = "合计";
+
+      sums[1] = '合计';
       columns.forEach((item, index) => {
         switch (item.label) {
-          case "课时退费":
-            return (sums[index] =
-              this.refund_info.total.total_lesson_price + " 元");
+          case '课时退费':
+            return sums[index] =
+              `${this.refund_info.total.total_lesson_price } 元`;
             break;
-          case "教材退费":
-            return (sums[index] =
-              this.refund_info.total.total_textbook_price + " 元");
+          case '教材退费':
+            return sums[index] =
+              `${this.refund_info.total.total_textbook_price } 元`;
             break;
-          case "实退金额":
-            return (sums[index] = this.refund_info.total.total_price + " 元");
+          case '实退金额':
+            return sums[index] = `${this.refund_info.total.total_price } 元`;
             break;
         }
       });
+
       return sums;
     }
   },
-  async created() {
+  async created () {
     let res = await this.get_data();
-    if(!res) return false;
-    this.state = 'loaded'
+
+    if (!res) {
+      return false;
+    }
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, RefundDialog, NameRoute }
 };

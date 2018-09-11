@@ -69,25 +69,25 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import ContractDialog from "../../components/dialog/Contract";
-import NameRoute from "../../components/common/NameRoute"
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import ContractDialog from '../../components/dialog/Contract';
+import NameRoute from '../../components/common/NameRoute';
 
 export default {
-  data() {
+  data () {
     return {
       state: 'loading',
       //搜索信息
       search_info: {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       },
       //购课信息
       buy_info: {
@@ -111,39 +111,41 @@ export default {
     };
   },
   methods: {
-    init_search_info() {
+    init_search_info () {
       let search_info = {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       };
+
       this.search_info = search_info;
     },
-    tab_change() {
+    tab_change () {
       this.page_info.page = 1;
       this.init_search_info();
       this.get_data();
     },
-    date_change() {
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
         start_date: this.get_seconde(this.search_info.begin),
@@ -152,36 +154,43 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      let res = await this.$$request.post("/eduCount/studentCourseLists", params);
-      if (!res) return false;
+      let res = await this.$$request.post('/eduCount/studentCourseLists', params);
+
+      if (!res) {
+        return false;
+      }
       this.buy_info.data = res.studentCourseLists.data;
       this.page_info.total = res.studentCourseLists.total;
       this.loading = false;
+
       return true;
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //查看合约详情
-    show_contract(id) {
+    show_contract (id) {
       this.$$request
-        .get("/studentCourse/detail", { sc_id: id })
+        .get('/studentCourse/detail', { sc_id: id })
         .then(res => {
           this.dialog.contract.data = res.data;
           this.dialog.contract.show = true;
         });
     },
     //弹窗关闭回调
-    close() {
+    close () {
       this.dialog.contract.data = {};
       // this.contract_data = {};
       this.dialog.contract.show = false;
     }
   },
-  async created() {
+  async created () {
     let res = await this.get_data();
-    if (!res) return false;
+
+    if (!res) {
+      return false;
+    }
     this.state = 'loaded';
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute}

@@ -58,21 +58,21 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       refundDataInfo: {}
       // replace_path: '',
       // query: null
     };
   },
-  created() {
+  created () {
     if (this.$route.params.refundDataInfo) {
       this.refundDataInfo = this.$route.params.refundDataInfo;
       // this.replace_path = this.$route.params.replace_path;
       // this.query = this.$route.params.path_query ? this.$route.params.path_query : null
     }
   },
-  mounted() {
+  mounted () {
     window.print();
 
     this.$router.go(-1);

@@ -14,24 +14,29 @@ export default {
   data () {
     return {
       loading: true
-    }
+    };
   },
-  async created() {
+  async created () {
     let result = await this.$$request.post('/auth/index');
-    if(!result) {
+
+    if (!result) {
       this.loading = false;
       this.$$cache.loginOut();
-    }else this.isSchoolArea();
+    } else {
+      this.isSchoolArea();
+    }
   },
   methods: {
-    async isSchoolArea() {
-        let result = await this.$$request.post('/school/exists');
-        this.loading = false;
-        if(!result) this.$router.replace({path: '/login'});
-        else if(result && result.status == 0) {
-          this.$router.push({path: '/addschool'});
-        }
+    async isSchoolArea () {
+      let result = await this.$$request.post('/school/exists');
+
+      this.loading = false;
+      if (!result) {
+        this.$router.replace({path: '/login'});
+      } else if (result && result.status === 0) {
+        this.$router.push({path: '/addschool'});
+      }
     }
   }
-}
+};
 </script>

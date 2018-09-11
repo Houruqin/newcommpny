@@ -68,162 +68,179 @@
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
 export default {
-    data() {
-        return {
-            state: 'loading',
-            classroomLists: [],
-            submitLoading: false,
-            sourceLists: [],
-            classMaskStatus: false,
-            sourceMaskStatus: false,
-            loading: true,
-            classMask: { modify : '修改教室', add: '添加教室', label: '教室名称：'},
-            sourseMask: { modify : '修改渠道', add: '添加渠道', label: '渠道来源：' },
-            maskState: 'add',
-            classForm: {id: '', name: ''},
-            sourceForm: {id: '', name: ''},
-            sourceRules: {
-                name: [
-                    {required: true, message: '请输入渠道'},
-                    {max: 10, message: '长度不能超过10个字符'}
-                ]
-            },
-            classRules: {
-                name: [
-                    {required: true, message: '请输入教室'},
-                    {max: 10, message: '长度不能超过10个字符'}
-                ]
-            }
-        }
-    },
-    methods: {
-        //弹窗关闭
-        dialogClose(type) {
-            this.$refs[type].resetFields();
-        },
-        //头部按钮点击
-        buttonHandle(d) {
-            if(d == 'addClassroom') {
-                this.classMaskStatus = true;
-                this.sourceMaskStatus = false;
-                this.classForm.name = '';
-            }else {
-                this.sourceMaskStatus = true;
-                this.classMaskStatus = false;
-                this.sourceForm.name = '';
-            };
-
-            this.maskState = 'add';
-        },
-        //表单确定点击
-        doneHandle(formName) {
-            console.log(this.form);
-
-            this.$refs[formName].validate(valid => {
-                if(valid) this.submitData(formName);
-                else return 0;
-            });
-        },
-        //点击修改
-        modifySource(scope, type) {
-            console.log(scope);
-            if(type == 'class') {
-                this.classMaskStatus = true;
-                this.sourceMaskStatus = false;
-                this.classForm.name = scope.name;
-                this.classForm.id = scope.id;
-            }else {
-                this.sourceMaskStatus = true;
-                this.classMaskStatus = false;
-                this.sourceForm.name = scope.name;
-                this.sourceForm.id = scope.id;
-            };
-
-            this.maskState = 'modify';
-        },
-        //删除
-        deleteSource(scope, type) {
-            let msg = type == 'source' ? '渠道' : '教室';
-
-            this.$confirm(`确定删除${msg}吗?`, '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(scope, type);
-            }).catch(() => {return 0});
-        },
-        //删除调用方法
-        async deleteHandle(scope, type) {
-            let url = type == 'source' ? '/source/delete' : '/classRoom/delete';
-            let result = await this.$$request.post(url, {id: scope.id});
-            if(!result) return 0;
-
-            if(type == 'source') {
-                this.$store.dispatch('getSource');   //更新渠道信息
-            }else {
-                this.$store.dispatch('getClassRoom');   //更新教室信息
-            }
-
-            this.$message.success('已删除');
-        },
-        //表单提交方法
-        async submitData(formName) {
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
-
-            let params = {}, url = '';
-
-            if(formName == 'classForm') {
-                params.name = this.classForm.name;
-                url = this.maskState == 'modify' ? '/classRoom/edit' : '/classRoom/add';
-                if(this.maskState == 'modify') params.id = this.classForm.id;
-            }else {
-                params.name = this.sourceForm.name;
-                url = this.maskState == 'modify' ? '/source/edit' : '/source/add';
-                if(this.maskState == 'modify') params.id = this.sourceForm.id;
-            }
-
-            let result = await this.$$request.post(url, params);
-            this.submitLoading = false;
-            console.log(result);
-
-            if(!result) return 0;
-
-            this.$message.success(this.maskState == 'modify' ? '修改成功' : '添加成功');
-
-            if(formName == 'classForm') {
-                this.$store.dispatch('getClassRoom');   //更新教室信息
-                this.classForm.name = '';
-                this.classMaskStatus = false;
-            }else {
-                this.$store.dispatch('getSource');   //更新渠道信息
-                this.sourceForm.name = '';
-                this.sourceMaskStatus = false;
-            }
-        },
-        setLoaded () {
-          if ('loaded' === this.$store.state.sourceState && 'loaded' === this.$store.state.classRoomState) {
-            this.state = 'loaded';
-          }
-        }
-    },
-    mounted () {
-      this.setLoaded();
-    },
-    watch: {
-      ['$store.state.sourceState']() {
-        this.setLoaded();
+  data () {
+    return {
+      state: 'loading',
+      classroomLists: [],
+      submitLoading: false,
+      sourceLists: [],
+      classMaskStatus: false,
+      sourceMaskStatus: false,
+      loading: true,
+      classMask: { modify: '修改教室', add: '添加教室', label: '教室名称：'},
+      sourseMask: { modify: '修改渠道', add: '添加渠道', label: '渠道来源：' },
+      maskState: 'add',
+      classForm: {id: '', name: ''},
+      sourceForm: {id: '', name: ''},
+      sourceRules: {
+        name: [
+          {required: true, message: '请输入渠道'},
+          {max: 10, message: '长度不能超过10个字符'}
+        ]
       },
-      ['$store.state.classRoomState']() {
-        this.setLoaded();
+      classRules: {
+        name: [
+          {required: true, message: '请输入教室'},
+          {max: 10, message: '长度不能超过10个字符'}
+        ]
+      }
+    };
+  },
+  methods: {
+    //弹窗关闭
+    dialogClose (type) {
+      this.$refs[type].resetFields();
+    },
+    //头部按钮点击
+    buttonHandle (d) {
+      if (d == 'addClassroom') {
+        this.classMaskStatus = true;
+        this.sourceMaskStatus = false;
+        this.classForm.name = '';
+      } else {
+        this.sourceMaskStatus = true;
+        this.classMaskStatus = false;
+        this.sourceForm.name = '';
+      }
+
+      this.maskState = 'add';
+    },
+    //表单确定点击
+    doneHandle (formName) {
+      console.log(this.form);
+
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.submitData(formName);
+        } else {
+          return 0;
+        }
+      });
+    },
+    //点击修改
+    modifySource (scope, type) {
+      console.log(scope);
+      if (type == 'class') {
+        this.classMaskStatus = true;
+        this.sourceMaskStatus = false;
+        this.classForm.name = scope.name;
+        this.classForm.id = scope.id;
+      } else {
+        this.sourceMaskStatus = true;
+        this.classMaskStatus = false;
+        this.sourceForm.name = scope.name;
+        this.sourceForm.id = scope.id;
+      }
+
+      this.maskState = 'modify';
+    },
+    //删除
+    deleteSource (scope, type) {
+      let msg = type == 'source' ? '渠道' : '教室';
+
+      this.$confirm(`确定删除${msg}吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(scope, type);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    //删除调用方法
+    async deleteHandle (scope, type) {
+      let url = type == 'source' ? '/source/delete' : '/classRoom/delete';
+      let result = await this.$$request.post(url, {id: scope.id});
+
+      if (!result) {
+        return 0;
+      }
+
+      if (type == 'source') {
+        this.$store.dispatch('getSource'); //更新渠道信息
+      } else {
+        this.$store.dispatch('getClassRoom'); //更新教室信息
+      }
+
+      this.$message.success('已删除');
+    },
+    //表单提交方法
+    async submitData (formName) {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
+      let params = {}, url = '';
+
+      if (formName == 'classForm') {
+        params.name = this.classForm.name;
+        url = this.maskState == 'modify' ? '/classRoom/edit' : '/classRoom/add';
+        if (this.maskState == 'modify') {
+          params.id = this.classForm.id;
+        }
+      } else {
+        params.name = this.sourceForm.name;
+        url = this.maskState == 'modify' ? '/source/edit' : '/source/add';
+        if (this.maskState == 'modify') {
+          params.id = this.sourceForm.id;
+        }
+      }
+
+      let result = await this.$$request.post(url, params);
+
+      this.submitLoading = false;
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+
+      this.$message.success(this.maskState == 'modify' ? '修改成功' : '添加成功');
+
+      if (formName == 'classForm') {
+        this.$store.dispatch('getClassRoom'); //更新教室信息
+        this.classForm.name = '';
+        this.classMaskStatus = false;
+      } else {
+        this.$store.dispatch('getSource'); //更新渠道信息
+        this.sourceForm.name = '';
+        this.sourceMaskStatus = false;
       }
     },
-    components: {TableHeader, MyButton}
-}
+    setLoaded () {
+      if ('loaded' === this.$store.state.sourceState && 'loaded' === this.$store.state.classRoomState) {
+        this.state = 'loaded';
+      }
+    }
+  },
+  mounted () {
+    this.setLoaded();
+  },
+  watch: {
+    '$store.state.sourceState' () {
+      this.setLoaded();
+    },
+    '$store.state.classRoomState' () {
+      this.setLoaded();
+    }
+  },
+  components: {TableHeader, MyButton}
+};
 </script>
 
 <style lang="less" scoped>

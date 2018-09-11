@@ -99,24 +99,24 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import ContractDialog from "../../components/dialog/Contract";
-import NameRoute from "../../components/common/NameRoute";
-import { StudentStatic } from "../../script/static";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import ContractDialog from '../../components/dialog/Contract';
+import NameRoute from '../../components/common/NameRoute';
+import { StudentStatic } from '../../script/static';
 
 export default {
-  data() {
+  data () {
     return {
-      state: "loading",
+      state: 'loading',
       //搜索信息
       search_info: {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
           0
         ),
-        name: "",
-        date_type: "current_month",
+        name: '',
+        date_type: 'current_month',
         course_id: 0,
         advisor_id: 0,
         pay_method: 0
@@ -126,7 +126,7 @@ export default {
       //购课信息
       income_info: {
         data: [],
-        total: ""
+        total: ''
       },
       //分页信息
       page_info: {
@@ -147,19 +147,19 @@ export default {
   },
   methods: {
     //选择时间
-    choose_date(type) {
+    choose_date (type) {
       console.log(type);
       this.search_info.date_type = type;
       switch (type) {
-        case "current_month":
+        case 'current_month':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
+            this.$format_date(new Date(), 'yyyy/MM/01')
           );
           this.search_info.end = new Date(
             new Date().setMonth(new Date().getMonth() + 1)
           ).setDate(0);
           break;
-        case "last_month":
+        case 'last_month':
           this.search_info.begin = new Date(
             new Date().getFullYear(),
             new Date().getMonth() - 1,
@@ -168,9 +168,9 @@ export default {
           );
           this.search_info.end = new Date(new Date().setDate(0));
           break;
-        case "current_year":
+        case 'current_year':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/01/01")
+            this.$format_date(new Date(), 'yyyy/01/01')
           );
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
@@ -179,27 +179,28 @@ export default {
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
-    date_change() {
-      this.search_info.date_type = "";
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      this.search_info.date_type = '';
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
-        time_type: "custom",
-        begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
-        end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
+        time_type: 'custom',
+        begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
+        end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
         course_id: this.search_info.course_id,
         seller_id: this.search_info.advisor_id,
         pay_type: this.search_info.pay_method,
@@ -207,62 +208,72 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
+
       console.log(params);
       let res = await this.$$request.get(
-        "/financeManage/studentCourse/lists",
+        '/financeManage/studentCourse/lists',
         params
       );
-      console.log(res)
-      if (!res) return false;
+
+      console.log(res);
+      if (!res) {
+        return false;
+      }
       this.income_info.data = res.lists.data;
       this.income_info.total = res.total;
       this.page_info.total = res.lists.total;
       this.loading = false;
+
       return true;
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //查看合约详情
-    show_contract(id) {
-      this.$$request.get("/studentCourse/detail", { sc_id: id }).then(res => {
+    show_contract (id) {
+      this.$$request.get('/studentCourse/detail', { sc_id: id }).then(res => {
         this.dialog.contract.data = res.data;
         this.dialog.contract.show = true;
       });
     },
     //弹窗关闭回调
-    close() {
+    close () {
       this.dialog.contract.data = {};
       // this.contract_data = {};
       this.dialog.contract.show = false;
     },
-    get_sum(param) {
+    get_sum (param) {
       let sums = [];
       const { columns, data } = param;
-      sums[1] = "合计";
+
+      sums[1] = '合计';
       columns.forEach((item, index) => {
         switch (item.label) {
-          case "课时费":
-            return (sums[index] =
-              this.income_info.total.total_lesson_price + " 元");
+          case '课时费':
+            return sums[index] =
+              `${this.income_info.total.total_lesson_price } 元`;
             break;
-          case "教材费":
-            return (sums[index] =
-              this.income_info.total.total_textbook_price + " 元");
+          case '教材费':
+            return sums[index] =
+              `${this.income_info.total.total_textbook_price } 元`;
             break;
-          case "合同总额":
-            return (sums[index] = this.income_info.total.total_price + " 元");
+          case '合同总额':
+            return sums[index] = `${this.income_info.total.total_price } 元`;
             break;
         }
       });
+
       return sums;
     }
   },
-  async created() {
+  async created () {
     let res = await this.get_data();
-    if (!res) return false;
-    this.state = "loaded";
+
+    if (!res) {
+      return false;
+    }
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, ContractDialog, NameRoute }
 };

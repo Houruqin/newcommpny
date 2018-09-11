@@ -179,27 +179,27 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import NameRoute from "../../components/common/NameRoute";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import NameRoute from '../../components/common/NameRoute';
 
 export default {
-  data() {
+  data () {
     return {
       state: 'loading',
-      active: "elimination",
+      active: 'elimination',
       //搜索信息
       search_info: {
         course: 0,
         grade: 0,
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       },
       //消课信息
       elimination_info: {
@@ -224,7 +224,7 @@ export default {
         c_record: {
           show: false,
           data: [],
-          title: "",
+          title: '',
           student_name: '',
           course_name: '',
           student_id: '',
@@ -253,31 +253,31 @@ export default {
         course_name: '',
         grade_name: '',
         class_room: [],
-        class_time: "",
+        class_time: '',
         teacher: [],
-        lesson_num: "",
+        lesson_num: '',
         type: ''
       },
       rules: {
         course_name: [
-          { required: true, message: "请输入课程名称", trigger: "change" }
+          { required: true, message: '请输入课程名称', trigger: 'change' }
         ],
         grade_name: [
-          { required: true, message: "请输入班级名称", trigger: "change" }
+          { required: true, message: '请输入班级名称', trigger: 'change' }
         ],
         class_room: [
-          { required: true, message: "请选择上课教室", trigger: "change" }
+          { required: true, message: '请选择上课教室', trigger: 'change' }
         ],
         type: [
-          { required: true, message: "请选择扣课类型", trigger: "change" }
+          { required: true, message: '请选择扣课类型', trigger: 'change' }
         ],
         class_time: [
-          { required: true, message: "请选择上课时间", trigger: "change" }
+          { required: true, message: '请选择上课时间', trigger: 'change' }
         ],
         teacher: [
-          { required: true, message: "请选择上课老师", trigger: "change" }
+          { required: true, message: '请选择上课老师', trigger: 'change' }
         ],
-        lesson_num: [{ required: true, message: "请输入扣课时数" }]
+        lesson_num: [{ required: true, message: '请输入扣课时数' }]
       },
       loading: false,
       row_span_num: new Map(),
@@ -285,124 +285,130 @@ export default {
     };
   },
   computed: {
-    course_option() {
+    course_option () {
       return this.$store.state.course;
     },
-    grade_option() {
+    grade_option () {
       return this.$store.state.grade;
     }
   },
   methods: {
-    init_search_info() {
+    init_search_info () {
       let search_info = {
         course: 0,
         grade: 0,
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(
           new Date().getFullYear(),
           new Date().getMonth() + 1,
           0,
           24
         ),
-        name: ""
+        name: ''
       };
+
       this.search_info = search_info;
     },
 
     //切换tab加载数据
-    tab_change() {
+    tab_change () {
       this.page_info.page = 1;
       this.init_search_info();
       this.get_data();
     },
     //更改日期加载数据
-    date_change() {
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
     //筛选条件加载数据
-    filter_change() {
+    filter_change () {
       this.page_info.page = 1;
       this.get_data();
     },
     //搜索按钮搜索
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
     //页面跳转
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
     //课消详情页面跳转
-    go_elimination_page(page) {
+    go_elimination_page (page) {
       this.dialog.c_record.page_info.page = page;
       this.get_elimination_detail();
     },
     //合并表格的行
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0 || columnIndex === 1) {
         let row_info = this.row_span_num.get(row.student_id);
         //该学生出现的次数(即：该学生所占的表格行数)
+
         if (row_info) {
           let num = row_info.length;
           //如果表格行索引等于该学生数组的第一个值 则改变行高  其余的行高则皆为0
+
           if (rowIndex === row_info[0]) {
             return {
               rowspan: num,
               colspan: 1
             };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
           }
+
+          return {
+            rowspan: 0,
+            colspan: 0
+          };
+
         }
       }
     },
     //调整单元格样式
-    cell_style({ row, column, rowIndex, columnIndex }) {
+    cell_style ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 1) {
         console.log(row, column, rowIndex, columnIndex);
       }
     },
     //查看消课详情
-    show_elimination(info, type) {
+    show_elimination (info, type) {
       this.dialog.c_record.student_name = info.student_name;
       this.dialog.c_record.course_name = info.course_name;
       this.dialog.c_record.student_id = info.student_id;
       this.dialog.c_record.course_id = info.course_id;
       this.dialog.c_record.type = type;
-      this.dialog.c_record.title = type === 'sign' ? '签到' : (type === 'leave' ? '请假' : '旷课');
+      this.dialog.c_record.title = type === 'sign' ? '签到' : type === 'leave' ? '请假' : '旷课';
       this.dialog.c_record.show = true;
       this.dialog.c_record.page_info.page = 1;
       this.get_elimination_detail();
     },
     //消课
-    elimination() {
+    elimination () {
       this.dialog.c_handle.show = true;
     },
     //====================获取数据方法====================
-    async get_data() {
+    async get_data () {
       switch (this.active) {
-        case "elimination":
+        case 'elimination':
           await this.get_elimination_data();
+
           return true;
           break;
-        case "leave":
+        case 'leave':
           this.get_leave_data();
           break;
-        case "absenteeism":
+        case 'absenteeism':
           this.get_absenteeism_data();
           break;
       }
     },
     //获取消课记录
-    async get_elimination_data() {
+    async get_elimination_data () {
       this.row_span_num = new Map();
       this.row_span_index = new Map();
       this.loading = true;
@@ -414,10 +420,14 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      let res = await this.$$request.post("/eduCount/classEliminationLists", params);
-      if (!res) return false;
+      let res = await this.$$request.post('/eduCount/classEliminationLists', params);
+
+      if (!res) {
+        return false;
+      }
       let data = res.lists.data;
       let data_map = new Map();
+
       for (let i = 0; i < data.length; i++) {
         //如果map里没有该学生数据  则存储
         if (!data_map.get(data[i].student_id)) {
@@ -427,6 +437,7 @@ export default {
         }
       }
       let data_sort = [];
+
       for (let value of data_map) {
         data_sort.push(...value[1]);
       }
@@ -434,10 +445,12 @@ export default {
       this.merge_data(data_sort);
       this.page_info.total = res.lists.total;
       this.loading = false;
+
       return true;
     },
-    merge_data(data) {
+    merge_data (data) {
       let j = 0;
+
       for (let i = 0; i < data.length; i++) {
         if (!this.row_span_num.get(data[i].student_id)) {
           this.row_span_num.set(data[i].student_id, [i]);
@@ -449,7 +462,7 @@ export default {
       }
     },
     //获取请假记录
-    get_leave_data() {
+    get_leave_data () {
       const params = {
         start: this.get_seconde(this.search_info.begin),
         end: this.get_seconde(this.search_info.end),
@@ -458,15 +471,16 @@ export default {
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
+
       this.$$request
-        .post("/leaveTicket/processedLists", params)
+        .post('/leaveTicket/processedLists', params)
         .then(res => {
           this.leave_info.data = res.lists.data;
           this.page_info.total = res.lists.total;
         });
     },
     //获取旷课记录
-    get_absenteeism_data() {
+    get_absenteeism_data () {
       const params = {
         data: {
           page_num: this.page_info.page_num,
@@ -474,17 +488,18 @@ export default {
           end: this.get_seconde(this.search_info.end),
           course_id: this.search_info.course,
           name: this.search_info.name,
-          mobile: ""
+          mobile: ''
         },
         page: this.page_info.page
       };
-      this.$$request.post("/sign/absent", params).then(res => {
+
+      this.$$request.post('/sign/absent', params).then(res => {
         this.absenteeism_info.data = res.lists.data;
         this.page_info.total = res.lists.total;
       });
     },
     //获取消课详情
-    get_elimination_detail() {
+    get_elimination_detail () {
       const params = {
         page: this.dialog.c_record.page_info.page,
         start_date: this.get_seconde(this.search_info.begin),
@@ -492,23 +507,27 @@ export default {
         student_id: this.dialog.c_record.student_id,
         course_id: this.dialog.c_record.course_id,
         type: this.dialog.c_record.type
-      }
-      this.$$request.post('/eduCount/studentClassEliminationLists',params)
-      .then(res => {
-        console.log(res)
-        this.dialog.c_record.data = res.lists.data;
-        this.dialog.c_record.page_info.total = res.lists.total;
-        this.dialog.c_record.page_info.current_page = res.lists.current_page;
-      })
+      };
+
+      this.$$request.post('/eduCount/studentClassEliminationLists', params)
+        .then(res => {
+          console.log(res);
+          this.dialog.c_record.data = res.lists.data;
+          this.dialog.c_record.page_info.total = res.lists.total;
+          this.dialog.c_record.page_info.current_page = res.lists.current_page;
+        });
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     }
   },
-  async created() {
+  async created () {
     let res = await this.get_data();
-    if (!res) return false;
+
+    if (!res) {
+      return false;
+    }
     this.state = 'loaded';
   },
   components: { TableHeader, MyButton, NameRoute }

@@ -7,7 +7,7 @@ import qs from 'qs';
 Vue.use(Router);
 
 const router = new Router({
-  mode: 'history',   //build之后本地不能访问 hash
+  mode: 'history', //build之后本地不能访问 hash
   routes: [
     { path: '/', component: () => import(/* webpackChunkName: 'page-home' */ '@/views/Home'), meta: { needlogin: true }, children: [
 
@@ -50,7 +50,7 @@ const router = new Router({
       { path: '/inventory/storage', component: () => import(/* webpackChunkName: 'page-inventory-storage' */ '@/views/inventory/Storage'), meta: { needlogin: true } },
       { path: '/inventory/borrow', component: () => import(/* webpackChunkName: 'page-inventory-borrow' */ '@/views/inventory/Borrow'), meta: { needlogin: true } },
 
-      { path: '/statistics', component: () => import(/* webpackChunkName: 'page-statistics-index' */ '@/views/statistics/Index'), meta: { needlogin: true } },
+      { path: '/statistics', component: () => import(/* webpackChunkName: 'page-statistics-index' */ '@/views/statistics/Index'), meta: { needlogin: true } }
     ] },
     { path: '/login', component: () => import(/* webpackChunkName: 'page-login' */ '@/views/Login'), meta: {needlogin: false} },
     { path: '/addschool', component: () => import(/* webpackChunkName: 'page-addschool' */ '@/views/SchoolArea'), meta: {needlogin: true} },
@@ -58,7 +58,7 @@ const router = new Router({
     { path: '/refundPrint', component: () => import(/* webpackChunkName: 'page-refundPrint' */ '@/views/RefundPrint'), meta: {needlogin: true} },
     { path: '/refresh', component: () => import(/* webpackChunkName: 'page-refresh' */ '@/views/Refresh') },
     { path: '/help', component: () => import(/* webpackChunkName: 'page-help' */ '@/views/Help') },
-    { path: '*', component: () => import(/* webpackChunkName: 'page-404' */ '@/views/NotFound') },
+    { path: '*', component: () => import(/* webpackChunkName: 'page-404' */ '@/views/NotFound') }
   ]
 });
 
@@ -67,14 +67,22 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
 
   // 用于测试
-  if (from.query.debugger && !to.query.debugger) return location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+  if (from.query.debugger && !to.query.debugger) {
+    return location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+  }
 
-  if(!navigator.onLine) return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
+  if (!navigator.onLine) {
+    return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
+  }
   store.commit('stateChange', { state: 'loading' });
-  if(to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) return router.replace({path: '/'});
-  if(to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) return router.replace({path: '/login'});
-  window.scrollTo(0, 0);   //跳转之后，页面到最顶部
+  if (to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) {
+    return router.replace({path: '/'});
+  }
+  if (to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) {
+    return router.replace({path: '/login'});
+  }
+  window.scrollTo(0, 0); //跳转之后，页面到最顶部
   next();
 });
 
-export default router
+export default router;

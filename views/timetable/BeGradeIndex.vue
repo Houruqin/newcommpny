@@ -487,960 +487,1122 @@
 </template>
 
 <script>
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import TimetablePopver from '../../components/common/TimetablePopver'
-import Jquery from 'jquery'
-import '../../plugins/calendar'
-import Bus from '../../script/bus'
-import {timePicker} from '../../script/static'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import TimetablePopver from '../../components/common/TimetablePopver';
+import Jquery from 'jquery';
+import '../../plugins/calendar';
+import Bus from '../../script/bus';
+import {timePicker} from '../../script/static';
 
-const ONE_DAY_LONG = 24*60*60*1000;
+const ONE_DAY_LONG = 24 * 60 * 60 * 1000;
 
 
 export default {
-    data() {
-        return {
-            state: 'loading',
-            conflictType: {
-                reason1: '老师冲突 请修改时间',
-                reason2: '教室冲突 请修改时间或教室',
-                reason3: '学员冲突 请修改时间'
-            },
-            timetableFilterTab: [
-                {id: 'grade', name: '班级'},
-                {id: 'teacher', name: '老师'},
-                {id: 'room', name: '教室'}
-            ],
+  data () {
+    return {
+      state: 'loading',
+      conflictType: {
+        reason1: '老师冲突 请修改时间',
+        reason2: '教室冲突 请修改时间或教室',
+        reason3: '学员冲突 请修改时间'
+      },
+      timetableFilterTab: [
+        {id: 'grade', name: '班级'},
+        {id: 'teacher', name: '老师'},
+        {id: 'room', name: '教室'}
+      ],
 
-            timetableType: [
-                {type: 'week', text: '按周'}, {type: 'day', text: '按日'}
-            ],
+      timetableType: [
+        {type: 'week', text: '按周'}, {type: 'day', text: '按日'}
+      ],
 
-            CalendatObj: null,
+      CalendatObj: null,
 
-            submitLoading: {timetable: false},
+      submitLoading: {timetable: false},
 
-            nowTime: new Date().getTime(),//时间选择器，选中的当天日期
+      nowTime: new Date().getTime(), //时间选择器，选中的当天日期
 
-            gradeTimeTableRadio: 0,    //班级课表，radio筛选
-            gradeInfoCheckLists: {total_num: 0, lists: []},
+      gradeTimeTableRadio: 0, //班级课表，radio筛选
+      gradeInfoCheckLists: {total_num: 0, lists: []},
 
-            loading: true,
-            addTimetableMask: false,  //新增排课弹窗
-            conflictMask: false,   //冲突弹窗
-            addStudentDialog: false,  //排课添加学员列表
-            addTableType: 'single',
-            gradeLists: [],    //选择课程，确定课程的班级列表
-            gradeInfo: {student: []},   //选择班级，确定班级详情，填充表单默认值
+      loading: true,
+      addTimetableMask: false, //新增排课弹窗
+      conflictMask: false, //冲突弹窗
+      addStudentDialog: false, //排课添加学员列表
+      addTableType: 'single',
+      gradeLists: [], //选择课程，确定课程的班级列表
+      gradeInfo: {student: []}, //选择班级，确定班级详情，填充表单默认值
 
-            studentLists: [],    //普通排课选择学员数据
-            studentRadio: '',   //一对一排课，选择学员数据
-            checkStudentForm: [],   //form展示选中的学员
-            radioStudentForm: '',   //form展示选中的学员
+      studentLists: [], //普通排课选择学员数据
+      studentRadio: '', //一对一排课，选择学员数据
+      checkStudentForm: [], //form展示选中的学员
+      radioStudentForm: '', //form展示选中的学员
 
-            conflictLists: [],  //冲突列表
-            conflict_room: [],   //冲突教室
+      conflictLists: [], //冲突列表
+      conflict_room: [], //冲突教室
 
-            other_lists: [],   //批量排课除开冲突，剩下正确的数据列表
+      other_lists: [], //批量排课除开冲突，剩下正确的数据列表
 
-            timetable_gradeAll: true,
-            timetable_gradeCheck: [],
+      timetable_gradeAll: true,
+      timetable_gradeCheck: [],
 
-            timetable_teacherAll: true,
-            timetable_teacherCheck: [],
+      timetable_teacherAll: true,
+      timetable_teacherCheck: [],
 
-            timetable_roomAll: true,
-            timetable_roomCheck: [],
+      timetable_roomAll: true,
+      timetable_roomCheck: [],
 
-            tableType: 'week',   //按周、日展示课表
-            timetableFilter: 'grade',   //显示类型  default，teacher，classroom
-            calendar: {time: new Date().getTime() / 1000},   //日历默认时间
-            timeTableInfo: {},     //课表总数据
-            weekTableLists: [],  //按周展示，课表列表
-            dayTableLists: [],  //按天展示，课表列表
-            timetableFull: {},
+      tableType: 'week', //按周、日展示课表
+      timetableFilter: 'grade', //显示类型  default，teacher，classroom
+      calendar: {time: new Date().getTime() / 1000}, //日历默认时间
+      timeTableInfo: {}, //课表总数据
+      weekTableLists: [], //按周展示，课表列表
+      dayTableLists: [], //按天展示，课表列表
+      timetableFull: {},
 
-            studentCheckAll: false,
-            allStudentLists: [],   //学员总数
+      studentCheckAll: false,
+      allStudentLists: [], //学员总数
 
-            timePicker: timePicker,
+      timePicker: timePicker,
 
-            weekList: [
-                {id: 1, name: '周一', type: 'week_one'},
-                {id: 2, name: '周二', type: 'week_two'},
-                {id: 3, name: '周三', type: 'week_three'},
-                {id: 4, name: '周四', type: 'week_four'},
-                {id: 5, name: '周五', type: 'week_five'},
-                {id: 6, name: '周六', type: 'week_six'},
-                {id: 0, name: '周日', type: 'week_seven'}
-            ],
+      weekList: [
+        {id: 1, name: '周一', type: 'week_one'},
+        {id: 2, name: '周二', type: 'week_two'},
+        {id: 3, name: '周三', type: 'week_three'},
+        {id: 4, name: '周四', type: 'week_four'},
+        {id: 5, name: '周五', type: 'week_five'},
+        {id: 6, name: '周六', type: 'week_six'},
+        {id: 0, name: '周日', type: 'week_seven'}
+      ],
 
-            defaultWeekList: [],    //课表头部展示周数据
-            timetableWeekList: [],   //排课下拉选择周数据
+      defaultWeekList: [], //课表头部展示周数据
+      timetableWeekList: [], //排课下拉选择周数据
 
-            courseType: 1,  //课程类型  普通课程、一对一课程
+      courseType: 1, //课程类型  普通课程、一对一课程
 
-            hourData: [],
-            timetableForm: {
-                no_timetable: '',   //未排课时
-                timetable_id: '',
-                grade_info: [],
-                start_time: '',
-                lesson_time: '',
-                lesson_num: '',
-                teacher_ids: '',
-                counselor_ids: '',
-                room_id: [],
-                loop: 'no',
-                loop_time: ''
-            },
-            formAddDate: [],
-            timeRules: {
-                begin_time: [
-                    {required: true, message: '请选择起始时间', trigger: 'change'}
-                ],
-                end_time: [
-                    {required: true, message: '请选择结束时间', trigger: 'change'}
-                ],
-                week: [
-                    {required: true, message: '请选择某天', trigger: 'change'}
-                ]
-            },
-            addRules: {
-                grade_info: [
-                    {required: true, message: '请选择班级', trigger: 'change'}
-                ],
-                room_id: [
-                    {required: true, message: '请选择教室', trigger: 'change'}
-                ],
-                teacher_ids: [
-                    {required: true, message: '请选择任课老师', trigger: 'change'}
-                ],
-                counselor_ids: [],
-                lesson_num: [
-                    {required: true, message: '请输入课时数'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 99)}
-                ],
-                loop: [],
-                loop_time: [
-                    {required: true, message: '请输入排课次数'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 99)}
-                ],
-                start_time: [
-                    {required: true, message: '请输入开课时间', trigger: 'change'}
-                ]
-            },
-            disableStartTime: new Date().setHours(0, 0, 0, 0),
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() < this.disableStartTime;
-                }
-            }
+      hourData: [],
+      timetableForm: {
+        no_timetable: '', //未排课时
+        timetable_id: '',
+        grade_info: [],
+        start_time: '',
+        lesson_time: '',
+        lesson_num: '',
+        teacher_ids: '',
+        counselor_ids: '',
+        room_id: [],
+        loop: 'no',
+        loop_time: ''
+      },
+      formAddDate: [],
+      timeRules: {
+        begin_time: [
+          {required: true, message: '请选择起始时间', trigger: 'change'}
+        ],
+        end_time: [
+          {required: true, message: '请选择结束时间', trigger: 'change'}
+        ],
+        week: [
+          {required: true, message: '请选择某天', trigger: 'change'}
+        ]
+      },
+      addRules: {
+        grade_info: [
+          {required: true, message: '请选择班级', trigger: 'change'}
+        ],
+        room_id: [
+          {required: true, message: '请选择教室', trigger: 'change'}
+        ],
+        teacher_ids: [
+          {required: true, message: '请选择任课老师', trigger: 'change'}
+        ],
+        counselor_ids: [],
+        lesson_num: [
+          {required: true, message: '请输入课时数'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 99)}
+        ],
+        loop: [],
+        loop_time: [
+          {required: true, message: '请输入排课次数'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 99)}
+        ],
+        start_time: [
+          {required: true, message: '请输入开课时间', trigger: 'change'}
+        ]
+      },
+      disableStartTime: new Date().setHours(0, 0, 0, 0),
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() < this.disableStartTime;
         }
+      }
+    };
+  },
+  methods: {
+    setNewDate () {
+      let now = new Date(this.calendar.time * 1000);
+      let year = now.getFullYear();
+      let month = now.getMonth() + 1;
+      let day = now.getDate();
+
+      this.CalendatObj.data('calendar').updateDateView(year, month);
+      this.CalendatObj.data('calendar').selectedDay(day);
     },
-    methods: {
-        setNewDate() {
-            let now = new Date(this.calendar.time * 1000);
-            let year = now.getFullYear();
-            let month = now.getMonth() + 1;
-            let day = now.getDate();
-
-            this.CalendatObj.data('calendar').updateDateView(year, month);
-            this.CalendatObj.data('calendar').selectedDay(day);
-        },
-        tableHeader(elem, {column, $index}) {
-            let weekList = this.defaultWeekList;
-            return elem('div', {'class': 'header-box'}, [
-                elem('div', [
-                    elem('p', {
-                        'class': {'fc-m': weekList[$index-1].day.isToday}
-                    }, weekList[$index-1].name),
-                    elem('p', {
-                        'class': {'fc-m': weekList[$index-1].day.isToday, 'mt-3': true, 'fs-13': true}
-                    }, weekList[$index-1].day.date),
-                ]),
-                elem('div', {'class': {'today fs-12': true, 'd-b': weekList[$index-1].day.isToday}}, [
-                    elem('p', {'class': 'pt-2'}, '今'), elem('p',{'class': 'pt-2'}, '日')
-                ])
-            ]);
-        },
-        timetableFilterTabClick(item) {
-            if(this.timetableFilter != item.id) this.timetableFilter = item.id;
-        },
-        //上一周翻页
-        lastWeekLists() {
-            if(this.tableType == 'week') {
-                let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
-                this.calendar.time = last / 1000;
-                this.getWeekList(last, 'default');
-            }else {
-                this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
-                this.setNewDate();
-                this.getWeekList(this.calendar.time, 'default');
-            }
-
-            this.getAllTableLists();
-        },
-        //下一周翻页
-        nextWeekLists() {
-            if(this.tableType == 'week') {
-                let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
-                this.calendar.time = next / 1000;
-                this.getWeekList(next, 'default');
-            }else {
-                this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
-                this.setNewDate();
-                this.getWeekList(this.calendar.time, 'default');
-            }
-
-            this.getAllTableLists();
-        },
-        dialogClose() {
-            this.formAddDate.splice(0, this.formAddDate.length);
-            // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
-
-            this.$refs.addTimeTable.resetFields();
-
-            Object.keys(this.timetableForm).forEach(v => {
-                if(v == 'grade_info') this.timetableForm[v] = [];
-                // else if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
-                else if(v == 'loop') this.timetableForm[v] = 'no';
-                else this.timetableForm[v] = '';
-            });
-            this.timePicker.minTime = 0;
-
-            //排课学员相关数据重置
-            this.studentCheckAll = false;
-            this.allStudentLists = [];
-            this.studentRadio = '';
-            this.studentLists = [];
-            this.courseType = 1;
-            this.timetableForm.no_timetable = '';
-            this.checkStudentForm = [];
-            this.radioStudentForm = '';
-        },
-        //排课班级全选
-        gradeCheckAllChange(val) {
-            this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
-            this.getGradeTableLists();
-        },
-        //排课班级多选
-        gradeCheckChange(val) {
-            let checkedCount = val.length;
-            this.timetable_gradeAll = checkedCount === this.gradeInfoCheckLists.lists.length;
-            this.getGradeTableLists();
-        },
-        //排课老师全选
-        teacherCheckAllChange(val) {
-            this.timetable_teacherCheck = val ? this.timeTableInfo.teacher_info : [];
-            this.getTeacherTableLists();
-        },
-        //排课老师多选
-        teacherCheckChange(val) {
-            let checkedCount = val.length;
-            this.timetable_teacherAll = checkedCount === this.timeTableInfo.teacher_info.length;
-            this.getTeacherTableLists();
-        },
-        //排课教室全选
-        roomCheckAllChange(val) {
-            this.timetable_roomCheck = val ? this.timeTableInfo.room_info : [];
-            this.getRoomTableLists();
-        },
-        //排课教室多选
-        roomCheckChange(val) {
-            let checkedCount = val.length;
-            this.timetable_roomAll = checkedCount === this.timeTableInfo.room_info.length;
-            this.getRoomTableLists();
-        },
-
-        //按周、日展示切换
-        tableTypeChange(type) {
-            if(type == this.tableType) return 0;
-            this.tableType = type;
-
-            this.calendar.time = new Date().getTime() / 1000;
-            this.getWeekList(null, 'default');
-            this.getWeekList(null, 'timetable');
-            this.setNewDate();
-            this.getAllTableLists();
-        },
-        //批量排课，新增多个时间段
-        addDateHandle() {
-            this.formAddDate.push({begin_time: '', end_time: '', week: ''});
-            setTimeout(v => {document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight)}, 10);
-        },
-        //删除时间段
-        deleteDateHandle(index) {
-            this.formAddDate.splice(index, 1);
-        },
-        //周课表hover事件
-        timeTableHover(row, col, elem) {
-            let item = elem.querySelector('.item-box');
-            if(!item) return 0;
-            let mytype = elem.querySelector('.item-box').getAttribute('mytype');
-            row[mytype].operate = true;
-        },
-        //周课表leave事件
-        timeTableleave(row, col, elem) {
-            let item = elem.querySelector('.item-box');
-            if(!item) return 0;
-            let mytype = elem.querySelector('.item-box').getAttribute('mytype');
-            row[mytype].operate = false;
-        },
-        //鼠标移入课表
-        coursehover(item) {
-            item.operate = true;
-        },
-        //鼠标移出课表
-        courseMouseout(item) {
-            item.operate = false;
-        },
-        //详情编辑
-        detailEdit(detail) {
-            this.addTableType = 'edit';
-            this.getWeekList(this.calendar.time * 1000, 'timetable');
-
-            this.courseType = detail.course_type;
-            if(this.courseType !== 1 && detail.student_grades.length) this.studentRadio = detail.student_grades[0].student_id;
-
-            this.formAddDate.splice(0, this.formAddDate.length, {begin_time: detail.time_quantum.begin_time, end_time: '', week: detail.time_quantum.week});
-
-            this.timetableForm.timetable_id = detail.id;
-            this.timetableForm.grade_info = [detail.course_id, detail.grade_id]
-            this.timetableForm.lesson_num = detail.lesson_num;
-            this.timetableForm.lesson_time = detail.lesson_time;
-            this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : '';  //任课老师
-            this.timetableForm.counselor_ids = detail.counselor.length ? detail.counselor[0].id : '';  //辅助老师
-            this.timetableForm.room_id = detail.room_id;
-
-            this.timetableFull.course.forEach(v => {
-                if(v.id === detail.course_id) {
-                    v.grade.forEach(d => {if(d.id === detail.grade_id) {
-                        if(this.courseType === 1) this.timetableForm.no_timetable = d.lesson_num - (+d.scheduled);
-                        this.gradeInfo = d;
-                    }});
-                }
-            });
-
-            console.log(this.gradeInfo)
-
-            this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
-
-            if(this.courseType === 1) {
-                this.checkStudentForm = detail.student_grades.map(v => {return v.student_id});
-                this.studentLists = this.checkStudentForm;
-                this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length;
-            }else {
-                this.radioStudentForm = detail.student_grades[0].student_id;
-                this.studentRadio = this.radioStudentForm;
-            }
-
-            this.allStudentLists.forEach(m => {
-              if(this.checkStudentForm.indexOf(m.student_id) != -1) m.disabled = false;
-              else m.disabled = !(m.buy_lesson_num - m.scheduled);
-            });
-
-            console.log(this.allStudentLists)
-
-            this.addTimetableMask = true;
-        },
-        //详情删除
-        detailDelete(detail) {
-            this.$confirm('确定删除排课吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(detail.id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(id) {
-            let result = await this.$$request.post('/timetable/delete', {id: id});
-            if(!result || !result.status) return 0;
-
-            this.$message.success('删除成功');
-            this.getAllTableLists();
-            this.getAddTimeTableFull();
-        },
-        CB_deleteTable() {
-            this.getAllTableLists();
-            this.getAddTimeTableFull();
-        },
-        //新增排课  type: single / multiple
-        addTimetableHandle(type, time, full_day, week) {
-            this.addTableType = type;
-
-            if(type === 'single') {
-                this.timetableForm.room_id = '';
-
-                this.getWeekList(this.calendar.time * 1000, 'timetable');
-                let newdate = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-
-                if(this.isSameWeek(this.nowTime)) {
-                    this.timePicker.minTime = week == new Date().getDay() ? newdate : 0
-                }else {
-                    this.timePicker.minTime = 0;
-                }
-
-                let newTime = new Date(`${full_day} 00:00`).getTime() < new Date().getTime() && time == new Date().getHours() ?
-                                [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&') : `${time}:00`;
-
-                this.formAddDate.push({begin_time: newTime, end_time: '', week: week});
-            }else {
-                this.timetableForm.room_id = [];
-                this.formAddDate.push({begin_time: '', end_time: '', week: ''});
-                this.timetableForm.start_time = new Date().getTime();
-            }
-
-            this.addTimetableMask = true;
-        },
-        //新增排课选择班级
-        formGradeChange(val) {
-            //课程班级改变，学员数据全部重置
-            this.studentCheckAll = false;
-            this.allStudentLists = [];
-            this.studentRadio = '';
-            this.studentLists = [];
-            this.checkStudentForm = [];
-            this.radioStudentForm = '';
-            this.timetableForm.lesson_num = '';
-            this.timetableForm.no_timetable = '';
-
-            if(this.addTableType == 'multiple') this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
-
-            this.timetableFull.course.forEach(v => {
-                if(v.id === val[0]) {
-                    this.timetableForm.lesson_time = v.lesson_time;
-                    this.courseType = v.type;
-
-                    v.grade.forEach(d => {if(d.id === val[1]) {
-                        if(v.type === 1) this.timetableForm.no_timetable = d.lesson_num - (+d.scheduled);
-                        this.gradeInfo = d;
-                    }});
-                }
-            });
-
-            console.log(this.gradeInfo)
-
-            this.timetableForm.grade_info = val;
-            this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
-
-            this.allStudentLists.forEach(m => {m.disabled = !(m.buy_lesson_num - m.scheduled)});   //手动判断学员是够还能排课
-
-            console.log(this.allStudentLists)
-
-            if(this.courseType === 1) {
-                this.studentLists.splice(0, this.studentLists.length);
-                this.gradeInfo.student_grade.forEach(k => {if(k.buy_lesson_num - k.scheduled > 0) this.studentLists.push(k.student_id)});
-
-                // this.studentLists = this.gradeInfo.student_grade.map(v => {return v.student_id});
-                this.checkStudentForm = this.studentLists;
-                this.studentCheckAll = (!this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length);
-            }
-
-            if(this.gradeInfo.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
-                //若开课时间大于五年 则显示当前日期
-                this.timetableForm.start_time = this.gradeInfo.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? new Date().setHours(0, 0, 0, 0) : this.gradeInfo.start_time * 1000;
-
-                if(this.addTableType == 'multiple') this.getWeekList(this.timetableForm.start_time, 'timetable');
-                this.disableStartTime = this.timetableForm.start_time;
-            }else {
-                this.timetableForm.start_time = new Date().setHours(0, 0, 0, 0);
-            }
-
-            this.timetableForm.teacher_ids = this.gradeInfo.teacher.length ? this.gradeInfo.teacher[0].id : '';  //任课老师
-            this.timetableForm.counselor_ids = this.gradeInfo.counselor.length ? this.gradeInfo.counselor[0].id : '';  //辅助老师
-
-            if(this.addTableType == 'multiple') this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);  //上课教室
-            else this.timetableForm.room_id = this.gradeInfo.room_id;
-        },
-        //排课弹窗，选择一周某一天
-        formWeekChange(val) {
-            if(this.addTableType == 'multiple') {
-                this.timePicker.minTime = 0;
-            }else {
-                this.formAddDate.forEach(d => {if(d.week == val) d.begin_time = ''});
-                if(val == new Date().getDay()) this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-                else this.timePicker.minTime = 0;
-            }
-        },
-        //编辑课表时，时间控件选择当天，判断时刻disabled
-        formEditDateChange(val) {
-            if(new Date(val).toDateString() === new Date().toDateString()) {
-                this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-            }else this.timePicker.minTime = 0;
-        },
-        //学员checkbox，全选
-        studentCheckAllChange(val) {
-            this.studentLists = val ? this.allStudentLists.map(v => {return v.student_id}) : [];
-        },
-        //学员checkbox，多选
-        studentCheckChange(val) {
-            let checkedCount = val.length;
-            this.studentCheckAll = checkedCount === this.allStudentLists.length;
-        },
-        //排课弹窗通过选中的student_id获取student_name
-        getStudentName(student_id) {
-            let name = '';
-            this.allStudentLists.forEach(v => {if(student_id == v.student_id) name = v.student_name});
-            return name;
-        },
-        addStudentClick() {
-            if(!this.allStudentLists.length) return this.$message.warning('暂无可选择学员');
-            this.addStudentDialog = true;
-
-            if(this.courseType === 1) {
-                this.studentLists = this.checkStudentForm;
-                this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
-            }else {
-                this.studentRadio = this.radioStudentForm;
-            }
-        },
-        //选学员按钮判断变化
-        addStudentBtnChange() {
-            let text = '';
-            if(this.courseType === 1) {
-                text = this.checkStudentForm.length ? '重新选择' : '选择学员';
-            }else {
-                text = this.radioStudentForm ? this.getStudentName(this.radioStudentForm) : '选择学员';
-            }
-            return text;
-        },
-        checkStudentDone() {
-            if(this.courseType === 1) {
-                this.checkStudentForm = this.studentLists;
-            }else {
-                this.radioStudentForm = this.studentRadio;
-                this.allStudentLists.forEach(v =>{
-                    if(v.student_id == this.studentRadio) this.timetableForm.no_timetable = v.buy_lesson_num - v.scheduled;
-                });
-            }
-            this.addStudentDialog = false;
-        },
-        //排课，开课日期改变
-        startTimeChange(val) {
-            this.getWeekList(val, 'timetable');
-        },
-        //排课表单确定
-        doneHandle(formName) {
-            let a, b;
-            this.$refs[formName].validate(valid => {a = valid ? true : false});
-            for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {
-                this.$refs.addDateForm[i].validate(valid => {b = valid ? true : false})
-            }
-            if(a && b) this.addTimeTableParams();
-        },
-        //冲突页面确定修改
-        doneModify() {
-            console.log(this.conflict_room)
-            let lists = this.conflictLists.map(v => {
-                let item = {};
-                for(let key in v) {
-                    if(key != 'begin_hours' && key != 'conflict_data') {
-                        if(key == 'begin_time') {
-                            item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, "/")} ${v.begin_hours}`).getTime() / 1000;
-                        }else if(key == 'end_time'){
-                            item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
-                        }else if(key == 'room_id'){
-                            if(this.addTableType == 'multiple') {
-                                item[key] = this.conflict_room.length ? this.conflict_room : this.timetableForm.room_id;
-                            }else {
-                                item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
-                            }
-                        }else {
-                            item[key] = v[key];
-                        }
-                    }
-                };
-                return item;
-            });
-
-            console.log(lists);
-
-            lists = lists.concat(this.other_lists);
-
-            let params = {lists: lists, commit_type: 'conflict'};
-
-            if(this.addTableType == 'edit') params.id = this.timetableForm.timetable_id;
-
-            console.log(params);
-            this.getConflictLists(params);
-        },
-        //批量、单个排课参数整理
-        addTimeTableParams() {
-            console.log(this.timetableForm)
-
-            if(this.courseType !== 1 && !this.radioStudentForm) return this.$message.warning('请选择学员！');
-
-            let params = {
-                course_id: this.timetableForm.grade_info[0],
-                grade_id: this.timetableForm.grade_info[1],
-                lesson_num: this.timetableForm.lesson_num,
-                teacher_ids: `,${this.timetableForm.teacher_ids},`,
-                counselor_ids: `,${this.timetableForm.counselor_ids},`,
-                loop_time: this.timetableForm.loop_time,
-                room_id : this.timetableForm.room_id,
-                student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {return {student_id: v}}) : [{student_id: this.radioStudentForm}]
-            }
-            //单个提交
-            if(this.addTableType == 'single') {
-                params.commit_type = 'single';
-                this.timetableWeekList.forEach(v => {if(v.id == this.formAddDate[0].week) {
-                    params.begin_time = new Date(`${v.day.newFullDay} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
-                    params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
-                }});
-            } else if(this.addTableType == 'edit') {
-                params.commit_type = 'single';
-                console.log(this.formAddDate)
-                params.begin_time = new Date(`${this.formAddDate[0].week} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
-                params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
-                params.edit_id = this.timetableForm.timetable_id;
-            }else{
-                //批量提交
-                params.commit_type = 'multiple',
-                params.loop = this.timetableForm.loop;
-
-                let time_lists = this.formAddDate.map(d => {
-                    let begin_time, end_time;
-                    this.timetableWeekList.forEach(v => {
-                        let default_begin_time = new Date(`${v.day.newFullDay} ${d.begin_time}`).getTime() / 1000;
-                        let default_end_time = default_begin_time + this.timetableForm.lesson_time * 60;
-                        let later_begin_time = default_begin_time + 604800;
-                        let later_end_time = default_end_time + 604800;
-
-                        if(d.week == v.id) {
-                            if(new Date().getTime() / 1000 > default_begin_time) {
-                                begin_time = later_begin_time;
-                                end_time = later_end_time;
-                            }else {
-                                if(new Date(this.timetableForm.start_time).getDay() == 0) {   //周日
-                                    begin_time = d.week != 0 ? later_begin_time : default_begin_time;
-                                    end_time = d.week != 0 ? later_end_time : default_end_time;
-                                }else {
-                                    if(d.week == 0) {
-                                        begin_time = default_begin_time;
-                                        end_time = default_end_time;
-                                    }else {
-                                        begin_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_begin_time : default_begin_time;
-                                        end_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_end_time : default_end_time
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    return {begin_time: begin_time, end_time: end_time};
-                });
-
-                params.time_lists = time_lists;
-            }
-            console.log(params);
-            this.getConflictLists(params);
-        },
-        //检测是否有冲突，获取冲突数据列表
-        async getConflictLists(params) {
-            if(this.submitLoading.timetable) return 0;
-            this.submitLoading.timetable = true;
-
-            this.conflict_room = this.addTableType == 'multiple' ? [] : '';
-
-            let result = await this.$$request.post('/timetable/conflictLists', params);
-            console.log(result);
-            this.submitLoading.timetable = false;
-            if(!result) return 0;
-
-            if(result.status === 0) return this.$message.warning('操作失败，请稍后再试!');
-
-            if(result.status === 1) {
-                this.getAllTableLists();
-                this.getAddTimeTableFull();
-                this.conflict_room = this.addTableType == 'multiple' ? [] : '';
-                let message = this.addTableType == 'edit' ? '修改' : '添加';
-                this.$message.success(`${message}排课成功`);
-                this.addTimetableMask = false;
-                this.conflictMask = false;
-            }else if(result.status === -1) {
-                result.conflict_lists.forEach(v => {
-                    v.begin_time = v.begin_time * 1000;
-                    let nowtime = new Date(v.begin_time);
-                    v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-                    if(v.conflict_data.reason == 2) {
-                        if(v.conflict_data.data.constructor === Array) {
-                            this.conflict_room = v.conflict_data.data.map(k => {return k.id});
-                        }else {
-                            this.conflict_room = v.conflict_data.data.id;
-                        }
-                    }
-                });
-
-
-                this.conflictLists = result.conflict_lists;   //冲突列表
-                this.other_lists = result.lists;    //正常列表
-                this.conflictMask = true;
-            }
-        },
-        //判断当前开课日期是不是本周
-        isSameWeek(old){
-            var oneDayTime = 1000*60*60*24;
-            var old_count = parseInt(old/oneDayTime);
-            var now_other = parseInt(new Date().getTime() / oneDayTime);
-            return parseInt((old_count+4)/7) == parseInt((now_other+4)/7);
-        },
-        //获取新增排课填充数据
-        async getAddTimeTableFull() {
-            let result = await this.$$request.post('/timetable/fill', {class_pattern: 1});
-            console.log(result);
-
-            if(!result) return 0;
-
-            result.lists.course.forEach(v => {
-                v.value = v.id;
-                v.label = v.name;
-                v.children = v.grade.map(d => {
-                    d.value = d.id;
-                    d.label = d.name;
-                    return d;
-                });
-            });
-
-            this.timetableFull = result.lists;
-            return true;
-        },
-        //默认获取全部课表
-        async getAllTableLists() {
-            this.loading = true;
-            let result = await this.$$request.post('/timetable/lists', {select_time: Math.round(this.calendar.time), type: this.tableType});
-            console.log(result);
-            if(!result) return 0;
-
-            this.resultDispose(result.lists.timetable_lists);
-            this.timeTableInfo = result.lists;
-
-            this.gradeInfoCheckLists.lists = result.lists.grade_info.map(v => {return v});
-            this.gradeInfoCheckLists.total_num = result.lists.total_num;
-            this.gradeTimeTableRadio = 0;
-
-            this.timetable_gradeAll = true;
-            this.timetable_teacherAll = true;
-            this.timetable_roomAll = true;
-            this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
-            this.timetable_teacherCheck = result.lists.teacher_info;
-            this.timetable_roomCheck = result.lists.room_info;
-
-            return true;
-        },
-        //班级获取课表
-        async getGradeTableLists() {
-            if(!this.timetable_gradeCheck.length) return this.resultDispose([]);
-
-            this.loading = true;
-            let result = await this.$$request.post('/timetable/gradeLists', {
-                select_time: Math.round(this.calendar.time),
-                type: this.tableType,
-                grade_id: this.timetable_gradeCheck.map(v => {return v.id})
-            });
-
-            if(!result) return 0;
-            this.resultDispose(result.lists);
-        },
-        //老师获取课表
-        async getTeacherTableLists() {
-            if(!this.timetable_teacherCheck.length) return this.resultDispose([]);
-
-            this.loading = true;
-            let result = await this.$$request.post('/timetable/teacherLists', {
-                select_time: Math.round(this.calendar.time),
-                type: this.tableType,
-                teacher_id: this.timetable_teacherCheck.map(v => {return v.id})
-            });
-
-            if(!result) return 0;
-            this.resultDispose(result.lists);
-        },
-        //教室获取课表
-        async getRoomTableLists() {
-            if(!this.timetable_roomCheck.length) return this.resultDispose([]);
-
-            this.loading = true;
-            let result = await this.$$request.post('/timetable/roomLists', {
-                select_time: Math.round(this.calendar.time),
-                type: this.tableType,
-                room_id: this.timetable_roomCheck.map(v => {return v.id})
-            });
-
-            if(!result) return 0;
-            this.resultDispose(result.lists);
-        },
-        //返回数据判断梳理
-        resultDispose(resultData) {
-            if(this.tableType == 'week') {
-                let newResult = this.hourData.map(v => {
-                    let newData = {id: v.id, time: v.name};
-                    this.defaultWeekList.forEach(w => {
-                        newData[w.type] = {
-                            full_date: w.day.newFullDay,
-                            lists: [],
-                            id: w.id,
-                            operate: false,
-                            hours_id: v.id
-                        };
-
-                        let past_due, full_date = w.day.newFullDay;
-                        if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
-                            past_due = v.id < new Date().getHours() ? true : false;
-                        }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
-                            past_due = true;
-                        }else {
-                            past_due = false;
-                        };
-
-                        newData[w.type].past_due = past_due;
-
-                        resultData.forEach(d => {
-                            let nowDate = new Date(d.begin_time * 1000);
-                            let hour = nowDate.getHours();
-                            let week = nowDate.getDay();
-
-                            d.time_quantum = {
-                                begin_time: this.$$tools.formatTime(d.begin_time),
-                                end_time: this.$$tools.formatTime(d.end_time),
-                                week: this.$$tools.format(d.begin_time)
-                            };
-
-                            if(hour == v.id && w.id == week) {
-                                newData[w.type].lists.push(d);
-                            }
-                        });
-                    });
-                    return newData;
-                });
-                this.weekTableLists = newResult;
-
-                this.loading = false;
-            } else {
-                let newResult = this.hourData.map(v => {
-                    let newData = {id: v.id, course: []};
-
-                    let past_due;
-
-                    let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, "/");
-
-                    if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
-                        past_due = v.id <= new Date().getHours();
-                    }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
-                        past_due = true;
-                    }else {
-                        past_due = false;
-                    }
-
-                    newData.past_due = past_due;
-
-                    resultData.forEach(d => {
-                        let nowDate = new Date(d.begin_time * 1000);
-                        let hour = nowDate.getHours();
-                        let week = nowDate.getDay();
-
-                        d.operate = false;
-                        d.time_quantum = {
-                            begin_time: this.$$tools.formatTime(d.begin_time),
-                            end_time: this.$$tools.formatTime(d.end_time),
-                            week: this.$$tools.format(d.begin_time)
-                        };
-                        if(hour == v.id) {
-                            newData.course.push(d);
-                        }
-                    });
-
-                    return newData;
-                });
-
-                this.dayTableLists = newResult;
-                this.loading = false;
-            }
-        },
-        //周数据做处理
-        getWeekList(time, type) {
-            let now = new Date(), nowTime, day;
-
-            if(time) {
-                nowTime = time;
-                day = new Date(nowTime).getDay();
-            }else {
-                nowTime = now.getTime();
-                day = now.getDay();
-            }
-
-            let weekLists = this.weekList.map(d => {
-
-                let num = d.id, newTime, past_due;
-
-                let day_a = day == 0 ? 7 : day;
-
-                newTime = num == 0 ? nowTime + (7-day_a) * ONE_DAY_LONG : nowTime - (day_a-num) * ONE_DAY_LONG;
-
-                let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
-
-                // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
-                let isToday = new Date(newTime).toDateString() === new Date().toDateString();
-                if(this.isSameWeek(nowTime)) {
-                    past_due = newTime >= nowTime ? true : false;  //是否过了今天
-                }else {
-                    past_due = true;
-                }
-
-                let newFullDay = this.$$tools.format(newTime / 1000);
-
-                return {
-                    id: d.id,
-                    name: d.name,
-                    type: d.type,
-                    day: {
-                        isToday: isToday,
-                        past_due:  past_due,
-                        date: newDay.replace(/\-/g, "/") || 0,
-                        newFullDay: newFullDay.replace(/\-/g, "/") || 0
-                    }
-                }
-            });
-
-            if(type === 'default') this.defaultWeekList = weekLists;
-            else this.timetableWeekList = weekLists;
+    tableHeader (elem, {column, $index}) {
+      let weekList = this.defaultWeekList;
+
+
+      return elem('div', {'class': 'header-box'}, [
+        elem('div', [
+          elem('p', {
+            'class': {'fc-m': weekList[$index - 1].day.isToday}
+          }, weekList[$index - 1].name),
+          elem('p', {
+            'class': {'fc-m': weekList[$index - 1].day.isToday, 'mt-3': true, 'fs-13': true}
+          }, weekList[$index - 1].day.date)
+        ]),
+        elem('div', {'class': {'today fs-12': true, 'd-b': weekList[$index - 1].day.isToday}}, [
+          elem('p', {'class': 'pt-2'}, '今'), elem('p', {'class': 'pt-2'}, '日')
+        ])
+      ]);
+    },
+    timetableFilterTabClick (item) {
+      if (this.timetableFilter != item.id) {
+        this.timetableFilter = item.id;
+      }
+    },
+    //上一周翻页
+    lastWeekLists () {
+      if (this.tableType == 'week') {
+        let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
+
+        this.calendar.time = last / 1000;
+        this.getWeekList(last, 'default');
+      } else {
+        this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
+        this.setNewDate();
+        this.getWeekList(this.calendar.time, 'default');
+      }
+
+      this.getAllTableLists();
+    },
+    //下一周翻页
+    nextWeekLists () {
+      if (this.tableType == 'week') {
+        let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
+
+        this.calendar.time = next / 1000;
+        this.getWeekList(next, 'default');
+      } else {
+        this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
+        this.setNewDate();
+        this.getWeekList(this.calendar.time, 'default');
+      }
+
+      this.getAllTableLists();
+    },
+    dialogClose () {
+      this.formAddDate.splice(0, this.formAddDate.length);
+      // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
+
+      this.$refs.addTimeTable.resetFields();
+
+      Object.keys(this.timetableForm).forEach(v => {
+        if (v == 'grade_info') {
+          this.timetableForm[v] = [];
         }
+        // else if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
+        else if (v == 'loop') {
+          this.timetableForm[v] = 'no';
+        } else {
+          this.timetableForm[v] = '';
+        }
+      });
+      this.timePicker.minTime = 0;
+
+      //排课学员相关数据重置
+      this.studentCheckAll = false;
+      this.allStudentLists = [];
+      this.studentRadio = '';
+      this.studentLists = [];
+      this.courseType = 1;
+      this.timetableForm.no_timetable = '';
+      this.checkStudentForm = [];
+      this.radioStudentForm = '';
     },
-    async created() {
-        for(let a = 9; a <= 21; a++) {this.hourData.push({id: a, name: `${a}:00`})};
-        this.getWeekList(null, 'default');
-        this.getWeekList(null, 'timetable');
-
-        let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
-        if(a && b) this.state = 'loaded';
-
-        Bus.$on('home_refreshTimeTable', () => {this.getAllTableLists()});
+    //排课班级全选
+    gradeCheckAllChange (val) {
+      this.timetable_gradeCheck = val ? this.gradeInfoCheckLists.lists : [];
+      this.getGradeTableLists();
     },
-    mounted() {
-        let width = document.querySelector('.home-main-box').clientWidth;
-        if(width <= 1070) document.querySelector('.week-table').style.width = '990px';
-        else document.querySelector('.week-table').style.width = (width - 80) + 'px';
+    //排课班级多选
+    gradeCheckChange (val) {
+      let checkedCount = val.length;
 
-        this.CalendatObj = Jquery('#myCalendar').calendar({
-            width: 260,
-            height: 280,
-            customClass: 'my-calender',
-            onSelected: (view, date, data) => {
-                if(date.getTime() / 1000 === this.calendar.time) return 0;
-                this.calendar.time = date.getTime() / 1000;
-                this.getWeekList(date.getTime(), 'default');
-                this.nowTime = date.getTime();
-                this.getAllTableLists();
+      this.timetable_gradeAll = checkedCount === this.gradeInfoCheckLists.lists.length;
+      this.getGradeTableLists();
+    },
+    //排课老师全选
+    teacherCheckAllChange (val) {
+      this.timetable_teacherCheck = val ? this.timeTableInfo.teacher_info : [];
+      this.getTeacherTableLists();
+    },
+    //排课老师多选
+    teacherCheckChange (val) {
+      let checkedCount = val.length;
 
-                this.$refs.calendarPopover.showPopper = false;
+      this.timetable_teacherAll = checkedCount === this.timeTableInfo.teacher_info.length;
+      this.getTeacherTableLists();
+    },
+    //排课教室全选
+    roomCheckAllChange (val) {
+      this.timetable_roomCheck = val ? this.timeTableInfo.room_info : [];
+      this.getRoomTableLists();
+    },
+    //排课教室多选
+    roomCheckChange (val) {
+      let checkedCount = val.length;
+
+      this.timetable_roomAll = checkedCount === this.timeTableInfo.room_info.length;
+      this.getRoomTableLists();
+    },
+
+    //按周、日展示切换
+    tableTypeChange (type) {
+      if (type == this.tableType) {
+        return 0;
+      }
+      this.tableType = type;
+
+      this.calendar.time = new Date().getTime() / 1000;
+      this.getWeekList(null, 'default');
+      this.getWeekList(null, 'timetable');
+      this.setNewDate();
+      this.getAllTableLists();
+    },
+    //批量排课，新增多个时间段
+    addDateHandle () {
+      this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+      setTimeout(v => {
+        document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight);
+      }, 10);
+    },
+    //删除时间段
+    deleteDateHandle (index) {
+      this.formAddDate.splice(index, 1);
+    },
+    //周课表hover事件
+    timeTableHover (row, col, elem) {
+      let item = elem.querySelector('.item-box');
+
+      if (!item) {
+        return 0;
+      }
+      let mytype = elem.querySelector('.item-box').getAttribute('mytype');
+
+      row[mytype].operate = true;
+    },
+    //周课表leave事件
+    timeTableleave (row, col, elem) {
+      let item = elem.querySelector('.item-box');
+
+      if (!item) {
+        return 0;
+      }
+      let mytype = elem.querySelector('.item-box').getAttribute('mytype');
+
+      row[mytype].operate = false;
+    },
+    //鼠标移入课表
+    coursehover (item) {
+      item.operate = true;
+    },
+    //鼠标移出课表
+    courseMouseout (item) {
+      item.operate = false;
+    },
+    //详情编辑
+    detailEdit (detail) {
+      this.addTableType = 'edit';
+      this.getWeekList(this.calendar.time * 1000, 'timetable');
+
+      this.courseType = detail.course_type;
+      if (this.courseType !== 1 && detail.student_grades.length) {
+        this.studentRadio = detail.student_grades[0].student_id;
+      }
+
+      this.formAddDate.splice(0, this.formAddDate.length, {begin_time: detail.time_quantum.begin_time, end_time: '', week: detail.time_quantum.week});
+
+      this.timetableForm.timetable_id = detail.id;
+      this.timetableForm.grade_info = [detail.course_id, detail.grade_id];
+      this.timetableForm.lesson_num = detail.lesson_num;
+      this.timetableForm.lesson_time = detail.lesson_time;
+      this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : ''; //任课老师
+      this.timetableForm.counselor_ids = detail.counselor.length ? detail.counselor[0].id : ''; //辅助老师
+      this.timetableForm.room_id = detail.room_id;
+
+      this.timetableFull.course.forEach(v => {
+        if (v.id === detail.course_id) {
+          v.grade.forEach(d => {
+            if (d.id === detail.grade_id) {
+              if (this.courseType === 1) {
+                this.timetableForm.no_timetable = d.lesson_num - +d.scheduled;
+              }
+              this.gradeInfo = d;
             }
+          });
+        }
+      });
+
+      console.log(this.gradeInfo);
+
+      this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
+
+      if (this.courseType === 1) {
+        this.checkStudentForm = detail.student_grades.map(v => {
+          return v.student_id;
         });
+        this.studentLists = this.checkStudentForm;
+        this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length;
+      } else {
+        this.radioStudentForm = detail.student_grades[0].student_id;
+        this.studentRadio = this.radioStudentForm;
+      }
+
+      this.allStudentLists.forEach(m => {
+        if (this.checkStudentForm.indexOf(m.student_id) != -1) {
+          m.disabled = false;
+        } else {
+          m.disabled = !(m.buy_lesson_num - m.scheduled);
+        }
+      });
+
+      console.log(this.allStudentLists);
+
+      this.addTimetableMask = true;
     },
-    components: {TableHeader, MyButton, TimetablePopver}
-}
+    //详情删除
+    detailDelete (detail) {
+      this.$confirm('确定删除排课吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(detail.id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (id) {
+      let result = await this.$$request.post('/timetable/delete', {id: id});
+
+      if (!result || !result.status) {
+        return 0;
+      }
+
+      this.$message.success('删除成功');
+      this.getAllTableLists();
+      this.getAddTimeTableFull();
+    },
+    CB_deleteTable () {
+      this.getAllTableLists();
+      this.getAddTimeTableFull();
+    },
+    //新增排课  type: single / multiple
+    addTimetableHandle (type, time, full_day, week) {
+      this.addTableType = type;
+
+      if (type === 'single') {
+        this.timetableForm.room_id = '';
+
+        this.getWeekList(this.calendar.time * 1000, 'timetable');
+        let newdate = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+
+        if (this.isSameWeek(this.nowTime)) {
+          this.timePicker.minTime = week == new Date().getDay() ? newdate : 0;
+        } else {
+          this.timePicker.minTime = 0;
+        }
+
+        let newTime = new Date(`${full_day} 00:00`).getTime() < new Date().getTime() && time == new Date().getHours() ?
+          [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&') : `${time}:00`;
+
+        this.formAddDate.push({begin_time: newTime, end_time: '', week: week});
+      } else {
+        this.timetableForm.room_id = [];
+        this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+        this.timetableForm.start_time = new Date().getTime();
+      }
+
+      this.addTimetableMask = true;
+    },
+    //新增排课选择班级
+    formGradeChange (val) {
+      //课程班级改变，学员数据全部重置
+      this.studentCheckAll = false;
+      this.allStudentLists = [];
+      this.studentRadio = '';
+      this.studentLists = [];
+      this.checkStudentForm = [];
+      this.radioStudentForm = '';
+      this.timetableForm.lesson_num = '';
+      this.timetableForm.no_timetable = '';
+
+      if (this.addTableType == 'multiple') {
+        this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
+      }
+
+      this.timetableFull.course.forEach(v => {
+        if (v.id === val[0]) {
+          this.timetableForm.lesson_time = v.lesson_time;
+          this.courseType = v.type;
+
+          v.grade.forEach(d => {
+            if (d.id === val[1]) {
+              if (v.type === 1) {
+                this.timetableForm.no_timetable = d.lesson_num - +d.scheduled;
+              }
+              this.gradeInfo = d;
+            }
+          });
+        }
+      });
+
+      console.log(this.gradeInfo);
+
+      this.timetableForm.grade_info = val;
+      this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
+
+      this.allStudentLists.forEach(m => {
+        m.disabled = !(m.buy_lesson_num - m.scheduled);
+      }); //手动判断学员是够还能排课
+
+      console.log(this.allStudentLists);
+
+      if (this.courseType === 1) {
+        this.studentLists.splice(0, this.studentLists.length);
+        this.gradeInfo.student_grade.forEach(k => {
+          if (k.buy_lesson_num - k.scheduled > 0) {
+            this.studentLists.push(k.student_id);
+          }
+        });
+
+        // this.studentLists = this.gradeInfo.student_grade.map(v => {return v.student_id});
+        this.checkStudentForm = this.studentLists;
+        this.studentCheckAll = !this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length;
+      }
+
+      if (this.gradeInfo.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
+        //若开课时间大于五年 则显示当前日期
+        this.timetableForm.start_time = this.gradeInfo.start_time * 1000 - new Date().getTime() > 5 * 360 * 24 * 60 * 60 * 1000 ? new Date().setHours(0, 0, 0, 0) : this.gradeInfo.start_time * 1000;
+
+        if (this.addTableType == 'multiple') {
+          this.getWeekList(this.timetableForm.start_time, 'timetable');
+        }
+        this.disableStartTime = this.timetableForm.start_time;
+      } else {
+        this.timetableForm.start_time = new Date().setHours(0, 0, 0, 0);
+      }
+
+      this.timetableForm.teacher_ids = this.gradeInfo.teacher.length ? this.gradeInfo.teacher[0].id : ''; //任课老师
+      this.timetableForm.counselor_ids = this.gradeInfo.counselor.length ? this.gradeInfo.counselor[0].id : ''; //辅助老师
+
+      if (this.addTableType == 'multiple') {
+        this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, this.gradeInfo.room_id);
+      } //上课教室
+      else {
+        this.timetableForm.room_id = this.gradeInfo.room_id;
+      }
+    },
+    //排课弹窗，选择一周某一天
+    formWeekChange (val) {
+      if (this.addTableType == 'multiple') {
+        this.timePicker.minTime = 0;
+      } else {
+        this.formAddDate.forEach(d => {
+          if (d.week == val) {
+            d.begin_time = '';
+          }
+        });
+        if (val == new Date().getDay()) {
+          this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+        } else {
+          this.timePicker.minTime = 0;
+        }
+      }
+    },
+    //编辑课表时，时间控件选择当天，判断时刻disabled
+    formEditDateChange (val) {
+      if (new Date(val).toDateString() === new Date().toDateString()) {
+        this.timePicker.minTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+      } else {
+        this.timePicker.minTime = 0;
+      }
+    },
+    //学员checkbox，全选
+    studentCheckAllChange (val) {
+      this.studentLists = val ? this.allStudentLists.map(v => {
+        return v.student_id;
+      }) : [];
+    },
+    //学员checkbox，多选
+    studentCheckChange (val) {
+      let checkedCount = val.length;
+
+      this.studentCheckAll = checkedCount === this.allStudentLists.length;
+    },
+    //排课弹窗通过选中的student_id获取student_name
+    getStudentName (student_id) {
+      let name = '';
+
+      this.allStudentLists.forEach(v => {
+        if (student_id == v.student_id) {
+          name = v.student_name;
+        }
+      });
+
+      return name;
+    },
+    addStudentClick () {
+      if (!this.allStudentLists.length) {
+        return this.$message.warning('暂无可选择学员');
+      }
+      this.addStudentDialog = true;
+
+      if (this.courseType === 1) {
+        this.studentLists = this.checkStudentForm;
+        this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
+      } else {
+        this.studentRadio = this.radioStudentForm;
+      }
+    },
+    //选学员按钮判断变化
+    addStudentBtnChange () {
+      let text = '';
+
+      if (this.courseType === 1) {
+        text = this.checkStudentForm.length ? '重新选择' : '选择学员';
+      } else {
+        text = this.radioStudentForm ? this.getStudentName(this.radioStudentForm) : '选择学员';
+      }
+
+      return text;
+    },
+    checkStudentDone () {
+      if (this.courseType === 1) {
+        this.checkStudentForm = this.studentLists;
+      } else {
+        this.radioStudentForm = this.studentRadio;
+        this.allStudentLists.forEach(v =>{
+          if (v.student_id == this.studentRadio) {
+            this.timetableForm.no_timetable = v.buy_lesson_num - v.scheduled;
+          }
+        });
+      }
+      this.addStudentDialog = false;
+    },
+    //排课，开课日期改变
+    startTimeChange (val) {
+      this.getWeekList(val, 'timetable');
+    },
+    //排课表单确定
+    doneHandle (formName) {
+      let a, b;
+
+      this.$refs[formName].validate(valid => {
+        a = valid ? true : false;
+      });
+      for (let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {
+        this.$refs.addDateForm[i].validate(valid => {
+          b = valid ? true : false;
+        });
+      }
+      if (a && b) {
+        this.addTimeTableParams();
+      }
+    },
+    //冲突页面确定修改
+    doneModify () {
+      console.log(this.conflict_room);
+      let lists = this.conflictLists.map(v => {
+        let item = {};
+
+        for (let key in v) {
+          if (key != 'begin_hours' && key != 'conflict_data') {
+            if (key == 'begin_time') {
+              item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, '/')} ${v.begin_hours}`).getTime() / 1000;
+            } else if (key == 'end_time') {
+              item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
+            } else if (key == 'room_id') {
+              if (this.addTableType == 'multiple') {
+                item[key] = this.conflict_room.length ? this.conflict_room : this.timetableForm.room_id;
+              } else {
+                item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
+              }
+            } else {
+              item[key] = v[key];
+            }
+          }
+        }
+
+        return item;
+      });
+
+      console.log(lists);
+
+      lists = lists.concat(this.other_lists);
+
+      let params = {lists: lists, commit_type: 'conflict'};
+
+      if (this.addTableType == 'edit') {
+        params.id = this.timetableForm.timetable_id;
+      }
+
+      console.log(params);
+      this.getConflictLists(params);
+    },
+    //批量、单个排课参数整理
+    addTimeTableParams () {
+      console.log(this.timetableForm);
+
+      if (this.courseType !== 1 && !this.radioStudentForm) {
+        return this.$message.warning('请选择学员！');
+      }
+
+      let params = {
+        course_id: this.timetableForm.grade_info[0],
+        grade_id: this.timetableForm.grade_info[1],
+        lesson_num: this.timetableForm.lesson_num,
+        teacher_ids: `,${this.timetableForm.teacher_ids},`,
+        counselor_ids: `,${this.timetableForm.counselor_ids},`,
+        loop_time: this.timetableForm.loop_time,
+        room_id: this.timetableForm.room_id,
+        student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {
+          return {student_id: v};
+        }) : [{student_id: this.radioStudentForm}]
+      };
+      //单个提交
+
+      if (this.addTableType == 'single') {
+        params.commit_type = 'single';
+        this.timetableWeekList.forEach(v => {
+          if (v.id == this.formAddDate[0].week) {
+            params.begin_time = new Date(`${v.day.newFullDay} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
+            params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
+          }
+        });
+      } else if (this.addTableType == 'edit') {
+        params.commit_type = 'single';
+        console.log(this.formAddDate);
+        params.begin_time = new Date(`${this.formAddDate[0].week} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
+        params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
+        params.edit_id = this.timetableForm.timetable_id;
+      } else {
+        //批量提交
+        params.commit_type = 'multiple',
+        params.loop = this.timetableForm.loop;
+
+        let time_lists = this.formAddDate.map(d => {
+          let begin_time, end_time;
+
+          this.timetableWeekList.forEach(v => {
+            let default_begin_time = new Date(`${v.day.newFullDay} ${d.begin_time}`).getTime() / 1000;
+            let default_end_time = default_begin_time + this.timetableForm.lesson_time * 60;
+            let later_begin_time = default_begin_time + 604800;
+            let later_end_time = default_end_time + 604800;
+
+            if (d.week == v.id) {
+              if (new Date().getTime() / 1000 > default_begin_time) {
+                begin_time = later_begin_time;
+                end_time = later_end_time;
+              } else if (new Date(this.timetableForm.start_time).getDay() == 0) { //周日
+                begin_time = d.week != 0 ? later_begin_time : default_begin_time;
+                end_time = d.week != 0 ? later_end_time : default_end_time;
+              } else if (d.week == 0) {
+                begin_time = default_begin_time;
+                end_time = default_end_time;
+              } else {
+                begin_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_begin_time : default_begin_time;
+                end_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_end_time : default_end_time;
+              }
+            }
+          });
+
+          return {begin_time: begin_time, end_time: end_time};
+        });
+
+        params.time_lists = time_lists;
+      }
+      console.log(params);
+      this.getConflictLists(params);
+    },
+    //检测是否有冲突，获取冲突数据列表
+    async getConflictLists (params) {
+      if (this.submitLoading.timetable) {
+        return 0;
+      }
+      this.submitLoading.timetable = true;
+
+      this.conflict_room = this.addTableType == 'multiple' ? [] : '';
+
+      let result = await this.$$request.post('/timetable/conflictLists', params);
+
+      console.log(result);
+      this.submitLoading.timetable = false;
+      if (!result) {
+        return 0;
+      }
+
+      if (result.status === 0) {
+        return this.$message.warning('操作失败，请稍后再试!');
+      }
+
+      if (result.status === 1) {
+        this.getAllTableLists();
+        this.getAddTimeTableFull();
+        this.conflict_room = this.addTableType == 'multiple' ? [] : '';
+        let message = this.addTableType == 'edit' ? '修改' : '添加';
+
+        this.$message.success(`${message}排课成功`);
+        this.addTimetableMask = false;
+        this.conflictMask = false;
+      } else if (result.status === -1) {
+        result.conflict_lists.forEach(v => {
+          v.begin_time = v.begin_time * 1000;
+          let nowtime = new Date(v.begin_time);
+
+          v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+          if (v.conflict_data.reason == 2) {
+            if (v.conflict_data.data.constructor === Array) {
+              this.conflict_room = v.conflict_data.data.map(k => {
+                return k.id;
+              });
+            } else {
+              this.conflict_room = v.conflict_data.data.id;
+            }
+          }
+        });
+
+
+        this.conflictLists = result.conflict_lists; //冲突列表
+        this.other_lists = result.lists; //正常列表
+        this.conflictMask = true;
+      }
+    },
+    //判断当前开课日期是不是本周
+    isSameWeek (old) {
+      let oneDayTime = 1000 * 60 * 60 * 24;
+      let old_count = parseInt(old / oneDayTime);
+      let now_other = parseInt(new Date().getTime() / oneDayTime);
+
+
+      return parseInt((old_count + 4) / 7) == parseInt((now_other + 4) / 7);
+    },
+    //获取新增排课填充数据
+    async getAddTimeTableFull () {
+      let result = await this.$$request.post('/timetable/fill', {class_pattern: 1});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+
+      result.lists.course.forEach(v => {
+        v.value = v.id;
+        v.label = v.name;
+        v.children = v.grade.map(d => {
+          d.value = d.id;
+          d.label = d.name;
+
+          return d;
+        });
+      });
+
+      this.timetableFull = result.lists;
+
+      return true;
+    },
+    //默认获取全部课表
+    async getAllTableLists () {
+      this.loading = true;
+      let result = await this.$$request.post('/timetable/lists', {select_time: Math.round(this.calendar.time), type: this.tableType});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.resultDispose(result.lists.timetable_lists);
+      this.timeTableInfo = result.lists;
+
+      this.gradeInfoCheckLists.lists = result.lists.grade_info.map(v => {
+        return v;
+      });
+      this.gradeInfoCheckLists.total_num = result.lists.total_num;
+      this.gradeTimeTableRadio = 0;
+
+      this.timetable_gradeAll = true;
+      this.timetable_teacherAll = true;
+      this.timetable_roomAll = true;
+      this.timetable_gradeCheck = this.gradeInfoCheckLists.lists;
+      this.timetable_teacherCheck = result.lists.teacher_info;
+      this.timetable_roomCheck = result.lists.room_info;
+
+      return true;
+    },
+    //班级获取课表
+    async getGradeTableLists () {
+      if (!this.timetable_gradeCheck.length) {
+        return this.resultDispose([]);
+      }
+
+      this.loading = true;
+      let result = await this.$$request.post('/timetable/gradeLists', {
+        select_time: Math.round(this.calendar.time),
+        type: this.tableType,
+        grade_id: this.timetable_gradeCheck.map(v => {
+          return v.id;
+        })
+      });
+
+      if (!result) {
+        return 0;
+      }
+      this.resultDispose(result.lists);
+    },
+    //老师获取课表
+    async getTeacherTableLists () {
+      if (!this.timetable_teacherCheck.length) {
+        return this.resultDispose([]);
+      }
+
+      this.loading = true;
+      let result = await this.$$request.post('/timetable/teacherLists', {
+        select_time: Math.round(this.calendar.time),
+        type: this.tableType,
+        teacher_id: this.timetable_teacherCheck.map(v => {
+          return v.id;
+        })
+      });
+
+      if (!result) {
+        return 0;
+      }
+      this.resultDispose(result.lists);
+    },
+    //教室获取课表
+    async getRoomTableLists () {
+      if (!this.timetable_roomCheck.length) {
+        return this.resultDispose([]);
+      }
+
+      this.loading = true;
+      let result = await this.$$request.post('/timetable/roomLists', {
+        select_time: Math.round(this.calendar.time),
+        type: this.tableType,
+        room_id: this.timetable_roomCheck.map(v => {
+          return v.id;
+        })
+      });
+
+      if (!result) {
+        return 0;
+      }
+      this.resultDispose(result.lists);
+    },
+    //返回数据判断梳理
+    resultDispose (resultData) {
+      if (this.tableType == 'week') {
+        let newResult = this.hourData.map(v => {
+          let newData = {id: v.id, time: v.name};
+
+          this.defaultWeekList.forEach(w => {
+            newData[w.type] = {
+              full_date: w.day.newFullDay,
+              lists: [],
+              id: w.id,
+              operate: false,
+              hours_id: v.id
+            };
+
+            let past_due, full_date = w.day.newFullDay;
+
+            if (full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, '/')) {
+              past_due = v.id < new Date().getHours() ? true : false;
+            } else if (new Date(`${full_date} 00:00`).getTime() < new Date().getTime()) {
+              past_due = true;
+            } else {
+              past_due = false;
+            }
+
+            newData[w.type].past_due = past_due;
+
+            resultData.forEach(d => {
+              let nowDate = new Date(d.begin_time * 1000);
+              let hour = nowDate.getHours();
+              let week = nowDate.getDay();
+
+              d.time_quantum = {
+                begin_time: this.$$tools.formatTime(d.begin_time),
+                end_time: this.$$tools.formatTime(d.end_time),
+                week: this.$$tools.format(d.begin_time)
+              };
+
+              if (hour == v.id && w.id == week) {
+                newData[w.type].lists.push(d);
+              }
+            });
+          });
+
+          return newData;
+        });
+
+        this.weekTableLists = newResult;
+
+        this.loading = false;
+      } else {
+        let newResult = this.hourData.map(v => {
+          let newData = {id: v.id, course: []};
+
+          let past_due;
+
+          let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, '/');
+
+          if (full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, '/')) {
+            past_due = v.id <= new Date().getHours();
+          } else if (new Date(`${full_date} 00:00`).getTime() < new Date().getTime()) {
+            past_due = true;
+          } else {
+            past_due = false;
+          }
+
+          newData.past_due = past_due;
+
+          resultData.forEach(d => {
+            let nowDate = new Date(d.begin_time * 1000);
+            let hour = nowDate.getHours();
+            let week = nowDate.getDay();
+
+            d.operate = false;
+            d.time_quantum = {
+              begin_time: this.$$tools.formatTime(d.begin_time),
+              end_time: this.$$tools.formatTime(d.end_time),
+              week: this.$$tools.format(d.begin_time)
+            };
+            if (hour == v.id) {
+              newData.course.push(d);
+            }
+          });
+
+          return newData;
+        });
+
+        this.dayTableLists = newResult;
+        this.loading = false;
+      }
+    },
+    //周数据做处理
+    getWeekList (time, type) {
+      let now = new Date(), nowTime, day;
+
+      if (time) {
+        nowTime = time;
+        day = new Date(nowTime).getDay();
+      } else {
+        nowTime = now.getTime();
+        day = now.getDay();
+      }
+
+      let weekLists = this.weekList.map(d => {
+
+        let num = d.id, newTime, past_due;
+
+        let day_a = day == 0 ? 7 : day;
+
+        newTime = num == 0 ? nowTime + (7 - day_a) * ONE_DAY_LONG : nowTime - (day_a - num) * ONE_DAY_LONG;
+
+        let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
+
+        // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
+        let isToday = new Date(newTime).toDateString() === new Date().toDateString();
+
+        if (this.isSameWeek(nowTime)) {
+          past_due = newTime >= nowTime ? true : false; //是否过了今天
+        } else {
+          past_due = true;
+        }
+
+        let newFullDay = this.$$tools.format(newTime / 1000);
+
+        return {
+          id: d.id,
+          name: d.name,
+          type: d.type,
+          day: {
+            isToday: isToday,
+            past_due: past_due,
+            date: newDay.replace(/\-/g, '/') || 0,
+            newFullDay: newFullDay.replace(/\-/g, '/') || 0
+          }
+        };
+      });
+
+      if (type === 'default') {
+        this.defaultWeekList = weekLists;
+      } else {
+        this.timetableWeekList = weekLists;
+      }
+    }
+  },
+  async created () {
+    for (let a = 9; a <= 21; a++) {
+      this.hourData.push({id: a, name: `${a}:00`});
+    }
+    this.getWeekList(null, 'default');
+    this.getWeekList(null, 'timetable');
+
+    let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
+
+    if (a && b) {
+      this.state = 'loaded';
+    }
+
+    Bus.$on('home_refreshTimeTable', () => {
+      this.getAllTableLists();
+    });
+  },
+  mounted () {
+    let width = document.querySelector('.home-main-box').clientWidth;
+
+    if (width <= 1070) {
+      document.querySelector('.week-table').style.width = '990px';
+    } else {
+      document.querySelector('.week-table').style.width = `${width - 80 }px`;
+    }
+
+    this.CalendatObj = Jquery('#myCalendar').calendar({
+      width: 260,
+      height: 280,
+      customClass: 'my-calender',
+      onSelected: (view, date, data) => {
+        if (date.getTime() / 1000 === this.calendar.time) {
+          return 0;
+        }
+        this.calendar.time = date.getTime() / 1000;
+        this.getWeekList(date.getTime(), 'default');
+        this.nowTime = date.getTime();
+        this.getAllTableLists();
+
+        this.$refs.calendarPopover.showPopper = false;
+      }
+    });
+  },
+  components: {TableHeader, MyButton, TimetablePopver}
+};
 </script>
 
 <style lang="less" scoped>

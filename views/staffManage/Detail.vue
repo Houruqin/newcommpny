@@ -123,147 +123,182 @@
 
 <script>
 
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import AddStaffDialog from '../../components/dialog/AddStaff'
-import ContractDialog from '../../components/dialog/Contract'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import AddStaffDialog from '../../components/dialog/AddStaff';
+import ContractDialog from '../../components/dialog/Contract';
 
 export default {
-    components: {TableHeader, MyButton, AddStaffDialog, ContractDialog},
-    data() {
-        return {
-            state: 'loading',
-            loading: false,
-            userType: '',
-            dialogStatus: {
-                detail: false,
-                contract: false
-            },
-            userId: '',
-            userDetail: {},
-            editDetail: {},
-            activeTab: 'followUp',
-            bottomLists: {},
+  components: {TableHeader, MyButton, AddStaffDialog, ContractDialog},
+  data () {
+    return {
+      state: 'loading',
+      loading: false,
+      userType: '',
+      dialogStatus: {
+        detail: false,
+        contract: false
+      },
+      userId: '',
+      userDetail: {},
+      editDetail: {},
+      activeTab: 'followUp',
+      bottomLists: {},
 
-            contractData: {}
-        }
+      contractData: {}
+    };
+  },
+  methods: {
+    editHandle () {
+      this.userType = 'edit';
+      this.editDetail = this.userDetail;
+      this.dialogStatus.detail = true;
     },
-    methods: {
-        editHandle() {
-            this.userType = 'edit';
-            this.editDetail = this.userDetail;
-            this.dialogStatus.detail = true;
-        },
-        CB_dialogStatus(type) {
-            if(type == 'staff') {
-                this.userType = '';
-                this.editDetail = {};
-                this.dialogStatus.detail = false;
-                return 0;
-            };
-            if(type == 'contract') {
-                this.contractData = {};
-                this.dialogStatus.contract = false;
-                return 0;
-            };
-        },
-        CB_addStaff() {
-            //修改成功，刷新
-            this.dialogStatus.detail = false;
-            this.getDetail();
-        },
-        tabClick() {
-            this.getBottomLists();
-        },
-        paginationClick(curr_page) {
-            this.getBottomLists(curr_page);
-        },
-        //任课班级状态
-        gradeStatus(data) {
-            let date = new Date().getTime() / 1000, result = {};
-            if(data.status === -3) {
-                result = {id: 'stop', name: '停课'};
-            }else if(data.status === -2){
-                result = {id: 'no', name: '未开课'};
-            }else {
-                result = data.start_time < date ? {id: 'yes', name: '已开课'} : {id: 'no', name: '未开课'};
-            }
-            return result;
-        },
-        async getBottomLists(curr_page) {
-            this.loading = true;
-            let key = this.activeTab == 'followUp' ? 'followRoster' : this.activeTab == 'student' ? 'signRoster' : 'grade';
-            let params = {user_id: this.userId};
+    CB_dialogStatus (type) {
+      if (type == 'staff') {
+        this.userType = '';
+        this.editDetail = {};
+        this.dialogStatus.detail = false;
 
-            if(curr_page) params.page = curr_page;
-            let result = await this.$$request.get(`user/${key}`, params);
-            console.log(result);
+        return 0;
+      }
+      if (type == 'contract') {
+        this.contractData = {};
+        this.dialogStatus.contract = false;
 
-            if(!result) return 0;
-            if(this.activeTab == 'grade' && result.lists.data.length) result.lists.data.forEach(d => {d.gradeStatus = this.gradeStatus(d)});
-
-            this.bottomLists = result.lists;
-            this.loading = false;
-        },
-        async getDetail() {
-            let result = await this.$$request.get('/user/detail', {user_id: this.userId});
-            console.log(result);
-            if(!result) return 0;
-            this.userDetail = result.user;
-
-            this.getBottomLists();
-            return true;
-        },
-        //离职
-        async dimissionClick() {
-            this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.dimissionHandle();
-            }).catch(() => {return 0});
-        },
-        async dimissionHandle() {
-            let result = await this.$$request.post('/user/changeStatus', {id: this.userId});
-            console.log(result);
-            if(!result) return 0;
-
-            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
-            this.getDetail();
-            this.$message.success('已修改为离职状态');
-        },
-        //删除用户
-        deleteUserInfo() {
-            this.$confirm('确定删除该员工吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle();
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(scope) {
-            let result = await this.$$request.post('/user/delete', {id: this.userId});
-            console.log(result);
-            if(!result) return 0;
-            this.$router.go(-1);
-        },
-        //课程信息列表查看合约
-        async showContract(data) {
-            let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
-            console.log(result);
-            if(!result) return 0;
-            this.contractData = result.data
-            this.dialogStatus.contract = true;
-        }
+        return 0;
+      }
     },
-    async created() {
-        if(this.$route.query.user_id) this.userId = this.$route.query.user_id;
-        let datas = await this.getDetail();
-        if(datas) this.state = 'loaded';
+    CB_addStaff () {
+      //修改成功，刷新
+      this.dialogStatus.detail = false;
+      this.getDetail();
+    },
+    tabClick () {
+      this.getBottomLists();
+    },
+    paginationClick (curr_page) {
+      this.getBottomLists(curr_page);
+    },
+    //任课班级状态
+    gradeStatus (data) {
+      let date = new Date().getTime() / 1000, result = {};
+
+      if (data.status === -3) {
+        result = {id: 'stop', name: '停课'};
+      } else if (data.status === -2) {
+        result = {id: 'no', name: '未开课'};
+      } else {
+        result = data.start_time < date ? {id: 'yes', name: '已开课'} : {id: 'no', name: '未开课'};
+      }
+
+      return result;
+    },
+    async getBottomLists (curr_page) {
+      this.loading = true;
+      let key = this.activeTab == 'followUp' ? 'followRoster' : this.activeTab == 'student' ? 'signRoster' : 'grade';
+      let params = {user_id: this.userId};
+
+      if (curr_page) {
+        params.page = curr_page;
+      }
+      let result = await this.$$request.get(`user/${key}`, params);
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      if (this.activeTab == 'grade' && result.lists.data.length) {
+        result.lists.data.forEach(d => {
+          d.gradeStatus = this.gradeStatus(d);
+        });
+      }
+
+      this.bottomLists = result.lists;
+      this.loading = false;
+    },
+    async getDetail () {
+      let result = await this.$$request.get('/user/detail', {user_id: this.userId});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.userDetail = result.user;
+
+      this.getBottomLists();
+
+      return true;
+    },
+    //离职
+    async dimissionClick () {
+      this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.dimissionHandle();
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async dimissionHandle () {
+      let result = await this.$$request.post('/user/changeStatus', {id: this.userId});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
+      this.getDetail();
+      this.$message.success('已修改为离职状态');
+    },
+    //删除用户
+    deleteUserInfo () {
+      this.$confirm('确定删除该员工吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle();
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (scope) {
+      let result = await this.$$request.post('/user/delete', {id: this.userId});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$router.go(-1);
+    },
+    //课程信息列表查看合约
+    async showContract (data) {
+      let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.contractData = result.data;
+      this.dialogStatus.contract = true;
     }
-}
+  },
+  async created () {
+    if (this.$route.query.user_id) {
+      this.userId = this.$route.query.user_id;
+    }
+    let datas = await this.getDetail();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

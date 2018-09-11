@@ -57,134 +57,158 @@
 
 <script>
 
-import MyButton from '../components/common/MyButton'
-import Logo from '../images/common/organization-logo.png'
+import MyButton from '../components/common/MyButton';
+import Logo from '../images/common/organization-logo.png';
 
 export default {
-    data() {
+  data () {
+    return {
+      logo: Logo,
+      addShow: true, //是否展示添加校区表单
+      organizationInfo: [],
+      formLists: [{
+        organization_id: '', //机构名称
+        school: '', //校区名称
+        principalName: '', //校长姓名
+        principalPhone: '', //校长手机号
+        tel: '', //联系电话
+        address: '', //校区
+        class_pattern: ''
+      }],
+      rules: {
+        organization_id: [
+          {required: true, message: '请选择机构', trigger: 'change'}
+        ],
+        school: [
+          {required: true, message: '请输入校区名称'},
+          {max: 20, message: '长度不能超过20个字符'}
+        ],
+        principalName: [
+          {required: true, message: '请输入分校长姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        principalPhone: [
+          {required: true, message: '请输入分校长电话'},
+          {validator: this.$$tools.formValidate('phone')}
+        ],
+        tel: [
+          {required: true, message: '请输入联系电话'},
+          {validator: this.$$tools.formValidate('tel')}
+        ],
+        address: [
+          {required: true, message: '请输入校区地址'},
+          {max: 50, message: '长度不能超过50个字符'}
+        ],
+        class_pattern: [
+          {required: true, message: '请选择课程模式', trigger: 'change'}
+        ]
+      }
+    };
+  },
+  methods: {
+    //添加
+    addHandle (formName) {
+      let result = this.$refs[formName].map(v => {
+        let validate;
+
+        v.validate((valid) => {
+          validate = valid;
+        });
+
+        return validate;
+      });
+
+      if (result.every(d => {
+        return d;
+      })) {
+        this.formLists.push({
+          organization_id: '', //机构名称
+          school: '', //校区名称
+          principalName: '', //校长姓名
+          principalPhone: '', //校长手机号
+          tel: '', //联系电话
+          address: '', //校区
+          class_pattern: '' //校区课程模式
+        });
+      }
+    },
+
+    //确定
+    doneHandle (formName) {
+      let result = this.$refs[formName].map(v => {
+        let validate;
+
+        v.validate((valid) => {
+          validate = valid;
+        });
+
+        return validate;
+      });
+
+      if (result.every(d => {
+        return d;
+      })) {
+        this.submitHandle();
+      }
+    },
+    //退出
+    async quitHandle () {
+      let result = await this.$$request.post('/auth/logout');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$$cache.loginOut();
+      this.formLists.splice(0, this.formLists.length);
+      this.$message('已退出登录！');
+    },
+    //提交数据
+    async submitHandle () {
+      let params = this.formLists.map(v => {
         return {
-            logo: Logo,
-            addShow: true,    //是否展示添加校区表单
-            organizationInfo: [],
-            formLists: [{
-                organization_id: '',    //机构名称
-                school: '',    //校区名称
-                principalName: '',    //校长姓名
-                principalPhone: '',   //校长手机号
-                tel: '',    //联系电话
-                address: '',   //校区
-                class_pattern: ''
-            }],
-            rules: {
-                organization_id: [
-                    {required: true, message: '请选择机构', trigger: 'change'}
-                ],
-                school: [
-                    {required: true, message: '请输入校区名称'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                principalName: [
-                    {required: true, message: '请输入分校长姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                principalPhone: [
-                    {required: true, message: '请输入分校长电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                tel: [
-                    {required: true, message: '请输入联系电话'},
-                    {validator: this.$$tools.formValidate('tel')}
-                ],
-                address: [
-                    {required: true, message: '请输入校区地址'},
-                    {max: 50, message: '长度不能超过50个字符'}
-                ],
-                class_pattern: [
-                    {required: true, message: '请选择课程模式', trigger: 'change'}
-                ]
-            }
-        }
-    },
-    methods: {
-        //添加
-        addHandle(formName) {
-            let result = this.$refs[formName].map(v => {
-                let validate;
-                v.validate((valid) => {validate = valid});
-                return validate;
-            });
+          school: {
+            institution_id: v.organization_id,
+            name: v.school,
+            type: '',
+            contact: v.tel,
+            class_pattern: v.class_pattern,
+            address: v.address
+          },
+          user: {
+            institution_id: v.organization_id,
+            mobile: v.principalPhone,
+            name: v.principalName
+          }
+        };
+      });
 
-            if(result.every(d => {return d})) {
-                this.formLists.push({
-                    organization_id: '',    //机构名称
-                    school: '',    //校区名称
-                    principalName: '',    //校长姓名
-                    principalPhone: '',   //校长手机号
-                    tel: '',    //联系电话
-                    address: '',   //校区
-                    class_pattern: ''    //校区课程模式
-                });
-            }
-        },
+      let result = await this.$$request.post('/school/add', {lists: params.reverse()});
 
-        //确定
-        doneHandle(formName) {
-            let result = this.$refs[formName].map(v => {
-                let validate;
-                v.validate((valid) => {validate = valid});
-                return validate;
-            });
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      let memberInfo = this.$$cache.getMemberInfo();
 
-            if(result.every(d => {return d})) this.submitHandle();
-        },
-        //退出
-        async quitHandle() {
-            let result = await this.$$request.post('/auth/logout');
-            console.log(result);
-            if(!result) return 0;
-            this.$$cache.loginOut();
-            this.formLists.splice(0, this.formLists.length);
-            this.$message('已退出登录！');
-        },
-        //提交数据
-        async submitHandle() {
-            let params = this.formLists.map(v => {
-                return {
-                    school: {
-                        institution_id: v.organization_id,
-                        name: v.school,
-                        type: '',
-                        contact: v.tel,
-                        class_pattern: v.class_pattern,
-                        address: v.address
-                    },
-                    user: {
-                        institution_id: v.organization_id,
-                        mobile: v.principalPhone,
-                        name: v.principalName
-                    }
-                }
-            });
+      memberInfo.school_id = result.school_id;
+      this.$$cache.setMemberInfo(memberInfo);
 
-            let result = await this.$$request.post('/school/add', {lists: params.reverse()});
-            console.log(result);
-            if(!result) return 0;
-            let memberInfo = this.$$cache.getMemberInfo();
-            memberInfo.school_id = result.school_id;
-            this.$$cache.setMemberInfo(memberInfo);
+      this.formLists.splice(0, this.formLists.length);
+      this.$router.replace({path: '/'});
+    }
+  },
+  async created () {
+    let result = await this.$$request.post('/user/orgLists');
 
-            this.formLists.splice(0, this.formLists.length);
-            this.$router.replace({path: '/'});
-        }
-    },
-    async created() {
-        let result = await this.$$request.post('/user/orgLists');
-        console.log(result);
-        if(!result) return 0;
-        this.organizationInfo = result.lists;
-    },
-    components: {MyButton}
-}
+    console.log(result);
+    if (!result) {
+      return 0;
+    }
+    this.organizationInfo = result.lists;
+  },
+  components: {MyButton}
+};
 </script>
 
 <style lang="less" scoped>

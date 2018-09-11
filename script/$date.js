@@ -1,29 +1,32 @@
 export function $date (date, fmt) {
-    if (typeof date === 'number' || typeof date === 'string') {
-        if (String(date).length === 10 || String(date).length === 9) {
-            date = parseInt(date) * 1000
-        }
+  if (typeof date === 'number' || typeof date === 'string') {
+    if (String(date).length === 10 || String(date).length === 9) {
+      date = parseInt(date) * 1000;
     }
-    date = new Date(date);
-    if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+  }
+  date = new Date(date);
+  if (/(y+)/.test(fmt)) {
+    fmt = fmt.replace(RegExp.$1, `${date.getFullYear() }`.substr(4 - RegExp.$1.length));
+  }
+  let o = {
+    'M+': date.getMonth() + 1,
+    'd+': date.getDate(),
+    'h+': date.getHours(),
+    'm+': date.getMinutes(),
+    's+': date.getSeconds()
+  };
+
+  for (let k in o) {
+    if (new RegExp(`(${k})`).test(fmt)) {
+      let str = `${o[k] }`;
+
+      fmt = fmt.replace(RegExp.$1, RegExp.$1.length === 1 ? str : padLeftZero(str));
     }
-    let o = {
-        'M+': date.getMonth() + 1,
-        'd+': date.getDate(),
-        'h+': date.getHours(),
-        'm+': date.getMinutes(),
-        's+': date.getSeconds()
-    };  
-    for (let k in o) {
-        if (new RegExp(`(${k})`).test(fmt)) {
-            let str = o[k] + '';
-            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : padLeftZero(str));
-        }
-    }
-    return fmt;
-};
+  }
+
+  return fmt;
+}
 
 function padLeftZero (str) {
-    return ('00' + str).substr(str.length);
-};
+  return `00${ str}`.substr(str.length);
+}
