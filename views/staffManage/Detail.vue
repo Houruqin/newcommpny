@@ -18,8 +18,8 @@
 
                 <div class="p-a dimission-btn">
                     <!-- <MyButton v-if="$$cache.getMemberInfo().type === 'master' && $$cache.getMemberInfo().id != userId && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton> -->
-                    <MyButton v-if="userDetail.leaveEnable" @click.native="dimissionClick">离职</MyButton>
-                    <MyButton v-if="userDetail.status != 1" @click.native="deleteUserInfo" type="subm">删除</MyButton>
+                    <MyButton v-if="userDetail.status == 1 && userDetail.leaveEnable" @click.native="dimissionClick">离职</MyButton>
+                    <MyButton v-else-if="userDetail.status != 1" @click.native="deleteUserInfo" type="subm">删除</MyButton>
                 </div>
             </div>
         </el-card>
@@ -253,8 +253,9 @@ export default {
       }
 
       this.$store.dispatch('getAdvisor'); //更新员工顾问信息
-      this.getDetail();
-      this.$message.success('已修改为离职状态');
+      // this.getDetail();
+      // this.$message.success('已修改为离职状态');
+      this.$router.go(-1);
     },
     //删除用户
     deleteUserInfo () {

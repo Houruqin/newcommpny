@@ -111,6 +111,9 @@ export default {
       }
 
       this.currentValue = false;
+
+      this.$message.success(`删除${this.type === 'course' ? '课程' : '班级'}大纲成功!`);
+
       this.$emit('input', this.currentValue);
       if (this.type == 'grade') {
         this.$emit('refreshGradeDetail');

@@ -20,7 +20,8 @@
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="员工姓名" align="center">
                     <template slot-scope="scope">
-                        <router-link :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
+                        <router-link v-if="scope.row.status" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
+                        <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="手机号码" align="center">
