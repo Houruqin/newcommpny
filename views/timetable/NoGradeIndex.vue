@@ -1486,7 +1486,7 @@ export default {
     });
   },
   async created () {
-    for (let a = 9; a <= 21; a++) {
+    for (let a = 8; a <= 21; a++) {
       this.hourData.push({id: a, name: `${a}:00`});
     }
     this.getWeekList(null, 'default');

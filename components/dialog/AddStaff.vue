@@ -46,7 +46,7 @@
         </el-form>
         <div class="mt-20 d-f f-j-c">
             <MyButton @click.native="doneHandle" :loading="submitLoading.add">确定</MyButton>
-            <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
+            <MyButton v-if="type == 'edit' && origin === 'list' && leaveEnable" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
         </div>
     </el-dialog>
 </template>
@@ -65,18 +65,18 @@ export default {
     editDetail: {default: null}
   },
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       this.staffDialogStatus = newVal;
     },
-    type (newVal, oldVal) {
+    type (newVal) {
       this.staffType = newVal;
     },
-    editDetail (newVal, oldVal) {
-      console.log(newVal, oldVal);
+    editDetail (newVal) {
       if (!Object.keys(newVal).length) {
         return 0;
       }
 
+      this.leaveEnable = newVal.leaveEnable;
       for (let key in this.staffForm) {
         if (key == 'entry_date') {
           this.staffForm[key] = newVal.entry_at * 1000;
@@ -106,6 +106,7 @@ export default {
         add: false, remove: false
       },
       staffDialogStatus: false,
+      leaveEnable: false,
       staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
       roleLists: [],
       staffType: 'add',
