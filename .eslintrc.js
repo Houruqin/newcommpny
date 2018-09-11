@@ -126,7 +126,7 @@ module.exports = {
     'no-path-concat': 2,
     'array-bracket-spacing': 2,
     'brace-style': 2,
-    camelcase: 2,
+    // camelcase: 2,
     indent: [2, 2, {
       SwitchCase: 1
     }],
