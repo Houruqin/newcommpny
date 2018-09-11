@@ -104,108 +104,124 @@
 </template>
 
 <script>
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
 
 export default {
-    data() {
-        return {
-            state: 'loading',
-            loading: false,
-            dialogStatus: {giveBack: false},
-            submitLoading: {back: false},
-            activePage: 1,
-            searchFilter: {
-                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
-                borrow_type: '', keyword: ''
-            },
+  data () {
+    return {
+      state: 'loading',
+      loading: false,
+      dialogStatus: {giveBack: false},
+      submitLoading: {back: false},
+      activePage: 1,
+      searchFilter: {
+        begin_time: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
+        end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
+        borrow_type: '', keyword: ''
+      },
 
-            borrowTable: {},
+      borrowTable: {},
 
-            backForm: {back_num: '', return_num: '', explain: ''},
-            backRules: {
-                return_num: [
-                    {required: true, message: '请输入归还数量'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 5000)}
-                ],
-                explain: [
-                    {max: 100,  message: '长度不能超过100个字符'}
-                ]
-            }
+      backForm: {back_num: '', return_num: '', explain: ''},
+      backRules: {
+        return_num: [
+          {required: true, message: '请输入归还数量'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 5000)}
+        ],
+        explain: [
+          {max: 100, message: '长度不能超过100个字符'}
+        ]
+      }
+    };
+  },
+  methods: {
+    dialogClose () {
+      this.$refs.backForm.resetFields();
+    },
+    dateChange () {
+      if (this.searchFilter.end_time < this.searchFilter.begin_time) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
+      this.getBorrowLists();
+    },
+    searchHandle () {
+      this.getBorrowLists();
+    },
+    giveBackClick (item) {
+      this.backForm.id = item.id,
+      this.backForm.back_num = item.borrow_num - item.return_num;
+      this.dialogStatus.giveBack = true;
+    },
+    doneHandle () {
+      this.$refs.backForm.validate(valid => {
+        if (valid) {
+          this.submitBackForm();
         }
+      });
     },
-    methods: {
-        dialogClose() {
-            this.$refs.backForm.resetFields();
-        },
-        dateChange() {
-            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
-            this.getBorrowLists();
-        },
-        searchHandle() {
-            this.getBorrowLists();
-        },
-        giveBackClick(item) {
-            this.backForm.id = item.id,
-            this.backForm.back_num = item.borrow_num - item.return_num;
-            this.dialogStatus.giveBack = true;
-        },
-        doneHandle() {
-            this.$refs.backForm.validate(valid => {if(valid) this.submitBackForm()});
-        },
-        paginationClick(current) {
-            this.getBorrowLists(current);
-        },
-        //提交归还数据
-        async submitBackForm() {
-            let params = {
-                borrow_id: this.backForm.id,
-                return_num: this.backForm.return_num,
-                remark: this.backForm.explain
-            };
+    paginationClick (current) {
+      this.getBorrowLists(current);
+    },
+    //提交归还数据
+    async submitBackForm () {
+      let params = {
+        borrow_id: this.backForm.id,
+        return_num: this.backForm.return_num,
+        remark: this.backForm.explain
+      };
 
-            let result = await this.$$request.post('/repertory/returns', params);
-            console.log(result);
-            if(!result) return 0;
+      let result = await this.$$request.post('/repertory/returns', params);
 
-            this.$message.success('归还成功');
-            this.dialogStatus.giveBack = false;
-            this.getBorrowLists(this.activePage);
-        },
-        //获取借用记录列表
-        async getBorrowLists(page) {
-            this.loading = true;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
 
-            let params = {
-                data: {
-                    name: this.searchFilter.keyword,
-                    borrow_status: this.searchFilter.borrow_type,
-                    time: {
-                        start: this.searchFilter.begin_time / 1000,
-                        end: this.searchFilter.end_time / 1000
-                    }
-                }
-            };
+      this.$message.success('归还成功');
+      this.dialogStatus.giveBack = false;
+      this.getBorrowLists(this.activePage);
+    },
+    //获取借用记录列表
+    async getBorrowLists (page) {
+      this.loading = true;
 
-            if(page) params.page = page;
-
-            let result = await this.$$request.get('/repertory/borrowRecords', params);
-            console.log(result);
-            if(!result) return 0;
-
-            if(page) this.activePage = page;
-            this.borrowTable = result.lists;
-            this.loading = false;
-            this.state = 'loaded';
+      let params = {
+        data: {
+          name: this.searchFilter.keyword,
+          borrow_status: this.searchFilter.borrow_type,
+          time: {
+            start: this.searchFilter.begin_time / 1000,
+            end: this.searchFilter.end_time / 1000
+          }
         }
-    },
-    created() {
-        this.getBorrowLists();
-    },
-    components: {TableHeader, MyButton}
-}
+      };
+
+      if (page) {
+        params.page = page;
+      }
+
+      let result = await this.$$request.get('/repertory/borrowRecords', params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      if (page) {
+        this.activePage = page;
+      }
+      this.borrowTable = result.lists;
+      this.loading = false;
+      this.state = 'loaded';
+    }
+  },
+  created () {
+    this.getBorrowLists();
+  },
+  components: {TableHeader, MyButton}
+};
 </script>
 
 <style lang="less" scoped>

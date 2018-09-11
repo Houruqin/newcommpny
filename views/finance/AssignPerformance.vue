@@ -159,23 +159,23 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import NameRoute from "../../components/common/NameRoute";
-import { StudentStatic } from "../../script/static";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import NameRoute from '../../components/common/NameRoute';
+import { StudentStatic } from '../../script/static';
 
 export default {
-  data() {
+  data () {
     return {
-      state: "loading",
+      state: 'loading',
       //搜索信息
       search_info: {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
           0
         ),
-        name: "",
-        date_type: "current_month",
+        name: '',
+        date_type: 'current_month',
         course_id: 0,
         pay_method: 0
       },
@@ -196,34 +196,34 @@ export default {
         performance: {
           show: false,
           data: {
-            number: "",
-            date: "",
-            operater: "",
-            student_name: "",
-            pay_way: "",
-            course_price: "",
-            textbook_price: "",
-            total_price: "",
-            student_course_id: ""
+            number: '',
+            date: '',
+            operater: '',
+            student_name: '',
+            pay_way: '',
+            course_price: '',
+            textbook_price: '',
+            total_price: '',
+            student_course_id: ''
           },
           members: [
             {
-              belong_id: "",
-              id: "",
-              achieve_price: "",
+              belong_id: '',
+              id: '',
+              achieve_price: '',
               achieve_user: {
-                name: ""
+                name: ''
               }
             }
           ]
         }
       },
       performanceRules: {
-        name: [{ required: true, message: "请选择分配人员" }],
+        name: [{ required: true, message: '请选择分配人员' }],
         price: [
-          { required: true, message: "请输入分配金额" },
-          { validator: this.$$tools.formOtherValidate("decimals", 2) },
-          { validator: this.$$tools.formOtherValidate("total", 9999) }
+          { required: true, message: '请输入分配金额' },
+          { validator: this.$$tools.formOtherValidate('decimals', 2) },
+          { validator: this.$$tools.formOtherValidate('total', 9999) }
           //   { validator: this.$$tools.formOtherValidate("price") }
         ]
       },
@@ -233,19 +233,19 @@ export default {
   },
   methods: {
     //选择时间
-    choose_date(type) {
+    choose_date (type) {
       console.log(type);
       this.search_info.date_type = type;
       switch (type) {
-        case "current_month":
+        case 'current_month':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
+            this.$format_date(new Date(), 'yyyy/MM/01')
           );
           this.search_info.end = new Date(
             new Date().setMonth(new Date().getMonth() + 1)
           ).setDate(0);
           break;
-        case "last_month":
+        case 'last_month':
           this.search_info.begin = new Date(
             new Date().getFullYear(),
             new Date().getMonth() - 1,
@@ -254,9 +254,9 @@ export default {
           );
           this.search_info.end = new Date(new Date().setDate(0));
           break;
-        case "current_year":
+        case 'current_year':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/01/01")
+            this.$format_date(new Date(), 'yyyy/01/01')
           );
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
@@ -265,70 +265,76 @@ export default {
       this.get_data();
       console.log(this.search_info.begin, this.search_info.end);
     },
-    date_change() {
-      this.search_info.date_type = "";
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      this.search_info.date_type = '';
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
-        time_type: "custom",
-        begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
-        end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
+        time_type: 'custom',
+        begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
+        end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
         course_id: this.search_info.course_id,
         pay_type: this.search_info.pay_method,
         search_info: this.search_info.name,
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
+
       console.log(params);
       let res = await this.$$request.get(
-        "/financeManage/achievement/lists",
+        '/financeManage/achievement/lists',
         params
       );
-      if (!res) return false;
+
+      if (!res) {
+        return false;
+      }
       this.assign_info.data = res.lists.data;
       this.page_info.total = res.lists.total;
       this.loading = false;
+
       return true;
     },
     //获取全部员工+学员信息
-    get_all_user() {
-      this.$$request.get("/financeManage/allUser").then(res => {
+    get_all_user () {
+      this.$$request.get('/financeManage/allUser').then(res => {
         this.all_user = res.users;
       });
     },
-    add_member() {
+    add_member () {
       this.dialog.performance.members.push({
         id: 0,
-        belong_id: "",
-        achieve_price: "",
+        belong_id: '',
+        achieve_price: '',
         achieve_user: {
-          name: ""
+          name: ''
         }
       });
     },
-    delete_member(index) {
+    delete_member (index) {
       //   if (this.dialog.performance.members.length < 2) return false;
       this.dialog.performance.members.splice(index, 1);
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //打开设置业绩弹窗
-    open_setting(item) {
+    open_setting (item) {
       this.dialog.performance.show = true;
       // this.$refs.performance_valid.resetFields();
 
@@ -338,8 +344,9 @@ export default {
       const params = {
         student_course_id: item.student_course_id
       };
+
       this.$$request
-        .get("/financeManage/achievement/singleLists", params)
+        .get('/financeManage/achievement/singleLists', params)
         .then(res => {
           this.dialog.performance.members = res.lists;
           this.dialog.performance.data = {
@@ -355,8 +362,8 @@ export default {
           };
         });
     },
-    performance_confirm() {
-      this.$refs["performance_valid"].validate(async valid => {
+    performance_confirm () {
+      this.$refs['performance_valid'].validate(async valid => {
         if (valid) {
           let query = this.dialog.performance;
           const params = {
@@ -364,26 +371,31 @@ export default {
             lists: query.members
           };
           let refund_total_price = 0;
+
           for (let member of query.members) {
             console.log(member.achieve_price);
             refund_total_price += member.achieve_price * 1;
           }
           if (refund_total_price > this.dialog.performance.data.total_price) {
-            this.$message.warning("分配金额不能超过合同金额，请重新分配");
+            this.$message.warning('分配金额不能超过合同金额，请重新分配');
+
             return false;
           }
           let result = await this.$$request.post(
-            "/financeManage/achievement/allot",
+            '/financeManage/achievement/allot',
             params
           );
 
-          if (!result) return false;
+          if (!result) {
+            return false;
+          }
 
-          this.$message.success("已分配");
+          this.$message.success('已分配');
           this.get_data();
           this.dialog.performance.show = false;
         } else {
-          console.log("error submit!!");
+          console.log('error submit!!');
+
           return false;
         }
       });
@@ -391,34 +403,39 @@ export default {
   },
   filters: {
     role: value => {
-      if (!value) return "";
+      if (!value) {
+        return '';
+      }
       switch (value) {
-        case "seller":
-          return "课程顾问";
+        case 'seller':
+          return '课程顾问';
           break;
-        case "director":
-          return "顾问主管";
+        case 'director':
+          return '顾问主管';
           break;
-        case "register":
-          return "教务";
+        case 'register':
+          return '教务';
           break;
-        case "dean":
-          return "教务主管";
+        case 'dean':
+          return '教务主管';
           break;
-        case "teacher":
-          return "老师";
+        case 'teacher':
+          return '老师';
           break;
-        case "master":
-          return "校长";
+        case 'master':
+          return '校长';
           break;
       }
     }
   },
-  async created() {
+  async created () {
     let res = await this.get_data();
-    if (!res) return false;
+
+    if (!res) {
+      return false;
+    }
     this.get_all_user();
-    this.state = "loaded";
+    this.state = 'loaded';
   },
   components: { TableHeader, MyButton, NameRoute }
 };

@@ -158,324 +158,390 @@
 </template>
 
 <script>
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import ContractDialog from '../../components/dialog/Contract'
-import {StudentStatic} from '../../script/static'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import ContractDialog from '../../components/dialog/Contract';
+import {StudentStatic} from '../../script/static';
 
 export default {
-    data() {
-        return {
-            dialogStatus: {contract: false},
+  data () {
+    return {
+      dialogStatus: {contract: false},
 
-            state: 'loading',
-            submitLoading: false,
+      state: 'loading',
+      submitLoading: false,
 
-            contractData: {},
+      contractData: {},
 
-            buyCourse_type: null,    //选择课程的类型    有班/无班
-            courseLists: [],
-            textbookList: [],  //教材列表
-            gradeLists: [],
-            paymentMethod: StudentStatic.paymentMethod, //付款方式
-            courseForm: {
-                student_id: '', //学员id
-                parent_id: '',  //家长id
-                advisor_id: '', //顾问id
-                advisor_name: '',   //顾问
-                course_id: '',  //课程id
-                lesson_num: '',   //购买课时
-                given_num: '',  //赠送课时
-                lesson_num_already: '',  //已扣课时数
-                expire: '',   //有效期
-                leave_num: '',   //请假次数
-                pay_at: '',   //购课日期
-                pay_way: '',   //付款方式
-                unit_price: '',   //课时单价
-                preferential_class_price: '',  //课时优惠
-                preferential_textbook_price: '', //教材优惠
-                explain: '',  //说明
-                type: 1,    //购课类型 1：新签约 2：续约
-                grade_id: '',
-                teacher_id: '',
-                is_order: '',
-                textbook_price: 0    //教材费用
-            },
-            textbookFormLists: [],
-            preferentialDisabled: true,
-            textbookForm: {goods_id: '', num: '', unit_price: ''},
-            courseRules: {
-                course_id: [
-                    {required: true, message: '请选择课程', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入购买课时数'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)}
-                ],
-                given_num: [
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 120)}
-                ],
-                pay_at: [
-                    {required: true, message: '请选择购课日期', trigger: 'change'},
-                    {validator: this.$$tools.formOtherValidate('total', 200)}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 120)}
-                ],
-                pay_at: [
-                    {required: true, message: '请选择购课日期', trigger: 'change'}
-                ],
-                pay_way: [
-                    {required: true, message: '请选择付款方式', trigger: 'change'}
-                ],
-                preferential_class_price: [
-                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.$$tools.formOtherValidate('total', 9999)},
-                    {validator: this.courseValidator('course')},
-                ],
-                lesson_num_already: [
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)},
-                    {validator: this.courseValidator('lesson_num_already')}
-                ],
-                leave_num: [
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)},
-                    {validator: this.courseValidator('leave_num')}
-                ],
-                unit_price: [
-                    {required: true, message: '请输入课时单价'},
-                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.$$tools.formOtherValidate('total', 9999)}
-                ],
-                preferential_textbook_price: [
-                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.courseValidator('text_book')},
-                ],
-                explain: [
-                    {max: 200,  message: '长度不能超过200个字符'}
-                ],
-                type: [
-                    {required: true, message: '请选择购课类型', trigger: 'change'}
-                ],
-                teacher_id: [
-                    {required: true, message: '请选择老师', trigger: 'change'}
-                ]
-            },
-            textbookRules: {
-                num: [
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 200)}
-                ]
-            }
-        }
+      buyCourse_type: null, //选择课程的类型    有班/无班
+      courseLists: [],
+      textbookList: [], //教材列表
+      gradeLists: [],
+      paymentMethod: StudentStatic.paymentMethod, //付款方式
+      courseForm: {
+        student_id: '', //学员id
+        parent_id: '', //家长id
+        advisor_id: '', //顾问id
+        advisor_name: '', //顾问
+        course_id: '', //课程id
+        lesson_num: '', //购买课时
+        given_num: '', //赠送课时
+        lesson_num_already: '', //已扣课时数
+        expire: '', //有效期
+        leave_num: '', //请假次数
+        pay_at: '', //购课日期
+        pay_way: '', //付款方式
+        unit_price: '', //课时单价
+        preferential_class_price: '', //课时优惠
+        preferential_textbook_price: '', //教材优惠
+        explain: '', //说明
+        type: 1, //购课类型 1：新签约 2：续约
+        grade_id: '',
+        teacher_id: '',
+        is_order: '',
+        textbook_price: 0 //教材费用
+      },
+      textbookFormLists: [],
+      preferentialDisabled: true,
+      textbookForm: {goods_id: '', num: '', unit_price: ''},
+      courseRules: {
+        course_id: [
+          {required: true, message: '请选择课程', trigger: 'change'}
+        ],
+        lesson_num: [
+          {required: true, message: '请输入购买课时数'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 200)}
+        ],
+        given_num: [
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 200)}
+        ],
+        expire: [
+          {required: true, message: '请输入课程有效期'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 120)}
+        ],
+        pay_at: [
+          {required: true, message: '请选择购课日期', trigger: 'change'},
+          {validator: this.$$tools.formOtherValidate('total', 200)}
+        ],
+        expire: [
+          {required: true, message: '请输入课程有效期'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 120)}
+        ],
+        pay_at: [
+          {required: true, message: '请选择购课日期', trigger: 'change'}
+        ],
+        pay_way: [
+          {required: true, message: '请选择付款方式', trigger: 'change'}
+        ],
+        preferential_class_price: [
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.$$tools.formOtherValidate('total', 9999)},
+          {validator: this.courseValidator('course')}
+        ],
+        lesson_num_already: [
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 200)},
+          {validator: this.courseValidator('lesson_num_already')}
+        ],
+        leave_num: [
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 200)},
+          {validator: this.courseValidator('leave_num')}
+        ],
+        unit_price: [
+          {required: true, message: '请输入课时单价'},
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.$$tools.formOtherValidate('total', 9999)}
+        ],
+        preferential_textbook_price: [
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.courseValidator('text_book')}
+        ],
+        explain: [
+          {max: 200, message: '长度不能超过200个字符'}
+        ],
+        type: [
+          {required: true, message: '请选择购课类型', trigger: 'change'}
+        ],
+        teacher_id: [
+          {required: true, message: '请选择老师', trigger: 'change'}
+        ]
+      },
+      textbookRules: {
+        num: [
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 200)}
+        ]
+      }
+    };
+  },
+  computed: {
+    //购课总金额
+    buyTotalMoney () {
+      let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_class_price);
+      let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
+      let b;
+
+      b = money.toFixed(2);
+      this.courseForm.totalMoney = isNaN(b) ? '--' : b;
+
+      return isNaN(b) ? '--' : b;
+    }
+  },
+  methods: {
+    dialogClose () {
+      this.$refs.courseForm.resetFields();
+      Object.keys(this.courseForm).forEach(v =>{
+        this.courseForm[v] = '';
+      });
+      this.$emit('CB-dialogStatus', 'course');
     },
-    computed: {
-      //购课总金额
-      buyTotalMoney() {
-            let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_class_price);
-            let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
-            let b;
-            b =  money.toFixed(2);
-            this.courseForm.totalMoney = isNaN(b) ? '--' : b;
-            return isNaN(b) ? '--' : b;
+    //优惠 输入验证   课程优惠 <= 课程费用    教材优惠 <= 教材费用
+    courseValidator (type) {
+      return (rule, value, callback, event, e, d) => {
+        if (type == 'course') {
+          let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num);
+
+          if (value > coursePrice) {
+            return callback(new Error('课程优惠不能大于课程费用'));
+          }
+
+          return callback();
+        }
+
+        if (type == 'text_book') {
+          if (value > this.courseForm.textbook_price) {
+            return callback(new Error('教材优惠不能大于教材费用'));
+          }
+
+          return callback();
+        }
+
+        if (type == 'leave_num') {
+          if (value > this.courseForm.lesson_num) {
+            return callback(new Error('请假次数不能超过购买课时数'));
+          }
+
+          return callback();
+        }
+
+        if (type == 'lesson_num_already') {
+          if (value > this.courseForm.lesson_num) {
+            return callback(new Error('已扣课时数不能超过购买课时数'));
+          }
+
+          return callback();
+        }
+      };
+    },
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type == 'contract') {
+        this.contractData = {};
+        this.dialogStatus.contract = false;
+
+        return 0;
       }
     },
-    methods: {
-        dialogClose() {
-            this.$refs.courseForm.resetFields();
-            Object.keys(this.courseForm).forEach(v =>{this.courseForm[v] = ''});
-            this.$emit('CB-dialogStatus', 'course');
-        },
-        //优惠 输入验证   课程优惠 <= 课程费用    教材优惠 <= 教材费用
-        courseValidator(type) {
-          return (rule, value, callback, event, e, d) => {
-            if(type == 'course') {
-              let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num);
-              if(value > coursePrice) return callback(new Error('课程优惠不能大于课程费用'));
-              else return callback();
-            };
+    //根据school_id获取课程列表
+    async getCourseLists (id) {
+      if (!id) {
+        return 0;
+      }
+      let result = await this.$$request.post('/studentCourse/lists', {student_id: id});
 
-            if(type == 'text_book'){
-              if(value > this.courseForm.textbook_price) return callback(new Error('教材优惠不能大于教材费用'));
-              else return callback();
-            };
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.courseLists = result.lists;
 
-            if(type == 'leave_num') {
-              if(value > this.courseForm.lesson_num) return callback(new Error('请假次数不能超过购买课时数'));
-              else return callback();
-            };
+      if (this.courseForm.course_id) {
+        this.getGradeLists(this.courseForm.course_id);
+      }
+    },
+    //购买课程，选择课程change
+    addCourseChange (val) {
+      this.$refs.courseForm.clearValidate();
+      this.getGradeLists(val, true);
+    },
+    textbookNumChange (num) {
+      let textbookPrice = 0;
 
-            if(type == 'lesson_num_already') {
-              if(value > this.courseForm.lesson_num) return callback(new Error('已扣课时数不能超过购买课时数'));
-              else return callback();
-            };
-          }
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            if(type == 'contract') {
-                this.contractData = {};
-                this.dialogStatus.contract = false;
-                return 0;
-            };
-        },
-        //根据school_id获取课程列表
-        async getCourseLists(id) {
-            if(!id) return 0;
-            let result = await this.$$request.post('/studentCourse/lists', {student_id: id});
-            console.log(result);
-            if(!result) return 0;
-            this.courseLists = result.lists;
+      this.textbookFormLists.forEach(v => {
+        let num = v.num ? Number(v.num) : 0;
 
-            if(this.courseForm.course_id) this.getGradeLists(this.courseForm.course_id);
-        },
-        //购买课程，选择课程change
-        addCourseChange(val) {
-            this.$refs.courseForm.clearValidate();
-            this.getGradeLists(val, true);
-        },
-        textbookNumChange(num) {
-            let textbookPrice = 0;
-            this.textbookFormLists.forEach(v => {
-                let num = v.num ? Number(v.num) : 0;
-                textbookPrice += (num * v.unit_price);
-            });
+        textbookPrice += num * v.unit_price;
+      });
 
-            if(textbookPrice > 0) {
-                this.preferentialDisabled = false;
-            }else {
-                this.courseForm.preferential_textbook_price = '';
-                this.preferentialDisabled = true;
-            }
+      if (textbookPrice > 0) {
+        this.preferentialDisabled = false;
+      } else {
+        this.courseForm.preferential_textbook_price = '';
+        this.preferentialDisabled = true;
+      }
 
-            this.courseForm.textbook_price = textbookPrice;
-        },
-        //教材change
-        textbookChange(textbook, num) {
-            this.textbookList.forEach(v => {if(v.id == textbook.goods_id) textbook.unit_price = Number(v.price)});
-            this.textbookNumChange(num);
-        },
-        //教材新增
-        textbookAddClick() {
-            this.textbookFormLists.push({goods_id: '', num: '', unit_price: ''});
-        },
-        //教材删除
-        textbookRemove(index) {
-            this.textbookFormLists.splice(index, 1);
-
-            let textbookPrice = 0;
-            this.textbookFormLists.forEach(v => {
-                let num = v.num ? Number(v.num) : 0;
-                textbookPrice += (num * v.unit_price);
-            });
-
-            this.courseForm.textbook_price = textbookPrice;
-
-            if(!textbookPrice) {
-                this.courseForm.preferential_textbook_price = '';
-                this.preferentialDisabled = true;
-            };
-        },
-        getGradeLists(val, change) {
-            this.courseLists.forEach(v => {
-                if(v.id == val) {
-                    console.log(v);
-                    this.courseForm.expire = v.expire;
-                    this.courseForm.is_order = v.is_order;
-                    this.gradeLists = v.grades;
-                    this.buyCourse_type = v.class_pattern;
-
-                    if(change) {
-                        if(this.buyCourse_type == 1) this.courseForm.grade_id = '';
-                        else this.courseForm.teacher_id = '';
-                    }
-                }
-            });
-        },
-        //表单确定
-        doneHandle() {
-            this.$refs.courseForm.validate(valid => {if(valid) this.submitBuyCourse()});
-        },
-        //提交购买课程
-        async submitBuyCourse() {
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
-
-            let params = {};
-
-            for(let key in this.courseForm) {
-                if(typeof this.courseForm[key] === 'undefined') params[key] = key == 'leave_num' ? null : '';
-                else if(key == 'pay_at') params[key] = this.courseForm[key] / 1000;
-                else if(key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') params[key] = this.courseForm[key];
-            };
-
-            params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
-            params.textbook = this.textbookFormLists.map(k => {return {goods_id: k.goods_id, num: k.num, price: +(k.unit_price) * +(k.num)}});
-            params.preferential_price = this.courseForm.preferential_class_price + this.courseForm.preferential_textbook_price;
-
-            console.log(params);
-
-            let result = await this.$$request.post('/studentCourse/add', params);
-            this.submitLoading = false;
-            console.log(result);
-            if(!result) return 0;
-
-            this.contractData = result.data;
-            this.dialogStatus.contract = true;
-        },
-        async getTextBookLists() {
-            let result = await this.$$request.get('/goods/textbookList');
-            console.log(result);2
-            if(!result) return 0;
-
-            this.textbookList = result.lists;
-            return true;
-        },
-        textbookNumValidate() {
-            return (rule, value, callback, event, e, d) => {
-                if(isNaN(value)) return callback(new Error('请输入数字'));
-                else if(value < 0) return callback(new Error('请输入正数!'));
-                else if(String(value).indexOf('.') > -1) return callback(new Error('不能输入小数'));
-                else if(value > 200) return callback(new Error('不能超过200'));
-                else return callback();
-            }
+      this.courseForm.textbook_price = textbookPrice;
+    },
+    //教材change
+    textbookChange (textbook, num) {
+      this.textbookList.forEach(v => {
+        if (v.id == textbook.goods_id) {
+          textbook.unit_price = Number(v.price);
         }
+      });
+      this.textbookNumChange(num);
     },
-    async created() {
-        if(this.$route.query.buyCourseData) {
-            let queryData = JSON.parse(this.$route.query.buyCourseData);
+    //教材新增
+    textbookAddClick () {
+      this.textbookFormLists.push({goods_id: '', num: '', unit_price: ''});
+    },
+    //教材删除
+    textbookRemove (index) {
+      this.textbookFormLists.splice(index, 1);
 
-            this.getCourseLists(queryData.student_id);
-            this.courseForm.student_id = queryData.student_id;
-            this.courseForm.advisor_id = queryData.advisor_id;
-            this.courseForm.advisor_name = queryData.advisor ? queryData.advisor.name : '';
-            this.courseForm.parent_id = queryData.parent_id;
-            this.courseForm.expire = queryData.expire || 12;
-            this.courseForm.type = queryData.buy_type || 1;
+      let textbookPrice = 0;
 
-            if(queryData.course_id) {
-                this.courseForm.course_id = queryData.course_id;
-                if(queryData.class_pattern == 2) this.courseForm.teacher_id = +queryData.teacher_id;
+      this.textbookFormLists.forEach(v => {
+        let num = v.num ? Number(v.num) : 0;
+
+        textbookPrice += num * v.unit_price;
+      });
+
+      this.courseForm.textbook_price = textbookPrice;
+
+      if (!textbookPrice) {
+        this.courseForm.preferential_textbook_price = '';
+        this.preferentialDisabled = true;
+      }
+    },
+    getGradeLists (val, change) {
+      this.courseLists.forEach(v => {
+        if (v.id == val) {
+          console.log(v);
+          this.courseForm.expire = v.expire;
+          this.courseForm.is_order = v.is_order;
+          this.gradeLists = v.grades;
+          this.buyCourse_type = v.class_pattern;
+
+          if (change) {
+            if (this.buyCourse_type == 1) {
+              this.courseForm.grade_id = '';
+            } else {
+              this.courseForm.teacher_id = '';
             }
-
-            this.courseForm.pay_at = new Date().getTime();
-        };
-
-        let datas = await this.getTextBookLists();
-        if(datas) this.state = 'loaded';
+          }
+        }
+      });
     },
-    components: {TableHeader, MyButton, ContractDialog}
-}
+    //表单确定
+    doneHandle () {
+      this.$refs.courseForm.validate(valid => {
+        if (valid) {
+          this.submitBuyCourse();
+        }
+      });
+    },
+    //提交购买课程
+    async submitBuyCourse () {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
+      let params = {};
+
+      for (let key in this.courseForm) {
+        if (typeof this.courseForm[key] === 'undefined') {
+          params[key] = key == 'leave_num' ? null : '';
+        } else if (key == 'pay_at') {
+          params[key] = this.courseForm[key] / 1000;
+        } else if (key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') {
+          params[key] = this.courseForm[key];
+        }
+      }
+
+      params.data_id = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
+      params.textbook = this.textbookFormLists.map(k => {
+        return {goods_id: k.goods_id, num: k.num, price: +k.unit_price * +k.num};
+      });
+      params.preferential_price = this.courseForm.preferential_class_price + this.courseForm.preferential_textbook_price;
+
+      console.log(params);
+
+      let result = await this.$$request.post('/studentCourse/add', params);
+
+      this.submitLoading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.contractData = result.data;
+      this.dialogStatus.contract = true;
+    },
+    async getTextBookLists () {
+      let result = await this.$$request.get('/goods/textbookList');
+
+      console.log(result); 2;
+      if (!result) {
+        return 0;
+      }
+
+      this.textbookList = result.lists;
+
+      return true;
+    },
+    textbookNumValidate () {
+      return (rule, value, callback, event, e, d) => {
+        if (isNaN(value)) {
+          return callback(new Error('请输入数字'));
+        } else if (value < 0) {
+          return callback(new Error('请输入正数!'));
+        } else if (String(value).indexOf('.') > -1) {
+          return callback(new Error('不能输入小数'));
+        } else if (value > 200) {
+          return callback(new Error('不能超过200'));
+        }
+
+        return callback();
+      };
+    }
+  },
+  async created () {
+    if (this.$route.query.buyCourseData) {
+      let queryData = JSON.parse(this.$route.query.buyCourseData);
+
+      this.getCourseLists(queryData.student_id);
+      this.courseForm.student_id = queryData.student_id;
+      this.courseForm.advisor_id = queryData.advisor_id;
+      this.courseForm.advisor_name = queryData.advisor ? queryData.advisor.name : '';
+      this.courseForm.parent_id = queryData.parent_id;
+      this.courseForm.expire = queryData.expire || 12;
+      this.courseForm.type = queryData.buy_type || 1;
+
+      if (queryData.course_id) {
+        this.courseForm.course_id = queryData.course_id;
+        if (queryData.class_pattern == 2) {
+          this.courseForm.teacher_id = +queryData.teacher_id;
+        }
+      }
+
+      this.courseForm.pay_at = new Date().getTime();
+    }
+
+    let datas = await this.getTextBookLists();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  },
+  components: {TableHeader, MyButton, ContractDialog}
+};
 </script>
 
 <style lang="less" scoped>

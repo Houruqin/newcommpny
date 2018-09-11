@@ -32,29 +32,39 @@ export default {
     };
   },
   methods: {
-    async sendCode() {
-      if(!this.$$tools.validate('phone', this.phone.trim())) return 0;
-      if(this.codeTime != 0) return 0;
+    async sendCode () {
+      if (!this.$$tools.validate('phone', this.phone.trim())) {
+        return 0;
+      }
+      if (this.codeTime !== 0) {
+        return 0;
+      }
       this.codeTime = -1;
 
       let result = await this.$$request.post('/auth/smsSend', { mobile: this.phone.trim(), type: 'login' });
 
       this.codeTime = 60;
-      if(result) {
-          let timer = setInterval(() => {this.codeTime <= 0 ? clearInterval(timer) : this.codeTime--}, 1000);
-      }else {
-          this.codeTime = 0;
+      if (result) {
+        let timer = setInterval(() => {
+          this.codeTime <= 0 ? clearInterval(timer) : this.codeTime--;
+        }, 1000);
+      } else {
+        this.codeTime = 0;
       }
     },
-    async onLogin() {
+    async onLogin () {
 
       if (this.loginState) {
         return void 0;
       }
 
-      if(!this.$$tools.validate('phone', this.phone.trim())) return 0;
+      if (!this.$$tools.validate('phone', this.phone.trim())) {
+        return 0;
+      }
 
-      if(!this.$$tools.validate('code', this.verificationCode.trim())) return 0;
+      if (!this.$$tools.validate('code', this.verificationCode.trim())) {
+        return 0;
+      }
 
       this.loginState = true;
 
@@ -65,18 +75,20 @@ export default {
 
       this.loginState = false;
 
-      if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
       this.$store.state.isOutOfLine = false;
 
-      this.$store.dispatch('guideChange', result.user.is_boot);   //判断用户是否需要进入引导页
+      this.$store.dispatch('guideChange', result.user.is_boot); //判断用户是否需要进入引导页
 
-      this.$$cache.removeMemberInfo();    //request拦截器统一做了token处理，已经保存过一次值，登录重新赋值
+      this.$$cache.removeMemberInfo(); //request拦截器统一做了token处理，已经保存过一次值，登录重新赋值
 
-      if(this.checked) {
+      if (this.checked) {
         this.$$cache.set('isRemember', true);
         this.$$cache.set('TOKEN', result.token);
-      }else {
+      } else {
         this.$$cache.set('isRemember', false);
         this.$$cache.setSession('TOKEN', result.token);
       }
@@ -84,29 +96,37 @@ export default {
 
       this.isSchoolArea();
     },
-    async isSchoolArea() {
+    async isSchoolArea () {
       let result = await this.$$request.post('/school/exists');
 
-      if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
-      if(!result.status) {
+      if (!result.status) {
         this.$router.push({path: '/addschool'});
-      }else {
+      } else {
         this.$router.replace({path: '/'});
       }
 
-      this.$$cache.set('phone',this.phone.trim())
+      this.$$cache.set('phone', this.phone.trim());
     },
-    footerClick(type) {
-      if(type === 'www' ) return window.open(config.www);
-      if(type === 'use' ) return window.open(`${config.www}apply.html`);
-      if(type === 'help') return window.open(`${location.protocol}//${location.host}/help`);
+    footerClick (type) {
+      if (type === 'www') {
+        return window.open(config.www);
+      }
+      if (type === 'use') {
+        return window.open(`${config.www}apply.html`);
+      }
+      if (type === 'help') {
+        return window.open(`${location.protocol}//${location.host}/help`);
+      }
     }
   },
   mounted () {
     this.state = 'loaded';
   }
-}
+};
 </script>
 
 

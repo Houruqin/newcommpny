@@ -655,844 +655,987 @@
 </template>
 
 <script>
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import RefundDialog from "../../components/dialog/Refund"
-import {StudentStatic, timeTableStatic, timePicker} from '../../script/static'
-import Bus from '../../script/bus'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import RefundDialog from '../../components/dialog/Refund';
+import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
+import Bus from '../../script/bus';
 
-import BuyCourseDialog from '../../components/dialog/BuyCourse'
-import ContractDialog from '../../components/dialog/Contract'
+import BuyCourseDialog from '../../components/dialog/BuyCourse';
+import ContractDialog from '../../components/dialog/Contract';
 
 export default {
-    data() {
-        return {
-            submitLoading: {
-                student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
-            },
+  data () {
+    return {
+      submitLoading: {
+        student: false, gradeDivide: false, followUp: false, quitCourse: false, removeTimetable: false
+      },
 
-            state: 'loading',
-            dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
+      state: 'loading',
+      dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
 
-            studentId: '',     //学员id
-            studentDetail: {},
-            contractData: {},  //合约详情
-            quitPriceDetail: {},   //退费详情
+      studentId: '', //学员id
+      studentDetail: {},
+      contractData: {}, //合约详情
+      quitPriceDetail: {}, //退费详情
 
-            editTeacherLists: [],
-            teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
+      editTeacherLists: [],
+      teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
 
-            loading: false,
+      loading: false,
 
-            quitCourseLists: {},   //退费课程列表
-            courseTimeTable: {},   //课程表
-            courseCommentLists: {},   //课评列表
-            followUpLists: {},   //跟进列表
+      quitCourseLists: {}, //退费课程列表
+      courseTimeTable: {}, //课程表
+      courseCommentLists: {}, //课评列表
+      followUpLists: {}, //跟进列表
 
-            listenType: '',   //试听类型，直接试听、跟进邀约试听
-            listenCourseLists: [],   //试听课程列表
-            checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''},  //试听课程，跟进form显示
-            checkListen: [],
+      listenType: '', //试听类型，直接试听、跟进邀约试听
+      listenCourseLists: [], //试听课程列表
+      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
+      checkListen: [],
 
-            buyCourseData: {},
-            auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''},   //试听数据
+      buyCourseData: {},
+      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
 
-            gradeDivideLists: {
-                lists: [],
-                disabled: false
-            },    //分班，课程班级列表
-            divideClassRadio: '',    //分班单选列表，选中的班级id
-            divideClassType: 'add',    //分班类型 默认add
-            original_grade_id: '',   //原本分班id
+      gradeDivideLists: {
+        lists: [],
+        disabled: false
+      }, //分班，课程班级列表
+      divideClassRadio: '', //分班单选列表，选中的班级id
+      divideClassType: 'add', //分班类型 默认add
+      original_grade_id: '', //原本分班id
 
-            gradeName: '',   //班级名称
-            lessonNumDetail: [],   //已扣课时详情列表
-            leaveNumDetail: [],   //请假详情列表
+      gradeName: '', //班级名称
+      lessonNumDetail: [], //已扣课时详情列表
+      leaveNumDetail: [], //请假详情列表
 
-            lessonNumDetailMask: false,
-            leaveNumDetailMask: false,
+      lessonNumDetailMask: false,
+      leaveNumDetailMask: false,
 
-            //消课先关字段
-            timePicker: timePicker,
-            removeTimetableDialog: false,    //手动消课弹窗
-            gradeLists: [],   //手动消课填充数据
+      //消课先关字段
+      timePicker: timePicker,
+      removeTimetableDialog: false, //手动消课弹窗
+      gradeLists: [], //手动消课填充数据
 
-            oldActiveTab: 'course_info',   //tab之前的值
-            activeTab: 'course_info',  //tab列表选中key
+      oldActiveTab: 'course_info', //tab之前的值
+      activeTab: 'course_info', //tab列表选中key
 
-            classMaskStatus: false,  //分班弹窗
-            quitCourseMaskStatus: false, //退费弹窗
-            maskFollowUp: false,   //添加跟进弹窗
-            studentMaskStatus: false,//  修改基本信息弹窗
-            maskAudition: false,  //邀约试听弹窗
-            followupStatus: '',   //跟进结果
-            paymentMethod: StudentStatic.paymentMethod, //付款方式
-            resultArr: StudentStatic.followUp.status,
-            wayIdArr: StudentStatic.followUp.wayId,
-            relationArr: StudentStatic.relation,
-            timeTableStatic: timeTableStatic.status,   //上课状态
+      classMaskStatus: false, //分班弹窗
+      quitCourseMaskStatus: false, //退费弹窗
+      maskFollowUp: false, //添加跟进弹窗
+      studentMaskStatus: false, //  修改基本信息弹窗
+      maskAudition: false, //邀约试听弹窗
+      followupStatus: '', //跟进结果
+      paymentMethod: StudentStatic.paymentMethod, //付款方式
+      resultArr: StudentStatic.followUp.status,
+      wayIdArr: StudentStatic.followUp.wayId,
+      relationArr: StudentStatic.relation,
+      timeTableStatic: timeTableStatic.status, //上课状态
 
-            quitCourseInfo: {},   //退费课程详细数据
-            tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+      quitCourseInfo: {}, //退费课程详细数据
+      tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
 
-            quitCourseForm: {
-                rel_remain: '',
-                explain: '',
-                lesson_quitprice: '',
-                textbook_quitprice: ''
-            },
-            quitCourseRules: {
-                explain: [
-                    {max: 200, message: '最多输入200个字符'}
-                ],
-                lesson_quitprice: [
-                    {required: true, message: '请输入课时实际退费'},
-                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.quitPriceValidate('lesson')}
-                ],
-                textbook_quitprice: [
-                    // {required: true, message: '请输入教材实际退费'},
-                    {validator: this.$$tools.formOtherValidate('decimals', 2)},
-                    {validator: this.quitPriceValidate('textbook')}
-                ]
-            },
-            teacherRules: {
-                techer_id: [
-                    {required: true, message: '请选择老师', trigger: 'change'}
-                ]
-            },
-            studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
-            removeTimetableForm: {
-                course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
-            },
-            followUpForm: {
-                way_id: '',   //跟进方式
-                status: '',   //跟进结果
-                invited_at: '',   //邀约时间
-                content: '',   //跟进内容
-                next_at: ''
-            },
-            removeTimetableRules: {
-                room_id: [
-                    {required: true, message: '请选择教室', trigger: 'change'}
-                ],
-                type: [
-                    {required: true, message: '请选择消课类型', trigger: 'change'}
-                ],
-                grade_id: [
-                    {required: true, message: '请选择班级', trigger: 'change'}
-                ],
-                teacher_id: [
-                    {required: true, message: '请选择老师', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入课时数'}
-                ],
-                day: [
-                    {required: true, message: '请选择日期', trigger: 'change'}
-                ],
-                teacher_name: [],
-                time: [
-                    {required: true, message: '请选择时间', trigger: 'change'}
-                ]
-            },
-            detailRules: {
-                parent_name: [
-                    // {required: true, message: '请输入家长姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                relation: [
-                    // {required: true, message: '请选择关系', trigger: 'change'}
-                ],
-                mobile: [
-                    {required: true, message: '请输入家长电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                address: [
-                    {max: 50, message: '长度不能超过50个字符'}
-                ],
-                school_name: [
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                student_name: [
-                    {required: true, message: '请输入学员姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                sex: [
-                    {required: true, message: '请选择性别', trigger: 'change'}
-                ]
-            },
-            followUpRules: {
-                way_id: [
-                    {required: true, message: '请选择跟进方式', trigger: 'change'}
-                ],
-                status: [
-                    {required: true, message: '请选择跟进结果', trigger: 'change'}
-                ],
-                invited_at: [
-                    {required: true, message: '请选择邀约时间', trigger: 'change'}
-                ],
-                content: [
-                    {required: true, message: '请填写跟进内容'},
-                    {max: 150, message: '长度不能超过150个字符'}
-                ]
-            },
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            },
-            pickListenDisable: {
-                disabledDate: (time) => {
-                    return time.getTime() < new Date().setHours(0, 0, 0, 0);
-                }
-            }
+      quitCourseForm: {
+        rel_remain: '',
+        explain: '',
+        lesson_quitprice: '',
+        textbook_quitprice: ''
+      },
+      quitCourseRules: {
+        explain: [
+          {max: 200, message: '最多输入200个字符'}
+        ],
+        lesson_quitprice: [
+          {required: true, message: '请输入课时实际退费'},
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.quitPriceValidate('lesson')}
+        ],
+        textbook_quitprice: [
+          // {required: true, message: '请输入教材实际退费'},
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.quitPriceValidate('textbook')}
+        ]
+      },
+      teacherRules: {
+        techer_id: [
+          {required: true, message: '请选择老师', trigger: 'change'}
+        ]
+      },
+      studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
+      removeTimetableForm: {
+        course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
+      },
+      followUpForm: {
+        way_id: '', //跟进方式
+        status: '', //跟进结果
+        invited_at: '', //邀约时间
+        content: '', //跟进内容
+        next_at: ''
+      },
+      removeTimetableRules: {
+        room_id: [
+          {required: true, message: '请选择教室', trigger: 'change'}
+        ],
+        type: [
+          {required: true, message: '请选择消课类型', trigger: 'change'}
+        ],
+        grade_id: [
+          {required: true, message: '请选择班级', trigger: 'change'}
+        ],
+        teacher_id: [
+          {required: true, message: '请选择老师', trigger: 'change'}
+        ],
+        lesson_num: [
+          {required: true, message: '请输入课时数'}
+        ],
+        day: [
+          {required: true, message: '请选择日期', trigger: 'change'}
+        ],
+        teacher_name: [],
+        time: [
+          {required: true, message: '请选择时间', trigger: 'change'}
+        ]
+      },
+      detailRules: {
+        parent_name: [
+          // {required: true, message: '请输入家长姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        relation: [
+          // {required: true, message: '请选择关系', trigger: 'change'}
+        ],
+        mobile: [
+          {required: true, message: '请输入家长电话'},
+          {validator: this.$$tools.formValidate('phone')}
+        ],
+        address: [
+          {max: 50, message: '长度不能超过50个字符'}
+        ],
+        school_name: [
+          {max: 20, message: '长度不能超过20个字符'}
+        ],
+        student_name: [
+          {required: true, message: '请输入学员姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        sex: [
+          {required: true, message: '请选择性别', trigger: 'change'}
+        ]
+      },
+      followUpRules: {
+        way_id: [
+          {required: true, message: '请选择跟进方式', trigger: 'change'}
+        ],
+        status: [
+          {required: true, message: '请选择跟进结果', trigger: 'change'}
+        ],
+        invited_at: [
+          {required: true, message: '请选择邀约时间', trigger: 'change'}
+        ],
+        content: [
+          {required: true, message: '请填写跟进内容'},
+          {max: 150, message: '长度不能超过150个字符'}
+        ]
+      },
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
         }
+      },
+      pickListenDisable: {
+        disabledDate: (time) => {
+          return time.getTime() < new Date().setHours(0, 0, 0, 0);
+        }
+      }
+    };
+  },
+  methods: {
+    getRelations (id) {
+      let text = '';
+
+      this.$store.state.familyRelations.forEach(v => {
+        if (id == v.id) {
+          text = v.name;
+        }
+      });
+
+      return text;
     },
-    methods: {
-        getRelations(id) {
-            let text = '';
-            this.$store.state.familyRelations.forEach(v => {
-                if(id == v.id) text = v.name;
-            });
+    editTeahcerDiaClose () {
+      this.$refs.teacherForm.resetFields();
+    },
+    dialogClose (form) {
+      if (form === 'listen') {
+        this.checkListen = [];
+        this.listenCourseLists = [];
+        this.auditionData = {
+          time: new Date().getTime(),
+          teacher_lists: [],
+          course_lists: [],
+          teacher_id: '',
+          course_id: ''
+        };
+        // 48213449
+      } else if (form === 'followUpForm') {
+        this.listenCourseInit();
+        this.$refs[form].resetFields();
+      } else if (form === 'divideGrade') {
+        this.divideClassRadio = '';
+      } else if (form === 'addStudent') {
+        this.$refs[form].resetFields();
+        Object.keys(this.studentForm).forEach(v => {
+          this.studentForm[v] = '';
+        });
+      } else {
+        this.$refs[form].resetFields();
+      }
+    },
+    //退费  课时退费和教材退费单独验证
+    quitPriceValidate (type) {
+      return (rule, value, callback, event, e, d) => {
+        if (type == 'lesson') {
+          if (value > Number(this.quitCourseInfo.real_price)) {
+            return callback(new Error('课时退费金额不能超过剩余课时费'));
+          }
 
-            return text;
-        },
-        editTeahcerDiaClose() {
-            this.$refs.teacherForm.resetFields();
-        },
-        dialogClose(form) {
-            if(form === 'listen') {
-                this.checkListen = [];
-                this.listenCourseLists = [];
-                this.auditionData = {
-                    time: new Date().getTime(),
-                    teacher_lists: [],
-                    course_lists: [],
-                    teacher_id: '',
-                    course_id: ''
-                };
-                // 48213449
-            }else if(form === 'followUpForm') {
-                this.listenCourseInit();
-                this.$refs[form].resetFields();
-            }else if(form === 'divideGrade') {
-                this.divideClassRadio = '';
-            }else if(form === 'addStudent'){
-                this.$refs[form].resetFields();
-                Object.keys(this.studentForm).forEach(v => {this.studentForm[v] = ''});
-            }else {
-                this.$refs[form].resetFields();
-            }
-        },
-        //退费  课时退费和教材退费单独验证
-        quitPriceValidate(type) {
-            return (rule, value, callback, event, e, d) => {
-                if(type == 'lesson') {
-                    if(value > Number(this.quitCourseInfo.real_price)) return callback(new Error('课时退费金额不能超过剩余课时费'));
-                    else return callback();
-                }else {
-                    if(value > Number(this.quitCourseInfo.textbook_price)) return callback(new Error('教材退费金额不能超过剩余教材费'));
-                    else return callback();
-                }
-            }
-        },
-        //编辑修改老师信息 click
-        editTeacherClick(course_id, teacher_id, student_id) {
-            this.teacherForm.old_teacher_id = +teacher_id;
-            this.teacherForm.techer_id = +teacher_id;
-            this.teacherForm.course_id = course_id;
-            this.teacherForm.student_id = student_id;
-            this.getEditTeacherLists(course_id);
-        },
-        //获取编辑老师列表
-        async getEditTeacherLists(id) {
-            let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
-            console.log(result);
-            if(!result) return 0;
-            this.editTeacherLists = result.teachers;
-            this.dialogStatus.editTeacher = true;
-        },
-        getTeacherName(grade, teacher_id) {
-            let teacher_name = '';
-            grade.teachers.forEach(v => {
-                if(v.id == teacher_id) teacher_name = v.name;
-            });
+          return callback();
+        }
+        if (value > Number(this.quitCourseInfo.textbook_price)) {
+          return callback(new Error('教材退费金额不能超过剩余教材费'));
+        }
 
-            return teacher_name;
-        },
-        //修改老师确定 click
-        editTeacherDone() {
-            this.$refs.teacherForm.validate(valid => {if(valid) this.submitEditTeacher()});
-        },
-        //提交修改老师数据
-        async submitEditTeacher() {
-            let params = {
-                id: this.teacherForm.old_teacher_id,
-                course_id: this.teacherForm.course_id,
-                teacher_id: this.teacherForm.techer_id,
-                student_id: this.teacherForm.student_id
-            };
+        return callback();
 
-            console.log(params)
+      };
+    },
+    //编辑修改老师信息 click
+    editTeacherClick (course_id, teacher_id, student_id) {
+      this.teacherForm.old_teacher_id = +teacher_id;
+      this.teacherForm.techer_id = +teacher_id;
+      this.teacherForm.course_id = course_id;
+      this.teacherForm.student_id = student_id;
+      this.getEditTeacherLists(course_id);
+    },
+    //获取编辑老师列表
+    async getEditTeacherLists (id) {
+      let result = await this.$$request.post('/course/orderTeachers', {course_id: id});
 
-            let result = await this.$$request.post('/course/changeTeacher', params);
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.editTeacherLists = result.teachers;
+      this.dialogStatus.editTeacher = true;
+    },
+    getTeacherName (grade, teacher_id) {
+      let teacher_name = '';
 
-            console.log(result);
+      grade.teachers.forEach(v => {
+        if (v.id == teacher_id) {
+          teacher_name = v.name;
+        }
+      });
 
-            if(!result) return 0;
-            this.$message.success('修改老师成功');
-            this.dialogStatus.editTeacher = false;
-            this.getBottomTabLists();
-        },
-        //评分兑换
-        // conversionClick() {
+      return teacher_name;
+    },
+    //修改老师确定 click
+    editTeacherDone () {
+      this.$refs.teacherForm.validate(valid => {
+        if (valid) {
+          this.submitEditTeacher();
+        }
+      });
+    },
+    //提交修改老师数据
+    async submitEditTeacher () {
+      let params = {
+        id: this.teacherForm.old_teacher_id,
+        course_id: this.teacherForm.course_id,
+        teacher_id: this.teacherForm.techer_id,
+        student_id: this.teacherForm.student_id
+      };
 
-        // },
-        //手动消课相关
-        removeTimeTableClick(data) {
-            console.log(data);
-            this.removeTimetableForm.course_id = data.course_id;
-            this.removeTimetableForm.course_name = data.course_name;
-            this.removeTimetableForm.class_pattern = data.class_pattern;
+      console.log(params);
 
-            if(data.class_pattern == 1) {
-                this.$store.state.course.forEach(v => {if(v.id == data.course_id) {
-                    this.removeTimetableForm.lesson_time = v.lesson_time;
-                    this.gradeLists = v.grades;
-                }});
-            }else {
-                this.removeTimetableForm.teacher_id = data.teacher_ids;
-                this.$store.state.teacherList.forEach(v => {
-                    if(v.id == data.teacher_ids) this.removeTimetableForm.teacher_name = v.name;
-                });
-                this.removeTimetableForm.lesson_time = data.lesson_time;
-            }
+      let result = await this.$$request.post('/course/changeTeacher', params);
 
-            this.removeTimetableDialog = true;
+      console.log(result);
 
-        },
-        removeTimeTableChange(val) {
-            this.gradeLists.forEach(v =>{
-                if(v.id == val) {
-                    this.removeTimetableForm.room_id = v.room_id;
-                    this.removeTimetableForm.teacher_id = +(v.teacher_ids.substring(1, v.teacher_ids.length-1));
-                }
-            })
-        },
-        //手动消课点击确定
-        timetableDone() {
-            this.$refs.removeTimeTable.validate(valid => {
-                if(valid) this.submitTimetable();
-            });
-        },
-        //底部列表切换
-        tabClick(item) {
-            if(this.oldActiveTab == this.activeTab) return 0;
-            this.oldActiveTab = item.name;
-            this.getBottomTabLists();
-        },
-        //手动消课提交数据
-        async submitTimetable() {
-            if(this.submitLoading.removeTimetable) return 0;
-            this.submitLoading.removeTimetable = true;
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('修改老师成功');
+      this.dialogStatus.editTeacher = false;
+      this.getBottomTabLists();
+    },
+    //评分兑换
+    // conversionClick() {
 
-            let params = {
-                student_id: this.studentId,
-                course_id: this.removeTimetableForm.course_id,
-                grade_id: this.removeTimetableForm.grade_id,
-                teacher_id: this.removeTimetableForm.teacher_id,
-                room_id: this.removeTimetableForm.room_id,
-                lesson_num: this.removeTimetableForm.lesson_num,
-                type: this.removeTimetableForm.class_pattern == 1 ? this.removeTimetableForm.type : 'sign'
-            };
+    // },
+    //手动消课相关
+    removeTimeTableClick (data) {
+      console.log(data);
+      this.removeTimetableForm.course_id = data.course_id;
+      this.removeTimetableForm.course_name = data.course_name;
+      this.removeTimetableForm.class_pattern = data.class_pattern;
 
-            if(this.removeTimetableForm.class_pattern == 2) params.grade_id = 0;
-            let day = this.removeTimetableForm.day;
-            let time = this.removeTimetableForm.time;
-            params.begin_time = new Date(`${day} ${time}`).getTime() / 1000;
-            params.end_time = params.begin_time + this.removeTimetableForm.lesson_time * 60;
+      if (data.class_pattern == 1) {
+        this.$store.state.course.forEach(v => {
+          if (v.id == data.course_id) {
+            this.removeTimetableForm.lesson_time = v.lesson_time;
+            this.gradeLists = v.grades;
+          }
+        });
+      } else {
+        this.removeTimetableForm.teacher_id = data.teacher_ids;
+        this.$store.state.teacherList.forEach(v => {
+          if (v.id == data.teacher_ids) {
+            this.removeTimetableForm.teacher_name = v.name;
+          }
+        });
+        this.removeTimetableForm.lesson_time = data.lesson_time;
+      }
 
-            console.log(params);
+      this.removeTimetableDialog = true;
 
-            let result = await this.$$request.post('/eduCount/manualElimination', params);
-            this.submitLoading.removeTimetable = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('手动消课成功!');
-            this.removeTimetableDialog = false;
-            this.getBottomTabLists();
-        },
-        //手动消课弹窗关闭
-        timetableDialogClose() {
-            this.gradeLists = [];
-            this.$refs.removeTimeTable.resetFields();
-            Object.keys(this.removeTimetableForm).forEach(v => {this.removeTimetableForm[v] = ''});
-        },
-        removeTimeChange(val) {
-            if(new Date(val).toDateString() === new Date().toDateString()) {
-                this.timePicker.maxTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-            }else this.timePicker.maxTime = '22:00';
-        },
-        //续约，再次购买课程
-        againBuyCourse(data) {
-            console.log(data);
+    },
+    removeTimeTableChange (val) {
+      this.gradeLists.forEach(v =>{
+        if (v.id == val) {
+          this.removeTimetableForm.room_id = v.room_id;
+          this.removeTimetableForm.teacher_id = +v.teacher_ids.substring(1, v.teacher_ids.length - 1);
+        }
+      });
+    },
+    //手动消课点击确定
+    timetableDone () {
+      this.$refs.removeTimeTable.validate(valid => {
+        if (valid) {
+          this.submitTimetable();
+        }
+      });
+    },
+    //底部列表切换
+    tabClick (item) {
+      if (this.oldActiveTab == this.activeTab) {
+        return 0;
+      }
+      this.oldActiveTab = item.name;
+      this.getBottomTabLists();
+    },
+    //手动消课提交数据
+    async submitTimetable () {
+      if (this.submitLoading.removeTimetable) {
+        return 0;
+      }
+      this.submitLoading.removeTimetable = true;
 
-            let params = {
-                student_id: data.student_id,
-                advisor_id: data.advisor_id,
-                advisor: data.advisor,
-                parent_id: data.parent_id,
-                expire: data.expire,
-                buy_type: 2,
-                course_id: data.course_id,
-                is_order: data.is_order,
-                class_pattern: data.class_pattern,
-                teacher_id: data.teacher_ids
-            };
+      let params = {
+        student_id: this.studentId,
+        course_id: this.removeTimetableForm.course_id,
+        grade_id: this.removeTimetableForm.grade_id,
+        teacher_id: this.removeTimetableForm.teacher_id,
+        room_id: this.removeTimetableForm.room_id,
+        lesson_num: this.removeTimetableForm.lesson_num,
+        type: this.removeTimetableForm.class_pattern == 1 ? this.removeTimetableForm.type : 'sign'
+      };
 
-            this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },
-        //课程信息列表查看合约
-        async showContract(data) {
-            let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
-            console.log(result);
-            if(!result) return 0;
-            this.contractData = result.data;
-            this.dialogStatus.contract = true;
-        },
-        //退费详情
-        async getQuitPriceDetail(data) {
-            let result = await this.$$request.get('/financeManage/quitCourseDetail', {student_course_id: data.id});
-            console.log(result);
-            if(!result) return 0;
-            this.quitPriceDetail = result;
-            this.dialogStatus.quitPrice = true;
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            // if(type == 'course') {
-            //     this.buyCourseData = {};
-            //     this.dialogStatus.course = false;
-            //     return 0;
-            // };
-            if(type == 'contract') {
-                this.contractData = {};
-                this.dialogStatus.contract = false;
-                return 0;
-            };
+      if (this.removeTimetableForm.class_pattern == 2) {
+        params.grade_id = 0;
+      }
+      let day = this.removeTimetableForm.day;
+      let time = this.removeTimetableForm.time;
 
-            if(type == 'refund') {
-                this.quitPriceDetail = {};
-                this.dialogStatus.quitPrice = false;
-                return 0
-            };
-        },
-        //购课成功，合约回调
-        CB_contract(data) {
-            this.contractData = data;
-            if(this.activeTab == 'course_info') this.getBottomTabLists();
-            this.dialogStatus.course = false;
-            this.dialogStatus.contract = true;
-        },
-        //添加跟进
-        addFollowUp() {
-            for(let key in this.followUpForm) this.followUpForm[key] = '';
-            this.followupStatus = '';
-            this.listenType = 'followup';    //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
-            this.maskFollowUp = true;
-        },
-        //跟进结果选择
-        followUpStatusChange(value) {
-            this.followupStatus = value;
-            if(value === 4) {
-                this.getListenLists();
-                this.maskAudition = true;
-            }else {
-                this.listenCourseInit();
-            }
-        },
-        //添加试听
-        addListenHandle() {
-            this.listenType = 'default';
-            this.getListenLists();
-            this.maskAudition = true;
-        },
-        //试听课程列表点击
-        listenCourseClick(list) {
-            let index = this.checkListen.indexOf(list.id);
+      params.begin_time = new Date(`${day} ${time}`).getTime() / 1000;
+      params.end_time = params.begin_time + this.removeTimetableForm.lesson_time * 60;
 
-            if(index === -1) {
-                if(this.checkListen.length) return this.$message.warning('最多选择一个');
-                this.checkListen.push(list.id);
-            }
-            else this.checkListen.splice(index, 1);
-        },
-        //试听跟进弹窗关闭，数据重置
-        listenCourseInit() {
-            this.auditionData = {
-                time: new Date().getTime(),
-                teacher_lists: [],
-                course_lists: [],
-                teacher_id: '',
-                course_id: ''
-            };
-            this.checkListen = [];
-            this.listenCourseLists = [];
-            Object.keys(this.checkListenCourse).forEach(v => {this.checkListenCourse[v] = ''});
-        },
-        //添加分班
-        gradeDivideClick(type, data) {
-            this.divideClassType = type;
-            if(type === 'add') this.getStudentGradeLists('/sign/courseLists');
-            else {
-                this.divideClassRadio = data.grade_id;
-                this.original_grade_id = data.grade_id;
-                this.getStudentGradeLists('/sign/gradeLists', data);
-            }
-        },
-        //分班确定按钮
-        divideClassDone(disabled) {
-            if(disabled) return 0;
-            if(!this.divideClassRadio) return this.$message.warning('请选择班级');
+      console.log(params);
 
-            this.gradeDivideLists.lists.forEach(v => {
-                v.grade.forEach(d => {
-                    if(d.id == this.divideClassRadio) {
-                        if(d.join_num >= d.limit_num && v.type === 1) {
-                            this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(() => {
-                                this.submitClassRoomHandle();
-                            }).catch(() => {return 0});
-                        }else {
-                            this.submitClassRoomHandle();
-                        }
-                    }
-                });
-            })
-        },
-        //提交分班数据
-        submitClassRoomHandle() {
-            if(this.divideClassType === 'add') {
-                this.submitDivideClass('/studentGrade/add', {student_id: this.studentId, grade_id: this.divideClassRadio});
-            }else {
-                this.submitDivideClass('/studentGrade/change', {
-                    student_id: this.studentId,
-                    original_grade_id: this.original_grade_id,
-                    target_grade_id: this.divideClassRadio
-                });
-            }
-        },
-        // 停课/开课（只针对学员停课）
-        stopCourse(s_id,g_id,type,index) {
-            const params = {
-                student_id : s_id,
-                grade_id : g_id,
-                type: type === 0 ? 'stop' : 'start'
-            }
-            let tip = type === 0 ? '停课' : '开课';
-            this.$confirm('确定办理'+tip+'吗?', '提示', {
+      let result = await this.$$request.post('/eduCount/manualElimination', params);
+
+      this.submitLoading.removeTimetable = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('手动消课成功!');
+      this.removeTimetableDialog = false;
+      this.getBottomTabLists();
+    },
+    //手动消课弹窗关闭
+    timetableDialogClose () {
+      this.gradeLists = [];
+      this.$refs.removeTimeTable.resetFields();
+      Object.keys(this.removeTimetableForm).forEach(v => {
+        this.removeTimetableForm[v] = '';
+      });
+    },
+    removeTimeChange (val) {
+      if (new Date(val).toDateString() === new Date().toDateString()) {
+        this.timePicker.maxTime = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
+      } else {
+        this.timePicker.maxTime = '22:00';
+      }
+    },
+    //续约，再次购买课程
+    againBuyCourse (data) {
+      console.log(data);
+
+      let params = {
+        student_id: data.student_id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor,
+        parent_id: data.parent_id,
+        expire: data.expire,
+        buy_type: 2,
+        course_id: data.course_id,
+        is_order: data.is_order,
+        class_pattern: data.class_pattern,
+        teacher_id: data.teacher_ids
+      };
+
+      this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+    },
+    //课程信息列表查看合约
+    async showContract (data) {
+      let result = await this.$$request.get('/studentCourse/detail', {sc_id: data.id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.contractData = result.data;
+      this.dialogStatus.contract = true;
+    },
+    //退费详情
+    async getQuitPriceDetail (data) {
+      let result = await this.$$request.get('/financeManage/quitCourseDetail', {student_course_id: data.id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.quitPriceDetail = result;
+      this.dialogStatus.quitPrice = true;
+    },
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      // if(type == 'course') {
+      //     this.buyCourseData = {};
+      //     this.dialogStatus.course = false;
+      //     return 0;
+      // };
+      if (type == 'contract') {
+        this.contractData = {};
+        this.dialogStatus.contract = false;
+
+        return 0;
+      }
+
+      if (type == 'refund') {
+        this.quitPriceDetail = {};
+        this.dialogStatus.quitPrice = false;
+
+        return 0;
+      }
+    },
+    //购课成功，合约回调
+    CB_contract (data) {
+      this.contractData = data;
+      if (this.activeTab == 'course_info') {
+        this.getBottomTabLists();
+      }
+      this.dialogStatus.course = false;
+      this.dialogStatus.contract = true;
+    },
+    //添加跟进
+    addFollowUp () {
+      for (let key in this.followUpForm) {
+        this.followUpForm[key] = '';
+      }
+      this.followupStatus = '';
+      this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
+      this.maskFollowUp = true;
+    },
+    //跟进结果选择
+    followUpStatusChange (value) {
+      this.followupStatus = value;
+      if (value === 4) {
+        this.getListenLists();
+        this.maskAudition = true;
+      } else {
+        this.listenCourseInit();
+      }
+    },
+    //添加试听
+    addListenHandle () {
+      this.listenType = 'default';
+      this.getListenLists();
+      this.maskAudition = true;
+    },
+    //试听课程列表点击
+    listenCourseClick (list) {
+      let index = this.checkListen.indexOf(list.id);
+
+      if (index === -1) {
+        if (this.checkListen.length) {
+          return this.$message.warning('最多选择一个');
+        }
+        this.checkListen.push(list.id);
+      } else {
+        this.checkListen.splice(index, 1);
+      }
+    },
+    //试听跟进弹窗关闭，数据重置
+    listenCourseInit () {
+      this.auditionData = {
+        time: new Date().getTime(),
+        teacher_lists: [],
+        course_lists: [],
+        teacher_id: '',
+        course_id: ''
+      };
+      this.checkListen = [];
+      this.listenCourseLists = [];
+      Object.keys(this.checkListenCourse).forEach(v => {
+        this.checkListenCourse[v] = '';
+      });
+    },
+    //添加分班
+    gradeDivideClick (type, data) {
+      this.divideClassType = type;
+      if (type === 'add') {
+        this.getStudentGradeLists('/sign/courseLists');
+      } else {
+        this.divideClassRadio = data.grade_id;
+        this.original_grade_id = data.grade_id;
+        this.getStudentGradeLists('/sign/gradeLists', data);
+      }
+    },
+    //分班确定按钮
+    divideClassDone (disabled) {
+      if (disabled) {
+        return 0;
+      }
+      if (!this.divideClassRadio) {
+        return this.$message.warning('请选择班级');
+      }
+
+      this.gradeDivideLists.lists.forEach(v => {
+        v.grade.forEach(d => {
+          if (d.id == this.divideClassRadio) {
+            if (d.join_num >= d.limit_num && v.type === 1) {
+              this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
-            }).then(() => {
-                let result = this.$$request.post('/studentGrade/suspend',params);
-                if(!result) return 0;
-                this.$message.success('操作成功');
-                this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
-            })
-        },
-        //班级信息，已扣课时点击
-        lessonNumHandle(data) {
-            console.log(data);
-            this.lessonNumDetail = data.lesson_num_reduce;
-            this.gradeName = data.grade.name;
-            this.lessonNumDetailMask = true;
-        },
-        //班级信息，已请假次数点击
-        leaveNumHandle(data) {
-            this.leaveNumDetail = data.leave_tickets;
-            this.gradeName = data.grade.name;
-            this.leaveNumDetailMask = true;
-        },
-        //购课
-        buyCourse() {
-            // this.buyCourseData = this.studentDetail;
-            // this.dialogStatus.course = true;
-            let params = {
-                student_id: this.studentDetail.id,
-                advisor_id: this.studentDetail.advisor_id,
-                advisor: this.studentDetail.advisor,
-                parent_id: this.studentDetail.parent_id
-            };
-
-            this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },
-        //上课状态转换
-        timeTableStatus(status) {
-            let str = '';
-            this.timeTableStatic.forEach(v => {
-                if(v.id == status) str = v.name;
-            });
-            return str;
-        },
-        //编辑
-        editDetail() {
-            this.studentForm.id = this.studentDetail.id;
-            this.studentForm.student_name = this.studentDetail.name;
-            this.studentForm.birthday = this.studentDetail.birthday > 0 ? this.studentDetail.birthday * 1000 : '';
-            this.studentForm.mobile = this.studentDetail.parent_info.mobile;
-            this.studentForm.parent_name = this.studentDetail.parent_info.name;
-            this.studentForm.relation = this.studentDetail.parent_info.relation;
-            this.studentForm.address = this.studentDetail.parent_info.address;
-            this.studentForm.sex = this.studentDetail.sex;
-            this.studentForm.school_name = this.studentDetail.school_name;
-            this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
-
-            this.studentMaskStatus = true;
-        },
-        //退费按钮点击
-        quitCourse(data) {
-            console.log(data);
-            this.quitCourseInfo = data;
-            let lesson_num_remain = this.quitCourseInfo.lesson_num_remain - this.quitCourseInfo.given_num;
-            lesson_num_remain = lesson_num_remain <= 0 ? 0 : lesson_num_remain;
-
-            this.quitCourseInfo.remain_price = (+(this.quitCourseInfo.unit_price) * lesson_num_remain).toFixed(2);
-
-            this.quitCourseMaskStatus = true;
-        },
-        //试听确定
-        listenDoneHandle() {
-            if(!this.checkListen.length) return this.$message.warning('试听课程不能为空!');
-
-            if(this.listenType == 'default') {
-                this.followUpForm.way_id = 5;
-                this.followUpForm.status = 4;
-                this.followUpForm.content = '无跟进内容记录';
-
-                this.submitFollowUpInfo();
-            }else {
-                this.listenCourseLists.forEach(v => {
-                    if(v.id === this.checkListen[0]) {
-                        this.checkListenCourse.timetable_id = v.id;
-                        this.checkListenCourse.course_name = v.course.name;
-                        this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
-                    }
-                });
+              }).then(() => {
+                this.submitClassRoomHandle();
+              }).catch(() => {
+                return 0;
+              });
+            } else {
+              this.submitClassRoomHandle();
             }
+          }
+        });
+      });
+    },
+    //提交分班数据
+    submitClassRoomHandle () {
+      if (this.divideClassType === 'add') {
+        this.submitDivideClass('/studentGrade/add', {student_id: this.studentId, grade_id: this.divideClassRadio});
+      } else {
+        this.submitDivideClass('/studentGrade/change', {
+          student_id: this.studentId,
+          original_grade_id: this.original_grade_id,
+          target_grade_id: this.divideClassRadio
+        });
+      }
+    },
+    // 停课/开课（只针对学员停课）
+    stopCourse (s_id, g_id, type, index) {
+      const params = {
+        student_id: s_id,
+        grade_id: g_id,
+        type: type === 0 ? 'stop' : 'start'
+      };
+      let tip = type === 0 ? '停课' : '开课';
 
-            this.listenCourseLists = [];    //试听课程列表重置
-            this.maskAudition = false;
-        },
-        //表单确定
-        doneHandle(type) {
-            this.$refs[type].validate(valid => {if(valid) {
-                if(type === 'followUpForm') this.submitFollowUpInfo();
-                else if(type === 'addStudent') this.submitStudentInfo();
-                else if(type === 'quitCourseForm') this.submitQuitCourse();
-            }});
-        },
-        //tab列表数据分页
-        paginationClick(currentPage) {
-            this.getBottomTabLists(currentPage);
-        },
-        //提交退费数据
-        async submitQuitCourse() {
-            if(this.submitLoading.quitCourse) return 0;
-            this.submitLoading.quitCourse = true;
+      this.$confirm(`确定办理${tip}吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let result = this.$$request.post('/studentGrade/suspend', params);
 
-            let params = {
-                sc_id: this.quitCourseInfo.id,
-                student_id: this.quitCourseInfo.student_id,
-                course_id: this.quitCourseInfo.course_id,
-                expire: this.quitCourseInfo.expire,
-                lesson_num: this.quitCourseInfo.lesson_num,
-                remain_num: this.quitCourseInfo.lesson_num_remain,
-                real_price: this.quitCourseInfo.real_price,
-                pre_price: this.quitCourseInfo.unit_price,
-                remain_price: this.quitCourseInfo.remain_price,
-                explain: this.quitCourseForm.explain,
-                rel_remain: this.quitCourseForm.lesson_quitprice + this.quitCourseForm.textbook_quitprice,
-                remain_lesson_price: this.quitCourseForm.lesson_quitprice,
-                remain_textbook_price: this.quitCourseForm.textbook_quitprice
-            };
-
-            console.log(params)
-
-            let result = await this.$$request.post('/quitCourse/add', params);
-            this.submitLoading.quitCourse = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('退费成功');
-            this.getBottomTabLists();
-            this.quitCourseMaskStatus = false;
-        },
-        //提交学员信息
-        async submitStudentInfo() {
-            if(this.submitLoading.student) return 0;
-            this.submitLoading.student = true;
-
-            let params = {};
-            for(let key in this.studentForm) {
-                params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
-            };
-
-            let result = await this.$$request.post('/sign/edit', params);
-            this.submitLoading.student = false;
-            console.log(result);
-            if(!result) return 0;
-
-            this.$message.success('修改成功');
-            this.studentMaskStatus = false;
-            this.getStudentDetail(this.studentForm.id);
-            Bus.$emit('refreshSignedStudentLists');
-        },
-        //提交分班信息
-        async submitDivideClass(url, params) {
-            if(this.submitLoading.gradeDivide) return 0;
-            this.submitLoading.gradeDivide = true;
-
-            console.log(params)
-            let result = await this.$$request.post(url, params);
-            this.submitLoading.gradeDivide = false;
-            if(!result) return 0;
-
-            this.getBottomTabLists();
-            this.$message.success('分班成功');
-            this.classMaskStatus = false;
-        },
-        //提交跟进
-        async submitFollowUpInfo() {
-            for(let key in this.followUpForm) {if(key == 'invited_at' || key == 'next_at') this.followUpForm[key] = this.followUpForm[key] / 1000};
-
-            if(this.followupStatus === 4 && !this.checkListenCourse.timetable_id) return this.$message.warning('邀约试听，试听课程不能为空!');
-
-
-            if(this.submitLoading.followUp) return 0;
-            this.submitLoading.followUp = true;
-
-            let params = {...this.followUpForm, type_id: 6, student_id: this.studentId};  //type_id默认售前跟进5
-
-            if(this.listenType == 'default' && this.checkListen.length) {
-                params.timetable_id = this.checkListen[0];
-            }else if(this.checkListenCourse.timetable_id) params.timetable_id = this.checkListenCourse.timetable_id;
-
-            console.log(params);
-
-            let result = await this.$$request.post('/followUp/add', params);  //type_id默认售后跟进6
-            this.submitLoading.followUp = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('添加成功');
-
-            this.maskFollowUp = false;
-            this.maskAudition = false;
-
-            this.listenCourseInit();
-            for(let key in this.followUpForm) this.followUpForm[key] = '';
-            this.getBottomTabLists();
-        },
-        //获取学员详情
-        async getStudentDetail() {
-            let result = await this.$$request.post('/student/detail', {id: this.studentId});
-            console.log(result);
-            if(!result) return 0;
-            this.$set(this, 'studentDetail', result.detail);
-            return true;
-        },
-        //课程列表，点击分班，获取班级列表
-        async getStudentGradeLists(url, data) {
-            let params = this.divideClassType === 'add' ? {student_id: this.studentId} : {id: data.course.id};
-            let result = await this.$$request.post(url, params);
-            console.log(result);
-            if(!result) return 0;
-
-            if(this.divideClassType === 'add') {
-                if(!result.lists.length) return this.$message.warning('没有可分班的课程!');
-                this.gradeDivideLists.lists = result.lists;
-                this.gradeDivideLists.disabled = result.lists.every(k => {return k.grade.length ? false : true});
-            }else {
-                let courseObj = [{grade: result.lists || [], id: data.course.id, name: data.course.name}];
-                this.gradeDivideLists.lists = courseObj;
-            }
-
-            this.classMaskStatus = true;
-        },
-        //获取4个列表方法
-        async getBottomTabLists(currentPage) {
-            this.loading = true;
-
-            let requestUrl = {
-                course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
-                grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
-                comment: {url: '/sign/comment', list: 'courseCommentLists'},
-                follow_up: {url: '/followUp/lists', list: 'followUpLists'}
-            };
-
-            let url = requestUrl[this.activeTab].url, params = {student_id: this.studentId}, dataLists = requestUrl[this.activeTab].list;
-            if(currentPage) params.page = currentPage;
-
-            let result = await this.$$request.post(url, params);
-            console.log(result);
-            if(!result) return 0;
-
-            if(dataLists === 'courseCommentLists') {
-                result.lists.forEach(v => {
-                    v.pic = v.pic ? v.pic.split(',') : [];
-                    v.imageMore = false;
-                });
-            };
-
-            this[dataLists] = result.lists;
-
-            this.loading = false;
-            return true;
-        },
-        //获取试听填充列表
-        async getListenLists() {
-            let old_time = Math.round(this.auditionData.time / 1000);
-
-            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-            console.log(result);
-            if(!result) return 0;
-            this.auditionData.teacher_lists = result.teacher;
-            this.auditionData.course_lists = result.course;
-            this.getListenCourseLists();
-        },
-        //获取试听课程列表
-        async getListenCourseLists() {
-            let old_time = Math.round(this.auditionData.time / 1000);
-
-            let params = {
-                time: old_time,
-                teacher_id: this.auditionData.teacher_id,
-                course_id: this.auditionData.course_id
-            };
-
-            let result = await this.$$request.post('/listenCourse/lists', {data: params});
-            console.log(result);
-            if(!result) return 0;
-            this.listenCourseLists = result.lists;
+        if (!result) {
+          return 0;
         }
+        this.$message.success('操作成功');
+        this.courseTimeTable.data[index].suspend_type = type === 0 ? 2 : 0;
+      });
     },
-    async created() {
-        this.studentId = this.$route.query.id;
-        let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
-        if(a && b) this.state = 'loaded';
+    //班级信息，已扣课时点击
+    lessonNumHandle (data) {
+      console.log(data);
+      this.lessonNumDetail = data.lesson_num_reduce;
+      this.gradeName = data.grade.name;
+      this.lessonNumDetailMask = true;
     },
-    watch: {
-        $route: function(val,oldval) {
-            this.studentId = val.query.id;
-            this.getStudentDetail();
-            this.getBottomTabLists();
+    //班级信息，已请假次数点击
+    leaveNumHandle (data) {
+      this.leaveNumDetail = data.leave_tickets;
+      this.gradeName = data.grade.name;
+      this.leaveNumDetailMask = true;
+    },
+    //购课
+    buyCourse () {
+      // this.buyCourseData = this.studentDetail;
+      // this.dialogStatus.course = true;
+      let params = {
+        student_id: this.studentDetail.id,
+        advisor_id: this.studentDetail.advisor_id,
+        advisor: this.studentDetail.advisor,
+        parent_id: this.studentDetail.parent_id
+      };
+
+      this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+    },
+    //上课状态转换
+    timeTableStatus (status) {
+      let str = '';
+
+      this.timeTableStatic.forEach(v => {
+        if (v.id == status) {
+          str = v.name;
         }
+      });
+
+      return str;
     },
-    components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}
-}
+    //编辑
+    editDetail () {
+      this.studentForm.id = this.studentDetail.id;
+      this.studentForm.student_name = this.studentDetail.name;
+      this.studentForm.birthday = this.studentDetail.birthday > 0 ? this.studentDetail.birthday * 1000 : '';
+      this.studentForm.mobile = this.studentDetail.parent_info.mobile;
+      this.studentForm.parent_name = this.studentDetail.parent_info.name;
+      this.studentForm.relation = this.studentDetail.parent_info.relation;
+      this.studentForm.address = this.studentDetail.parent_info.address;
+      this.studentForm.sex = this.studentDetail.sex;
+      this.studentForm.school_name = this.studentDetail.school_name;
+      this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
+
+      this.studentMaskStatus = true;
+    },
+    //退费按钮点击
+    quitCourse (data) {
+      console.log(data);
+      this.quitCourseInfo = data;
+      let lesson_num_remain = this.quitCourseInfo.lesson_num_remain - this.quitCourseInfo.given_num;
+
+      lesson_num_remain = lesson_num_remain <= 0 ? 0 : lesson_num_remain;
+
+      this.quitCourseInfo.remain_price = (+this.quitCourseInfo.unit_price * lesson_num_remain).toFixed(2);
+
+      this.quitCourseMaskStatus = true;
+    },
+    //试听确定
+    listenDoneHandle () {
+      if (!this.checkListen.length) {
+        return this.$message.warning('试听课程不能为空!');
+      }
+
+      if (this.listenType == 'default') {
+        this.followUpForm.way_id = 5;
+        this.followUpForm.status = 4;
+        this.followUpForm.content = '无跟进内容记录';
+
+        this.submitFollowUpInfo();
+      } else {
+        this.listenCourseLists.forEach(v => {
+          if (v.id === this.checkListen[0]) {
+            this.checkListenCourse.timetable_id = v.id;
+            this.checkListenCourse.course_name = v.course.name;
+            this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
+          }
+        });
+      }
+
+      this.listenCourseLists = []; //试听课程列表重置
+      this.maskAudition = false;
+    },
+    //表单确定
+    doneHandle (type) {
+      this.$refs[type].validate(valid => {
+        if (valid) {
+          if (type === 'followUpForm') {
+            this.submitFollowUpInfo();
+          } else if (type === 'addStudent') {
+            this.submitStudentInfo();
+          } else if (type === 'quitCourseForm') {
+            this.submitQuitCourse();
+          }
+        }
+      });
+    },
+    //tab列表数据分页
+    paginationClick (currentPage) {
+      this.getBottomTabLists(currentPage);
+    },
+    //提交退费数据
+    async submitQuitCourse () {
+      if (this.submitLoading.quitCourse) {
+        return 0;
+      }
+      this.submitLoading.quitCourse = true;
+
+      let params = {
+        sc_id: this.quitCourseInfo.id,
+        student_id: this.quitCourseInfo.student_id,
+        course_id: this.quitCourseInfo.course_id,
+        expire: this.quitCourseInfo.expire,
+        lesson_num: this.quitCourseInfo.lesson_num,
+        remain_num: this.quitCourseInfo.lesson_num_remain,
+        real_price: this.quitCourseInfo.real_price,
+        pre_price: this.quitCourseInfo.unit_price,
+        remain_price: this.quitCourseInfo.remain_price,
+        explain: this.quitCourseForm.explain,
+        rel_remain: this.quitCourseForm.lesson_quitprice + this.quitCourseForm.textbook_quitprice,
+        remain_lesson_price: this.quitCourseForm.lesson_quitprice,
+        remain_textbook_price: this.quitCourseForm.textbook_quitprice
+      };
+
+      console.log(params);
+
+      let result = await this.$$request.post('/quitCourse/add', params);
+
+      this.submitLoading.quitCourse = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('退费成功');
+      this.getBottomTabLists();
+      this.quitCourseMaskStatus = false;
+    },
+    //提交学员信息
+    async submitStudentInfo () {
+      if (this.submitLoading.student) {
+        return 0;
+      }
+      this.submitLoading.student = true;
+
+      let params = {};
+
+      for (let key in this.studentForm) {
+        params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
+      }
+
+      let result = await this.$$request.post('/sign/edit', params);
+
+      this.submitLoading.student = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.$message.success('修改成功');
+      this.studentMaskStatus = false;
+      this.getStudentDetail(this.studentForm.id);
+      Bus.$emit('refreshSignedStudentLists');
+    },
+    //提交分班信息
+    async submitDivideClass (url, params) {
+      if (this.submitLoading.gradeDivide) {
+        return 0;
+      }
+      this.submitLoading.gradeDivide = true;
+
+      console.log(params);
+      let result = await this.$$request.post(url, params);
+
+      this.submitLoading.gradeDivide = false;
+      if (!result) {
+        return 0;
+      }
+
+      this.getBottomTabLists();
+      this.$message.success('分班成功');
+      this.classMaskStatus = false;
+    },
+    //提交跟进
+    async submitFollowUpInfo () {
+      for (let key in this.followUpForm) {
+        if (key == 'invited_at' || key == 'next_at') {
+          this.followUpForm[key] = this.followUpForm[key] / 1000;
+        }
+      }
+
+      if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
+        return this.$message.warning('邀约试听，试听课程不能为空!');
+      }
+
+
+      if (this.submitLoading.followUp) {
+        return 0;
+      }
+      this.submitLoading.followUp = true;
+
+      let params = {...this.followUpForm, type_id: 6, student_id: this.studentId}; //type_id默认售前跟进5
+
+      if (this.listenType == 'default' && this.checkListen.length) {
+        params.timetable_id = this.checkListen[0];
+      } else if (this.checkListenCourse.timetable_id) {
+        params.timetable_id = this.checkListenCourse.timetable_id;
+      }
+
+      console.log(params);
+
+      let result = await this.$$request.post('/followUp/add', params); //type_id默认售后跟进6
+
+      this.submitLoading.followUp = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('添加成功');
+
+      this.maskFollowUp = false;
+      this.maskAudition = false;
+
+      this.listenCourseInit();
+      for (let key in this.followUpForm) {
+        this.followUpForm[key] = '';
+      }
+      this.getBottomTabLists();
+    },
+    //获取学员详情
+    async getStudentDetail () {
+      let result = await this.$$request.post('/student/detail', {id: this.studentId});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$set(this, 'studentDetail', result.detail);
+
+      return true;
+    },
+    //课程列表，点击分班，获取班级列表
+    async getStudentGradeLists (url, data) {
+      let params = this.divideClassType === 'add' ? {student_id: this.studentId} : {id: data.course.id};
+      let result = await this.$$request.post(url, params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      if (this.divideClassType === 'add') {
+        if (!result.lists.length) {
+          return this.$message.warning('没有可分班的课程!');
+        }
+        this.gradeDivideLists.lists = result.lists;
+        this.gradeDivideLists.disabled = result.lists.every(k => {
+          return k.grade.length ? false : true;
+        });
+      } else {
+        let courseObj = [{grade: result.lists || [], id: data.course.id, name: data.course.name}];
+
+        this.gradeDivideLists.lists = courseObj;
+      }
+
+      this.classMaskStatus = true;
+    },
+    //获取4个列表方法
+    async getBottomTabLists (currentPage) {
+      this.loading = true;
+
+      let requestUrl = {
+        course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
+        grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
+        comment: {url: '/sign/comment', list: 'courseCommentLists'},
+        follow_up: {url: '/followUp/lists', list: 'followUpLists'}
+      };
+
+      let url = requestUrl[this.activeTab].url, params = {student_id: this.studentId}, dataLists = requestUrl[this.activeTab].list;
+
+      if (currentPage) {
+        params.page = currentPage;
+      }
+
+      let result = await this.$$request.post(url, params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      if (dataLists === 'courseCommentLists') {
+        result.lists.forEach(v => {
+          v.pic = v.pic ? v.pic.split(',') : [];
+          v.imageMore = false;
+        });
+      }
+
+      this[dataLists] = result.lists;
+
+      this.loading = false;
+
+      return true;
+    },
+    //获取试听填充列表
+    async getListenLists () {
+      let old_time = Math.round(this.auditionData.time / 1000);
+
+      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.auditionData.teacher_lists = result.teacher;
+      this.auditionData.course_lists = result.course;
+      this.getListenCourseLists();
+    },
+    //获取试听课程列表
+    async getListenCourseLists () {
+      let old_time = Math.round(this.auditionData.time / 1000);
+
+      let params = {
+        time: old_time,
+        teacher_id: this.auditionData.teacher_id,
+        course_id: this.auditionData.course_id
+      };
+
+      let result = await this.$$request.post('/listenCourse/lists', {data: params});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.listenCourseLists = result.lists;
+    }
+  },
+  async created () {
+    this.studentId = this.$route.query.id;
+    let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
+
+    if (a && b) {
+      this.state = 'loaded';
+    }
+  },
+  watch: {
+    $route: function (val, oldval) {
+      this.studentId = val.query.id;
+      this.getStudentDetail();
+      this.getBottomTabLists();
+    }
+  },
+  components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}
+};
 </script>
 
 <style lang="less" scoped>

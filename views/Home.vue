@@ -321,440 +321,508 @@
 <script>
 
 import Menu from '../components/Menus';
-import bossIcon from '../images/common/boss-icon.png'
-import masterIcon from '../images/common/master-icon.png'
-import registerIcon from '../images/common/register-icon.png'
-import Bus from '../script/bus'
-import MyButton from '../components/common/MyButton'
+import bossIcon from '../images/common/boss-icon.png';
+import masterIcon from '../images/common/master-icon.png';
+import registerIcon from '../images/common/register-icon.png';
+import Bus from '../script/bus';
+import MyButton from '../components/common/MyButton';
 
-import AddStudentDialog from '../components/dialog/AddStudent'
-import BuyCourseDialog from '../components/dialog/BuyCourse'
-import ContractDialog from '../components/dialog/Contract'
-import AddCourseDialog from '../components/dialog/AddCourse'
+import AddStudentDialog from '../components/dialog/AddStudent';
+import BuyCourseDialog from '../components/dialog/BuyCourse';
+import ContractDialog from '../components/dialog/Contract';
+import AddCourseDialog from '../components/dialog/AddCourse';
 
 import errorLoading from '!url-loader!../images/state-500.png';
 
 import config from 'config';
 
 export default {
-    data() {
-        return {
-            loading: false,
-            errorLoading,
-            apiUrl: config.api,
-            search_student_info: '',  //搜索学员信息
-            search_result: [],     //搜索结果
-            settingShow: false,
-            helpShow: false,
-            schoolId: '',
-            schoolSelect: false,    //默认校区不选择
-            schoolTitle: '',   //校区title
-            speedyShow: false,
+  data () {
+    return {
+      loading: false,
+      errorLoading,
+      apiUrl: config.api,
+      search_student_info: '', //搜索学员信息
+      search_result: [], //搜索结果
+      settingShow: false,
+      helpShow: false,
+      schoolId: '',
+      schoolSelect: false, //默认校区不选择
+      schoolTitle: '', //校区title
+      speedyShow: false,
 
-            qr_code_show: false,  //二维码是否显示
-            submitLoading: false,
-            schoolLists: [],
+      qr_code_show: false, //二维码是否显示
+      submitLoading: false,
+      schoolLists: [],
 
-            dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
-            // buyCourseData: {},
-            // contractData: {},
+      dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
+      // buyCourseData: {},
+      // contractData: {},
 
-            auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''},   //试听数据
-            listenCourseLists: [],   //试听课程列表
-            studentKeyword: '',   //试听学员列表，搜索关键字
-            listenStudentLists: [],   //试听学员列表
-            listenStudentFilterLists: [],  ////试听学员筛选列表
-            checkListenStudent: [],   //选中的试听学员
-            listenTimetableId: '',   //选中的试听课程
+      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
+      listenCourseLists: [], //试听课程列表
+      studentKeyword: '', //试听学员列表，搜索关键字
+      listenStudentLists: [], //试听学员列表
+      listenStudentFilterLists: [], ////试听学员筛选列表
+      checkListenStudent: [], //选中的试听学员
+      listenTimetableId: '', //选中的试听课程
 
-            role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
-            memberInfo: {},
+      role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
+      memberInfo: {},
 
-            modalObj: null,   //遮罩层modal
-            guideSetup: 0,   //引导页步骤
-            guideData: [
-                {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-8'},
-                {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
-                {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
-                {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
-                {icon: 'icon-paike', text: '排课管理', dom: 'mymenu-2'}
-            ],
-            speedyLists: [
-                {id: 'addStudent', name: '学员登记', icon: 'icon-iconwogzydj'},
-                {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
-                // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
-                {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
-                {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
-            ],
-            pickListenDisable: {
-                disabledDate: (time) => {
-                    return time.getTime() < new Date().setHours(0, 0, 0, 0);
-                }
-            },
-            page_info: {
-                total: 0,
-                current_page: 1
-            }
+      modalObj: null, //遮罩层modal
+      guideSetup: 0, //引导页步骤
+      guideData: [
+        {icon: 'icon-shezhi1', text: '基础设置', dom: 'mymenu-8'},
+        {icon: 'icon-yuangongguanli', text: '员工管理', dom: 'mymenu-5'},
+        {icon: 'icon-kecheng-', text: '课程管理', dom: 'mymenu-4'},
+        {icon: 'icon-xueyuanguanli', text: '学员管理', dom: 'mymenu-1'},
+        {icon: 'icon-paike', text: '排课管理', dom: 'mymenu-2'}
+      ],
+      speedyLists: [
+        {id: 'addStudent', name: '学员登记', icon: 'icon-iconwogzydj'},
+        {id: 'importStudent', name: '导入学员', icon: 'icon-daoruexcel'},
+        // {id: 'addCourse', name: '添加课程', icon: 'icon-add'},
+        {id: 'notice', name: '发布通知', icon: 'icon-fabu2'},
+        {id: 'addListen', name: '办理试听', icon: 'icon-shiting'}
+      ],
+      pickListenDisable: {
+        disabledDate: (time) => {
+          return time.getTime() < new Date().setHours(0, 0, 0, 0);
         }
+      },
+      page_info: {
+        total: 0,
+        current_page: 1
+      }
+    };
+  },
+  methods: {
+    speedyClick (type) {
+      this.speedyShow = type;
     },
-    methods: {
-        speedyClick(type) {
-            this.speedyShow = type;
-        },
-        //查找学员
-        search_student() {
-            // if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
-            //     this.$message.closeAll();
-            //     this.$message.warning('请输入学员姓名或手机号')
-            //      return false
-            // };
-            this.loading = true;
-            this.page_info.current_page = 1;
-            this.get_search_student_info();
-        },
-        get_search_student_info() {
-            const params = {
-                search_data : this.search_student_info,
-                page: this.page_info.current_page
-            }
-            this.$$request.post('/student/studentSearch',params)
-            .then(res => {
-                this.loading = false;
-                if(res.lists.data.length < 1) {
-                    this.$message.closeAll();
-                    this.$message.warning('未搜索到相关学员信息')
-                }
-                this.dialogStatus.search = true;
-                this.page_info.total = res.lists.total;
-                this.page_info.current_page = res.lists.current_page;
-                this.search_result = res.lists.data;
-            })
-        },
-        speedyChange(val) {
-            switch(val) {
-                case 'addStudent':
-                    this.dialogStatus.student = true;
-                    break;
-                case 'importStudent':
-                    this.$router.push({path: '/student/importstudent'});
-                    break;
-                case 'addCourse':
-                    this.dialogStatus.addCourse = true;
-                    break;
-                case 'addListen':
-                    this.dialogStatus.listen = true;
-                    this.getListenLists();
-                    break;
-                case 'notice':
-                    this.$router.push({path: '/workbench/editNotice'});
-                    break;
-            }
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            if(type == 'student') return this.dialogStatus.student = false;
-            if(type == 'add_course') return this.dialogStatus.addCourse = false;
-        },
-        //登记成功，刷新列表
-        CB_addStudent() {
-            this.dialogStatus.student = false;
-        },
-        //登记成功，购课回调
-        CB_buyCourse(data) {
-            console.log(data)
-            // this.buyCourseData = data;
-            // this.dialogStatus.student = false;
-            // this.dialogStatus.course = true;
+    //查找学员
+    search_student () {
+      // if(!this.search_student_info || this.search_student_info === '' || this.search_student_info.length < 1){
+      //     this.$message.closeAll();
+      //     this.$message.warning('请输入学员姓名或手机号')
+      //      return false
+      // };
+      this.loading = true;
+      this.page_info.current_page = 1;
+      this.get_search_student_info();
+    },
+    get_search_student_info () {
+      const params = {
+        search_data: this.search_student_info,
+        page: this.page_info.current_page
+      };
 
-            let params = {
-                student_id: data.id,
-                advisor_id: data.advisor_id,
-                advisor: data.advisor,
-                parent_id: data.parent_id
-            };
+      this.$$request.post('/student/studentSearch', params)
+        .then(res => {
+          this.loading = false;
+          if (res.lists.data.length < 1) {
+            this.$message.closeAll();
+            this.$message.warning('未搜索到相关学员信息');
+          }
+          this.dialogStatus.search = true;
+          this.page_info.total = res.lists.total;
+          this.page_info.current_page = res.lists.current_page;
+          this.search_result = res.lists.data;
+        });
+    },
+    speedyChange (val) {
+      switch (val) {
+        case 'addStudent':
+          this.dialogStatus.student = true;
+          break;
+        case 'importStudent':
+          this.$router.push({path: '/student/importstudent'});
+          break;
+        case 'addCourse':
+          this.dialogStatus.addCourse = true;
+          break;
+        case 'addListen':
+          this.dialogStatus.listen = true;
+          this.getListenLists();
+          break;
+        case 'notice':
+          this.$router.push({path: '/workbench/editNotice'});
+          break;
+      }
+    },
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type == 'student') {
+        return this.dialogStatus.student = false;
+      }
+      if (type == 'add_course') {
+        return this.dialogStatus.addCourse = false;
+      }
+    },
+    //登记成功，刷新列表
+    CB_addStudent () {
+      this.dialogStatus.student = false;
+    },
+    //登记成功，购课回调
+    CB_buyCourse (data) {
+      console.log(data);
+      // this.buyCourseData = data;
+      // this.dialogStatus.student = false;
+      // this.dialogStatus.course = true;
 
-            this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },
-        //购课成功，合约回调
-        // CB_contract(data) {
-        //     this.contractData = data;
-        //     this.dialogStatus.course = false;
-        //     this.dialogStatus.contract = true;
-        // },
-        //新增课程成功，回调
-        CB_addCourse() {
-            this.dialogStatus.addCourse = false;
-            if(this.$route.path == '/course') Bus.$emit('refreshCourseLists');  //如果是在课程列表页面，刷新课程列表
-        },
-        //试听窗口关闭
-        dialogClose(type) {
-            if(type == 'listen') {
-                this.listenCourseLists = [];
-                this.auditionData = {
-                    time: new Date().getTime(),
-                    teacher_lists: [],
-                    course_lists: [],
-                    teacher_id: '',
-                    course_id: ''
-                };
-            }else if(type == 'listen_student') {
-                this.checkListenStudent = [];
-                this.listenTimetableId = '';
-            }
-        },
-        listenDateChange(val) {
-            if(new Date(val).toDateString() === new Date().toDateString()) this.auditionData.time = new Date().getTime();
-            this.getListenLists();
-        },
-        //试听学员搜索
-        listenStudentSearch() {
-            this.listenStudentFilterLists = this.listenStudentFilter(this.studentKeyword);
-        },
-        //试听列表添加学员
-        listenAddStudent(id) {
-            this.loading = true;
-            this.listenTimetableId = id;
-            this.getListenStudentLists();
-            this.checkListenStudent = [];
-            this.dialogStatus.listenStudent = true;
-        },
-        //试听学员列表操作
-        listenStudentClick(data, type) {
-            if(type == 'add') {
-                data.active = true;
-                this.checkListenStudent.push(data.id);
-            }else {
-                data.active = false;
-                let index = this.checkListenStudent.indexOf(data.id);
-                this.checkListenStudent.splice(index, 1);
-            }
+      let params = {
+        student_id: data.id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor,
+        parent_id: data.parent_id
+      };
 
-            console.log(this.checkListenStudent);
-        },
-        //试听学员确定
-        async listenStudentDone() {
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+    },
+    //购课成功，合约回调
+    // CB_contract(data) {
+    //     this.contractData = data;
+    //     this.dialogStatus.course = false;
+    //     this.dialogStatus.contract = true;
+    // },
+    //新增课程成功，回调
+    CB_addCourse () {
+      this.dialogStatus.addCourse = false;
+      if (this.$route.path == '/course') {
+        Bus.$emit('refreshCourseLists');
+      } //如果是在课程列表页面，刷新课程列表
+    },
+    //试听窗口关闭
+    dialogClose (type) {
+      if (type == 'listen') {
+        this.listenCourseLists = [];
+        this.auditionData = {
+          time: new Date().getTime(),
+          teacher_lists: [],
+          course_lists: [],
+          teacher_id: '',
+          course_id: ''
+        };
+      } else if (type == 'listen_student') {
+        this.checkListenStudent = [];
+        this.listenTimetableId = '';
+      }
+    },
+    listenDateChange (val) {
+      if (new Date(val).toDateString() === new Date().toDateString()) {
+        this.auditionData.time = new Date().getTime();
+      }
+      this.getListenLists();
+    },
+    //试听学员搜索
+    listenStudentSearch () {
+      this.listenStudentFilterLists = this.listenStudentFilter(this.studentKeyword);
+    },
+    //试听列表添加学员
+    listenAddStudent (id) {
+      this.loading = true;
+      this.listenTimetableId = id;
+      this.getListenStudentLists();
+      this.checkListenStudent = [];
+      this.dialogStatus.listenStudent = true;
+    },
+    //试听学员列表操作
+    listenStudentClick (data, type) {
+      if (type == 'add') {
+        data.active = true;
+        this.checkListenStudent.push(data.id);
+      } else {
+        data.active = false;
+        let index = this.checkListenStudent.indexOf(data.id);
 
-            if(!this.checkListenStudent.length) return this.$message.warning('请选择试听学员');
+        this.checkListenStudent.splice(index, 1);
+      }
 
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
+      console.log(this.checkListenStudent);
+    },
+    //试听学员确定
+    async listenStudentDone () {
 
-            let result = await this.$$request.post('/listenCourse/add', {
-                timetable_id: this.listenTimetableId,
-                student_id: this.checkListenStudent
-            });
-            this.submitLoading = false;
-            console.log(result);
-            if(!result) return 0;
+      if (!this.checkListenStudent.length) {
+        return this.$message.warning('请选择试听学员');
+      }
 
-            this.dialogStatus.listen = false;
-            this.dialogStatus.listenStudent = false;
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
 
-            this.$message.success('办理试听成功!');
-        },
-        //获取试听填充列表
-        async getListenLists() {
-            this.loading = true;
-            let old_time = Math.round(this.auditionData.time / 1000);
+      let result = await this.$$request.post('/listenCourse/add', {
+        timetable_id: this.listenTimetableId,
+        student_id: this.checkListenStudent
+      });
 
-            let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-            console.log(result);
-            if(!result) return 0;
-            this.auditionData.teacher_lists = result.teacher;
-            this.auditionData.course_lists = result.course;
-            this.getListenCourseLists();
-        },
-        //获取试听课程列表
-        async getListenCourseLists() {
-            let old_time = Math.round(this.auditionData.time / 1000);
+      this.submitLoading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
 
-            let params = {
-                time: old_time,
-                teacher_id: this.auditionData.teacher_id,
-                course_id: this.auditionData.course_id
-            };
+      this.dialogStatus.listen = false;
+      this.dialogStatus.listenStudent = false;
 
-            let result = await this.$$request.post('/listenCourse/lists', {data: params});
-            this.loading = false;
-            console.log(result);
-            if(!result) return 0;
+      this.$message.success('办理试听成功!');
+    },
+    //获取试听填充列表
+    async getListenLists () {
+      this.loading = true;
+      let old_time = Math.round(this.auditionData.time / 1000);
 
-            this.listenCourseLists = result.lists;
-        },
-        //获取试听学员列表
-        async getListenStudentLists() {
-            let result = await this.$$request.get('/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
-            this.loading = false;
-            console.log(result);
-            if(!result) return 0;
+      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
 
-            result.lists.forEach(v => {v.active = false});
-            this.listenStudentLists = result.lists;   //原始数据
-            this.listenStudentFilterLists = this.listenStudentFilter();
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.auditionData.teacher_lists = result.teacher;
+      this.auditionData.course_lists = result.course;
+      this.getListenCourseLists();
+    },
+    //获取试听课程列表
+    async getListenCourseLists () {
+      let old_time = Math.round(this.auditionData.time / 1000);
 
-        },
-        //试听学员列表搜索搜索筛选方法
-        listenStudentFilter(text) {
-            if(typeof text === 'undefined') return this.listenStudentLists;
-            let newData = [];
-            this.listenStudentLists.forEach(v => {
-                if(isNaN(text)) {
-                    if(v.name.includes(text)) newData.push(v);
-                }else {
-                    if(v.mobile.includes(text)) newData.push(v);
-                }
-            });
-            return newData;
-        },
-        //在线帮助下拉
-        helpHandleCommand(val) {
-            if(val == 'lineQQ') return window.open('http://wpa.qq.com/msgrd?v=3&uin=3266315153&site=qq&menu=yes');
-            if(val == 'helpCenter') return window.open('http://csdoc.jiaoyf.com/');
-        },
-        //设置下拉
-        settingHandleCommand(val) {
-            if(val == 'usersetting') return this.$router.push({path: '/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
-            if(val == 'schoolsetting') return this.$router.push({path: '/workbench/schoolsetting'});
-            if(val == 'loginOut') this.loginOut();
-        },
-        //校区切换
-        schoolChange(val) {
-            if(val == this.schoolId) return 0;
+      let params = {
+        time: old_time,
+        teacher_id: this.auditionData.teacher_id,
+        course_id: this.auditionData.course_id
+      };
 
-            this.$confirm('确定切换校区吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.loginCheckOut(val);
-            }).catch(() => {return 0});
-        },
-        //退出登录
-        async loginOut() {
-            let result = await this.$$request.post('/auth/logout');
-            console.log(result);
-            if(!result) return 0;
-            this.$$cache.loginOut();
-            this.$message('已退出登录！');
-        },
-        //获取校区列表
-        async getSchoolLists() {
-            let result = await this.$$request.post('/user/schoolLists');
-            console.log(result)
-            if(!result) return 0;
-            this.schoolLists = result.lists;
-            this.getSchoolName();
-        },
-        schoolSelectShow(type) {
-            this.schoolSelect = type;
-        },
-        //切换校区，切换登录
-        async loginCheckOut(school_id) {
-            let result = await this.$$request.post('/auth/checkLogin', {school_id: school_id});
-            console.log(result);
-            if(!result) return 0;
-            this.schoolId = school_id;
+      let result = await this.$$request.post('/listenCourse/lists', {data: params});
 
-            let memberInfo = this.$$cache.getMemberInfo();
-            memberInfo.school_id = school_id;
-            this.$$cache.setMemberInfo(memberInfo);
+      this.loading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
 
-            this.getSchoolName();
+      this.listenCourseLists = result.lists;
+    },
+    //获取试听学员列表
+    async getListenStudentLists () {
+      let result = await this.$$request.get('/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
 
-            this.$router.replace({path: '/refresh'});   //刷新工作台路由
-        },
-        //根据school_id获取校区名称
-        getSchoolName() {
-            this.schoolLists.forEach(v => {if(v.id == this.schoolId) this.schoolTitle = v.name});
-        },
-        helpShowHandle(isShow) {
-            this.helpShow = isShow;
-        },
-        settingShowHandle(isShow) {
-            this.settingShow = isShow;
-        },
-        //下一步
-        nextStepHandle() {
-            this.guideSetup = this.guideSetup +1;
-            this.mymenuPosition();
-        },
-        //引导页显示
-        showModal() {
-            this.modalObj = document.createElement('div');
-            this.modalObj.classList = 'v-modal'; this.modalObj.style.zIndex = '5000';
-            document.body.appendChild(this.modalObj);
-            document.body.style.overflow = 'hidden';
-            this.mymenuPosition();
-        },
-        //计算引导tab位置
-        mymenuPosition() {
-            if(this.guideSetup < 5) {
-                let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
-                let rightBox = document.querySelector('.guide-right-box').clientHeight;
+      this.loading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
 
-                document.querySelector('.guide-box').style.left = '0';
-                document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + 180 - rightBox + mymenu.clientHeight}px`;
-            }else if(this.guideSetup == 5){
-                document.querySelector('.guide-box').style.left = 'auto';
-                document.querySelector('.guide-box').style.top = '50px';
-                document.querySelector('.guide-box').style.right = '280px';
-            }else {
-                document.querySelector('.guide-box').removeAttribute('style');
-            }
-        },
-        //引导结束
-        guideEnd() {
-            this.guideSetup = 0;
-            document.body.removeChild(this.modalObj);
-            this.$store.dispatch('guideChange', false);
-            document.body.removeAttribute('style');
-            this.modalObj = null;
-            this.$router.replace({path: '/refresh'});   //刷新工作台路由
-        },
-        //翻页
-        go_page(page) {
-            this.page_info.current_page = page;
-            this.get_search_student_info();
-        },
-        pageInit() {
-            this.getSchoolLists();
-            this.memberInfo = this.$$cache.getMemberInfo();
-            this.schoolId = this.$$cache.getMemberInfo().school_id;
-        },
-        reloadPage () {
-          // this.$store.replace(`/refresh?path=${this.$route.fullpath}`);
-          location.reload();
+      result.lists.forEach(v => {
+        v.active = false;
+      });
+      this.listenStudentLists = result.lists; //原始数据
+      this.listenStudentFilterLists = this.listenStudentFilter();
+
+    },
+    //试听学员列表搜索搜索筛选方法
+    listenStudentFilter (text) {
+      if (typeof text === 'undefined') {
+        return this.listenStudentLists;
+      }
+      let newData = [];
+
+      this.listenStudentLists.forEach(v => {
+        if (isNaN(text)) {
+          if (v.name.includes(text)) {
+            newData.push(v);
+          }
+        } else if (v.mobile.includes(text)) {
+          newData.push(v);
         }
-    },
-    mounted() {
-        if(this.$store.state.guide) this.showModal();
+      });
 
-        this.$store.dispatch('getAdvisor');
-        this.$store.dispatch('getCourse');
-        this.$store.dispatch('getSource');
-        this.$store.dispatch('getClassRoom');
-        this.$store.dispatch('getGrade');
-        this.$store.dispatch('getRelation');
-        this.$store.dispatch('getTeacher');
-        this.$store.dispatch('getRoleLists');
+      return newData;
     },
-    created() {
-        this.pageInit();
-        Bus.$on('refreshSchoolId', () => {this.pageInit()});
+    //在线帮助下拉
+    helpHandleCommand (val) {
+      if (val == 'lineQQ') {
+        return window.open('http://wpa.qq.com/msgrd?v=3&uin=3266315153&site=qq&menu=yes');
+      }
+      if (val == 'helpCenter') {
+        return window.open('http://csdoc.jiaoyf.com/');
+      }
     },
-    beforeDestroy() {
-        Bus.$off('refreshCourseLists');
-        Bus.$off('home_refreshTimeTable');
+    //设置下拉
+    settingHandleCommand (val) {
+      if (val == 'usersetting') {
+        return this.$router.push({path: '/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
+      }
+      if (val == 'schoolsetting') {
+        return this.$router.push({path: '/workbench/schoolsetting'});
+      }
+      if (val == 'loginOut') {
+        this.loginOut();
+      }
     },
-    beforeRouteLeave(to, from, next) {
-        //强行删除遮罩层
-        if(this.modalObj) document.body.removeChild(this.modalObj);
-        document.body.removeAttribute('style');
-        this.modalObj = null;
-        next();
+    //校区切换
+    schoolChange (val) {
+      if (val == this.schoolId) {
+        return 0;
+      }
+
+      this.$confirm('确定切换校区吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loginCheckOut(val);
+      }).catch(() => {
+        return 0;
+      });
     },
-    components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
-}
+    //退出登录
+    async loginOut () {
+      let result = await this.$$request.post('/auth/logout');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$$cache.loginOut();
+      this.$message('已退出登录！');
+    },
+    //获取校区列表
+    async getSchoolLists () {
+      let result = await this.$$request.post('/user/schoolLists');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.schoolLists = result.lists;
+      this.getSchoolName();
+    },
+    schoolSelectShow (type) {
+      this.schoolSelect = type;
+    },
+    //切换校区，切换登录
+    async loginCheckOut (school_id) {
+      let result = await this.$$request.post('/auth/checkLogin', {school_id: school_id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.schoolId = school_id;
+
+      let memberInfo = this.$$cache.getMemberInfo();
+
+      memberInfo.school_id = school_id;
+      this.$$cache.setMemberInfo(memberInfo);
+
+      this.getSchoolName();
+
+      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+    },
+    //根据school_id获取校区名称
+    getSchoolName () {
+      this.schoolLists.forEach(v => {
+        if (v.id == this.schoolId) {
+          this.schoolTitle = v.name;
+        }
+      });
+    },
+    helpShowHandle (isShow) {
+      this.helpShow = isShow;
+    },
+    settingShowHandle (isShow) {
+      this.settingShow = isShow;
+    },
+    //下一步
+    nextStepHandle () {
+      this.guideSetup = this.guideSetup + 1;
+      this.mymenuPosition();
+    },
+    //引导页显示
+    showModal () {
+      this.modalObj = document.createElement('div');
+      this.modalObj.classList = 'v-modal'; this.modalObj.style.zIndex = '5000';
+      document.body.appendChild(this.modalObj);
+      document.body.style.overflow = 'hidden';
+      this.mymenuPosition();
+    },
+    //计算引导tab位置
+    mymenuPosition () {
+      if (this.guideSetup < 5) {
+        let mymenu = document.querySelector(`.${this.guideData[this.guideSetup].dom}`);
+        let rightBox = document.querySelector('.guide-right-box').clientHeight;
+
+        document.querySelector('.guide-box').style.left = '0';
+        document.querySelector('.guide-box').style.top = `${mymenu.offsetTop + 180 - rightBox + mymenu.clientHeight}px`;
+      } else if (this.guideSetup == 5) {
+        document.querySelector('.guide-box').style.left = 'auto';
+        document.querySelector('.guide-box').style.top = '50px';
+        document.querySelector('.guide-box').style.right = '280px';
+      } else {
+        document.querySelector('.guide-box').removeAttribute('style');
+      }
+    },
+    //引导结束
+    guideEnd () {
+      this.guideSetup = 0;
+      document.body.removeChild(this.modalObj);
+      this.$store.dispatch('guideChange', false);
+      document.body.removeAttribute('style');
+      this.modalObj = null;
+      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+    },
+    //翻页
+    go_page (page) {
+      this.page_info.current_page = page;
+      this.get_search_student_info();
+    },
+    pageInit () {
+      this.getSchoolLists();
+      this.memberInfo = this.$$cache.getMemberInfo();
+      this.schoolId = this.$$cache.getMemberInfo().school_id;
+    },
+    reloadPage () {
+      // this.$store.replace(`/refresh?path=${this.$route.fullpath}`);
+      location.reload();
+    }
+  },
+  mounted () {
+    if (this.$store.state.guide) {
+      this.showModal();
+    }
+
+    this.$store.dispatch('getAdvisor');
+    this.$store.dispatch('getCourse');
+    this.$store.dispatch('getSource');
+    this.$store.dispatch('getClassRoom');
+    this.$store.dispatch('getGrade');
+    this.$store.dispatch('getRelation');
+    this.$store.dispatch('getTeacher');
+    this.$store.dispatch('getRoleLists');
+  },
+  created () {
+    this.pageInit();
+    Bus.$on('refreshSchoolId', () => {
+      this.pageInit();
+    });
+  },
+  beforeDestroy () {
+    Bus.$off('refreshCourseLists');
+    Bus.$off('home_refreshTimeTable');
+  },
+  beforeRouteLeave (to, from, next) {
+    //强行删除遮罩层
+    if (this.modalObj) {
+      document.body.removeChild(this.modalObj);
+    }
+    document.body.removeAttribute('style');
+    this.modalObj = null;
+    next();
+  },
+  components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
+};
 </script>
 
 <style lang="less" scoped>

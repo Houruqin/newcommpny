@@ -27,8 +27,8 @@ if (!isLocalEnv) {
       uglifyOptions: {
         compress: {
           warnings: false,
-          drop_debugger: true,
-          drop_console: true
+          'drop_debugger': true,
+          'drop_console': true
         }
       }
     })
@@ -38,13 +38,15 @@ if (!isLocalEnv) {
 // 本地开发环境的配置项
 let localDevConf = {
   devtool: 'cheap-module-eval-source-map'
-}
+};
 
 // 生产环境的配置项
-let publishDevConf = {}
+let publishDevConf = {};
+
+let nowConf = isLocalEnv ? localDevConf : publishDevConf;
 
 module.exports = {
-  ...(isLocalEnv ? localDevConf : publishDevConf),
+  ...nowConf,
   entry: {
     [`${config.staticDir}index`]: ['babel-polyfill', './index.js']
   },
@@ -101,6 +103,6 @@ module.exports = {
   devServer: {
     port: config.port || 80,
     host: config.host || '0.0.0.0',
-    historyApiFallback: { rewrites: [ { from: /.*/, to: path.posix.join(config.publicPath, `index.html`) } ] }
+    historyApiFallback: { rewrites: [{ from: /.*/, to: path.posix.join(config.publicPath, `index.html`) }] }
   }
-}
+};

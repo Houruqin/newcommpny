@@ -18,6 +18,7 @@ module.exports = {
     Image: true,
     document: true,
     echarts: true,
+    process: true,
     _: true,
     FileReader: true,
   },

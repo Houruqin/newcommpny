@@ -80,158 +80,198 @@
 
 <script>
 
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import AddGradeDialog from '../../components/dialog/AddGrade'
-import CourseSyllabus from '../../components/dialog/CourseSyllabus'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import AddGradeDialog from '../../components/dialog/AddGrade';
+import CourseSyllabus from '../../components/dialog/CourseSyllabus';
 
 export default {
-    components: {TableHeader, MyButton, AddGradeDialog, CourseSyllabus},
-    data() {
-        return {
-            state: 'loading',
-            gradeId: 167,
-            gradeDetail: {},
-            timeTableLists: [],
+  components: {TableHeader, MyButton, AddGradeDialog, CourseSyllabus},
+  data () {
+    return {
+      state: 'loading',
+      gradeId: 167,
+      gradeDetail: {},
+      timeTableLists: [],
 
-            gradeType: '',
+      gradeType: '',
 
-            dialogStatus: {grade: false, syllabus: false},
-            courseType: 1,
-            classSelectInfo: {},
-            studentLists: [],
-            allStudentLists: [],
-            studentCheckAll: false,
+      dialogStatus: {grade: false, syllabus: false},
+      courseType: 1,
+      classSelectInfo: {},
+      studentLists: [],
+      allStudentLists: [],
+      studentCheckAll: false,
 
-            editDetail: {},
-            syllabusParams: {},
+      editDetail: {},
+      syllabusParams: {},
 
-            deleteTimeTableLists: [],    //删除课表，选中的课表
-            timetableCheckbox: false,    //班级详情删除课表，checkbox是否显示
+      deleteTimeTableLists: [], //删除课表，选中的课表
+      timetableCheckbox: false //班级详情删除课表，checkbox是否显示
+    };
+  },
+  methods: {
+    getRoomName () {
+      let room_name;
+
+      this.$store.state.classRoom.forEach(v => {
+        if (this.gradeDetail.room_id == v.id) {
+          room_name = v.name;
         }
+      });
+
+      return room_name;
     },
-    methods: {
-        getRoomName() {
-            let room_name;
-            this.$store.state.classRoom.forEach(v => {
-                if(this.gradeDetail.room_id == v.id) room_name = v.name;
-            });
-            return room_name;
-        },
-        dialogClose() {
-            this.$refs.classRoomForm.resetFields();
-        },
-        CB_dialogStatus(type) {
-            if(type == 'grade') {
-                this.gradeType = '';
-                this.editDetail = {};
-                this.dialogStatus.grade = false;
-                return 0;
-            };
-        },
-        CB_addGrade() {
-            this.getPageData();
-            this.editDetail = {};
-            this.dialogStatus.grade = false;
-        },
-        //班级大纲点击
-        async syllabusClick(id) {
-          let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
-          console.log(result);
-          if(!result) return 0;
-          this.syllabusParams = {
-            course_id: this.gradeDetail.course.id,
-            grade_id: this.gradeDetail.id,
-            is_sync: this.gradeDetail.is_sync,
-            course_syllabus: this.gradeDetail.course.course_outline,
-            grade_syllabus: this.gradeDetail.grade_outline
-          };
-
-          this.dialogStatus.syllabus = true;
-        },
-        //编辑详情
-        // editCourseDetail() {
-        //     this.gradeType = 'edit';
-        //     this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
-        //     this.dialogStatus.grade = true;
-        // },
-        paginationClick(curr) {
-            this.getTimeTableLists(curr);
-        },
-        checkboxIsDisabled(row, index) {
-            return row.begin_time > new Date().getTime() / 1000;
-        },
-        handleSelectionChange(val) {
-            this.deleteTimeTableLists = val;
-        },
-        //删除班级
-        deleteGrade() {
-            this.$confirm('确定删除班级吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteClassRoom();
-            }).catch(() => {return 0});
-        },
-        async deleteClassRoom() {
-            let result = await this.$$request.post('/grade/delete', {id: this.gradeDetail.id});
-            if(!result) return 0;
-            this.$message.success('已删除');
-            this.$router.go(-1);
-        },
-        async deleteTimeTable() {
-            if(!this.deleteTimeTableLists.length) return this.$message.warning('请选择数据!');
-            let timetableLists = this.deleteTimeTableLists.map(v => {return v.id});
-
-            let result = await this.$$request.post('/timetable/deleteAll', {id: timetableLists});
-            console.log(result);
-            if(!result) return 0;
-
-            if(result.status == 1) {
-                this.$message.success('删除成功');
-                this.getTimeTableLists();
-                this.timetableCheckbox = false;
-                this.deleteTimeTableLists = [];
-            }else {
-                this.$message.warning('删除失败');
-            }
-        },
-        timetableEdit() {
-            this.timetableCheckbox = !this.timetableCheckbox;
-            if(!this.timetableCheckbox) this.$refs.timetable.clearSelection();
-        },
-        async getPageData() {
-            let [a, b] = await Promise.all([this.getGradeDetail(), this.getTimeTableLists()]);
-            return a && b;
-        },
-        async getGradeDetail() {
-            let result = await this.$$request.get('/grade/detail', {grade_id: this.gradeId});
-            console.log(result);
-
-            if(!result) return 0;
-            this.gradeDetail = result.grade;
-            this.courseType = this.gradeDetail.course.type;
-            return true;
-        },
-        async getTimeTableLists(curr_page) {
-            let params = {grade_id: this.gradeId};
-            if(curr_page) params.page = curr_page;
-
-            let result = await this.$$request.get('/grade/timetableList', params);
-            console.log(result);
-
-            if(!result) return 0;
-            this.timeTableLists = result.timetable;
-            return true;
-        }
+    dialogClose () {
+      this.$refs.classRoomForm.resetFields();
     },
-    async created() {
-        if(this.$route.query.grade_id) this.gradeId = this.$route.query.grade_id;
-        let datas = await this.getPageData();
-        if(datas) this.state = 'loaded';
+    CB_dialogStatus (type) {
+      if (type == 'grade') {
+        this.gradeType = '';
+        this.editDetail = {};
+        this.dialogStatus.grade = false;
+
+        return 0;
+      }
+    },
+    CB_addGrade () {
+      this.getPageData();
+      this.editDetail = {};
+      this.dialogStatus.grade = false;
+    },
+    //班级大纲点击
+    async syllabusClick (id) {
+      let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.syllabusParams = {
+        course_id: this.gradeDetail.course.id,
+        grade_id: this.gradeDetail.id,
+        is_sync: this.gradeDetail.is_sync,
+        course_syllabus: this.gradeDetail.course.course_outline,
+        grade_syllabus: this.gradeDetail.grade_outline
+      };
+
+      this.dialogStatus.syllabus = true;
+    },
+    //编辑详情
+    // editCourseDetail() {
+    //     this.gradeType = 'edit';
+    //     this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
+    //     this.dialogStatus.grade = true;
+    // },
+    paginationClick (curr) {
+      this.getTimeTableLists(curr);
+    },
+    checkboxIsDisabled (row, index) {
+      return row.begin_time > new Date().getTime() / 1000;
+    },
+    handleSelectionChange (val) {
+      this.deleteTimeTableLists = val;
+    },
+    //删除班级
+    deleteGrade () {
+      this.$confirm('确定删除班级吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteClassRoom();
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteClassRoom () {
+      let result = await this.$$request.post('/grade/delete', {id: this.gradeDetail.id});
+
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('已删除');
+      this.$router.go(-1);
+    },
+    async deleteTimeTable () {
+      if (!this.deleteTimeTableLists.length) {
+        return this.$message.warning('请选择数据!');
+      }
+      let timetableLists = this.deleteTimeTableLists.map(v => {
+        return v.id;
+      });
+
+      let result = await this.$$request.post('/timetable/deleteAll', {id: timetableLists});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      if (result.status == 1) {
+        this.$message.success('删除成功');
+        this.getTimeTableLists();
+        this.timetableCheckbox = false;
+        this.deleteTimeTableLists = [];
+      } else {
+        this.$message.warning('删除失败');
+      }
+    },
+    timetableEdit () {
+      this.timetableCheckbox = !this.timetableCheckbox;
+      if (!this.timetableCheckbox) {
+        this.$refs.timetable.clearSelection();
+      }
+    },
+    async getPageData () {
+      let [a, b] = await Promise.all([this.getGradeDetail(), this.getTimeTableLists()]);
+
+
+      return a && b;
+    },
+    async getGradeDetail () {
+      let result = await this.$$request.get('/grade/detail', {grade_id: this.gradeId});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.gradeDetail = result.grade;
+      this.courseType = this.gradeDetail.course.type;
+
+      return true;
+    },
+    async getTimeTableLists (curr_page) {
+      let params = {grade_id: this.gradeId};
+
+      if (curr_page) {
+        params.page = curr_page;
+      }
+
+      let result = await this.$$request.get('/grade/timetableList', params);
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.timeTableLists = result.timetable;
+
+      return true;
     }
-}
+  },
+  async created () {
+    if (this.$route.query.grade_id) {
+      this.gradeId = this.$route.query.grade_id;
+    }
+    let datas = await this.getPageData();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

@@ -4,13 +4,13 @@
 
 <script>
 export default {
-    data() {
-        return {}
-    },
-    beforeRouteEnter(to, from, next) {
-        next(vm => {
-            vm.$router.replace('/');
-        })
-    }
-}
+  data () {
+    return {};
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$router.replace('/');
+    });
+  }
+};
 </script>

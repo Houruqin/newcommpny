@@ -12,19 +12,19 @@
 
 <script>
 
-import MyButton from '../components/common/MyButton'
+import MyButton from '../components/common/MyButton';
 
 export default {
-    data() {
-        return {}
-    },
-    methods: {
-        goHome() {
-            this.$router.replace({path: '/'});
-        }
-    },
-    components: {MyButton}
-}
+  data () {
+    return {};
+  },
+  methods: {
+    goHome () {
+      this.$router.replace({path: '/'});
+    }
+  },
+  components: {MyButton}
+};
 </script>
 
 <style lang="less" scoped>

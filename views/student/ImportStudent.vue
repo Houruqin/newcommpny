@@ -287,293 +287,325 @@
 
 <script>
 
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import config from 'config'
-import XLSX from 'xlsx'
-import {excelHeader} from '../../script/static'
-import {StudentStatic} from '../../script/static'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import config from 'config';
+import XLSX from 'xlsx';
+import {excelHeader} from '../../script/static';
+import {StudentStatic} from '../../script/static';
 
 export default {
-    components: {TableHeader, MyButton},
-    data() {
-        return {
-            state: 'loading',
-            stepActive: 1,
-            activeTab: 'student',
-            tabLists: {student: '学员基础信息', course: '课程基础信息'},
-            importUrl: '',
-            total: 0,
-            fileName: 'import_excel',
-            uploadParams: {excel_type: 'unsign_new'},
-            excelfileExtend: '.xls,.xlsx',    //文件格式
-            fileInput: '',
-            paymentMethod: StudentStatic.paymentMethod, //付款方式
-            errTableEdit: false,
-            classPattern: 0,
-            submitLoading: {
-                submit_excel: false, submit_list: false
-            },
-            tableAllHeader: {
-                student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
-                course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
-                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
-                ],
-                course_begrade: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
-                    'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
-                ]
-            },
-            previewData: [],    //错误冲突列表数据
-            deleteData: [],   //删除列表
-            tableData: [],   //excel表原始数据
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            }
+  components: {TableHeader, MyButton},
+  data () {
+    return {
+      state: 'loading',
+      stepActive: 1,
+      activeTab: 'student',
+      tabLists: {student: '学员基础信息', course: '课程基础信息'},
+      importUrl: '',
+      total: 0,
+      fileName: 'import_excel',
+      uploadParams: {excel_type: 'unsign_new'},
+      excelfileExtend: '.xls,.xlsx', //文件格式
+      fileInput: '',
+      paymentMethod: StudentStatic.paymentMethod, //付款方式
+      errTableEdit: false,
+      classPattern: 0,
+      submitLoading: {
+        submit_excel: false, submit_list: false
+      },
+      tableAllHeader: {
+        student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
+        course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
+          'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
+        ],
+        course_begrade: ['error_info', 'student_name', 'mobile', 'course_name', 'buy_lesson_num', 'given_lesson_num',
+          'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
+        ]
+      },
+      previewData: [], //错误冲突列表数据
+      deleteData: [], //删除列表
+      tableData: [], //excel表原始数据
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
         }
-    },
-    computed: {
-        importHeaders() {
-            return {'Authorization': this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || ''};
-        }
-    },
-    methods: {
-        //下载模板
-        downloadExcel() {
-            let baseUrl = config.api;
-            let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.classPattern == 1 ? 'sign_new' : 'sign';
-
-            window.location.href = `${baseUrl}excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
-        },
-        //上传错误
-        uploadFail(err, file, fileList) {
-            this.$message.warning('请求失败，请稍后再试');
-        },
-        tabClick(val) {
-            this.importUrlChange();   //更新模板下载地址
-        },
-        //回到工作台
-        goWorkBench() {
-            this.$router.replace({path: '/refresh'});   //刷新工作台路由
-        },
-        //回到学员列表
-        goStudentLists() {
-            let path = this.activeTab == 'student' ? '/student/nosign' : '/student/signed';
-            this.$router.replace({path: path});
-        },
-        //*表格头部必填项
-        requestTableHeader(elem, text) {
-            return elem('span', [
-                elem('span', {
-                    'class': {'red': true}
-                }, '*'),
-                elem('span', text)
-            ]);
-        },
-        nameHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '学员姓名');
-        },
-        mobileHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '联系电话');
-        },
-        courseNameHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '课程名称');
-        },
-        courseTeacherHeader() {
-
-        },
-        buyCourseHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '购买课时');
-        },
-        surplusLessonNumHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '剩余课时');
-        },
-        totalPriceHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '购课总额');
-        },
-        expireHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '购课日期');
-        },
-        payWayHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '支付方式');
-        },
-        sexHeader(h, {column, $index}) {
-            return this.requestTableHeader(h, '学员性别');
-        },
-        //选择文件
-        onChange(file, fileList) {
-            if(fileList.length > 1) fileList.shift();
-            if(file.response) {
-                this.submitLoading.submit_excel = false;
-                file.status = 'ready';
-                file.percentage = 0;
-            };
-            let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-            if(this.excelfileExtend.indexOf(fileExtend) <= -1) return this.$message.error('文件格式错误');
-            this.fileInput = file.raw.name;
-
-            // this.readFiles(file.raw);
-        },
-        //读取文件
-        // readFiles(file) {
-        //     this.fileInput = file.name;
-        //     FileReader.prototype.readAsBinaryString = () => {
-        //         let binary = "";
-        //         let pt = this;
-        //         var wb; //读取完成的数据
-        //         let reader = new FileReader();
-        //         reader.onload = () => {
-        //             var bytes = new Uint8Array(reader.result);
-        //             var length = bytes.byteLength;
-        //             for(let i = 0; i < length; i++) {
-        //                 binary += String.fromCharCode(bytes[i]);
-        //             }
-        //             wb = this.rABS ? XLSX.read(btoa(fixdata(binary)),{type: 'base64'}) : XLSX.read(binary, {type: 'binary'});
-        //             outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);   //outdata就是你想要的东西
-        //             this.tableData = outdata.slice(1);
-        //         }
-        //         reader.readAsArrayBuffer(file);
-        //     };
-
-        //     let reader = new FileReader(), outdata;
-        //     if(this.rABS) reader.readAsArrayBuffer(file);
-        //     else reader.readAsBinaryString(file);
-        // },
-        //提交excel
-        submitHandle() {
-            if(!this.fileInput) return this.$message.warning('请选择文件!');
-            this.$refs.excelUpload.submit();
-            // this.verifyExcelFile();
-        },
-        //验证文件
-        // verifyExcelFile() {
-        //     if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
-        //     if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
-
-        //     let requestStatus = this.tableData.every((d, index) => {
-        //         let requestArr = [], excelRequest = this.activeTab == 'student' ? 'student_request' : 'course_request';
-
-        //         for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
-        //         return requestArr.length == excelHeader[excelRequest].length;
-        //     });
-
-        //     if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
-
-        //     if(this.submitLoading.submit_excel) return 0;
-        //     this.submitLoading.submit_excel = true;
-
-        //     this.$refs.excelUpload.submit();
-        // },
-        //上传成功
-        uploadSuccess(response, file, fileList) {
-            if(response.code === 1) {
-                if(response.data.status === 1) {
-                    this.total = response.data.success;
-                    this.stepActive = 3;
-                }else {
-                    this.stepActive = 2;
-                    let list = response.data.data;
-                    let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
-
-                    this.previewData = list.map((d, e) => {
-                        let itemlist = {index: `student_${e}`};
-                        this.tableAllHeader[tab].forEach((v, n) => {
-                            itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
-                        });
-                        return itemlist;
-                    });
-                }
-            }else {
-                this.$message.warning(response.message);
-            }
-        },
-        //冲突预览，表格checkbox勾选change
-        handleSelectionChange(val) {
-            this.deleteData = val;
-        },
-        //右上角编辑、取消切换
-        timetableEditClick(a, b) {
-            this.errTableEdit = !this.errTableEdit;
-            if(!this.errTableEdit) this.$refs.previewTable.clearSelection();
-        },
-        //冲突提交
-        conflictSubmit() {
-            var tableList = this.previewData.map(d => {
-                let res = [];
-                let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
-
-                this.tableAllHeader[tab].slice(1).forEach((v, n) => {res[n] = d[v].data});
-                return res;
-            });
-
-            if(!tableList.length) return this.$message.warning('你已将全部信息删除，不能提交！');
-            this.subSubmitHandle(tableList);
-        },
-        async subSubmitHandle(params) {
-
-            if(this.submitLoading.submit_list) return 0;
-            this.submitLoading.submit_list = true;
-
-            let excel_type, excel_params;
-
-            if(this.activeTab == 'student') {
-                excel_type = 'excel';
-                excel_params = {excel_type: 'unsign_new', data: params}
-            }else {
-                excel_type = 'courseExcel';
-                excel_params = {...this.uploadParams, data: params}
-            }
-
-            let result = await this.$$request.post(`${excel_type}/upload`, excel_params);
-            console.log(result);
-            this.submitLoading.submit_list = false;
-            if(!result) return 0;
-
-            if(result.status === 1) {
-                this.total = result.success;
-                this.stepActive = 3;
-                this.fileInput = '';
-            }else {
-                this.stepActive = 2;
-                let list = result.data;
-
-                let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
-                this.previewData = list.map((d, e) => {
-                    let itemlist = {index: `student_${e}`};
-                    this.tableAllHeader[tab].forEach((v, n) => {
-                        itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
-                    });
-                    return itemlist;
-                });
-            }
-        },
-        //冲突删除
-        conflictDelete() {
-            if(!this.deleteData.length) return this.$message.warning('请选择数据!');
-
-            this.deleteData.forEach(v => {
-                this.previewData.forEach((d, n) => {if(d.index == v.index) this.previewData.splice(n, 1)});
-            });
-
-            this.errTableEdit = false;
-        },
-        importUrlChange() {
-            let baseUrl = config.api;
-            let excel_type = this.activeTab == 'student' ? 'excel' : 'courseExcel';
-            this.importUrl = `${baseUrl}${excel_type}/upload`;
-
-            this.uploadParams = this.activeTab == 'student' ? {excel_type: 'unsign_new'} : {is_limit_course_repeat: -1, is_limit_student_repeat: -1};
-        }
-    },
-    created() {
-        this.importUrlChange();
-        this.classPattern = this.$$cache.getMemberInfo().class_pattern;
-    },
-    mounted () {
-        this.state = 'loaded';
+      }
+    };
+  },
+  computed: {
+    importHeaders () {
+      return {'Authorization': this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || ''};
     }
-}
+  },
+  methods: {
+    //下载模板
+    downloadExcel () {
+      let baseUrl = config.api;
+      let excel_type = this.activeTab == 'student' ? 'unsign_new' : this.classPattern == 1 ? 'sign_new' : 'sign';
+
+      window.location.href = `${baseUrl}excel/download?school_id=${this.$$cache.getMemberInfo().school_id}&excel_type=${excel_type}`;
+    },
+    //上传错误
+    uploadFail (err, file, fileList) {
+      this.$message.warning('请求失败，请稍后再试');
+    },
+    tabClick (val) {
+      this.importUrlChange(); //更新模板下载地址
+    },
+    //回到工作台
+    goWorkBench () {
+      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+    },
+    //回到学员列表
+    goStudentLists () {
+      let path = this.activeTab == 'student' ? '/student/nosign' : '/student/signed';
+
+      this.$router.replace({path: path});
+    },
+    //*表格头部必填项
+    requestTableHeader (elem, text) {
+      return elem('span', [
+        elem('span', {
+          'class': {'red': true}
+        }, '*'),
+        elem('span', text)
+      ]);
+    },
+    nameHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '学员姓名');
+    },
+    mobileHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '联系电话');
+    },
+    courseNameHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '课程名称');
+    },
+    courseTeacherHeader () {
+
+    },
+    buyCourseHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '购买课时');
+    },
+    surplusLessonNumHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '剩余课时');
+    },
+    totalPriceHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '购课总额');
+    },
+    expireHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '购课日期');
+    },
+    payWayHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '支付方式');
+    },
+    sexHeader (h, {column, $index}) {
+      return this.requestTableHeader(h, '学员性别');
+    },
+    //选择文件
+    onChange (file, fileList) {
+      if (fileList.length > 1) {
+        fileList.shift();
+      }
+      if (file.response) {
+        this.submitLoading.submit_excel = false;
+        file.status = 'ready';
+        file.percentage = 0;
+      }
+      let fileExtend = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+      if (this.excelfileExtend.indexOf(fileExtend) <= -1) {
+        return this.$message.error('文件格式错误');
+      }
+      this.fileInput = file.raw.name;
+
+      // this.readFiles(file.raw);
+    },
+    //读取文件
+    // readFiles(file) {
+    //     this.fileInput = file.name;
+    //     FileReader.prototype.readAsBinaryString = () => {
+    //         let binary = "";
+    //         let pt = this;
+    //         var wb; //读取完成的数据
+    //         let reader = new FileReader();
+    //         reader.onload = () => {
+    //             var bytes = new Uint8Array(reader.result);
+    //             var length = bytes.byteLength;
+    //             for(let i = 0; i < length; i++) {
+    //                 binary += String.fromCharCode(bytes[i]);
+    //             }
+    //             wb = this.rABS ? XLSX.read(btoa(fixdata(binary)),{type: 'base64'}) : XLSX.read(binary, {type: 'binary'});
+    //             outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);   //outdata就是你想要的东西
+    //             this.tableData = outdata.slice(1);
+    //         }
+    //         reader.readAsArrayBuffer(file);
+    //     };
+
+    //     let reader = new FileReader(), outdata;
+    //     if(this.rABS) reader.readAsArrayBuffer(file);
+    //     else reader.readAsBinaryString(file);
+    // },
+    //提交excel
+    submitHandle () {
+      if (!this.fileInput) {
+        return this.$message.warning('请选择文件!');
+      }
+      this.$refs.excelUpload.submit();
+      // this.verifyExcelFile();
+    },
+    //验证文件
+    // verifyExcelFile() {
+    //     if(!this.tableData.length) return this.$message.warning('不能上传空白列表文件，请重新上传');
+    //     if(this.tableData.length > 200) return this.$message.warning('最多上传200条，请重新上传');
+
+    //     let requestStatus = this.tableData.every((d, index) => {
+    //         let requestArr = [], excelRequest = this.activeTab == 'student' ? 'student_request' : 'course_request';
+
+    //         for(let key in d) {if(~key.indexOf('*')) requestArr.push(key)};
+    //         return requestArr.length == excelHeader[excelRequest].length;
+    //     });
+
+    //     if(!requestStatus) return this.$message.warning('excel表格填写不正确，请重新上传');
+
+    //     if(this.submitLoading.submit_excel) return 0;
+    //     this.submitLoading.submit_excel = true;
+
+    //     this.$refs.excelUpload.submit();
+    // },
+    //上传成功
+    uploadSuccess (response, file, fileList) {
+      if (response.code === 1) {
+        if (response.data.status === 1) {
+          this.total = response.data.success;
+          this.stepActive = 3;
+        } else {
+          this.stepActive = 2;
+          let list = response.data.data;
+          let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
+
+          this.previewData = list.map((d, e) => {
+            let itemlist = {index: `student_${e}`};
+
+            this.tableAllHeader[tab].forEach((v, n) => {
+              itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+            });
+
+            return itemlist;
+          });
+        }
+      } else {
+        this.$message.warning(response.message);
+      }
+    },
+    //冲突预览，表格checkbox勾选change
+    handleSelectionChange (val) {
+      this.deleteData = val;
+    },
+    //右上角编辑、取消切换
+    timetableEditClick (a, b) {
+      this.errTableEdit = !this.errTableEdit;
+      if (!this.errTableEdit) {
+        this.$refs.previewTable.clearSelection();
+      }
+    },
+    //冲突提交
+    conflictSubmit () {
+      let tableList = this.previewData.map(d => {
+        let res = [];
+        let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
+
+        this.tableAllHeader[tab].slice(1).forEach((v, n) => {
+          res[n] = d[v].data;
+        });
+
+        return res;
+      });
+
+      if (!tableList.length) {
+        return this.$message.warning('你已将全部信息删除，不能提交！');
+      }
+      this.subSubmitHandle(tableList);
+    },
+    async subSubmitHandle (params) {
+
+      if (this.submitLoading.submit_list) {
+        return 0;
+      }
+      this.submitLoading.submit_list = true;
+
+      let excel_type, excel_params;
+
+      if (this.activeTab == 'student') {
+        excel_type = 'excel';
+        excel_params = {excel_type: 'unsign_new', data: params};
+      } else {
+        excel_type = 'courseExcel';
+        excel_params = {...this.uploadParams, data: params};
+      }
+
+      let result = await this.$$request.post(`${excel_type}/upload`, excel_params);
+
+      console.log(result);
+      this.submitLoading.submit_list = false;
+      if (!result) {
+        return 0;
+      }
+
+      if (result.status === 1) {
+        this.total = result.success;
+        this.stepActive = 3;
+        this.fileInput = '';
+      } else {
+        this.stepActive = 2;
+        let list = result.data;
+
+        let tab = this.activeTab == 'student' ? 'student' : this.classPattern == 1 ? 'course_begrade' : 'course';
+
+        this.previewData = list.map((d, e) => {
+          let itemlist = {index: `student_${e}`};
+
+          this.tableAllHeader[tab].forEach((v, n) => {
+            itemlist[v] = {data: d[n].data, error: d[n].error, errInfo: d[n].error_info};
+          });
+
+          return itemlist;
+        });
+      }
+    },
+    //冲突删除
+    conflictDelete () {
+      if (!this.deleteData.length) {
+        return this.$message.warning('请选择数据!');
+      }
+
+      this.deleteData.forEach(v => {
+        this.previewData.forEach((d, n) => {
+          if (d.index == v.index) {
+            this.previewData.splice(n, 1);
+          }
+        });
+      });
+
+      this.errTableEdit = false;
+    },
+    importUrlChange () {
+      let baseUrl = config.api;
+      let excel_type = this.activeTab == 'student' ? 'excel' : 'courseExcel';
+
+      this.importUrl = `${baseUrl}${excel_type}/upload`;
+
+      this.uploadParams = this.activeTab == 'student' ? {excel_type: 'unsign_new'} : {is_limit_course_repeat: -1, is_limit_student_repeat: -1};
+    }
+  },
+  created () {
+    this.importUrlChange();
+    this.classPattern = this.$$cache.getMemberInfo().class_pattern;
+  },
+  mounted () {
+    this.state = 'loaded';
+  }
+};
 </script>
 
 <style lang="less" scoped>

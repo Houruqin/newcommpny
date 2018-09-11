@@ -77,12 +77,12 @@
 </template>
 
 <script>
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
 
 export default {
   components: {TableHeader, MyButton},
-  data() {
+  data () {
     return {
       state: 'loading',
       loading: false,
@@ -90,43 +90,45 @@ export default {
       tabHeader: [{id: '1', name: '任课老师'}, {id: '2', name: '辅助老师'}],
       dialogStatus: {course: false},
       searchFilter: {
-        begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin_time: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
         course_id: '', keyword: ''
       },
       courseDetail: {teacher_name: '', lists: []},
       lessonTable: {}
-    }
+    };
   },
   methods: {
-    dialogClose() {
+    dialogClose () {
 
     },
-    tabClick() {
-      this.searchFilter.begin_time = new Date(this.$format_date(new Date(), "yyyy/MM/01"));
+    tabClick () {
+      this.searchFilter.begin_time = new Date(this.$format_date(new Date(), 'yyyy/MM/01'));
       this.searchFilter.end_time = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
       this.searchFilter.keyword = '';
       this.searchFilter.course_id = '';
 
       this.getLessonLists();
     },
-    searchHandle() {
+    searchHandle () {
       this.getLessonLists();
     },
-    dateChange() {
-      if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请重新选择');
+    dateChange () {
+      if (this.searchFilter.end_time < this.searchFilter.begin_time) {
+        return this.$message.warning('结束时间不能小于开始时间，请重新选择');
+      }
       this.getLessonLists();
     },
-    attendDetail(data) {
+    attendDetail (data) {
       this.courseDetail.teacher_name = data.teacherName;
       this.courseDetail.lists = data.attendList;
       this.dialogStatus.course = true;
     },
-    paginationClick(current_page) {
+    paginationClick (current_page) {
       this.getLessonLists(current_page);
     },
     //获取课时列表
-    async getLessonLists(page) {
+    async getLessonLists (page) {
       this.loading = true;
 
       let params = {
@@ -137,22 +139,31 @@ export default {
         courseId: this.searchFilter.course_id
       };
 
-      if(page) params.page = page;
+      if (page) {
+        params.page = page;
+      }
 
       let result = await this.$$request.post('eduCount/classTimeStatistics', params);
+
       console.log(result);
-      if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
       this.lessonTable = result.lists;
       this.loading = false;
+
       return true;
     }
   },
-  async created() {
+  async created () {
     let datas = await this.getLessonLists();
-    if(datas) this.state = 'loaded';
+
+    if (datas) {
+      this.state = 'loaded';
+    }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>

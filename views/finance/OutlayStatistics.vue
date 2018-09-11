@@ -188,29 +188,29 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import ContractDialog from "../../components/dialog/Contract";
-import NameRoute from "../../components/common/NameRoute";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import ContractDialog from '../../components/dialog/Contract';
+import NameRoute from '../../components/common/NameRoute';
 
 export default {
-  data() {
+  data () {
     return {
-      state: "loading",
+      state: 'loading',
       //搜索信息
       search_info: {
-        begin: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
+        begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
         end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
           0
         ),
-        name: "",
-        date_type: "current_month",
+        name: '',
+        date_type: 'current_month',
         pay_method: 0
       },
       //支出信息
       outlay_info: {
         data: [],
-        total: ""
+        total: ''
       },
       //分页信息
       page_info: {
@@ -223,15 +223,15 @@ export default {
         //添加支出
         add: {
           data: {
-            id: "",
-            name: "",
-            user_type: "",
-            price: "",
-            remark: "",
-            type_id: "",
-            type: "",
+            id: '',
+            name: '',
+            user_type: '',
+            price: '',
+            remark: '',
+            type_id: '',
+            type: '',
             type_lists: [],
-            together_id: ""
+            together_id: ''
           },
           show: false
         },
@@ -241,9 +241,9 @@ export default {
         //添加支出类型
         addType: {
           show: false,
-          id: "", //类型id
-          type: "", //类型名称
-          handle: "add" // 方式：新增、修改
+          id: '', //类型id
+          type: '', //类型名称
+          handle: 'add' // 方式：新增、修改
         },
         //类型设置
         setting: {
@@ -253,41 +253,41 @@ export default {
       loading: false,
       // all_user: [],
       timeout: null,
-      filted_user: "",
+      filted_user: '',
       addRules: {
         together_id: [
-          { required: true, message: "请选择支出人员", trigger: "change" }
+          { required: true, message: '请选择支出人员', trigger: 'change' }
         ],
         type_id: [
-          { required: true, message: "请选择支出类型", trigger: "change" }
+          { required: true, message: '请选择支出类型', trigger: 'change' }
         ],
         price: [
-          { required: true, message: "请输入支出金额" },
+          { required: true, message: '请输入支出金额' },
           //   { validator: this.$$tools.formOtherValidate("price") }
-          { validator: this.$$tools.formOtherValidate("decimals", 2) },
-          { validator: this.$$tools.formOtherValidate("total", 999999) }
+          { validator: this.$$tools.formOtherValidate('decimals', 2) },
+          { validator: this.$$tools.formOtherValidate('total', 999999) }
         ],
-        remark: [{ max: 100, message: "备注长度不能超过100" }]
+        remark: [{ max: 100, message: '备注长度不能超过100' }]
       },
       addTypeRules: {
-        type: [{ required: true, message: "请输入支出类型" }]
+        type: [{ required: true, message: '请输入支出类型' }]
       }
     };
   },
   methods: {
     //选择时间
-    choose_date(type) {
+    choose_date (type) {
       this.search_info.date_type = type;
       switch (type) {
-        case "current_month":
+        case 'current_month':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/MM/01")
+            this.$format_date(new Date(), 'yyyy/MM/01')
           );
           this.search_info.end = new Date(
             new Date().setMonth(new Date().getMonth() + 1)
           ).setDate(0);
           break;
-        case "last_month":
+        case 'last_month':
           this.search_info.begin = new Date(
             new Date().getFullYear(),
             new Date().getMonth() - 1,
@@ -296,9 +296,9 @@ export default {
           );
           this.search_info.end = new Date(new Date().setDate(0));
           break;
-        case "current_year":
+        case 'current_year':
           this.search_info.begin = new Date(
-            this.$format_date(new Date(), "yyyy/01/01")
+            this.$format_date(new Date(), 'yyyy/01/01')
           );
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
@@ -308,72 +308,85 @@ export default {
       console.log(this.search_info.begin, this.search_info.end);
     },
     //时间改变回调
-    date_change() {
-      this.search_info.date_type = "";
-      if (this.search_info.end < this.search_info.begin)
-        return this.$message.warning("结束时间不能小于开始时间，请从新选择");
+    date_change () {
+      this.search_info.date_type = '';
+      if (this.search_info.end < this.search_info.begin) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.page_info.page = 1;
       this.get_data();
     },
     //搜索学员
-    search() {
+    search () {
       this.page_info.page = 1;
       this.get_data();
     },
     //翻页
-    go_page(page) {
+    go_page (page) {
       this.page_info.page = page;
       this.get_data();
     },
     //获取支出记录数据
-    async get_data() {
+    async get_data () {
       this.loading = true;
       const params = {
-        time_type: "custom",
-        begin: this.$format_date(this.search_info.begin, "yyyy-MM-dd"),
-        end: this.$format_date(this.search_info.end, "yyyy-MM-dd"),
+        time_type: 'custom',
+        begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
+        end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
         user_name: this.search_info.name,
         expend_type_id: this.search_info.pay_method,
         page: this.page_info.page,
         page_num: this.page_info.page_num
       };
-      let res = await this.$$request.get("/financeManage/expend/lists", params);
-      if (!res) return false;
-      console.log(res)
+      let res = await this.$$request.get('/financeManage/expend/lists', params);
+
+      if (!res) {
+        return false;
+      }
+      console.log(res);
       this.outlay_info.data = res.expendRecords.data;
       this.outlay_info.total = res.total;
       this.page_info.total = res.expendRecords.total;
       this.loading = false;
+
       return true;
     },
     //获取支出类型
-    async get_outlay_type() {
-      let res = await this.$$request.get("/financeManage/expendType/lists");
-      if (!res) return false;
-      console.log(res)
+    async get_outlay_type () {
+      let res = await this.$$request.get('/financeManage/expendType/lists');
+
+      if (!res) {
+        return false;
+      }
+      console.log(res);
       this.dialog.add.data.type_lists = res.expendTypes;
+
       return true;
     },
     //添加支出类型
-    add_outlay_type(formName) {
+    add_outlay_type (formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          if (this.dialog.addType.handle === "add") {
+          if (this.dialog.addType.handle === 'add') {
             const params = {
               name: this.dialog.addType.type
             };
             let result = await this.$$request.post(
-              "/financeManage/expendType/add",
+              '/financeManage/expendType/add',
               params
             );
-            if (!result) return false;
+
+            if (!result) {
+              return false;
+            }
             this.get_outlay_type().then(() => {
               let length = this.dialog.add.data.type_lists.length - 1;
+
               this.dialog.add.data.type_id = this.dialog.add.data.type_lists[
                 length
               ].id;
             });
-            this.$message.success("已添加！");
+            this.$message.success('已添加！');
             this.dialog.addType.show = false;
           } else {
             const params = {
@@ -381,12 +394,15 @@ export default {
               name: this.dialog.addType.type
             };
             let result = await this.$$request.post(
-              "/financeManage/expendType/edit",
+              '/financeManage/expendType/edit',
               params
             );
-            if (!result) return false;
+
+            if (!result) {
+              return false;
+            }
             this.get_outlay_type();
-            this.$message.success("已修改！");
+            this.$message.success('已修改！');
             this.dialog.addType.show = false;
             this.get_data();
           }
@@ -396,32 +412,32 @@ export default {
       });
     },
     //将时间转换为秒数
-    get_seconde(date) {
+    get_seconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //查看合约详情
-    show_contract(id) {
-      this.$$request.get("/studentCourse/detail", { sc_id: id }).then(res => {
+    show_contract (id) {
+      this.$$request.get('/studentCourse/detail', { sc_id: id }).then(res => {
         this.dialog.contract.data = res.data;
         this.dialog.contract.show = true;
       });
     },
     //添加支出弹窗
-    open_outlay_dialog() {
+    open_outlay_dialog () {
       this.dialog.add.show = true;
-      this.dialog.add.data.id = "";
-      this.dialog.add.data.together_id = "";
-      this.dialog.add.data.type_id = "";
+      this.dialog.add.data.id = '';
+      this.dialog.add.data.together_id = '';
+      this.dialog.add.data.type_id = '';
       this.$nextTick(() => {
         this.$refs.add.resetFields();
       });
     },
     //提交表单
-    submitForm(formName) {
+    submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           switch (formName) {
-            case "add":
+            case 'add':
               this.dialog.add_confirm.show = true;
               this.dialog.add.show = false;
               break;
@@ -432,7 +448,7 @@ export default {
       });
     },
     //添加支出确定
-    async add_outlay() {
+    async add_outlay () {
       const params = {
         expend_user_type: this.dialog.add.data.user_type,
         expend_user_id: this.dialog.add.data.id,
@@ -441,79 +457,91 @@ export default {
         remark: this.dialog.add.data.remark
       };
       let result = await this.$$request.post(
-        "/financeManage/expend/add",
+        '/financeManage/expend/add',
         params
       );
-      if (!result) return false;
-      this.$message.success("已添加！");
+
+      if (!result) {
+        return false;
+      }
+      this.$message.success('已添加！');
       this.dialog.add.show = false;
       this.dialog.add_confirm.show = false;
       this.get_data();
     },
     //类型设置
-    open_setting_dialog() {
+    open_setting_dialog () {
       this.dialog.setting.show = true;
     },
     //类型设置——修改
-    type_edit(id, type) {
+    type_edit (id, type) {
       this.dialog.addType = {
         show: true,
         id: id,
         type: type,
-        handle: "edit"
+        handle: 'edit'
       };
     },
     //类型设置——操作
-    type_handle(id, status) {
+    type_handle (id, status) {
       const params = {
         id: id,
         status: status
       };
-      let word = status === -1 ? "删除" : status === 1 ? "启用" : "禁用";
-      this.$confirm("确定要" + word + "该类型吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      let word = status === -1 ? '删除' : status === 1 ? '启用' : '禁用';
+
+      this.$confirm(`确定要${ word }该类型吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       }).then(async () => {
         let result = await this.$$request.post(
-          "/financeManage/expendType/set",
+          '/financeManage/expendType/set',
           params
         );
-        if (!result) return false;
-        this.$message.success("已" + word);
+
+        if (!result) {
+          return false;
+        }
+        this.$message.success(`已${ word}`);
         this.get_outlay_type();
       });
     },
-    open_outlay_type() {
+    open_outlay_type () {
       this.dialog.addType = {
         show: true,
-        id: "",
-        type: "",
-        handle: "add"
+        id: '',
+        type: '',
+        handle: 'add'
       };
       this.$nextTick(() => {
         this.$refs.addType.resetFields();
       });
     },
     //获取合计的值
-    get_sum(param) {
+    get_sum (param) {
       let sums = [];
       const { columns, data } = param;
-      sums[1] = "合计";
+
+      sums[1] = '合计';
       columns.forEach((item, index) => {
         switch (item.label) {
-          case "支出金额":
-            return (sums[index] = this.outlay_info.total + " 元");
+          case '支出金额':
+            return sums[index] = `${this.outlay_info.total } 元`;
             break;
         }
       });
+
       return sums;
     }
   },
-  async created() {
+  async created () {
     let [r1, r2] = await Promise.all([this.get_outlay_type(), this.get_data()]);
-    if (r1 && r2) this.state = "loaded";
-    this.$store.dispatch("getAllUser");
+
+    if (r1 && r2) {
+      this.state = 'loaded';
+    }
+    this.$store.dispatch('getAllUser');
     // this.$nextTick(() => {
     //   this.all_user = this.$store.state.allUser;
     // });

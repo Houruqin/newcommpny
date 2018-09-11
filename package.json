@@ -12,7 +12,8 @@
     "master": "node build --env master",
     "master_test": "node build --env master_test",
     "publish": "node build --env publish",
-    "publish_pre": "node build --env publish_pre"
+    "publish_pre": "node build --env publish_pre",
+    "butter": "eslint --fix --ext .js,.vue views store script router plugins config"
   },
   "dependencies": {
     "axios": "^0.18.0",

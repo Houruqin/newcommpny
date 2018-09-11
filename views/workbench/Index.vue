@@ -587,21 +587,21 @@
 </template>
 
 <script>
-import TableHeader from "../../components/common/TableHeader";
-import MyButton from "../../components/common/MyButton";
-import echarts from "echarts";
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import echarts from 'echarts';
 
-import AddStudentDialog from '../../components/dialog/AddStudent'
-import BuyCourseDialog from '../../components/dialog/BuyCourse'
-import ContractDialog from '../../components/dialog/Contract'
+import AddStudentDialog from '../../components/dialog/AddStudent';
+import BuyCourseDialog from '../../components/dialog/BuyCourse';
+import ContractDialog from '../../components/dialog/Contract';
 
 export default {
-  data() {
+  data () {
     return {
       state: 'loading',
-      activeName: "leave",
-      follow_up_activeName: "visit",
-      notice_activeName: "receive",
+      activeName: 'leave',
+      follow_up_activeName: 'visit',
+      notice_activeName: 'receive',
 
       user_info: '',
 
@@ -611,27 +611,27 @@ export default {
 
       rules: {
         parent_name: [
-          { required: true, message: "请输入家长姓名" },
-          { max: 7, message: "长度不能超过7个字符" }
+          { required: true, message: '请输入家长姓名' },
+          { max: 7, message: '长度不能超过7个字符' }
         ],
         relation: [
-          { required: true, message: "请选择关系", trigger: "change" }
+          { required: true, message: '请选择关系', trigger: 'change' }
         ],
-        address: [{ max: 50, message: "长度不能超过50个字符" }],
-        school_name: [{ max: 20, message: "长度不能超过20个字符" }],
+        address: [{ max: 50, message: '长度不能超过50个字符' }],
+        school_name: [{ max: 20, message: '长度不能超过20个字符' }],
         mobile: [
-          { required: true, message: "请输入家长电话" },
-          { validator: this.$$tools.formValidate("phone") }
+          { required: true, message: '请输入家长电话' },
+          { validator: this.$$tools.formValidate('phone') }
         ],
         student_name: [
-          { required: true, message: "请输入学员姓名" },
-          { max: 7, message: "长度不能超过7个字符" }
+          { required: true, message: '请输入学员姓名' },
+          { max: 7, message: '长度不能超过7个字符' }
         ],
-        sex: [{ required: true, message: "请选择性别", trigger: "change" }],
+        sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
         source_id: [
-          { required: true, message: "请选择渠道信息", trigger: "change" }
+          { required: true, message: '请选择渠道信息', trigger: 'change' }
         ],
-        remark: [{ max: 50, message: "长度不能超过50个字符" }]
+        remark: [{ max: 50, message: '长度不能超过50个字符' }]
       },
       //财务统计
       statitics_info: {
@@ -642,7 +642,7 @@ export default {
       leave_info: {
         id: null,
         show_refuse_dialog: false,
-        remark: "",
+        remark: '',
         data: []
       },
       divide_info: {
@@ -680,8 +680,8 @@ export default {
         data: [],
         show: false,
         search_info: {
-          start: new Date(this.$format_date(new Date(),'yyyy/MM/01')), //默认当月第一天
-          end: new Date(new Date().getFullYear(),new Date().getMonth()+1,0,24),
+          start: new Date(this.$format_date(new Date(), 'yyyy/MM/01')), //默认当月第一天
+          end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 24),
           student_name: '',
           page: 1,
           pageNum: 7
@@ -689,11 +689,11 @@ export default {
         page_info: {
           total: 0,
           current_page: 1
-        },
+        }
       },
       //今日课程
       today_course_list: [],
-      all_student_info:{
+      all_student_info: {
         title: '',
         data: [],
         show: false,
@@ -736,7 +736,7 @@ export default {
       },
       //课消统计
       search_time: [],
-      search_type: "course",
+      search_type: 'course',
       charts_data: {
         pie_data: null,
         bar_data: null
@@ -749,37 +749,39 @@ export default {
       leave_record_loading: false,
       row_span_num: new Map(),
       pickerBeginDateAfter: {
-            disabledDate: (time) => {
-                return time.getTime() > new Date().getTime();
-            }
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
         }
+      }
     };
   },
   methods: {
     //弹窗变比，改变dialog状态回调
-    CB_dialogStatus(type) {
-        if(type == 'student') return this.dialogStatus.student = false;
-        // if(type == 'course') return this.dialogStatus.course = false;
+    CB_dialogStatus (type) {
+      if (type == 'student') {
+        return this.dialogStatus.student = false;
+      }
+      // if(type == 'course') return this.dialogStatus.course = false;
     },
     //登记成功，刷新列表
-    CB_addStudent() {
-        this.dialogStatus.student = false;
+    CB_addStudent () {
+      this.dialogStatus.student = false;
     },
     //登记成功，购课回调
-    CB_buyCourse(data) {
-        console.log(data)
-        // this.buyCourseData = data;
-        // this.dialogStatus.student = false;
-        // this.dialogStatus.course = true;
+    CB_buyCourse (data) {
+      console.log(data);
+      // this.buyCourseData = data;
+      // this.dialogStatus.student = false;
+      // this.dialogStatus.course = true;
 
-        let params = {
-            student_id: data.id,
-            advisor_id: data.advisor_id,
-            advisor: data.advisor,
-            parent_id: data.parent_id
-        };
+      let params = {
+        student_id: data.id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor,
+        parent_id: data.parent_id
+      };
 
-        this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //购课成功，合约回调
     // CB_contract(data) {
@@ -788,21 +790,21 @@ export default {
     //     this.dialogStatus.contract = true;
     // },
     //切换tab标签
-    change_tab() {
+    change_tab () {
       this.page_info.current_page = 1;
       this.get_data();
     },
-    chage_follow_tab() {
+    chage_follow_tab () {
       this.follow_up_page_info.current_page = 1;
       this.get_follow_up_data();
     },
-    change_notice_tab() {
+    change_notice_tab () {
       this.notice_page_info.current_page = 1;
       switch (this.notice_activeName) {
-        case "receive":
+        case 'receive':
           this.get_notice_list();
           break;
-        case "send":
+        case 'send':
           this.get_notice_send_list();
           break;
       }
@@ -810,37 +812,41 @@ export default {
 
     //请假记录弹窗选择时间限制
     date_limit () {
-      if(this.all_leave_record.search_info.end < this.all_leave_record.search_info.start) return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      if (this.all_leave_record.search_info.end < this.all_leave_record.search_info.start) {
+        return this.$message.warning('结束时间不能小于开始时间，请从新选择');
+      }
       this.search_leave_record();
     },
     //按需获取今日待办所有数据
-    async get_data() {
-      console.log('activeName',this.activeName)
+    async get_data () {
+      console.log('activeName', this.activeName);
       switch (this.activeName) {
-        case "leave":
+        case 'leave':
           await this.get_leave_data();
+
           return true;
           break;
-        case "divide":
+        case 'divide':
           await this.get_divide_data();
           break;
-        case "renewal":
+        case 'renewal':
           await this.get_renewal_data();
+
           return true;
           break;
-        case "birth":
+        case 'birth':
           await this.get_birth_data();
           break;
-        case "memo":
+        case 'memo':
           await this.get_memo_data();
       }
     },
     //打开历史记录弹窗
-    open_all_leave_dialog() {
+    open_all_leave_dialog () {
       this.all_leave_record.show = true;
       this.all_leave_record.search_info = {
-        start: new Date(this.$format_date(new Date(),'yyyy/MM/01')), //默认当月第一天
-        end: new Date(new Date().getFullYear(),new Date().getMonth()+1,0,24),
+        start: new Date(this.$format_date(new Date(), 'yyyy/MM/01')), //默认当月第一天
+        end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 24),
         student_name: '',
         page: 1,
         pageNum: 7
@@ -848,146 +854,161 @@ export default {
       this.view_all_leave_record();
     },
     //查看全部请假记录
-    view_all_leave_record() {
+    view_all_leave_record () {
       this.leave_record_loading = true;
       let info = this.all_leave_record.search_info;
       const params = {
-        start: info.start/1000,
-        end: info.end/1000,
+        start: info.start / 1000,
+        end: info.end / 1000,
         student_name: info.student_name,
         page: info.page,
-        page_num: info.pageNum,
-      }
-      this.$$request.post('/leaveTicket/processedLists',params).then(
+        page_num: info.pageNum
+      };
+
+      this.$$request.post('/leaveTicket/processedLists', params).then(
         res => {
           this.all_leave_record.data = res.lists.data;
           this.all_leave_record.page_info.total = res.lists.total;
           this.leave_record_loading = false;
         }
-      )
+      );
     },
     //请假记录弹窗翻页
-    go_leave_record_page(page) {
+    go_leave_record_page (page) {
       this.all_leave_record.page_info.current_page = page;
       this.all_leave_record.search_info.page = page;
       this.view_all_leave_record();
     },
     //按条件搜索请假记录
-    search_leave_record() {
+    search_leave_record () {
       this.all_leave_record.page_info.current_page = 1;
       this.all_leave_record.search_info.page = 1;
       this.view_all_leave_record();
     },
     //学员登记
-    register() {
+    register () {
       this.dialogStatus.student = true;
     },
     //添加备忘录
-    add_memo() {
+    add_memo () {
       this.memo_info.render = false;
-      if(this.memo_info.content.length<1){
+      if (this.memo_info.content.length < 1) {
         this.$nextTick(() => {
           this.memo_info.render = true;
-        })
+        });
         this.$message.warning('请输入内容');
+
         return false;
       }
       this.memo_info.render = true;
       const params = {
         content: this.memo_info.content
-      }
-      this.$$request.post('/memorandum/add',params).then(res => {
+      };
+
+      this.$$request.post('/memorandum/add', params).then(res => {
         this.memo_info.show = false;
         this.get_memo_data();
         this.$message.success('已添加');
-      })
+      });
     },
     //删除备忘录
-    delete_memo(id) {
+    delete_memo (id) {
       this.$confirm('确定删除该备忘录吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                const params = {
-                  id: id
-                }
-                this.$$request.post('/memorandum/delete',params).then(res => {
-                  this.memo_info.show = false;
-                  this.get_memo_data();
-                  this.$message.success('已删除');
-                })
-            }).catch(() => {return 0});
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const params = {
+          id: id
+        };
+
+        this.$$request.post('/memorandum/delete', params).then(res => {
+          this.memo_info.show = false;
+          this.get_memo_data();
+          this.$message.success('已删除');
+        });
+      }).catch(() => {
+        return 0;
+      });
     },
     //查看备忘录
-    view_memo(row, event, column) {
+    view_memo (row, event, column) {
       this.memo_info.id = row.id;
       this.memo_info.content = row.content;
       this.memo_info.show = true;
       this.memo_info.readonly = true;
     },
     //获取待处理请假列表
-    async get_leave_data() {
+    async get_leave_data () {
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      let res = await this.$$request.get("/student/undisposedLeaveTicketLists", params);
-      if(!res) return false;
+      let res = await this.$$request.get('/student/undisposedLeaveTicketLists', params);
+
+      if (!res) {
+        return false;
+      }
       this.leave_info.data = res.lists;
       this.page_info.total = res.total;
       this.loading = false;
+
       return true;
     },
     //处理请假
-    leave_handle(id, status) {
+    leave_handle (id, status) {
       let params = {
         page_num: 5,
         leaveTicket_id: id,
         status: status
       };
+
       if (status === 3) {
         if (this.leave_info.remark.length < 1) {
-          this.$message.error("拒绝理由不能为空");
+          this.$message.error('拒绝理由不能为空');
+
           return false;
-        } else {
-          params.remark = this.leave_info.remark;
         }
+        params.remark = this.leave_info.remark;
+
       }
-      this.$$request.post("/student/leaveTicketCheck", params).then(res => {
+      this.$$request.post('/student/leaveTicketCheck', params).then(res => {
         this.get_leave_data();
-        this.$message.success("已处理");
+        this.$message.success('已处理');
       });
     },
     //打开拒绝请假弹窗
-    open_refuse_dialog(id) {
-      this.leave_info.remark = "";
+    open_refuse_dialog (id) {
+      this.leave_info.remark = '';
       this.leave_info.show_refuse_dialog = true;
       this.leave_info.id = parseInt(id);
     },
     //获取待分班列表
-    get_divide_data() {
+    get_divide_data () {
       this.row_span_num = new Map();
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.post("/sign/noGrade", params).then(res => {
+
+      this.$$request.post('/sign/noGrade', params).then(res => {
         let data = res.lists.data;
         let data_map = new Map();
+
         for (let i = 0; i < data.length; i++) {
           //如果map里没有该学生数据  则存储
           if (!data_map.get(data[i].student_id)) {
-            data_map.set(data[i].student_id, [data[i]])
+            data_map.set(data[i].student_id, [data[i]]);
           } else {
-            data_map.get(data[i].student_id).push(data[i])
+            data_map.get(data[i].student_id).push(data[i]);
           }
         }
         let data_sort = [];
-        for(let value of data_map){
-          data_sort.push(...value[1])
+
+        for (let value of data_map) {
+          data_sort.push(...value[1]);
         }
         this.divide_info.data = data_sort;
         this.merge_data(data_sort);
@@ -996,13 +1017,14 @@ export default {
       });
     },
     //分班
-    divide_class(info) {
+    divide_class (info) {
       const params = {
         id: info.course_id
       };
-      this.$$request.post("/sign/gradeLists", params).then(res => {
+
+      this.$$request.post('/sign/gradeLists', params).then(res => {
         if (res.lists.length < 1) {
-          this.$message.warning("暂无可选班级");
+          this.$message.warning('暂无可选班级');
         }
         this.divide_info.class.id = res.lists[0].id;
         this.divide_info.class.course_name = info.course_name;
@@ -1013,356 +1035,400 @@ export default {
       });
     },
     //获取需续约学员列表
-    async get_renewal_data() {
+    async get_renewal_data () {
       this.row_span_num = new Map();
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      let res = await this.$$request.post("/sign/contract", params);
-      if(!res) return false;
+      let res = await this.$$request.post('/sign/contract', params);
+
+      if (!res) {
+        return false;
+      }
       let data = res.lists.data;
       let data_map = new Map();
+
       for (let i = 0; i < data.length; i++) {
         //如果map里没有该学生数据  则存储
         if (!data_map.get(data[i].student_id)) {
-          data_map.set(data[i].student_id, [data[i]])
+          data_map.set(data[i].student_id, [data[i]]);
         } else {
-          data_map.get(data[i].student_id).push(data[i])
+          data_map.get(data[i].student_id).push(data[i]);
         }
       }
       let data_sort = [];
-      for(let value of data_map){
-        data_sort.push(...value[1])
+
+      for (let value of data_map) {
+        data_sort.push(...value[1]);
       }
       this.renewal_info.data = data_sort;
       this.merge_data(data_sort);
       this.page_info.total = res.lists.total;
       this.loading = false;
+
       return true;
     },
     //续约
-    renew(data) {
-        console.log(data);
+    renew (data) {
+      console.log(data);
 
 
-    //   this.buyCourseData = {
-    //     course_id: student.course_id,
-    //     id: student.student_id,
-    //     advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
-    //     advisor: {name: student.advisor_name},
-    //     parent_id: student.parent_id,
-    //     buy_type: 2
-    //   };
-    //   this.dialogStatus.course = true;
+      //   this.buyCourseData = {
+      //     course_id: student.course_id,
+      //     id: student.student_id,
+      //     advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
+      //     advisor: {name: student.advisor_name},
+      //     parent_id: student.parent_id,
+      //     buy_type: 2
+      //   };
+      //   this.dialogStatus.course = true;
 
 
-        let params = {
-            student_id: data.student_id,
-            advisor_id: data.advisor_id,
-            advisor: {name: data.advisor_name},
-            parent_id: data.parent_id,
-            buy_type: 2,
-            course_id: data.course_id,
-        };
+      let params = {
+        student_id: data.student_id,
+        advisor_id: data.advisor_id,
+        advisor: {name: data.advisor_name},
+        parent_id: data.parent_id,
+        buy_type: 2,
+        course_id: data.course_id
+      };
 
-        this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+      this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //获取生日学员列表
-    get_birth_data() {
+    get_birth_data () {
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
-      this.$$request.get("/student/birthday", params).then(res => {
+
+      this.$$request.get('/student/birthday', params).then(res => {
         this.birth_info.data = res.lists;
         this.page_info.total = res.total;
         this.loading = false;
       });
     },
     //发放礼物
-    give_gift(id,name) {
+    give_gift (id, name) {
       const params = {
         student_id: id
       };
-      this.$confirm('确定为 '+name+' 发放礼物吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-            this.$$request.post("/student/sendGift", params).then(res => {
-              this.get_birth_data();
-              this.$message.success("操作成功");
-            });
-        })
+
+      this.$confirm(`确定为 ${name} 发放礼物吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$$request.post('/student/sendGift', params).then(res => {
+          this.get_birth_data();
+          this.$message.success('操作成功');
+        });
+      });
     },
     //获取备忘录列表
-    get_memo_data() {
+    get_memo_data () {
       this.loading = true;
       const params = {
-        page_num : 6,
+        page_num: 6,
         page: this.page_info.current_page
-      }
-      this.$$request.post('/memorandum/lists',params).then(res => {
+      };
+
+      this.$$request.post('/memorandum/lists', params).then(res => {
         this.memo_info.data = res.memorandums.data;
         this.page_info.total = res.memorandums.total;
         this.loading = false;
-      })
+      });
     },
-    merge_data(data) {
+    merge_data (data) {
       for (let i = 0; i < data.length; i++) {
-                if (!this.row_span_num.get(data[i].student_id)) {
-                  this.row_span_num.set(data[i].student_id, [i]);
-                } else {
-                  this.row_span_num.get(data[i].student_id).push(i);
-                }
-              }
+        if (!this.row_span_num.get(data[i].student_id)) {
+          this.row_span_num.set(data[i].student_id, [i]);
+        } else {
+          this.row_span_num.get(data[i].student_id).push(i);
+        }
+      }
     },
     //页数跳转
-    go_page(page) {
+    go_page (page) {
       this.page_info.current_page = page;
       this.get_data();
     },
-    go_follow_page(page) {
+    go_follow_page (page) {
       this.follow_up_page_info.current_page = page;
       this.get_follow_up_data();
     },
-    go_notice_page(page) {
+    go_notice_page (page) {
       this.notice_page_info.current_page = page;
       switch (this.notice_activeName) {
-        case "receive":
+        case 'receive':
           this.get_notice_list();
           break;
-        case "send":
+        case 'send':
           this.get_notice_send_list();
           break;
       }
     },
     //合并表格的行
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0) {
         let row_info = this.row_span_num.get(row.student_id);
         //该学生出现的次数(即：该学生所占的表格行数)
+
         if (row_info) {
           let num = row_info.length;
           //如果表格行索引等于该学生数组的第一个值 则改变行高  其余的行高则皆为0
+
           if (rowIndex === row_info[0]) {
             return {
               rowspan: num,
               colspan: 1
             };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
           }
+
+          return {
+            rowspan: 0,
+            colspan: 0
+          };
+
         }
       }
     },
     //确定操作
-    doneHandle(type) {
+    doneHandle (type) {
       const params = {
         student_id: this.divide_info.class.student_id,
         grade_id: this.divide_info.class.id,
         sc_id: this.divide_info.class.sc_id
       };
-      this.$$request.post("/studentGrade/add", params).then(res => {
-        this.$message.success("分班成功");
+
+      this.$$request.post('/studentGrade/add', params).then(res => {
+        this.$message.success('分班成功');
         this.divide_info.show_divide_dialog = false;
         this.get_data();
       });
     },
     //================财务统计模块================
-    async get_finance_data() {
+    async get_finance_data () {
       let res = await this.$$request.get('/financial/statistics');
-      if(!res) return false;
-        this.statitics_info.sign = res.sign;
-        this.statitics_info.eliminate = res.eliminate;
-        return true;
+
+      if (!res) {
+        return false;
+      }
+      this.statitics_info.sign = res.sign;
+      this.statitics_info.eliminate = res.eliminate;
+
+      return true;
     },
     //================今日课程模块================
     //按需获取今日跟进所有数据
-    async get_follow_up_data() {
+    async get_follow_up_data () {
       this.follow_loading = true;
       let type;
+
       switch (this.follow_up_activeName) {
-        case "visit":
-          type = "invited";
+        case 'visit':
+          type = 'invited';
           break;
-        case "audition":
-          type = "audition";
+        case 'audition':
+          type = 'audition';
           break;
-        case "follow_up":
-          type = "followup";
+        case 'follow_up':
+          type = 'followup';
           break;
-        case "assign":
-          type = "no_advisor";
+        case 'assign':
+          type = 'no_advisor';
           break;
       }
       let params;
-      if (type === "no_advisor") {
+
+      if (type === 'no_advisor') {
         params = {
           page_num: 5,
           data: {
             type: type,
-            name: "",
-            mobile: "",
-            advisor_id: "",
-            source_id: "",
-            follow_status: ""
+            name: '',
+            mobile: '',
+            advisor_id: '',
+            source_id: '',
+            follow_status: ''
           },
           page: this.follow_up_page_info.current_page
         };
-        let res = await this.$$request.post("/student/lists", params);
-        if(!res) return false;
+        let res = await this.$$request.post('/student/lists', params);
+
+        if (!res) {
+          return false;
+        }
         this[`${this.follow_up_activeName}_list`] = res.lists.data;
         this.follow_up_page_info.total = res.lists.total;
         this.follow_loading = false;
+
         return true;
-      }else if(type === "followup") {
+      } else if (type === 'followup') {
         params = {
           page_num: 5,
           page: this.follow_up_page_info.current_page
         };
-        let res = await this.$$request.post("/followUp/needFollow", params);
-        if(!res) return false;
+        let res = await this.$$request.post('/followUp/needFollow', params);
+
+        if (!res) {
+          return false;
+        }
         this[`${this.follow_up_activeName}_list`] = res.followUps.data;
         this.follow_up_page_info.total = res.followUps.total;
         this.follow_loading = false;
-        return true;
-      }else{
-        params = {
-          page_num: 5,
-          type: type,
-          page: this.follow_up_page_info.current_page
-        };
-        let res = await this.$$request.post("/followUp/todayLists", params);
-        if(!res) return false;
-        this[`${this.follow_up_activeName}_list`] = res.lists;
-        this.follow_up_page_info.total = res.total;
-        this.follow_loading = false;
+
         return true;
       }
+      params = {
+        page_num: 5,
+        type: type,
+        page: this.follow_up_page_info.current_page
+      };
+      let res = await this.$$request.post('/followUp/todayLists', params);
+
+      if (!res) {
+        return false;
+      }
+      this[`${this.follow_up_activeName}_list`] = res.lists;
+      this.follow_up_page_info.total = res.total;
+      this.follow_loading = false;
+
+      return true;
+
     },
     //获取今日课程列表
-    async get_today_course() {
-      let res = await this.$$request.get("/timetable/todayLists");
-      if(!res) return false;
+    async get_today_course () {
+      let res = await this.$$request.get('/timetable/todayLists');
+
+      if (!res) {
+        return false;
+      }
       this.today_course_list = res.lists;
+
       return true;
     },
     //查看全部学员
-    view_all_student(obj) {
+    view_all_student (obj) {
       this.all_student_info.loading = true;
       this.all_student_info.data = [];
       this.all_student_info.show = true;
       this.all_student_info.grade_id = obj.grade_id;
       this.all_student_info.title = obj.grade_name;
       this.all_student_info.course_type = obj.course.is_order;
-      this.get_all_student_list(obj.id)
+      this.get_all_student_list(obj.id);
       //当且仅当在上课前一小时和上课后一小时内才能签到
-      if(new Date().getTime()/1000 > obj.begin_time - 60*60
-       && new Date().getTime()/1000 < obj.end_time + 60*60){
+      if (new Date().getTime() / 1000 > obj.begin_time - 60 * 60
+       && new Date().getTime() / 1000 < obj.end_time + 60 * 60) {
         this.all_student_info.sign = true;
-      }else{
+      } else {
         this.all_student_info.sign = false;
       }
       //当且仅当在上课前两个小时之前才能请假
-      if(new Date().getTime()/1000 < obj.begin_time - 2*60*60){
+      if (new Date().getTime() / 1000 < obj.begin_time - 2 * 60 * 60) {
         this.all_student_info.leave = true;
-      }else{
+      } else {
         this.all_student_info.leave = false;
       }
     },
-    get_all_student_list(id) {
+    get_all_student_list (id) {
       const params = {
-              timetable_id: id
-            }
-      this.$$request.get('/timetable/studentLists',params).then(res => {
+        timetable_id: id
+      };
+
+      this.$$request.get('/timetable/studentLists', params).then(res => {
         this.all_student_info.data = res.lists;
-        this.all_student_info.end = (res.lesson_end_time > 0);
+        this.all_student_info.end = res.lesson_end_time > 0;
         this.all_student_info.loading = false;
-      })
+      });
     },
     //学员签到
-    sign_student(s_id,t_id,status,item) {
-      if(status === 5 && this.all_student_info.sign && !this.all_student_info.end){
+    sign_student (s_id, t_id, status, item) {
+      if (status === 5 && this.all_student_info.sign && !this.all_student_info.end) {
         item.status2 = 6;
         const params = {
-                timetable_id: t_id,
-                student_id: s_id
-              }
-        this.$$request.post('/signRecord/add',params).then(res => {
-          this.$message.success("已签到");
+          timetable_id: t_id,
+          student_id: s_id
+        };
+
+        this.$$request.post('/signRecord/add', params).then(res => {
+          this.$message.success('已签到');
           this.get_all_student_list(t_id);
-        })
+        });
       }
 
     },
     //学员请假
-    leave_student(s_id,t_id,status,item) {
-      if(status === 5 && this.all_student_info.leave){
+    leave_student (s_id, t_id, status, item) {
+      if (status === 5 && this.all_student_info.leave) {
         item.status2 = 6;
         const params = {
           grade_id: this.all_student_info.grade_id,
           timetable_id: t_id,
           student_id: s_id
-        }
-        this.$$request.post('/leaveTicket/add',params).then(res => {
-          this.$message.success("已请假");
+        };
+
+        this.$$request.post('/leaveTicket/add', params).then(res => {
+          this.$message.success('已请假');
           this.get_all_student_list(t_id);
-        })
+        });
       }
     },
     //================今日跟进管理模块================
     //到访确认
-    handle_visit(id) {
+    handle_visit (id) {
       const params = {
         follow_up_id: id
       };
-      this.$$request.post("/followUp/inviteSure", params).then(res => {
+
+      this.$$request.post('/followUp/inviteSure', params).then(res => {
         this.get_follow_up_data();
-        this.$message.success("操作成功");
+        this.$message.success('操作成功');
       });
     },
-     //列表顾问选择
-        async select_advisor(val) {
-            let result = await this.$$request.post('/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
-            .then(res => {
-              this.get_follow_up_data();
-              this.$message.success("操作成功");
-            })
-        },
+    //列表顾问选择
+    async select_advisor (val) {
+      let result = await this.$$request.post('/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
+        .then(res => {
+          this.get_follow_up_data();
+          this.$message.success('操作成功');
+        });
+    },
     //================通知模块================
 
     //发通知
-    edit_notice() {
-      this.$router.push({ path: "/workbench/editNotice" });
+    edit_notice () {
+      this.$router.push({ path: '/workbench/editNotice' });
     },
     //获取员工通知列表
-    async get_notice_list() {
+    async get_notice_list () {
       this.notice_loading = true;
       const params = {
         page: this.notice_page_info.current_page
       };
-      let res = await this.$$request.get("/notification/personalLists", params);
-      if(!res) return false;
-        this.notice_lists = res.lists;
-        this.notice_page_info.total = res.total;
-        this.unread_num = res.unread < 1 ? "" : res.unread;
-        this.notice_loading = false;
-        return true;
+      let res = await this.$$request.get('/notification/personalLists', params);
+
+      if (!res) {
+        return false;
+      }
+      this.notice_lists = res.lists;
+      this.notice_page_info.total = res.total;
+      this.unread_num = res.unread < 1 ? '' : res.unread;
+      this.notice_loading = false;
+
+      return true;
     },
     //获取员工发送通知列表
-    get_notice_send_list() {
+    get_notice_send_list () {
       this.notice_loading = true;
       const params = {
         page: this.notice_page_info.current_page
       };
-      this.$$request.get("/notification/lists", params).then(res => {
+
+      this.$$request.get('/notification/lists', params).then(res => {
         this.notice_send_lists = res.lists;
         this.notice_page_info.total = res.total;
         this.notice_loading = false;
@@ -1370,20 +1436,23 @@ export default {
     },
 
     //查看通知
-    async notice_detail(notice) {
+    async notice_detail (notice) {
       switch (this.notice_activeName) {
-        case "receive":
+        case 'receive':
           const params = {
             notification_id: notice.notification.id
           };
-          let res = await this.$$request.post("/notification/read", params);
-          if(!res) return false;
+          let res = await this.$$request.post('/notification/read', params);
+
+          if (!res) {
+            return false;
+          }
           this.get_notice_list();
           this.notice_info.title = notice.notification.title;
           this.notice_info.content = notice.notification.content;
           this.notice_info.sender = notice.notification.sender.name;
           break;
-        case "send":
+        case 'send':
           this.notice_info.title = notice.title;
           this.notice_info.content = notice.content;
           this.notice_info.sender = notice.sender.name;
@@ -1396,46 +1465,46 @@ export default {
     //================课消模块================
 
     //加载饼图
-    init_pie_charts(pie_data) {
-      console.log(pie_data)
-      let pie_charts = echarts.init(document.getElementById("pie"));
+    init_pie_charts (pie_data) {
+      console.log(pie_data);
+      let pie_charts = echarts.init(document.getElementById('pie'));
       let option = {
-        color: ["#45DAD5", "#FFCC50"],
+        color: ['#45DAD5', '#FFCC50'],
         tooltip: {
-          trigger: "item",
+          trigger: 'item',
           formatter: data => {
             return (
-              "总课时：" +
-              pie_data[0].total +
-              "<br/>" +
-              data.name +
-              ":" +
-              data.value
+              `总课时：${
+                pie_data[0].total
+              }<br/>${
+                data.name
+              }:${
+                data.value}`
             );
           }
         },
         legend: {
-          orient: "horizontal",
-          x: "center",
-          bottom: "0px",
-          data: ["已消课时", "未消课时"]
+          orient: 'horizontal',
+          x: 'center',
+          bottom: '0px',
+          data: ['已消课时', '未消课时']
         },
         series: [
           {
-            name: "总课时",
-            type: "pie",
-            radius: ["50%", "70%"],
+            name: '总课时',
+            type: 'pie',
+            radius: ['50%', '70%'],
             avoidLabelOverlap: false,
             label: {
               normal: {
                 show: false,
-                position: "center"
+                position: 'center'
               },
               emphasis: {
                 show: true,
                 textStyle: {
-                  fontSize: "16",
-                  fontWeight: "500"
+                  fontSize: '16',
+                  fontWeight: '500'
                 }
               }
             },
@@ -1448,133 +1517,144 @@ export default {
           }
         ]
       };
+
       pie_charts.setOption(option);
     },
     //加载柱状图
-    init_bar_charts(bar_data) {
-      console.log(bar_data)
-      let bar_charts = echarts.init(document.getElementById("bar"));
+    init_bar_charts (bar_data) {
+      console.log(bar_data);
+      let bar_charts = echarts.init(document.getElementById('bar'));
       let option = {
-        color: ["#45DAD5", "#FFCC50", "transparent"],
+        color: ['#45DAD5', '#FFCC50', 'transparent'],
         tooltip: {
-          trigger: "axis",
+          trigger: 'axis',
           axisPointer: {
-            type: "shadow"
+            type: 'shadow'
           },
           formatter: data => {
             return (
-              data[0].name +
-              "<br/>" +
-              "总课时：" +
-              (data[0].value + data[1].value) +
-              "<br/>" +
-              data[0].seriesName +
-              ":" +
-              data[0].value +
-              "<br/>" +
-              data[1].seriesName +
-              ":" +
-              data[1].value
+              `${data[0].name
+              }<br/>` +
+              `总课时：${
+                data[0].value + data[1].value
+              }<br/>${
+                data[0].seriesName
+              }:${
+                data[0].value
+              }<br/>${
+                data[1].seriesName
+              }:${
+                data[1].value}`
             );
           }
         },
         calculable: true,
         xAxis: [
           {
-            type: "category",
+            type: 'category',
             axisTick: { show: false },
             data: bar_data.x_data
           }
         ],
         yAxis: [
           {
-            type: "value"
+            type: 'value'
           }
         ],
         series: [
           {
-            name: "已消课时",
-            type: "bar",
-            barWidth: "20px",
+            name: '已消课时',
+            type: 'bar',
+            barWidth: '20px',
             data: bar_data.s_data_1
           },
           {
-            name: "未消课时",
-            type: "bar",
-            barWidth: "20px",
+            name: '未消课时',
+            type: 'bar',
+            barWidth: '20px',
             data: bar_data.s_data_2
           }
         ]
       };
+
       bar_charts.setOption(option);
     },
     //选择时间
-    async choose_time(val) {
+    async choose_time (val) {
       this.search_time = val;
       await this.get_course_info();
       await this.$nextTick(() => {
         this.init_pie_charts(this.charts_data.pie_data);
         this.init_bar_charts(this.charts_data.bar_data);
-      })
+      });
     },
     //选择类型
-    async choose_type(type) {
+    async choose_type (type) {
       this.search_type = type;
       await this.get_course_info();
       await this.$nextTick(() => {
         this.init_pie_charts(this.charts_data.pie_data);
         this.init_bar_charts(this.charts_data.bar_data);
-      })
+      });
     },
     //获取课消数据
-    async get_course_info() {
+    async get_course_info () {
       let params = {
         begin: this.search_time[0],
         end: this.search_time[1],
         groupby: this.search_type
       };
-      let res = await this.$$request.post("/classElimination/statistics", params);
-      if(!res) return false;
+      let res = await this.$$request.post('/classElimination/statistics', params);
+
+      if (!res) {
+        return false;
+      }
       let pie_data = [
-            { value: res.actual, name: "已消课时", total: res.should },
-            {
-              value: res.should - res.actual,
-              name: "未消课时",
-              total: res.should
-            }
-          ];
+        { value: res.actual, name: '已消课时', total: res.should },
+        {
+          value: res.should - res.actual,
+          name: '未消课时',
+          total: res.should
+        }
+      ];
       let bar_data = {
-            x_data: [],
-            s_data_1: [],
-            s_data_2: []
-          };
+        x_data: [],
+        s_data_1: [],
+        s_data_2: []
+      };
+
       for (let info of res.detail) {
-            bar_data.x_data.push(info.name);
-            bar_data.s_data_1.push(info.actual);
-            bar_data.s_data_2.push(info.should - info.actual);
-          }
-          this.charts_data = {
-            pie_data : pie_data,
-            bar_data : bar_data
-          }
-          return true;
+        bar_data.x_data.push(info.name);
+        bar_data.s_data_1.push(info.actual);
+        bar_data.s_data_2.push(info.should - info.actual);
+      }
+      this.charts_data = {
+        pie_data: pie_data,
+        bar_data: bar_data
+      };
+
+      return true;
     }
   },
-  async created() {
+  async created () {
     this.user_info = this.$$cache.getMemberInfo();
-    this.activeName = this.user_info.class_pattern !== 2 ? "leave" : "renewal";
+    this.activeName = this.user_info.class_pattern !== 2 ? 'leave' : 'renewal';
     let now = new Date().setDate(1);
     let next = now + 31 * 24 * 60 * 60 * 1000;
-    let now_month = this.$format_date(new Date(), "yyyy-MM-01");
-    let next_month = this.$format_date(new Date(next), "yyyy-MM-01");
+    let now_month = this.$format_date(new Date(), 'yyyy-MM-01');
+    let next_month = this.$format_date(new Date(next), 'yyyy-MM-01');
+
     this.search_time = [now_month, next_month];
-    let [r1,r2,r3,r4,r5,r6] = await Promise.all([this.get_data(),this.get_finance_data(),this.get_follow_up_data(),this.get_today_course(),this.get_notice_list(),this.get_course_info()])
-    if(r1 && r2 && r3 && r4 && r5 && r6) this.state = "loaded";
+    let [r1, r2, r3, r4, r5, r6] = await Promise.all([this.get_data(), this.get_finance_data(), this.get_follow_up_data(), this.get_today_course(), this.get_notice_list(), this.get_course_info()]);
+
+    if (r1 && r2 && r3 && r4 && r5 && r6) {
+      this.state = 'loaded';
+    }
     this.$nextTick(() => {
-      console.log(this.charts_data.pie_data,this.charts_data.bar_data)
+      console.log(this.charts_data.pie_data, this.charts_data.bar_data);
       this.init_pie_charts(this.charts_data.pie_data);
       this.init_bar_charts(this.charts_data.bar_data);
-    })
+    });
   },
   components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog }
 };

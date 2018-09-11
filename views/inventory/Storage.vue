@@ -136,115 +136,144 @@
 </template>
 
 <script>
-import TableHeader from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
 
 export default {
-    data() {
-        return {
-            state: 'loading',
-            listType: 'record',
-            loading: false,
-            activePage: 1,
-            storageLists: [],
-            dialogStatus: {addStorage: false},
-            searchFilter: {
-                begin_time: new Date(this.$format_date(new Date(), "yyyy/MM/01")),
-                end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
-                storage_type: '', commodity_type: '', use_type: '', keyword: ''
-            },
+  data () {
+    return {
+      state: 'loading',
+      listType: 'record',
+      loading: false,
+      activePage: 1,
+      storageLists: [],
+      dialogStatus: {addStorage: false},
+      searchFilter: {
+        begin_time: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
+        end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
+        storage_type: '', commodity_type: '', use_type: '', keyword: ''
+      },
 
-            storageTable: {},
-            cancellationTable: {},
+      storageTable: {},
+      cancellationTable: {},
 
-            commodityTypeLists: []
+      commodityTypeLists: []
+    };
+  },
+  methods: {
+    dateChange () {
+      if (this.searchFilter.end_time < this.searchFilter.begin_time) {
+        return this.$message.warning('结束时间不能小于开始时间，请重新选择');
+      }
+      this.getStorageLists();
+    },
+    searchHandle () {
+      this.getStorageLists();
+    },
+    paginationClick (current) {
+      this.getStorageLists(current);
+    },
+    tabClick () {
+      for (let key in this.searchFilter) {
+        if (key == 'begin_time') {
+          this.searchFilter[key] = new Date(this.$format_date(new Date(), 'yyyy/MM/01'));
+        } else if (key == 'end_time') {
+          this.searchFilter[key] = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
+        } else {
+          this.searchFilter[key] = '';
         }
+      }
+      this.getStorageLists();
     },
-    methods: {
-        dateChange() {
-            if(this.searchFilter.end_time < this.searchFilter.begin_time) return this.$message.warning('结束时间不能小于开始时间，请重新选择');
-            this.getStorageLists();
-        },
-        searchHandle() {
-            this.getStorageLists();
-        },
-        paginationClick(current) {
-           this.getStorageLists(current);
-        },
-        tabClick() {
-            for(let key in this.searchFilter) {
-              if(key == 'begin_time') this.searchFilter[key] = new Date(this.$format_date(new Date(), "yyyy/MM/01"));
-              else if(key == 'end_time') this.searchFilter[key] = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
-              else this.searchFilter[key] = '';
-            };
-            this.getStorageLists();
-        },
-        // 作废
-        cancellationClick(id) {
-            this.$confirm('记录作废之后数据不能还原，请确认进行作废操作！', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.cancellationHandle(id);
-            }).catch(() => {return 0});
-        },
-        async cancellationHandle(id) {
-            let result = await this.$$request.post('/repertory/cancellation', {id: id});
-            console.log(result);
-            if(!result) return 0;
-            this.$message.success('已作废');
-            this.getStorageLists(this.activePage);
-        },
-        //获取出入库记录列表
-        async getStorageLists(page) {
-            this.loading = true;
+    // 作废
+    cancellationClick (id) {
+      this.$confirm('记录作废之后数据不能还原，请确认进行作废操作！', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.cancellationHandle(id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async cancellationHandle (id) {
+      let result = await this.$$request.post('/repertory/cancellation', {id: id});
 
-            let searchFilter = this.searchFilter;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('已作废');
+      this.getStorageLists(this.activePage);
+    },
+    //获取出入库记录列表
+    async getStorageLists (page) {
+      this.loading = true;
 
-            let params = {
-                data: {
-                    name: searchFilter.keyword,
-                    use_type: searchFilter.use_type,
-                    goods_type: searchFilter.commodity_type,
-                    storage_type: this.listType == 'record' ? searchFilter.storage_type : '',
-                    type: this.listType,
-                    time: {
-                        start: searchFilter.begin_time / 1000,
-                        end: searchFilter.end_time / 1000
-                    }
-                }
-            };
+      let searchFilter = this.searchFilter;
 
-            if(page) params.page = page;
-
-            let result = await this.$$request.get('/repertory/storageLists', params);
-            console.log(result);
-            if(!result) return 0;
-
-            if(this.listType == 'record') this.storageTable = result.lists;
-            else this.cancellationTable = result.lists;
-            if(page) this.activePage = page;
-
-            this.loading = false;
-            return true;
-        },
-        //获取物品类型列表
-        async getCommodityTypeLists() {
-            let result = await this.$$request.get('/goodsType/goodsTypeLists');
-            console.log(result);
-            if(!result) return 0;
-
-            this.commodityTypeLists = result.lists;
-            return true;
+      let params = {
+        data: {
+          name: searchFilter.keyword,
+          use_type: searchFilter.use_type,
+          goods_type: searchFilter.commodity_type,
+          storage_type: this.listType == 'record' ? searchFilter.storage_type : '',
+          type: this.listType,
+          time: {
+            start: searchFilter.begin_time / 1000,
+            end: searchFilter.end_time / 1000
+          }
         }
+      };
+
+      if (page) {
+        params.page = page;
+      }
+
+      let result = await this.$$request.get('/repertory/storageLists', params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      if (this.listType == 'record') {
+        this.storageTable = result.lists;
+      } else {
+        this.cancellationTable = result.lists;
+      }
+      if (page) {
+        this.activePage = page;
+      }
+
+      this.loading = false;
+
+      return true;
     },
-    async created() {
-        let [a, b] = await Promise.all([this.getStorageLists(), this.getCommodityTypeLists()]);
-        if(a && b) this.state = 'loaded';
-    },
-    components: {TableHeader, MyButton}
-}
+    //获取物品类型列表
+    async getCommodityTypeLists () {
+      let result = await this.$$request.get('/goodsType/goodsTypeLists');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.commodityTypeLists = result.lists;
+
+      return true;
+    }
+  },
+  async created () {
+    let [a, b] = await Promise.all([this.getStorageLists(), this.getCommodityTypeLists()]);
+
+    if (a && b) {
+      this.state = 'loaded';
+    }
+  },
+  components: {TableHeader, MyButton}
+};
 </script>
 
 <style lang="less" scoped>

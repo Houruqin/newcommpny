@@ -110,262 +110,303 @@
 </template>
 
 <script>
-import TableHeader  from '../../components/common/TableHeader'
-import MyButton from '../../components/common/MyButton'
-import Classify from '../../components/common/StudentClassify'
+import TableHeader from '../../components/common/TableHeader';
+import MyButton from '../../components/common/MyButton';
+import Classify from '../../components/common/StudentClassify';
 
-import AddStudentDialog from '../../components/dialog/AddStudent'
-import BuyCourseDialog from '../../components/dialog/BuyCourse'
-import ContractDialog from '../../components/dialog/Contract'
+import AddStudentDialog from '../../components/dialog/AddStudent';
+import BuyCourseDialog from '../../components/dialog/BuyCourse';
+import ContractDialog from '../../components/dialog/Contract';
 
-import {StudentStatic} from '../../script/static'
-import Bus from '../../script/bus'
-import qs from 'qs'
-import config from 'config'
+import {StudentStatic} from '../../script/static';
+import Bus from '../../script/bus';
+import qs from 'qs';
+import config from 'config';
 
 export default {
-    data() {
-        return {
-            state: 'loading',
-            activeTab: 'unsign',
-            loading: true,
-            tabLists: [],
+  data () {
+    return {
+      state: 'loading',
+      activeTab: 'unsign',
+      loading: true,
+      tabLists: [],
 
-            currPage: false,
-            activePage: 1,
+      currPage: false,
+      activePage: 1,
 
-            listStudentId: '',
+      listStudentId: '',
 
-            headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
-            studentTable: {},
-            searchKeyWord: '',
+      headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
+      studentTable: {},
+      searchKeyWord: '',
 
-            searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''},  //搜索筛选条件
-            followUp: StudentStatic.followUp.status,
+      searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
+      followUp: StudentStatic.followUp.status,
 
-            dialogStatus: {student: false, course: false, contract: false},
-            studentType: '',
+      dialogStatus: {student: false, course: false, contract: false},
+      studentType: '',
 
-            // buyCourseData: {},
-            editDetail: {},
-            // contractData: {},   //合约数据
+      // buyCourseData: {},
+      editDetail: {},
+      // contractData: {},   //合约数据
 
-            studentLists: [],
-            editStudentData: {},
-            sourceRules: {
-                name: [
-                    {required: true, message: '请输入渠道'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ]
-            },
-            courseRules: {
-                course_id: [
-                    {required: true, message: '请选择课程', trigger: 'change'}
-                ],
-                lesson_num: [
-                    {required: true, message: '请输入购买课时数'}
-                ],
-                given_num: [
-                    {required: true, message: '请输入赠送课时数'}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'}
-                ],
-                pay_at: [
-                    {required: true, message: '请选择购课日期', trigger: 'change'}
-                ],
-                pay_way: [
-                    {required: true, message: '请选择付款方式', trigger: 'change'}
-                ],
-                preferential_price: [
-                    {required: true, message: '请输入优惠金额'}
-                ],
-                unit_price: [
-                    {required: true, message: '请输入课时单价'}
-                ],
-                explain: [
-                    {max: 200,  message: '长度不能超过200个字符'}
-                ]
-            },
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            }
+      studentLists: [],
+      editStudentData: {},
+      sourceRules: {
+        name: [
+          {required: true, message: '请输入渠道'},
+          {max: 20, message: '长度不能超过20个字符'}
+        ]
+      },
+      courseRules: {
+        course_id: [
+          {required: true, message: '请选择课程', trigger: 'change'}
+        ],
+        lesson_num: [
+          {required: true, message: '请输入购买课时数'}
+        ],
+        given_num: [
+          {required: true, message: '请输入赠送课时数'}
+        ],
+        expire: [
+          {required: true, message: '请输入课程有效期'}
+        ],
+        pay_at: [
+          {required: true, message: '请选择购课日期', trigger: 'change'}
+        ],
+        pay_way: [
+          {required: true, message: '请选择付款方式', trigger: 'change'}
+        ],
+        preferential_price: [
+          {required: true, message: '请输入优惠金额'}
+        ],
+        unit_price: [
+          {required: true, message: '请输入课时单价'}
+        ],
+        explain: [
+          {max: 200, message: '长度不能超过200个字符'}
+        ]
+      },
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
         }
-    },
-    methods: {
-        tabClick(tab) {
-            if(tab.type == 'following' && this.followUp.length == 5) this.followUp.splice(0, 1);
-            else if(tab.type == 'unsign' && this.followUp.length == 4) this.followUp.unshift({id: 0, name: '未跟进'});
+      }
+    };
+  },
+  methods: {
+    tabClick (tab) {
+      if (tab.type == 'following' && this.followUp.length == 5) {
+        this.followUp.splice(0, 1);
+      } else if (tab.type == 'unsign' && this.followUp.length == 4) {
+        this.followUp.unshift({id: 0, name: '未跟进'});
+      }
 
-            this.searchKeyWord = '';
+      this.searchKeyWord = '';
 
-            if(tab.type != this.activeTab) {
-                this.loading = true;
-                for(let key in this.searchFilter) this.searchFilter[key] = key == 'type' ? tab.type : '';
-                this.activeTab = tab.type;
-                this.getStudentLists();
-            }
-        },
-        addStudent() {
-            this.studentType = 'add';
-            this.dialogStatus.student = true;
-        },
-        //导出学员
-        async exportStudent() {
-            if(this.searchKeyWord) {
-                if(isNaN(this.searchKeyWord)) {
-                    this.searchFilter.name = this.searchKeyWord;
-                    this.searchFilter.mobile = '';
-                }else {
-                    this.searchFilter.mobile = this.searchKeyWord;
-                    this.searchFilter.name = '';
-                }
-            }else {
-                this.searchFilter.mobile = '';
-                this.searchFilter.name = '';
-            }
-
-            let baseUrl = config.api;
-            let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
-            let params = {data: this.searchFilter, token: token.replace('bearer ', '')};
-
-            window.location.href = `${baseUrl}student/lists?${qs.stringify(params)}`;
-        },
-        //弹窗变比，改变dialog状态回调
-        CB_dialogStatus(type) {
-            if(type == 'student') {
-                this.dialogStatus.student = false;
-                this.editDetail = {};
-                this.studentType = '';
-                return 0;
-            }
-            if(type == 'course') return this.dialogStatus.course = false;
-        },
-        //登记成功，刷新列表
-        CB_addStudent(type) {
-            this.getAllLists(type == 'edit');
-            this.dialogStatus.student = false;
-        },
-        //登记成功，购课回调
-        CB_buyCourse(data) {
-            let params = {
-                student_id: data.id,
-                advisor_id: data.advisor_id,
-                advisor: data.advisor,
-                parent_id: data.parent_id
-            };
-
-            this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
-        },
-        //单元格时间格式化
-        dateForamt(row, column, cellValue) {
-            return this.$$tools.format(cellValue)
-        },
-        //搜索
-        searchHandle() {
-            this.getStudentLists();
-        },
-        //列表顾问选择
-        async listAdvisorChange(val) {
-            let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
-            console.log(result);
-            if(!result) return 0;
-
-            this.getAllLists(true);
-        },
-        //修改学员信息
-        editStudent(data) {
-            this.studentType = 'edit';
-            this.editDetail = data;
-            this.dialogStatus.student = true;
-        },
-        //删除学员
-        deleteStudent(id) {
-            this.$confirm('确定删除该学员吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(id) {
-            let result = await this.$$request.post('/student/delete', {id: id});
-            if(!result) return 0;
-            this.getAllLists();
-            this.$message.success('已删除');
-        },
-        nextClick(currentPage) {
-            this.currPage = true;
-            this.getStudentLists(currentPage);
-        },
-        prevClick(currentPage) {
-            this.currPage = true;
-            this.getStudentLists(currentPage);
-        },
-        //分页
-        paginationClick(currentPage) {
-            if(!this.currPage) this.getStudentLists(currentPage);
-            this.currPage = false;
-        },
-        async getAllLists(isCurrPage) {
-            let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
-            return a && b;
-        },
-        //获取tab列表
-        async getTabLists(isCurrPage) {
-            let result = await this.$$request.post('/student/tab');
-            console.log(result);
-            if(!result) return 0;
-            this.tabLists = result.lists.map((v, index) => {v.name = this.headTab[index]; return v});
-            return true;
-        },
-        //获取学员列表
-        async getStudentLists(currentPage) {
-            this.loading = true;
-            if(this.searchKeyWord) {
-                if(isNaN(this.searchKeyWord)) {
-                    this.searchFilter.name = this.searchKeyWord;
-                    this.searchFilter.mobile = '';
-                }else {
-                    this.searchFilter.mobile = this.searchKeyWord;
-                    this.searchFilter.name = '';
-                }
-            }else {
-                this.searchFilter.mobile = '';
-                this.searchFilter.name = '';
-            }
-            let params = {data: this.searchFilter};
-            if(currentPage) params.page = currentPage;
-            console.log(params);
-
-            let result = await this.$$request.post('/student/lists', params);
-            console.log(result);
-            if(!result) return 0;
-
-            this.activePage = currentPage ? currentPage: 1;
-            this.studentTable = result.lists;
-            this.loading = false;
-            return true;
+      if (tab.type != this.activeTab) {
+        this.loading = true;
+        for (let key in this.searchFilter) {
+          this.searchFilter[key] = key == 'type' ? tab.type : '';
         }
+        this.activeTab = tab.type;
+        this.getStudentLists();
+      }
     },
-    async created() {
-        let datas = await this.getAllLists();
-        if(datas) this.state = 'loaded';
+    addStudent () {
+      this.studentType = 'add';
+      this.dialogStatus.student = true;
     },
-    beforeRouteEnter(to, from, next) {
-        //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
-        if(from.name == 'nosignDetail') to.meta.keepAlive = true;
-        else to.meta.keepAlive = false;
-        next();   //来到页面，包括通过返回
+    //导出学员
+    async exportStudent () {
+      if (this.searchKeyWord) {
+        if (isNaN(this.searchKeyWord)) {
+          this.searchFilter.name = this.searchKeyWord;
+          this.searchFilter.mobile = '';
+        } else {
+          this.searchFilter.mobile = this.searchKeyWord;
+          this.searchFilter.name = '';
+        }
+      } else {
+        this.searchFilter.mobile = '';
+        this.searchFilter.name = '';
+      }
+
+      let baseUrl = config.api;
+      let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+      let params = {data: this.searchFilter, token: token.replace('bearer ', '')};
+
+      window.location.href = `${baseUrl}student/lists?${qs.stringify(params)}`;
     },
-    beforeRouteLeave(to, from, next) {
-        next();   //离开页面时，做判断
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type == 'student') {
+        this.dialogStatus.student = false;
+        this.editDetail = {};
+        this.studentType = '';
+
+        return 0;
+      }
+      if (type == 'course') {
+        return this.dialogStatus.course = false;
+      }
     },
-    components: {Classify, MyButton, TableHeader, AddStudentDialog, BuyCourseDialog, ContractDialog}
-}
+    //登记成功，刷新列表
+    CB_addStudent (type) {
+      this.getAllLists(type == 'edit');
+      this.dialogStatus.student = false;
+    },
+    //登记成功，购课回调
+    CB_buyCourse (data) {
+      let params = {
+        student_id: data.id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor,
+        parent_id: data.parent_id
+      };
+
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
+    },
+    //单元格时间格式化
+    dateForamt (row, column, cellValue) {
+      return this.$$tools.format(cellValue);
+    },
+    //搜索
+    searchHandle () {
+      this.getStudentLists();
+    },
+    //列表顾问选择
+    async listAdvisorChange (val) {
+      let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.getAllLists(true);
+    },
+    //修改学员信息
+    editStudent (data) {
+      this.studentType = 'edit';
+      this.editDetail = data;
+      this.dialogStatus.student = true;
+    },
+    //删除学员
+    deleteStudent (id) {
+      this.$confirm('确定删除该学员吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (id) {
+      let result = await this.$$request.post('/student/delete', {id: id});
+
+      if (!result) {
+        return 0;
+      }
+      this.getAllLists();
+      this.$message.success('已删除');
+    },
+    nextClick (currentPage) {
+      this.currPage = true;
+      this.getStudentLists(currentPage);
+    },
+    prevClick (currentPage) {
+      this.currPage = true;
+      this.getStudentLists(currentPage);
+    },
+    //分页
+    paginationClick (currentPage) {
+      if (!this.currPage) {
+        this.getStudentLists(currentPage);
+      }
+      this.currPage = false;
+    },
+    async getAllLists (isCurrPage) {
+      let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
+
+
+      return a && b;
+    },
+    //获取tab列表
+    async getTabLists (isCurrPage) {
+      let result = await this.$$request.post('/student/tab');
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.tabLists = result.lists.map((v, index) => {
+        v.name = this.headTab[index];
+
+        return v;
+      });
+
+      return true;
+    },
+    //获取学员列表
+    async getStudentLists (currentPage) {
+      this.loading = true;
+      if (this.searchKeyWord) {
+        if (isNaN(this.searchKeyWord)) {
+          this.searchFilter.name = this.searchKeyWord;
+          this.searchFilter.mobile = '';
+        } else {
+          this.searchFilter.mobile = this.searchKeyWord;
+          this.searchFilter.name = '';
+        }
+      } else {
+        this.searchFilter.mobile = '';
+        this.searchFilter.name = '';
+      }
+      let params = {data: this.searchFilter};
+
+      if (currentPage) {
+        params.page = currentPage;
+      }
+      console.log(params);
+
+      let result = await this.$$request.post('/student/lists', params);
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.activePage = currentPage ? currentPage : 1;
+      this.studentTable = result.lists;
+      this.loading = false;
+
+      return true;
+    }
+  },
+  async created () {
+    let datas = await this.getAllLists();
+
+    if (datas) {
+      this.state = 'loaded';
+    }
+  },
+  beforeRouteEnter (to, from, next) {
+    //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
+    if (from.name == 'nosignDetail') {
+      to.meta.keepAlive = true;
+    } else {
+      to.meta.keepAlive = false;
+    }
+    next(); //来到页面，包括通过返回
+  },
+  beforeRouteLeave (to, from, next) {
+    next(); //离开页面时，做判断
+  },
+  components: {Classify, MyButton, TableHeader, AddStudentDialog, BuyCourseDialog, ContractDialog}
+};
 </script>
 
 <style lang="less" scoped>
