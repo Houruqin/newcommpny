@@ -14,7 +14,7 @@
           MyButton(@click.native="syllabusType = 'edit'") 编辑
           MyButton.ml-20(@click.native="delClick" v-if="(type == 'grade' && !isSync) || (type == 'course')") 删除
         template(v-else)
-          MyButton(@click.native="doneClick") 提交
+          MyButton(@click.native="doneClick" :loading="btnLoading") 提交
 </template>
 
 <script>
@@ -59,6 +59,7 @@ export default {
     return {
       currentValue: this.value,
       syllabusType: 'look',
+      btnLoading: false,
       isSync: 1,
       courseId: '',
       gradeId: '',
@@ -129,6 +130,11 @@ export default {
     },
     //提交大纲内容
     async submitSyllabusContent () {
+      if (this.btnLoading) {
+        return 0;
+      }
+      this.btnLoading = true;
+
       let content = '';
 
       if (this.type == 'course') {
@@ -149,7 +155,7 @@ export default {
       }
 
       let result = await this.$$request.post('course/editOutline', params);
-
+      this.btnLoading = false;
       console.log(result);
       if (!result) {
         return 0;
