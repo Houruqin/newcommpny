@@ -47,146 +47,176 @@
 
 <script>
 
-import MyButton from '../common/MyButton'
-import Bus from '../../script/bus'
+import MyButton from '../common/MyButton';
+import Bus from '../../script/bus';
 
 export default {
-    props: {
-        type: {default: 'add'},
-        dialogStatus: '',
-        courseMode: {default: ''},
-        editDetail: {default: null}
+  props: {
+    type: {default: 'add'},
+    dialogStatus: '',
+    courseMode: {default: ''},
+    editDetail: {default: null}
+  },
+  components: {MyButton},
+  watch: {
+    dialogStatus (newVal, oldVal) {
+      this.courseDialogStatus = newVal;
+      if (this.courseDialogStatus) {
+        this.courseForm.expire = 12; //有效期默认12月
+        this.courseForm.lesson_time = 30; //时长默认30分钟
+        this.courseForm.type = 1; //课程性质默认普通排课
+        this.courseForm.is_order = this.courseMode == 1 ? 0 : 1;
+      }
     },
-    components: {MyButton},
-    watch: {
-        dialogStatus(newVal, oldVal) {
-            this.courseDialogStatus = newVal;
-            if(this.courseDialogStatus) {
-                this.courseForm.expire = 12;   //有效期默认12月
-                this.courseForm.lesson_time = 30;   //时长默认30分钟
-                this.courseForm.type = 1;   //课程性质默认普通排课
-                this.courseForm.is_order = this.courseMode == 1 ? 0 : 1;
-            }
-        },
-        type(newVal, oldVal) {
-            console.log(newVal)
-            this.courseType = newVal;
-        },
-        editDetail(newVal, oldVal) {
-            console.log(newVal)
-            if(!Object.keys(newVal).length) return 0;
-            for(let key in this.courseForm) {
-                if(key == 'order_teacher_ids') this.courseForm[key] = newVal[key].substring(1, newVal[key].length-1).split(',').map(v => {return +v});
-                else this.courseForm[key] = newVal[key];
-            }
-        }
+    type (newVal, oldVal) {
+      console.log(newVal);
+      this.courseType = newVal;
     },
-    data() {
-        return {
-            submitLoading: false,
-            courseForm: {
-                id: '',
-                name: '',  //名字
-                expire: '', //有效期
-                lesson_time: '',  //课时时长
-                type: 1, //课程性质
-                order_teacher_ids: [],
-                is_order: ''
-            },
-            courseDialogStatus: false,
-            courseType: 'add',
-            courseRules: {
-                name: [
-                    {required: true, message: '请输入课程名称'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                expire: [
-                    {required: true, message: '请输入课程有效期'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 120)}
-                ],
-                unit_price: [
-                    {required: true, message: '请输入学费标准'}
-                ],
-                lesson_time: [
-                    {required: true, message: '请输入课节时长'},
-                    {validator: this.$$tools.formOtherValidate('int')},
-                    {validator: this.$$tools.formOtherValidate('total', 180)}
-                ],
-                type: [
-                    {required: true, message: '请选择课程性质', trigger: 'change'}
-                ],
-                order_teacher_ids: [
-                    {required: true, message: '请选择上课老师', trigger: 'change'}
-                ]
-                // is_order: [
-                //     {required: true, message: '请设置是否可预约', trigger: 'change'}
-                // ]
-            },
+    editDetail (newVal, oldVal) {
+      console.log(newVal);
+      if (!Object.keys(newVal).length) {
+        return 0;
+      }
+      for (let key in this.courseForm) {
+        if (key == 'order_teacher_ids') {
+          this.courseForm[key] = newVal[key].substring(1, newVal[key].length - 1).split(',').map(v => {
+            return +v;
+          });
+        } else {
+          this.courseForm[key] = newVal[key];
         }
-    },
-    methods: {
-        dialogClose() {
-            this.$refs.courseForm.resetFields();
-            for(let key in this.courseForm) this.courseForm[key] = key == 'order_teacher_ids' ? [] : '';
-            this.$emit('CB-dialogStatus', 'add_course');
-        },
-        //form表单确定按钮
-        doneHandle() {
-            this.$refs.courseForm.validate(valid => {if(valid) this.submitCourse()});
-        },
-        //删除课程
-        deleteCourse(course_id) {
-            this.$confirm('确定删除课程吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(course_id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(course_id) {
-            if(!course_id) return this.$message.warning('操作失败');
-
-            let result = await this.$$request.post('/course/delete', {id: course_id});
-            console.log(result);
-            if(!result) return 0;
-
-            this.$message.success('删除成功');
-            this.$store.dispatch('getCourse');   //更新课程信息
-            this.$emit('CB-addCourse');
-        },
-        //新增、编辑课程提交数据
-        async submitCourse() {
-            if(this.submitLoading) return 0;
-            this.submitLoading = true;
-
-            let url = this.courseType == 'edit' ? '/course/edit' : '/course/add';
-            let params = {};
-            for(let key in this.courseForm) {
-                if(key != 'id') {
-                    if(key == 'order_teacher_ids') {
-                        params[key] = this.courseMode == 2 ? this.courseForm[key] : [];
-                    }else params[key] = this.courseForm[key];
-                }
-            };
-
-            params.class_pattern = this.courseMode;
-            if(this.courseType == 'edit') params.id = this.courseForm.id;
-            console.log(params);
-
-            let result = await this.$$request.post(url, params);
-            this.submitLoading = false;
-            console.log(result);
-            if(!result) return 0;
-
-            this.courseDialogStatus = false;
-            this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
-            this.$store.dispatch('getCourse');   //更新课程信息
-            this.$emit('CB-addCourse');
-        }
+      }
     }
-}
+  },
+  data () {
+    return {
+      submitLoading: false,
+      courseForm: {
+        id: '',
+        name: '', //名字
+        expire: '', //有效期
+        lesson_time: '', //课时时长
+        type: 1, //课程性质
+        order_teacher_ids: [],
+        is_order: ''
+      },
+      courseDialogStatus: false,
+      courseType: 'add',
+      courseRules: {
+        name: [
+          {required: true, message: '请输入课程名称'},
+          {max: 20, message: '长度不能超过20个字符'}
+        ],
+        expire: [
+          {required: true, message: '请输入课程有效期'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 120)}
+        ],
+        unit_price: [
+          {required: true, message: '请输入学费标准'}
+        ],
+        lesson_time: [
+          {required: true, message: '请输入课节时长'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 180)}
+        ],
+        type: [
+          {required: true, message: '请选择课程性质', trigger: 'change'}
+        ],
+        order_teacher_ids: [
+          {required: true, message: '请选择上课老师', trigger: 'change'}
+        ]
+        // is_order: [
+        //     {required: true, message: '请设置是否可预约', trigger: 'change'}
+        // ]
+      }
+    };
+  },
+  methods: {
+    dialogClose () {
+      this.$refs.courseForm.resetFields();
+      for (let key in this.courseForm) {
+        this.courseForm[key] = key == 'order_teacher_ids' ? [] : '';
+      }
+      this.$emit('CB-dialogStatus', 'add_course');
+    },
+    //form表单确定按钮
+    doneHandle () {
+      this.$refs.courseForm.validate(valid => {
+        if (valid) {
+          this.submitCourse();
+        }
+      });
+    },
+    //删除课程
+    deleteCourse (course_id) {
+      this.$confirm('确定删除课程吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(course_id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async deleteHandle (course_id) {
+      if (!course_id) {
+        return this.$message.warning('操作失败');
+      }
+
+      let result = await this.$$request.post('/course/delete', {id: course_id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.$message.success('删除成功');
+      this.$store.dispatch('getCourse'); //更新课程信息
+      this.$emit('CB-addCourse');
+    },
+    //新增、编辑课程提交数据
+    async submitCourse () {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
+      let url = this.courseType == 'edit' ? '/course/edit' : '/course/add';
+      let params = {};
+
+      for (let key in this.courseForm) {
+        if (key != 'id') {
+          if (key == 'order_teacher_ids') {
+            params[key] = this.courseMode == 2 ? this.courseForm[key] : [];
+          } else {
+            params[key] = this.courseForm[key];
+          }
+        }
+      }
+
+      params.class_pattern = this.courseMode;
+      if (this.courseType == 'edit') {
+        params.id = this.courseForm.id;
+      }
+      console.log(params);
+
+      let result = await this.$$request.post(url, params);
+
+      this.submitLoading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.courseDialogStatus = false;
+      this.$message.success(this.courseType == 'edit' ? '修改成功' : '添加成功');
+      this.$store.dispatch('getCourse'); //更新课程信息
+      this.$emit('CB-addCourse');
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

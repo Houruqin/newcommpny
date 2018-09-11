@@ -96,210 +96,237 @@
 
 <script>
 
-import {StudentStatic} from '../../script/static'
-import MyButton from '../common/MyButton'
-import Bus from '../../script/bus'
+import {StudentStatic} from '../../script/static';
+import MyButton from '../common/MyButton';
+import Bus from '../../script/bus';
 
 export default {
-    props: {
-        type: {default: 'add'},
-        dialogStatus: '',
-        editDetail: {default: null}
+  props: {
+    type: {default: 'add'},
+    dialogStatus: '',
+    editDetail: {default: null}
+  },
+  components: {MyButton},
+  watch: {
+    dialogStatus (newVal, oldVal) {
+      // newVal == true && this.$refs.addStudent && this.$refs.addStudent.resetFields();
+      // newVal == true && this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
+      this.studentDialogStatus = newVal;
     },
-    components: {MyButton},
-    watch: {
-        dialogStatus(newVal, oldVal) {
-            // newVal == true && this.$refs.addStudent && this.$refs.addStudent.resetFields();
-            // newVal == true && this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
-            this.studentDialogStatus = newVal;
-        },
-        type(newVal, oldVal) {
-            this.studentType = newVal;
-        },
-        editDetail(newVal, oldVal) {
-            if(!Object.keys(newVal).length) return 0;
-            for(let key in newVal) {
-                if(key == 'address' || key == 'remark' || key == 'school_name' || key == 'source_id' || key == 'sex' || key == 'id') {
-                    this.studentForm[key] = newVal[key];
-                }else if(key == 'birthday') {
-                    this.studentForm[key] = newVal[key] > 0 ? newVal[key] * 1000 : '';
-                }else if(key == 'parent_info') {
-                    this.studentForm.mobile = newVal[key].mobile;
-                    this.studentForm.parent_name = newVal[key].name;
-                    this.studentForm.relation = newVal[key].relation;
-                }else if(key == 'name') this.studentForm.student_name = newVal[key]
-                else if(key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {
-                    this.studentForm[key] = newVal[key] == 0 ? '' : newVal[key];
-                }
-            }
-        }
+    type (newVal, oldVal) {
+      this.studentType = newVal;
     },
-    data() {
-        return {
-            submitLoading: {
-                student: false, source: false
-            },
-            likeGrade: StudentStatic.likeGrade,
-            studentForm: {
-                id: '',
-                student_name: '',
-                parent_name: '',
-                relation: '',
-                mobile: '',
-                address: '',
-                sex: '',
-                birthday: '',
-                like_course: '',
-                like_grade: '',
-                source_id: '',   //渠道id
-                advisor_id: '',    //顾问id
-                remark: '',   //备注信息
-                school_name: ''
-            },
-            studentType: 'add',
-            sourceForm: {name: ''},
-            studentDialogStatus: false,
-            sourceDialogStatus: false,
-            rules: {
-                parent_name: [
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                address: [
-                    {max: 50, message: '长度不能超过50个字符'}
-                ],
-                school_name: [
-                    {max: 20, message: '长度不能超过20个字符'}
-                ],
-                mobile: [
-                    {required: true, message: '请输入家长电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                student_name: [
-                    {required: true, message: '请输入学员姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                sex: [
-                    {required: true, message: '请选择性别', trigger: 'change'}
-                ],
-                source_id: [
-                    {required: true, message: '请选择渠道信息', trigger: 'change'}
-                ],
-                remark: [{ max: 100, message: '长度不能超过100个字符' }]
-            },
-            sourceRules: {
-                name: [
-                    {required: true, message: '请输入渠道'},
-                    {max: 20, message: '长度不能超过20个字符'}
-                ]
-            },
-            pickerBeginDateAfter: {
-                disabledDate: (time) => {
-                    return time.getTime() > new Date().getTime();
-                }
-            }
+    editDetail (newVal, oldVal) {
+      if (!Object.keys(newVal).length) {
+        return 0;
+      }
+      for (let key in newVal) {
+        if (key == 'address' || key == 'remark' || key == 'school_name' || key == 'source_id' || key == 'sex' || key == 'id') {
+          this.studentForm[key] = newVal[key];
+        } else if (key == 'birthday') {
+          this.studentForm[key] = newVal[key] > 0 ? newVal[key] * 1000 : '';
+        } else if (key == 'parent_info') {
+          this.studentForm.mobile = newVal[key].mobile;
+          this.studentForm.parent_name = newVal[key].name;
+          this.studentForm.relation = newVal[key].relation;
+        } else if (key == 'name') {
+          this.studentForm.student_name = newVal[key];
+        } else if (key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {
+          this.studentForm[key] = newVal[key] == 0 ? '' : newVal[key];
         }
-    },
-    methods: {
-        dialogClose(form) {
-            this.$refs[form].resetFields();
-            if(form === 'addStudent') {
-                this.$emit('CB-dialogStatus', 'student');
-                Object.keys(this.studentForm).forEach(v =>{this.studentForm[v] = ''});
-            }else this.sourceForm.name = '';
-        },
-        //添加渠道信息
-        addSource() {
-            this.sourceForm.name = '';
-            this.sourceDialogStatus = true;
-        },
-        //表单确定
-        doneHandle(type) {
-            this.$refs[type].validate(valid => {
-                if(valid) type == 'addStudent' ? this.submitStudentInfo() : this.submitSourceInfo();
-            });
-        },
-        //提交学员信息
-        async submitStudentInfo() {
-            if(this.submitLoading.student) return 0;
-            this.submitLoading.student = true;
-
-            let params = {}, url = '/student/add';
-            for(let key in this.studentForm) {
-                if(key == 'birthday') {
-                    params[key] = this.studentForm[key] / 1000;
-                }else if(key != 'id') params[key] = this.studentForm[key];
-            };
-
-            if(this.studentType == 'edit') {
-                params.id = this.studentForm.id;
-                url = '/student/edit';
-            }
-
-            console.log(params);
-
-            let result = await this.$$request.post(url, params);
-            console.log(result);
-            if(!result) return this.submitLoading.student = false;
-
-            if(this.studentType == 'edit') {
-                this.submitLoading.student = false;
-                if(result.status) this.$message.success('修改成功');
-                this.$emit('CB-addStudent', 'edit');
-            }else {
-                if(result.status) {
-                    this.$confirm('已存在该账号，是否将学员添加至该账号下？', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '修改手机号',
-                        type: 'warning'
-                    }).then(() => {
-                        this.studentRepeat(params);
-                    }).catch(() => {
-                        this.$refs.mobileObj.focus();
-                        this.submitLoading.student = false;
-                    });
-                }else {
-                    this.submitLoading.student = false;
-                    this.studentSuccessMessage(result.data);
-                }
-            }
-        },
-        //提交渠道信息
-        async submitSourceInfo() {
-            if(this.submitLoading.source) return 0;
-            this.submitLoading.source = true;
-
-            let result = await this.$$request.post('/source/add', this.sourceForm);
-            this.submitLoading.source = false;
-            console.log(result);
-
-            if(!result) return 0;
-
-            this.$store.dispatch('getSource');   //更新渠道信息
-            this.sourceDialogStatus = false;
-            this.studentForm.source_id = result.data.id;
-        },
-        //登记学员重复手机号码，处理方法
-        async studentRepeat(params) {
-            let result = await this.$$request.post('/student/add', {...params, parent_this: 'yes'});
-            this.submitLoading.student = false;
-            console.log(result)
-            if(!result) return 0;
-            this.studentSuccessMessage(result.data);
-        },
-        //登记学员成功，二次提醒是否购课
-        studentSuccessMessage(data) {
-            this.$confirm('已成功登记学员，是否选择购课?', '提示', {
-                confirmButtonText: '购买课程',
-                cancelButtonText: '暂不办理',
-                type: 'success'
-            }).then(() => {
-                this.$emit('CB-buyCourse', data);
-            }).catch(() => {return 0});
-
-            this.$emit('CB-addStudent');
-        }
+      }
     }
-}
+  },
+  data () {
+    return {
+      submitLoading: {
+        student: false, source: false
+      },
+      likeGrade: StudentStatic.likeGrade,
+      studentForm: {
+        id: '',
+        student_name: '',
+        parent_name: '',
+        relation: '',
+        mobile: '',
+        address: '',
+        sex: '',
+        birthday: '',
+        like_course: '',
+        like_grade: '',
+        source_id: '', //渠道id
+        advisor_id: '', //顾问id
+        remark: '', //备注信息
+        school_name: ''
+      },
+      studentType: 'add',
+      sourceForm: {name: ''},
+      studentDialogStatus: false,
+      sourceDialogStatus: false,
+      rules: {
+        parent_name: [
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        address: [
+          {max: 50, message: '长度不能超过50个字符'}
+        ],
+        school_name: [
+          {max: 20, message: '长度不能超过20个字符'}
+        ],
+        mobile: [
+          {required: true, message: '请输入家长电话'},
+          {validator: this.$$tools.formValidate('phone')}
+        ],
+        student_name: [
+          {required: true, message: '请输入学员姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        sex: [
+          {required: true, message: '请选择性别', trigger: 'change'}
+        ],
+        source_id: [
+          {required: true, message: '请选择渠道信息', trigger: 'change'}
+        ],
+        remark: [{ max: 100, message: '长度不能超过100个字符' }]
+      },
+      sourceRules: {
+        name: [
+          {required: true, message: '请输入渠道'},
+          {max: 20, message: '长度不能超过20个字符'}
+        ]
+      },
+      pickerBeginDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > new Date().getTime();
+        }
+      }
+    };
+  },
+  methods: {
+    dialogClose (form) {
+      this.$refs[form].resetFields();
+      if (form === 'addStudent') {
+        this.$emit('CB-dialogStatus', 'student');
+        Object.keys(this.studentForm).forEach(v =>{
+          this.studentForm[v] = '';
+        });
+      } else {
+        this.sourceForm.name = '';
+      }
+    },
+    //添加渠道信息
+    addSource () {
+      this.sourceForm.name = '';
+      this.sourceDialogStatus = true;
+    },
+    //表单确定
+    doneHandle (type) {
+      this.$refs[type].validate(valid => {
+        if (valid) {
+          type == 'addStudent' ? this.submitStudentInfo() : this.submitSourceInfo();
+        }
+      });
+    },
+    //提交学员信息
+    async submitStudentInfo () {
+      if (this.submitLoading.student) {
+        return 0;
+      }
+      this.submitLoading.student = true;
+
+      let params = {}, url = '/student/add';
+
+      for (let key in this.studentForm) {
+        if (key == 'birthday') {
+          params[key] = this.studentForm[key] / 1000;
+        } else if (key != 'id') {
+          params[key] = this.studentForm[key];
+        }
+      }
+
+      if (this.studentType == 'edit') {
+        params.id = this.studentForm.id;
+        url = '/student/edit';
+      }
+
+      console.log(params);
+
+      let result = await this.$$request.post(url, params);
+
+      console.log(result);
+      if (!result) {
+        return this.submitLoading.student = false;
+      }
+
+      if (this.studentType == 'edit') {
+        this.submitLoading.student = false;
+        if (result.status) {
+          this.$message.success('修改成功');
+        }
+        this.$emit('CB-addStudent', 'edit');
+      } else if (result.status) {
+        this.$confirm('已存在该账号，是否将学员添加至该账号下？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '修改手机号',
+          type: 'warning'
+        }).then(() => {
+          this.studentRepeat(params);
+        }).catch(() => {
+          this.$refs.mobileObj.focus();
+          this.submitLoading.student = false;
+        });
+      } else {
+        this.submitLoading.student = false;
+        this.studentSuccessMessage(result.data);
+      }
+    },
+    //提交渠道信息
+    async submitSourceInfo () {
+      if (this.submitLoading.source) {
+        return 0;
+      }
+      this.submitLoading.source = true;
+
+      let result = await this.$$request.post('/source/add', this.sourceForm);
+
+      this.submitLoading.source = false;
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+
+      this.$store.dispatch('getSource'); //更新渠道信息
+      this.sourceDialogStatus = false;
+      this.studentForm.source_id = result.data.id;
+    },
+    //登记学员重复手机号码，处理方法
+    async studentRepeat (params) {
+      let result = await this.$$request.post('/student/add', {...params, parent_this: 'yes'});
+
+      this.submitLoading.student = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.studentSuccessMessage(result.data);
+    },
+    //登记学员成功，二次提醒是否购课
+    studentSuccessMessage (data) {
+      this.$confirm('已成功登记学员，是否选择购课?', '提示', {
+        confirmButtonText: '购买课程',
+        cancelButtonText: '暂不办理',
+        type: 'success'
+      }).then(() => {
+        this.$emit('CB-buyCourse', data);
+      }).catch(() => {
+        return 0;
+      });
+
+      this.$emit('CB-addStudent');
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

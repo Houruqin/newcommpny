@@ -1327,88 +1327,92 @@ export default {
     },
     //返回数据判断梳理
     resultDispose (resultData) {
-      if(this.tableType == 'week') {
-          let newResult = this.hourData.map(v => {
-              let newData = {id: v.id, time: v.name};
-              this.defaultWeekList.forEach(w => {
-                  newData[w.type] = {
-                      full_date: w.day.newFullDay,
-                      lists: [],
-                      id: w.id,
-                      operate: false,
-                      hours_id: v.id
-                  };
+      if (this.tableType == 'week') {
+        let newResult = this.hourData.map(v => {
+          let newData = {id: v.id, time: v.name};
 
-                  let past_due, full_date = w.day.newFullDay;
-                  if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
-                      past_due = v.id < new Date().getHours() ? true : false;
-                  }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
-                      past_due = true;
-                  }else {
-                      past_due = false;
-                  };
+          this.defaultWeekList.forEach(w => {
+            newData[w.type] = {
+              full_date: w.day.newFullDay,
+              lists: [],
+              id: w.id,
+              operate: false,
+              hours_id: v.id
+            };
 
-                  newData[w.type].past_due = past_due;
+            let past_due, full_date = w.day.newFullDay;
 
-                  resultData.forEach(d => {
-                      let nowDate = new Date(d.begin_time * 1000);
-                      let hour = nowDate.getHours();
-                      let week = nowDate.getDay();
+            if (full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, '/')) {
+              past_due = v.id < new Date().getHours() ? true : false;
+            } else if (new Date(`${full_date} 00:00`).getTime() < new Date().getTime()) {
+              past_due = true;
+            } else {
+              past_due = false;
+            }
 
-                      d.time_quantum = {
-                          begin_time: this.$$tools.formatTime(d.begin_time),
-                          end_time: this.$$tools.formatTime(d.end_time),
-                          week: this.$$tools.format(d.begin_time)
-                      };
+            newData[w.type].past_due = past_due;
 
-                      if(hour == v.id && w.id == week) {
-                          newData[w.type].lists.push(d);
-                      }
-                  });
-              });
-              return newData;
-          });
-          this.weekTableLists = newResult;
-          this.loading = false;
-      } else {
-          let newResult = this.hourData.map(v => {
-              let newData = {id: v.id, course: []};
+            resultData.forEach(d => {
+              let nowDate = new Date(d.begin_time * 1000);
+              let hour = nowDate.getHours();
+              let week = nowDate.getDay();
 
-              let past_due;
+              d.time_quantum = {
+                begin_time: this.$$tools.formatTime(d.begin_time),
+                end_time: this.$$tools.formatTime(d.end_time),
+                week: this.$$tools.format(d.begin_time)
+              };
 
-              let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, "/");
-
-              if(full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, "/")) {
-                  past_due = v.id <= new Date().getHours();
-              }else if(new Date(`${full_date} 00:00`).getTime() < new Date().getTime()){
-                  past_due = true;
-              }else {
-                  past_due = false;
+              if (hour == v.id && w.id == week) {
+                newData[w.type].lists.push(d);
               }
-
-              newData.past_due = past_due;
-
-              resultData.forEach(d => {
-                  let nowDate = new Date(d.begin_time * 1000);
-                  let hour = nowDate.getHours();
-                  let week = nowDate.getDay();
-
-                  d.operate = false;
-                  d.time_quantum = {
-                      begin_time: this.$$tools.formatTime(d.begin_time),
-                      end_time: this.$$tools.formatTime(d.end_time),
-                      week: this.$$tools.format(d.begin_time)
-                  };
-                  if(hour == v.id) {
-                      newData.course.push(d);
-                  }
-              });
-
-              return newData;
+            });
           });
 
-          this.dayTableLists = newResult;
-          this.loading = false;
+          return newData;
+        });
+
+        this.weekTableLists = newResult;
+        this.loading = false;
+      } else {
+        let newResult = this.hourData.map(v => {
+          let newData = {id: v.id, course: []};
+
+          let past_due;
+
+          let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, '/');
+
+          if (full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, '/')) {
+            past_due = v.id <= new Date().getHours();
+          } else if (new Date(`${full_date} 00:00`).getTime() < new Date().getTime()) {
+            past_due = true;
+          } else {
+            past_due = false;
+          }
+
+          newData.past_due = past_due;
+
+          resultData.forEach(d => {
+            let nowDate = new Date(d.begin_time * 1000);
+            let hour = nowDate.getHours();
+            let week = nowDate.getDay();
+
+            d.operate = false;
+            d.time_quantum = {
+              begin_time: this.$$tools.formatTime(d.begin_time),
+              end_time: this.$$tools.formatTime(d.end_time),
+              week: this.$$tools.format(d.begin_time)
+            };
+            if (hour == v.id) {
+              newData.course.push(d);
+            }
+          });
+
+          return newData;
+        });
+
+        this.dayTableLists = newResult;
+        this.loading = false;
       }
     },
     //周数据做处理
