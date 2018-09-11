@@ -156,35 +156,35 @@
 <script>
 export default {
   props: {
-    value: {default: false},
+    value: {default: false}
   },
   watch: {
-    value() {
+    value () {
       this.dialogStatus.timetable = newVal;
     }
   },
-  data() {
+  data () {
     return {
       dialogStatus: {
         timetable: this.dialogStatus.timetable, contract: false
       },
       timetableForm: {
-          no_timetable: '',   //未排课时
-          course_id: '',
-          grade_id: '',
-          class_name: '',
-          start_time: '',
-          lesson_time: '',
-          lesson_num: '',
-          teacher_ids: '',
-          counselor_ids: '',
-          room_id: [],
-          loop: 'no',
-          loop_time: ''
-      },
-    }
+        no_timetable: '', //未排课时
+        course_id: '',
+        grade_id: '',
+        class_name: '',
+        start_time: '',
+        lesson_time: '',
+        lesson_num: '',
+        teacher_ids: '',
+        counselor_ids: '',
+        room_id: [],
+        loop: 'no',
+        loop_time: ''
+      }
+    };
   }
-}
+};
 </script>
 
 <style lang="less" scoped>

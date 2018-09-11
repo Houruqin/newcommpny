@@ -166,6 +166,7 @@ export default {
     //修改
     modifyHandle (data) {
       this.type = 'edit';
+      console.log(data);
       this.editDetail = data;
       this.dialogStatus = true;
     },

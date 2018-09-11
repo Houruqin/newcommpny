@@ -63,41 +63,45 @@
 
 <script>
 
-import MyButton from '../common/MyButton'
+import MyButton from '../common/MyButton';
 
 export default {
-    props: {
-        dialogStatus: '',
-        contractData: {default: {}},
-        routerAble: {default: true}    //如果是购课流程，购完课会跳到签约学员详情页
-    },
-    components: {MyButton},
-    watch: {
-        dialogStatus(newVal, oldVal) {
-            this.contractDialogStatus = newVal;
-        }
-    },
-    data() {
-        return {
-            contractDialogStatus: false
-        }
-    },
-    methods: {
-        dialogClose() {
-            this.$emit('CB-dialogStatus', 'contract');
-            if(this.routerAble) this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
-        },
-        //合约确定按钮，跳转签约学员详情
-        goSignedLists() {
-            this.contractDialogStatus = false;
-            if(this.routerAble) this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
-        },
-        //打印合同
-        printCompact() {
-            this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: 'student/signed'}});
-        }
+  props: {
+    dialogStatus: '',
+    contractData: {default: {}},
+    routerAble: {default: true} //如果是购课流程，购完课会跳到签约学员详情页
+  },
+  components: {MyButton},
+  watch: {
+    dialogStatus (newVal, oldVal) {
+      this.contractDialogStatus = newVal;
     }
-}
+  },
+  data () {
+    return {
+      contractDialogStatus: false
+    };
+  },
+  methods: {
+    dialogClose () {
+      this.$emit('CB-dialogStatus', 'contract');
+      if (this.routerAble) {
+        this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
+      }
+    },
+    //合约确定按钮，跳转签约学员详情
+    goSignedLists () {
+      this.contractDialogStatus = false;
+      if (this.routerAble) {
+        this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.student_id}});
+      }
+    },
+    //打印合同
+    printCompact () {
+      this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: 'student/signed'}});
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>

@@ -11,20 +11,20 @@
 <script>
 
 export default {
-    props: {
-        title: {default: ''},
-        other: {default: false},
-        icon: {default: false}
-    },
-    data() {
-        return {}
-    },
-    methods: {
-        imgClick() {
-            this.$emit('clicked');
-        }
+  props: {
+    title: {default: ''},
+    other: {default: false},
+    icon: {default: false}
+  },
+  data () {
+    return {};
+  },
+  methods: {
+    imgClick () {
+      this.$emit('clicked');
     }
-}
+  }
+};
 </script>
 
 <style lang="less" scoped>

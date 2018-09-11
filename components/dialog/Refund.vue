@@ -66,42 +66,44 @@
 
 <script>
 
-import MyButton from '../common/MyButton'
+import MyButton from '../common/MyButton';
 
 export default {
-    props: {
-        dialogStatus: '',
-        refundData: {default: () => {return {}}},
+  props: {
+    dialogStatus: '',
+    refundData: {default: () => {
+      return {};
+    }}
+  },
+  components: {MyButton},
+  watch: {
+    dialogStatus (newVal, oldVal) {
+      this.refundDialogStatus = newVal;
     },
-    components: {MyButton},
-    watch: {
-        dialogStatus(newVal, oldVal) {
-            this.refundDialogStatus = newVal;
-        },
-        refundData(newVal, oldVal) {
-            console.log(newVal)
-            this.refundDataInfo = newVal;
-        }
-    },
-    data() {
-        return {
-            refundDialogStatus: false,
-            refundDataInfo: null
-        }
-    },
-    methods: {
-        dialogClose() {
-            this.$emit('CB-dialogStatus', 'refund');
-        },
-        //打印合同
-        printCompact() {
-            this.$router.push({name: 'RefundPrint', params: {refundDataInfo: this.refundDataInfo}});
-        }
-    },
-    created() {
-        console.log(this.refundDataInfo)
+    refundData (newVal, oldVal) {
+      console.log(newVal);
+      this.refundDataInfo = newVal;
     }
-}
+  },
+  data () {
+    return {
+      refundDialogStatus: false,
+      refundDataInfo: null
+    };
+  },
+  methods: {
+    dialogClose () {
+      this.$emit('CB-dialogStatus', 'refund');
+    },
+    //打印合同
+    printCompact () {
+      this.$router.push({name: 'RefundPrint', params: {refundDataInfo: this.refundDataInfo}});
+    }
+  },
+  created () {
+    console.log(this.refundDataInfo);
+  }
+};
 </script>
 
 <style lang="less" scoped>

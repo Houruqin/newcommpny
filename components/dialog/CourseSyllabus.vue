@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import MyButton from '../../components/common/MyButton'
+import MyButton from '../../components/common/MyButton';
 
 export default {
   props: {
@@ -31,113 +31,137 @@ export default {
     type: {default: 'course'}
   },
   watch: {
-    value(newVal) {
+    value (newVal) {
       this.currentValue = newVal;
     },
-    syllabus(newVal) {
+    syllabus (newVal) {
       this.courseId = newVal.course_id;
       this.courseSyllabus = newVal.course_syllabus;
 
-      if(this.type == 'grade') {
+      if (this.type == 'grade') {
         this.gradeId = newVal.grade_id;
         this.gradeSyllabus = newVal.grade_syllabus;
         this.isSync = newVal.is_sync;
 
-        if(this.isSync == 1) this.syllabusDeatil = newVal.course_syllabus;
-        else this.syllabusDeatil = newVal.grade_syllabus;
-      }else {
+        if (this.isSync == 1) {
+          this.syllabusDeatil = newVal.course_syllabus;
+        } else {
+          this.syllabusDeatil = newVal.grade_syllabus;
+        }
+      } else {
         this.syllabusDeatil = newVal.course_syllabus;
       }
 
       this.syllabusType = this.syllabusDeatil.length ? 'look' : 'edit';
     }
   },
-  data() {
+  data () {
     return {
       currentValue: this.value,
       syllabusType: 'look',
       isSync: 1,
       courseId: '',
       gradeId: '',
-      courseSyllabus: '',   //课程大纲
-      gradeSyllabus: '',   //班级大纲
-      syllabusDeatil: ''   //大纲输入框 v-model 绑定值
-    }
+      courseSyllabus: '', //课程大纲
+      gradeSyllabus: '', //班级大纲
+      syllabusDeatil: '' //大纲输入框 v-model 绑定值
+    };
   },
   methods: {
-    dialogClose() {
+    dialogClose () {
       this.currentValue = false;
       this.syllabusDeatil = '';
       this.$emit('input', this.currentValue);
     },
-    doneClick() {
+    doneClick () {
       if (this.syllabusDeatil) {
         this.submitSyllabusContent();
       } else {
         this.$message.error('内容不能为空');
       }
     },
-    editClick() {
+    editClick () {
       this.syllabusType = 'edit';
     },
     //删除大纲
-    delClick() {
+    delClick () {
       this.$confirm('确定删除大纲？', '提醒', {
-          confirmButtonText: '是',
-          cancelButtonText: '否',
-          type: 'warning'
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
       }).then(() => {
         //排课
         this.submitDelSyllabus();
-      }).catch(() => {return 0});
+      }).catch(() => {
+        return 0;
+      });
     },
     async submitDelSyllabus () {
       let params = {outlineType: this.type == 'course' ? 1 : 2, courseId: this.courseId};
-      if(this.type == 'grade') params.gradeId = this.gradeId;
+
+      if (this.type == 'grade') {
+        params.gradeId = this.gradeId;
+      }
 
       let result = await this.$$request.post('course/delOutline', params);
+
       console.log(result);
-      if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
       this.currentValue = false;
       this.$emit('input', this.currentValue);
-      if(this.type == 'grade') this.$emit('refreshGradeDetail');
+      if (this.type == 'grade') {
+        this.$emit('refreshGradeDetail');
+      }
     },
     //是否同步 radio change
-    isSyncChange() {
-      if(this.isSync) this.syllabusDeatil = this.courseSyllabus;
-      else this.syllabusDeatil = this.gradeSyllabus;
+    isSyncChange () {
+      if (this.isSync) {
+        this.syllabusDeatil = this.courseSyllabus;
+      } else {
+        this.syllabusDeatil = this.gradeSyllabus;
+      }
     },
     //提交大纲内容
-    async submitSyllabusContent() {
+    async submitSyllabusContent () {
       let content = '';
 
-      if(this.type == 'course') content = this.syllabusDeatil;
-      else content = this.isSync ? this.gradeSyllabus : this.syllabusDeatil;
+      if (this.type == 'course') {
+        content = this.syllabusDeatil;
+      } else {
+        content = this.isSync ? this.gradeSyllabus : this.syllabusDeatil;
+      }
 
       let params = {
         outlineType: this.type == 'course' ? 1 : 2,
         outlineContent: content,
-        courseId: this.courseId,
+        courseId: this.courseId
       };
 
-      if(this.type == 'grade') {
+      if (this.type == 'grade') {
         params.gradeId = this.gradeId;
         params.isSync = this.isSync;
-      };
+      }
 
       let result = await this.$$request.post('course/editOutline', params);
+
       console.log(result);
-      if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
       this.$message.success(`修改${this.type == 'course' ? '课程' : '班级'}大纲成功!`);
       this.currentValue = false;
       this.$emit('input', this.currentValue);
-      if(this.type == 'grade') this.$emit('refreshGradeDetail');
+      if (this.type == 'grade') {
+        this.$emit('refreshGradeDetail');
+      }
     }
   },
   components: {MyButton}
-}
+};
 </script>
 
 <style lang="less" scoped>

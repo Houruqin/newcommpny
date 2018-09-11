@@ -8,19 +8,19 @@
 
 <script>
 export default {
-    props: {
-        tab: {default: {id: 'unsign', name: '意向学员', num: 358, status: 1}},
-        active: {default: false}
-    },
-    data() {
-        return {}
-    },
-    methods: {
-        classifyHandle(tab) {
-            this.$emit('tabclick', {tab: tab});
-        }
+  props: {
+    tab: {default: {id: 'unsign', name: '意向学员', num: 358, status: 1}},
+    active: {default: false}
+  },
+  data () {
+    return {};
+  },
+  methods: {
+    classifyHandle (tab) {
+      this.$emit('tabclick', {tab: tab});
     }
-}
+  }
+};
 </script>
 
 <style lang="less" scoped>

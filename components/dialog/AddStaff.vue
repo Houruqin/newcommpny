@@ -46,163 +46,197 @@
         </el-form>
         <div class="mt-20 d-f f-j-c">
             <MyButton @click.native="doneHandle" :loading="submitLoading.add">确定</MyButton>
-            <MyButton v-if="type == 'edit' && origin === 'list'" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
+            <MyButton v-if="type == 'edit' && origin === 'list' && leaveEnable" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
         </div>
     </el-dialog>
 </template>
 
 
 <script>
-import MyButton from '../../components/common/MyButton'
+import MyButton from '../../components/common/MyButton';
 
 export default {
-    props: {
-        role: {default: false},
-        type: {default: 'add'},
-        origin: {default: 'list'},
-        dialogStatus: '',
-        appendBody: {default: false},
-        editDetail: {default: null}
+  props: {
+    role: {default: false},
+    type: {default: 'add'},
+    origin: {default: 'list'},
+    dialogStatus: '',
+    appendBody: {default: false},
+    editDetail: {default: null}
+  },
+  watch: {
+    dialogStatus (newVal) {
+      this.staffDialogStatus = newVal;
     },
-    watch: {
-        dialogStatus(newVal, oldVal) {
-            this.staffDialogStatus = newVal;
-        },
-        type(newVal, oldVal) {
-            this.staffType = newVal;
-        },
-        editDetail(newVal, oldVal) {
-            console.log(newVal, oldVal)
-            if(!Object.keys(newVal).length) return 0;
+    type (newVal) {
+      this.staffType = newVal;
+    },
+    editDetail (newVal) {
+      if (!Object.keys(newVal).length) {
+        return 0;
+      }
 
-            for(var key in this.staffForm) {
-                if(key == 'entry_date') this.staffForm[key] = newVal.entry_at * 1000;
-                else if(key == 'role_type'){this.staffForm[key] = [];for(let type of newVal.type_all){this.staffForm[key].push(type.type_en)}}
-                else this.staffForm[key] = newVal[key];
-            }
-        },
-        role(newVal, oldVal) {
-            if(newVal) {
-                this.$store.state.roleLists.forEach(v => {if(v.name === newVal) {
-                    this.staffForm.role_type = [newVal];
-                    this.staffForm.role_name = v.display_name;
-                }});
-            }
+      this.leaveEnable = newVal.leaveEnable;
+      for (let key in this.staffForm) {
+        if (key == 'entry_date') {
+          this.staffForm[key] = newVal.entry_at * 1000;
+        } else if (key == 'role_type') {
+          this.staffForm[key] = []; for (let type of newVal.type_all) {
+            this.staffForm[key].push(type.type_en);
+          }
+        } else {
+          this.staffForm[key] = newVal[key];
         }
+      }
     },
-    data() {
-        return {
-            submitLoading: {
-                add: false, remove: false
-            },
-            staffDialogStatus: false,
-            staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
-            roleLists: [],
-            staffType: 'add',
-            rules: {
-                name: [
-                    {required: true, message: '请输入员工姓名'},
-                    {max: 7, message: '长度不能超过7个字符'}
-                ],
-                mobile: [
-                    {required: true, message: '请输入员工电话'},
-                    {validator: this.$$tools.formValidate('phone')}
-                ],
-                role_type: [
-                    {required: true, message: '请选择职务', trigger: 'change'}
-                ],
-                entry_date: [
-                    {required: true, message: '请选择入职时间', trigger: 'change'}
-                ],
-                kind: [
-                    {required: true, message: '请选择职位性质', trigger: 'change'}
-                ]
-            }
+    role (newVal, oldVal) {
+      if (newVal) {
+        this.$store.state.roleLists.forEach(v => {
+          if (v.name === newVal) {
+            this.staffForm.role_type = [newVal];
+            this.staffForm.role_name = v.display_name;
+          }
+        });
+      }
+    }
+  },
+  data () {
+    return {
+      submitLoading: {
+        add: false, remove: false
+      },
+      staffDialogStatus: false,
+      leaveEnable: false,
+      staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
+      roleLists: [],
+      staffType: 'add',
+      rules: {
+        name: [
+          {required: true, message: '请输入员工姓名'},
+          {max: 7, message: '长度不能超过7个字符'}
+        ],
+        mobile: [
+          {required: true, message: '请输入员工电话'},
+          {validator: this.$$tools.formValidate('phone')}
+        ],
+        role_type: [
+          {required: true, message: '请选择职务', trigger: 'change'}
+        ],
+        entry_date: [
+          {required: true, message: '请选择入职时间', trigger: 'change'}
+        ],
+        kind: [
+          {required: true, message: '请选择职位性质', trigger: 'change'}
+        ]
+      }
+    };
+  },
+  methods: {
+    formClose () {
+      this.$refs.userForm.resetFields();
+      Object.keys(this.staffForm).forEach(v => {
+        this.staffForm[v] = v === 'role_type' ? [] : '';
+      });
+      this.$emit('CB-dialogStatus', 'staff');
+    },
+    //角色列表
+    async getRoleLists () {
+      let result = await this.$$request.post('/permission/roleLists');
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+      this.roleLists = result.lists;
+    },
+    //确定
+    doneHandle () {
+      this.$refs.userForm.validate(valid => {
+        if (valid) {
+          this.submitUserInfo();
         }
+      });
     },
-    methods: {
-        formClose() {
-            this.$refs.userForm.resetFields();
-            Object.keys(this.staffForm).forEach(v => {this.staffForm[v] = v === 'role_type' ? [] : ''});
-            this.$emit('CB-dialogStatus', 'staff');
-        },
-        //角色列表
-        async getRoleLists() {
-            let result = await this.$$request.post('/permission/roleLists');
-            console.log(result);
+    //提交新增、修改员工信息
+    async submitUserInfo () {
 
-            if(!result) return 0;
-            this.roleLists = result.lists;
-        },
-        //确定
-        doneHandle() {
-            this.$refs.userForm.validate(valid => {if(valid) this.submitUserInfo()});
-        },
-        //提交新增、修改员工信息
-        async submitUserInfo() {
+      if (this.submitLoading.add) {
+        return 0;
+      }
+      this.submitLoading.add = true;
 
-            if(this.submitLoading.add) return 0;
-            this.submitLoading.add = true;
+      let url = this.staffType == 'add' ? '/user/add' : '/user/edit';
+      let params = {
+        name: this.staffForm.name,
+        mobile: this.staffForm.mobile,
+        type: this.staffForm.role_type,
+        entry_at: this.staffForm.entry_date ? this.staffForm.entry_date / 1000 : '',
+        kind: this.staffForm.kind
+      };
 
-            let url = this.staffType == 'add' ? '/user/add' : '/user/edit';
-            let params = {
-                name: this.staffForm.name,
-                mobile: this.staffForm.mobile,
-                type: this.staffForm.role_type,
-                entry_at: this.staffForm.entry_date ?  this.staffForm.entry_date / 1000 : '',
-                kind: this.staffForm.kind
-            };
+      if (this.staffType == 'edit') {
+        params.id = this.staffForm.id;
+      }
+      console.log(params);
+      let result = await this.$$request.post(url, params);
 
-            if(this.staffType == 'edit') params.id = this.staffForm.id;
-            console.log(params)
-            let result = await this.$$request.post(url, params);
-            this.submitLoading.add = false;
-            console.log(result);
+      this.submitLoading.add = false;
+      console.log(result);
 
-            if(!result) return 0;
+      if (!result) {
+        return 0;
+      }
 
-            this.$emit('CB-AddStaff', result.user_add);
-            this.staffDialogStatus = false;
-            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
-            this.$store.dispatch('getTeacher');
-            this.$message.success(this.staffType == 'edit' ? '修改成功' : '添加成功');
-        },
-        //离职
-        async dimissionClick() {
-            this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.dimissionHandle();
-            }).catch(() => {return 0});
-        },
-        async dimissionHandle() {
-            if(this.submitLoading.remove) return 0;
-            this.submitLoading.remove = true;
-
-            let result = await this.$$request.post('/user/changeStatus', {id: this.staffForm.id});
-            this.submitLoading.remove = false;
-            console.log(result);
-            if(!result) return 0;
-            this.$emit('CB-dimission');
-            this.staffDialogStatus = false;
-            this.$store.dispatch('getAdvisor');   //更新员工顾问信息
-            this.$store.dispatch('getTeacher');
-            this.$message.success('已修改为离职状态');
-        },
-        remove_tag(tag) {
-            console.log(tag)
-            if(tag === 'master') {
-                this.staffForm.role_type.unshift('master')
-                this.$message.closeAll();
-                this.$message.warning('不能删除校长职务！')
-            };
-
-        }
+      this.$emit('CB-AddStaff', result.user_add);
+      this.staffDialogStatus = false;
+      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
+      this.$store.dispatch('getTeacher');
+      this.$message.success(this.staffType == 'edit' ? '修改成功' : '添加成功');
     },
-    components: {MyButton}
-}
+    //离职
+    async dimissionClick () {
+      this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.dimissionHandle();
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async dimissionHandle () {
+      if (this.submitLoading.remove) {
+        return 0;
+      }
+      this.submitLoading.remove = true;
+
+      let result = await this.$$request.post('/user/changeStatus', {id: this.staffForm.id});
+
+      this.submitLoading.remove = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$emit('CB-dimission');
+      this.staffDialogStatus = false;
+      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
+      this.$store.dispatch('getTeacher');
+      this.$message.success('已修改为离职状态');
+    },
+    remove_tag (tag) {
+      console.log(tag);
+      if (tag === 'master') {
+        this.staffForm.role_type.unshift('master');
+        this.$message.closeAll();
+        this.$message.warning('不能删除校长职务！');
+      }
+
+    }
+  },
+  components: {MyButton}
+};
 </script>
 
 <style lang="less" scoped>

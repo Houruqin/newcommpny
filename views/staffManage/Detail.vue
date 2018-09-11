@@ -17,7 +17,8 @@
                 </div>
 
                 <div class="p-a dimission-btn">
-                    <MyButton v-if="$$cache.getMemberInfo().type === 'master' && $$cache.getMemberInfo().id != userId && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton>
+                    <!-- <MyButton v-if="$$cache.getMemberInfo().type === 'master' && $$cache.getMemberInfo().id != userId && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton> -->
+                    <MyButton v-if="userDetail.leaveEnable" @click.native="dimissionClick">离职</MyButton>
                     <MyButton v-if="userDetail.status != 1" @click.native="deleteUserInfo" type="subm">删除</MyButton>
                 </div>
             </div>

@@ -1527,12 +1527,12 @@ export default {
 
         let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
 
-        // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
-        let isToday = new Date(newTime).toDateString() === new Date().toDateString();
+        let isToday = new Date(newTime).toDateString() === new Date().toDateString(); //是否是当天
 
         if (this.isSameWeek(nowTime)) {
-          past_due = newTime >= nowTime ? true : false; //是否过了今天
-        } else {
+          past_due = newTime >= nowTime ? true : false;
+        } //是否过了今天
+        else {
           past_due = true;
         }
 
@@ -1559,7 +1559,7 @@ export default {
     }
   },
   async created () {
-    for (let a = 9; a <= 21; a++) {
+    for (let a = 8; a <= 21; a++) {
       this.hourData.push({id: a, name: `${a}:00`});
     }
     this.getWeekList(null, 'default');

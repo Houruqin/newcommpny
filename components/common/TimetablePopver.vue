@@ -64,55 +64,65 @@
 <script>
 
 export default {
-    props: {
-        pastdue: {default: false},
-        item: {default: {}}
+  props: {
+    pastdue: {default: false},
+    item: {default: {}}
+  },
+  data () {
+    return {};
+  },
+  methods: {
+    detailEdit (item) {
+      this.$refs.myPopver.showPopper = false;
+      this.$emit('CB-detailEdit', item);
     },
-    data() {
-        return {}
+    detailDelete (item) {
+      this.$confirm('确定删除排课吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(item.id);
+      }).catch(() => {
+        return 0;
+      });
     },
-    methods: {
-        detailEdit(item) {
-            this.$refs.myPopver.showPopper = false;
-            this.$emit('CB-detailEdit', item);
-        },
-        detailDelete(item) {
-            this.$confirm('确定删除排课吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.deleteHandle(item.id);
-            }).catch(() => {return 0});
-        },
-        async deleteHandle(id) {
-            let result = await this.$$request.post('/timetable/delete', {id: id});
-            if(!result || !result.status) return 0;
+    async deleteHandle (id) {
+      let result = await this.$$request.post('/timetable/delete', {id: id});
 
-            this.$refs.myPopver.showPopper = false;
-            this.$emit('CB-deleteTable');
-            this.$message.success('删除成功');
-        },
-        //结课
-        endTimeTable(item) {
-            this.$confirm('确定结课吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.endTimeTableHandle(item.id);
-            }).catch(() => {return 0});
-        },
-        async endTimeTableHandle(id) {
-            let result = await this.$$request.post('/timetable/lessonEnd', {timetable_id: id});
-            if(!result) return 0;
+      if (!result || !result.status) {
+        return 0;
+      }
 
-            this.$refs.myPopver.showPopper = false;
-            this.$emit('CB-deleteTable');
-            this.$message.success('已结课');
-        }
+      this.$refs.myPopver.showPopper = false;
+      this.$emit('CB-deleteTable');
+      this.$message.success('删除成功');
+    },
+    //结课
+    endTimeTable (item) {
+      this.$confirm('确定结课吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.endTimeTableHandle(item.id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async endTimeTableHandle (id) {
+      let result = await this.$$request.post('/timetable/lessonEnd', {timetable_id: id});
+
+      if (!result) {
+        return 0;
+      }
+
+      this.$refs.myPopver.showPopper = false;
+      this.$emit('CB-deleteTable');
+      this.$message.success('已结课');
     }
-}
+  }
+};
 </script>
 
 <style lang="less" scoped>

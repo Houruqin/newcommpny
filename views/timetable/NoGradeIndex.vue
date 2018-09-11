@@ -1222,7 +1222,6 @@ export default {
       let old_count = parseInt(old / oneDayTime);
       let now_other = parseInt(new Date().getTime() / oneDayTime);
 
-
       return parseInt((old_count + 4) / 7) == parseInt((now_other + 4) / 7);
     },
     //获取新增排课填充数据
@@ -1487,7 +1486,7 @@ export default {
     });
   },
   async created () {
-    for (let a = 9; a <= 21; a++) {
+    for (let a = 8; a <= 21; a++) {
       this.hourData.push({id: a, name: `${a}:00`});
     }
     this.getWeekList(null, 'default');
