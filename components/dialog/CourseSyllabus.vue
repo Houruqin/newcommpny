@@ -11,10 +11,10 @@
           el-radio(:label="0") 否
       div.d-f.f-j-c.mt-30
         template(v-if="syllabusType == 'look'")
-          MyButton(@click.native="editClick") 编辑
+          MyButton(@click.native="syllabusType = 'edit'") 编辑
           MyButton.ml-20(@click.native="delClick") 删除
         template(v-else)
-          MyButton(@click.native="doneClick" v-if="(type == 'course' && syllabusType == 'edit') || (type == 'grade' && syllabusType == 'edit')") 提交
+          MyButton(@click.native="doneClick") 提交
 </template>
 
 <script>
@@ -24,6 +24,10 @@ export default {
   props: {
     value: {default: false},
     syllabus: {default: {}},
+    /**
+     * 课程大纲或班级大纲
+     * @type {'course' | 'grade'}
+     */
     type: {default: 'course'}
   },
   watch: {
