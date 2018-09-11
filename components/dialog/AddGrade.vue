@@ -122,14 +122,14 @@ export default {
   },
   components: {MyButton, AddStaffDialog},
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       this.gradeDialogStatus = newVal;
     },
-    type (newVal, oldVal) {
+    type (newVal) {
       console.log(newVal);
       this.gradeType = newVal;
     },
-    editDetail (newVal, oldVal) {
+    editDetail (newVal) {
       if (!Object.keys(newVal).length) {
         return 0;
       }
