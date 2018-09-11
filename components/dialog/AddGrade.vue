@@ -41,7 +41,7 @@
                   </el-form-item>
               </div>
 
-              <div class="flex1 ml-30">
+              <div class="flex1">
                   <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
                   <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
                       <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
@@ -369,7 +369,7 @@ export default {
             width: 150px;
         }
         .add-room {
-            right: 20px;
+            right: 30px;
             img {
                 display: block;
             }
