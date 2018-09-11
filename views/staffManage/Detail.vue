@@ -17,8 +17,8 @@
                 </div>
 
                 <div class="p-a dimission-btn">
-                    <MyButton v-if="$$cache.getMemberInfo().type === 'master' && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton>
-                    <MyButton v-else @click.native="deleteUserInfo" type="subm">删除</MyButton>
+                    <MyButton v-if="$$cache.getMemberInfo().type === 'master' && $$cache.getMemberInfo().id != userId && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton>
+                    <MyButton v-if="userDetail.status != 1" @click.native="deleteUserInfo" type="subm">删除</MyButton>
                 </div>
             </div>
         </el-card>
@@ -216,14 +216,13 @@ export default {
         },
         //离职
         async dimissionClick() {
-            console.log(this.$$cache.getMemberInfo())
-            // this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
-            //     confirmButtonText: '确定',
-            //     cancelButtonText: '取消',
-            //     type: 'warning'
-            // }).then(() => {
-            //     this.dimissionHandle();
-            // }).catch(() => {return 0});
+            this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.dimissionHandle();
+            }).catch(() => {return 0});
         },
         async dimissionHandle() {
             let result = await this.$$request.post('/user/changeStatus', {id: this.userId});
