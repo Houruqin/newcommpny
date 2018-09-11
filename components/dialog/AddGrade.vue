@@ -111,7 +111,6 @@
 
 <script>
 import MyButton from '../common/MyButton';
-import Bus from '../../script/bus';
 import AddStaffDialog from './AddStaff';
 
 export default {
