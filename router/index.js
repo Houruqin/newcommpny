@@ -17,6 +17,7 @@ const router = new Router({
 
       { path: '/setting', component: () => import(/* webpackChunkName: 'page-setting-index' */ '@/views/BasicSetting/Index'), meta: {needlogin: true, menu: '/setting'} },
       { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting/wechat'} },
+      { path: '/setting/system', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/System'), meta: {needlogin: true, menu: '/setting/system'} },
 
       { path: '/student/signed', component: () => import(/* webpackChunkName: 'page-student-signed' */ '@/views/student/Signed'), meta: { needlogin: true, menu: '/student/signed' } },
       { path: '/student/nosign', component: () => import(/* webpackChunkName: 'page-student-nosign' */ '@/views/student/NoSign'), meta: { needlogin: true, menu: '/student/nosign' } },
@@ -75,7 +76,7 @@ router.beforeEach((to, from, next) => {
     return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
   }
   store.commit('stateChange', { state: 'loading' });
-  if (to.path == '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) {
+  if (to.path === '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) {
     return router.replace({path: '/'});
   }
   if (to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) {

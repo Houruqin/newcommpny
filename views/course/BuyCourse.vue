@@ -57,11 +57,9 @@
                             <el-input type="number" placeholder="购买课时" v-model.number="courseForm.lesson_num"></el-input><span class="pl-10">课时</span>
                         </el-form-item>
 
-                        <div v-if="$$cache.getMemberInfo().class_pattern !== 2">
-                            <el-form-item label="已扣课时：" prop="lesson_num_already">
-                                <el-input type="number" placeholder="已扣课时" v-model.number="courseForm.lesson_num_already"></el-input><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </div>
+                        <el-form-item label="已扣课时：" prop="lesson_num_already">
+                            <el-input type="number" placeholder="已扣课时" v-model.number="courseForm.lesson_num_already"></el-input><span class="pl-10">课时</span>
+                        </el-form-item>
                     </div>
                     <div class="list-item">
                         <el-form-item label="课时单价：" prop="unit_price">
@@ -73,16 +71,16 @@
                         </el-form-item>
                     </div>
                     <div class="list-item">
-                        <div v-if="$$cache.getMemberInfo().class_pattern === 2">
-                            <el-form-item label="已扣课时：" prop="lesson_num_already">
+                        <!-- <div v-if="$$cache.getMemberInfo().class_pattern === 2">
+                            <el-form-item label="已扣课时：" prop="lesson_num_already" label-width="110px">
                                 <el-input type="number" placeholder="已扣课时" v-model.number="courseForm.lesson_num_already"></el-input><span class="pl-10">课时</span>
                             </el-form-item>
-                        </div>
-                        <div v-else>
+                        </div> -->
+                        <!-- <div v-else>
                             <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
                                 <el-input type="number" placeholder="允许请假数" v-model.number="courseForm.leave_num"></el-input><span class="pl-10">次</span>
                             </el-form-item>
-                        </div>
+                        </div> -->
                         <el-form-item label="课程优惠：" prop="preferential_class_price" label-width="110px">
                             <el-input type="number" placeholder="优惠金额" v-model.number="courseForm.preferential_class_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
@@ -104,7 +102,7 @@
                                         </el-form-item>
 
                                         <el-form-item prop="num" label-width="0" class="ml-10 textbook-num">
-                                            <el-input type="number" placeholder="数量" v-model.number="textbookForm.num" @input="textbookNumChange(index)"></el-input>
+                                            <el-input type="number" placeholder="数量" v-model.number="textbookForm.num" @input="textbookNumChange"></el-input>
                                         </el-form-item>
 
                                         <el-form-item class="fc-m ml-10">单价：{{textbookForm.unit_price}}元</el-form-item>
@@ -247,11 +245,11 @@ export default {
           {validator: this.$$tools.formOtherValidate('total', 200)},
           {validator: this.courseValidator('lesson_num_already')}
         ],
-        leave_num: [
-          {validator: this.$$tools.formOtherValidate('int')},
-          {validator: this.$$tools.formOtherValidate('total', 200)},
-          {validator: this.courseValidator('leave_num')}
-        ],
+        // leave_num: [
+        //   {validator: this.$$tools.formOtherValidate('int')},
+        //   {validator: this.$$tools.formOtherValidate('total', 200)},
+        //   {validator: this.courseValidator('leave_num')}
+        // ],
         unit_price: [
           {required: true, message: '请输入课时单价'},
           {validator: this.$$tools.formOtherValidate('decimals', 2)},
@@ -303,7 +301,7 @@ export default {
     //优惠 输入验证   课程优惠 <= 课程费用    教材优惠 <= 教材费用
     courseValidator (type) {
       return (rule, value, callback, event, e, d) => {
-        if (type == 'course') {
+        if (type === 'course') {
           let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num);
 
           if (value > coursePrice) {
@@ -313,7 +311,7 @@ export default {
           return callback();
         }
 
-        if (type == 'text_book') {
+        if (type === 'text_book') {
           if (value > this.courseForm.textbook_price) {
             return callback(new Error('教材优惠不能大于教材费用'));
           }
@@ -321,15 +319,15 @@ export default {
           return callback();
         }
 
-        if (type == 'leave_num') {
-          if (value > this.courseForm.lesson_num) {
-            return callback(new Error('请假次数不能超过购买课时数'));
-          }
+        // if (type == 'leave_num') {
+        //   if (value > this.courseForm.lesson_num) {
+        //     return callback(new Error('请假次数不能超过购买课时数'));
+        //   }
 
-          return callback();
-        }
+        //   return callback();
+        // }
 
-        if (type == 'lesson_num_already') {
+        if (type === 'lesson_num_already') {
           if (value > this.courseForm.lesson_num) {
             return callback(new Error('已扣课时数不能超过购买课时数'));
           }
@@ -340,7 +338,7 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'contract') {
+      if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
 
@@ -369,7 +367,7 @@ export default {
       this.$refs.courseForm.clearValidate();
       this.getGradeLists(val, true);
     },
-    textbookNumChange (num) {
+    textbookNumChange () {
       let textbookPrice = 0;
 
       this.textbookFormLists.forEach(v => {
@@ -457,10 +455,10 @@ export default {
 
       for (let key in this.courseForm) {
         if (typeof this.courseForm[key] === 'undefined') {
-          params[key] = key == 'leave_num' ? null : '';
-        } else if (key == 'pay_at') {
+          params[key] = '';
+        } else if (key === 'pay_at') {
           params[key] = this.courseForm[key] / 1000;
-        } else if (key != 'advisor_name' && key != 'grade_id' && key != 'teacher_id') {
+        } else if (key !== 'advisor_name' && key !== 'grade_id' && key !== 'teacher_id') {
           params[key] = this.courseForm[key];
         }
       }
@@ -497,7 +495,7 @@ export default {
       return true;
     },
     textbookNumValidate () {
-      return (rule, value, callback, event, e, d) => {
+      return (rule, value, callback) => {
         if (isNaN(value)) {
           return callback(new Error('请输入数字'));
         } else if (value < 0) {

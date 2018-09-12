@@ -68,7 +68,7 @@
                             <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                             <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                    :disabled="operation.type == 'borrow' && scope.row.use_type == 2"
+                                    v-if="operation.type !== 'borrow' || (operation.type == 'borrow' && scope.row.use_type != 2)"
                                     :command="{type: operation.type, data: scope.row}">{{operation.text}}
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -192,7 +192,7 @@
                     <div class="flex1">
                         <el-form-item label="物品名称：">{{removeStorageForm.name}}</el-form-item>
                         <el-form-item label="领取人：" prop="receive_people">
-                            <el-select v-model="removeStorageForm.receive_people" placeholder="请选择" filterable @change="receivePeopleChange">
+                            <el-select v-model="removeStorageForm.receive_people" placeholder="请选择" filterable remote @change="receivePeopleChange">
                                 <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id"
                                   v-if="removeStorageForm.use_type == 2 || (removeStorageForm.use_type == 1 && item.user_type == 1)">
                                     <span style="float: left">{{ item.name }}</span>
@@ -232,7 +232,7 @@
                     <div>
                         <el-form-item label="物品名称：">{{borrowForm.name}}</el-form-item>
                         <el-form-item label="借用人：" prop="borrow_people">
-                            <el-select v-model="borrowForm.borrow_people" placeholder="请选择" filterable @change="borrowPeopleChange">
+                            <el-select v-model="borrowForm.borrow_people" placeholder="请选择" filterable remote @change="borrowPeopleChange">
                                 <el-option v-for="(item, index) in $store.state.allUser" :key="index" :label="item.name" :value="item.together_id">
                                     <span style="float: left">{{ item.name }}</span>
                                     <span style="float: right; color: #8492a6; font-size: 12px" v-if="item.user_type == 2">学员</span>
