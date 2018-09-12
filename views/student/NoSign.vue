@@ -32,12 +32,14 @@
                     </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
+                    <li><MyButton @click.native="checkboxEdit" :radius="false">{{ !isShowCheckbox ? '编辑' : '删除' }}</MyButton></li>
                 </ul>
 
                 <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
-            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe>
+            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="姓名" align="center">
                     <template slot-scope="scope">
@@ -128,6 +130,8 @@ export default {
     return {
       state: 'loading',
       activeTab: 'unsign',
+      isShowCheckbox: false,
+      selectedIds: [],
       loading: true,
       tabLists: [],
 
@@ -195,6 +199,32 @@ export default {
     };
   },
   methods: {
+    async checkboxEdit () {
+      // 编辑
+      if (!this.isShowCheckbox) {
+        this.isShowCheckbox = true;
+
+        return void 0;
+      }
+
+      // 删除
+      if (this.selectedIds && this.selectedIds.length) {
+        let result = await this.$$request.post('/student/delete', {id: this.selectedIds});
+
+        if (!result) {
+          return 0;
+        }
+
+        this.getAllLists();
+        this.$message.success('已删除');
+        this.isShowCheckbox = false;
+      } else {
+        this.$message.error('请至少选中一条数据');
+      }
+    },
+    handleSelectionChange (x) {
+      this.selectedIds = x.map(v => v.id);
+    },
     tabClick (tab) {
       if (tab.type == 'following' && this.followUp.length == 5) {
         this.followUp.splice(0, 1);
@@ -207,7 +237,9 @@ export default {
       if (tab.type != this.activeTab) {
         this.loading = true;
         for (let key in this.searchFilter) {
-          this.searchFilter[key] = key == 'type' ? tab.type : '';
+          if (this.searchFilter.hasOwnProperty(key)) {
+            this.searchFilter[key] = key === 'type' ? tab.type : '';
+          }
         }
         this.activeTab = tab.type;
         this.getStudentLists();
