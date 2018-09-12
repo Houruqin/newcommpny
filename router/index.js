@@ -81,6 +81,10 @@ router.beforeEach((to, from, next) => {
   if (to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) {
     return router.replace({path: '/login'});
   }
+
+  // 百度统计
+  _hmt.push(['_trackPageview', to.path]);
+
   window.scrollTo(0, 0); //跳转之后，页面到最顶部
   next();
 });
