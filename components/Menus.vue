@@ -78,7 +78,8 @@ export default {
         {id: '/setting', text: '基础设置', item: true, icon: 'icon-shezhi1',
           itemList: [
             {id: '/setting', text: '教室渠道'},
-            {id: '/setting/wechat', text: '微信设置'}
+            {id: '/setting/wechat', text: '微信设置'},
+            {id: '/setting/system', text: '系统设置'}
           ]
         },
         {id: '/statistics', text: '校区统计', item: false, icon: 'icon-xuexiao'}

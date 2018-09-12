@@ -582,6 +582,8 @@
       <el-row v-html="notice_info.content"></el-row>
     </el-dialog>
 
+    <!-- 请假二次确认 -->
+    <LeaveConfirm v-model="leaveDialog"></LeaveConfirm>
   </div>
 
 </template>
@@ -594,6 +596,7 @@ import echarts from 'echarts';
 import AddStudentDialog from '../../components/dialog/AddStudent';
 import BuyCourseDialog from '../../components/dialog/BuyCourse';
 import ContractDialog from '../../components/dialog/Contract';
+import LeaveConfirm from '../../components/dialog/LeaveConfirm';
 
 export default {
   data () {
@@ -608,6 +611,8 @@ export default {
       dialogStatus: {student: false, course: false, contract: false},
       buyCourseData: {},
       contractData: {}, //合约数据
+
+      leaveDialog: false,
 
       rules: {
         parent_name: [
@@ -1354,7 +1359,7 @@ export default {
           student_id: s_id
         };
 
-        this.$$request.post('/signRecord/add', params).then(res => {
+        this.$$request.post('/signRecord/add', params).then(() => {
           this.$message.success('已签到');
           this.get_all_student_list(t_id);
         });
@@ -1363,6 +1368,8 @@ export default {
     },
     //学员请假
     leave_student (s_id, t_id, status, item) {
+      this.leaveDialog = true;
+
       if (status === 5 && this.all_student_info.leave) {
         item.status2 = 6;
         const params = {
@@ -1371,7 +1378,7 @@ export default {
           student_id: s_id
         };
 
-        this.$$request.post('/leaveTicket/add', params).then(res => {
+        this.$$request.post('/leaveTicket/add', params).then(() => {
           this.$message.success('已请假');
           this.get_all_student_list(t_id);
         });
@@ -1384,7 +1391,7 @@ export default {
         follow_up_id: id
       };
 
-      this.$$request.post('/followUp/inviteSure', params).then(res => {
+      this.$$request.post('/followUp/inviteSure', params).then(() => {
         this.get_follow_up_data();
         this.$message.success('操作成功');
       });
@@ -1656,7 +1663,7 @@ export default {
       this.init_bar_charts(this.charts_data.bar_data);
     });
   },
-  components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog }
+  components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog, LeaveConfirm }
 };
 </script>
 
