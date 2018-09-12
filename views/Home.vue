@@ -367,7 +367,7 @@ export default {
       checkListenStudent: [], //选中的试听学员
       listenTimetableId: '', //选中的试听课程
 
-      role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon},
+      role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon, academic: registerIcon},
       memberInfo: {},
 
       modalObj: null, //遮罩层modal
