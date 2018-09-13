@@ -60,7 +60,9 @@
                                     </div>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="lesson_num_remain" label="剩余课时" align="center"></el-table-column>
+                            <el-table-column label="剩余课时" align="center">
+                                <template slot-scope="scope">{{course.type === 1 ? scope.row.lesson_num_remain : '--'}}</template>
+                            </el-table-column>
                             <el-table-column label="上课状态" align="center">
                                 <template slot-scope="scope">
                                     <div class="fc-f fs-12 course-status">
@@ -161,7 +163,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="重复规则：" prop="loop" v-if="courseType !== 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="courseType !== 1" key="loop2">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
@@ -186,14 +188,14 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="重复规则：" prop="loop" v-if="courseType === 1">
+                            <el-form-item label="重复规则：" prop="loop" v-if="courseType === 1" key="loop1">
                                 <el-select placeholder="请选择" v-model="timetableForm.loop">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item label="上课学员：" prop="counselor_ids" class="addtimetable-student" v-if="courseType !== 1">
+                            <el-form-item label="上课学员：" prop="counselor_ids" class="addtimetable-student" v-if="courseType !== 1" key="counselor_ids">
                                 <div class="d-f">
                                     <div class="d-f">
                                         <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
@@ -204,7 +206,7 @@
                                 </div>
                             </el-form-item>
 
-                            <el-form-item label="排课次数：" prop="loop_time" v-if="courseType !== 1">
+                            <el-form-item label="排课次数：" prop="loop_time" v-if="courseType !== 1" key="loop_time">
                                 <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
                             </el-form-item>
                         </el-col>

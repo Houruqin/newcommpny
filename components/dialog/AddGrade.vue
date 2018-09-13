@@ -9,7 +9,7 @@
                       <el-input v-model.trim="classForm.name"></el-input>
                   </el-form-item>
                   <el-form-item label="任课老师：" prop="teacher_ids" class="p-r">
-                      <el-select v-model="classForm.teacher_ids" placeholder="必选">
+                      <el-select v-model="classForm.teacher_ids" placeholder="必选" :disabled="disabled.teacher" @change="$refs.gradeForm.validateField('counselor_ids')">
                           <el-option
                               v-for="(item, index) in classSelectInfo.teacher"
                               :key="index"
@@ -46,8 +46,13 @@
                   <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
                       <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
                   </el-form-item>
+
+                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
+                      <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                  </el-form-item>
+
                   <el-form-item label="辅助老师：" prop="counselor_ids">
-                      <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable>
+                      <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable :disabled="disabled.counselor" @change="$refs.gradeForm.validateField('teacher_ids')">
                           <el-option
                               v-for="(item, index) in classSelectInfo.teacher"
                               :key="index"
@@ -55,10 +60,6 @@
                               :value="item.id">
                           </el-option>
                       </el-select>
-                  </el-form-item>
-
-                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
-                      <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                   </el-form-item>
 
                   <el-form-item label="人数上限：" prop="limit_num" v-if="courseType === 1">
@@ -141,16 +142,16 @@ export default {
 
       console.log(this.gradeType);
 
-      if (this.gradeType == 'edit') {
+      if (this.gradeType === 'edit') {
         for (let key in this.classForm) {
-          if (key == 'teacher_ids') {
+          if (key === 'teacher_ids') {
             this.classForm[key] = newVal['teacher_lists'].length ? newVal['teacher_lists'][0].id : '';
-          } else if (key == 'counselor_ids') {
+          } else if (key === 'counselor_ids') {
             this.classForm[key] = newVal['counselor_lists'].length ? newVal['counselor_lists'][0].id : '';
-          } else if (key == 'start_time') {
+          } else if (key === 'start_time') {
             //若开课时间大于五年 则显示当前日期
             this.classForm[key] = newVal[key] * 1000 - new Date().getTime() > 5 * 360 * 24 * 60 * 60 * 1000 ? new Date().getTime() : newVal[key] * 1000;
-          } else if (key == 'limit_num') {
+          } else if (key === 'limit_num') {
             this.classForm[key] = `${newVal[key]}`;
           } else {
             this.classForm[key] = newVal[key];
@@ -168,6 +169,11 @@ export default {
       gradeType: 'add',
       userType: 'add',
       userRole: '',
+
+      disabled: {
+        teacher: false,
+        counselor: false
+      },
 
       courseType: 1,
       courseId: '',
@@ -204,9 +210,12 @@ export default {
           {validator: this.lessonNumValidator()}
         ],
         teacher_ids: [
-          {required: true, message: '请选择任课老师', trigger: 'change'}
+          {required: true, message: '请选择任课老师', trigger: 'change'},
+          {validator: this.teacherValidator('teacher')}
         ],
-        counselor_ids: [],
+        counselor_ids: [
+          {validator: this.teacherValidator('counselor')}
+        ],
         start_time: [
           {required: true, message: '请选择开课日期', trigger: 'change'}
         ],
@@ -233,13 +242,15 @@ export default {
   methods: {
     dialogClose (type) {
       this.$refs[type].resetFields();
-      if (type == 'gradeForm') {
+      if (type === 'gradeForm') {
         this.studentLists = [];
         this.allStudentLists = [];
         this.studentCheckAll = false;
 
         for (let key in this.classForm) {
-          this.classForm[key] = '';
+          if (this.classForm.hasOwnProperty(key)) {
+            this.classForm[key] = '';
+          }
         }
         this.$emit('CB-dialogStatus', 'grade');
       }
@@ -252,10 +263,23 @@ export default {
       this.getGradeFill();
       this.classForm.teacher_ids = data.id;
     },
+    //班级课时验证
     lessonNumValidator () {
-      return (rule, value, callback, event, e, d) => {
+      return (rule, value, callback) => {
         if (value == 0) {
           return callback(new Error('班级课时不能为0'));
+        }
+
+        return callback();
+      };
+    },
+    //任课老师、辅助老师不能重复验证
+    teacherValidator (type) {
+      return (rule, value, callback) => {
+        if(type === 'teacher' && value == this.classForm.counselor_ids) {
+          return callback(new Error('任课老师不能和辅助老师相同'));
+        } else if(type === 'counselor' && value == this.classForm.teacher_ids) {
+          return callback(new Error('辅助老师不能和任课老师相同'));
         }
 
         return callback();
@@ -284,10 +308,10 @@ export default {
     doneHandle (type) {
       this.$refs[type].validate(valid => {
         if (valid) {
-          if (type == 'gradeForm') {
+          if (type === 'gradeForm') {
             return this.submitGrade();
           }
-          if (type == 'roomForm') {
+          if (type === 'roomForm') {
             return this.submitRoom();
           }
         }
@@ -365,13 +389,13 @@ export default {
       }
       this.submitLoading.grade = true;
 
-      let url = this.gradeType == 'edit' ? '/grade/edit' : '/grade/add';
+      let url = this.gradeType === 'edit' ? '/grade/edit' : '/grade/add';
       let params = {};
 
       for (let key in this.classForm) {
-        if (key == 'teacher_ids' || key == 'counselor_ids') {
+        if (key === 'teacher_ids' || key === 'counselor_ids') {
           params[key] = `,${this.classForm[key]},`;
-        } else if (key == 'start_time') {
+        } else if (key === 'start_time') {
           params[key] = this.classForm[key] / 1000;
         } else {
           params[key] = this.classForm[key];
@@ -390,7 +414,7 @@ export default {
       if (!result) {
         return 0;
       }
-      this.$message.success(this.gradeType == 'edit' ? '修改成功' : '添加成功');
+      this.$message.success(this.gradeType === 'edit' ? '修改成功' : '添加成功');
 
       this.$emit('CB-addGrade', params.course_id);
       this.$store.dispatch('getCourse');
@@ -406,7 +430,7 @@ export default {
             width: 150px;
         }
         .add-room {
-            right: 30px;
+            right: 40px;
             img {
                 display: block;
             }

@@ -462,14 +462,6 @@
         @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
     </AddStudentDialog>
 
-    <!-- 购买课程弹窗 -->
-    <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" @CB-dialogStatus="CB_dialogStatus" :buyCourseData="buyCourseData"
-        @CB-contract="CB_contract">
-    </BuyCourseDialog> -->
-
-    <!-- 购课合约弹窗 -->
-    <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
-
     <!-- 拒绝请假弹窗 -->
     <el-dialog :visible.sync="leave_info.show_refuse_dialog" :show-close="false" width="400px">
       <el-input type="textarea" :rows="2" placeholder="请输入拒绝理由" resize="none" :autosize="{ minRows: 4, maxRows: 6}" :maxlength="20" v-model="leave_info.remark">
@@ -583,7 +575,7 @@
     </el-dialog>
 
     <!-- 请假二次确认 -->
-    <LeaveConfirm v-model="leaveDialog"></LeaveConfirm>
+    <!-- <LeaveConfirm v-model="leaveDialog" @CB-confirm="CB_confirm"></LeaveConfirm> -->
   </div>
 
 </template>
@@ -594,9 +586,7 @@ import MyButton from '../../components/common/MyButton';
 import echarts from 'echarts';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
-import BuyCourseDialog from '../../components/dialog/BuyCourse';
-import ContractDialog from '../../components/dialog/Contract';
-import LeaveConfirm from '../../components/dialog/LeaveConfirm';
+// import LeaveConfirm from '../../components/dialog/LeaveConfirm';
 
 export default {
   data () {
@@ -608,11 +598,10 @@ export default {
 
       user_info: '',
 
-      dialogStatus: {student: false, course: false, contract: false},
+      dialogStatus: {student: false},
       buyCourseData: {},
-      contractData: {}, //合约数据
 
-      leaveDialog: false,
+      // leaveDialog: false,  //请假弹窗
 
       rules: {
         parent_name: [
@@ -763,10 +752,11 @@ export default {
   methods: {
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'student') {
-        return this.dialogStatus.student = false;
+      if (type === 'student') {
+        this.dialogStatus.student = false;
+
+        return 0;
       }
-      // if(type == 'course') return this.dialogStatus.course = false;
     },
     //登记成功，刷新列表
     CB_addStudent () {
@@ -775,9 +765,7 @@ export default {
     //登记成功，购课回调
     CB_buyCourse (data) {
       console.log(data);
-      // this.buyCourseData = data;
       // this.dialogStatus.student = false;
-      // this.dialogStatus.course = true;
 
       let params = {
         student_id: data.id,
@@ -788,11 +776,12 @@ export default {
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
-    //购课成功，合约回调
-    // CB_contract(data) {
-    //     this.contractData = data;
-    //     this.dialogStatus.course = false;
-    //     this.dialogStatus.contract = true;
+    //请假确认处理
+    // CB_confirm () {
+    //   this.$$request.post('/leaveTicket/add', this.leaveParams).then(() => {
+    //     this.get_all_student_list(this.leaveParams.timetable_id);
+    //     this.$message.success('已请假');
+    //   });
     // },
     //切换tab标签
     change_tab () {
@@ -961,6 +950,35 @@ export default {
 
       return true;
     },
+
+    //请假处理以后，弹窗提醒扣不扣课时
+    showLeaveMessage () {
+      let lessonStatus = this.$store.state.systemSetting.LeaveTicketDeductLessonNum.num;
+
+      if (lessonStatus == 3) {
+        this.$confirm(`<div class="d-f"><span>该学员已请假次数：次</span><span class="ml-60">扣课时数：</span></div><div class="fs-16 mt-10">此次请假是否需要扣除课时？</div>`, '请假确认', {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: '是',
+          cancelButtonText: '否'
+        }, () => {
+        }, () => { return 0; });
+      } else {
+        let subtitle;
+
+        if (lessonStatus == 1) {
+          subtitle = `<div>该学员已请假次数：次</div><div class="mt-10">此次请假将不会扣除课时！</div>`;
+        } else {
+          subtitle = `<div class="d-f"><span>该学员已请假次数：次</span><span class="ml-60">扣课时数：</span></div><div class="mt-10">此次请假将会扣除课时！</div>`;
+        }
+
+        this.$alert(subtitle, '请假提醒', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+          center: true
+        });
+      }
+    },
+
     //处理请假
     leave_handle (id, status) {
       let params = {
@@ -978,7 +996,7 @@ export default {
         params.remark = this.leave_info.remark;
 
       }
-      this.$$request.post('/student/leaveTicketCheck', params).then(res => {
+      this.$$request.post('/student/leaveTicketCheck', params).then(() => {
         this.get_leave_data();
         this.$message.success('已处理');
       });
@@ -1078,18 +1096,6 @@ export default {
     //续约
     renew (data) {
       console.log(data);
-
-
-      //   this.buyCourseData = {
-      //     course_id: student.course_id,
-      //     id: student.student_id,
-      //     advisor_id: student.advisor_id === null ? 0 : student.advisor_id,
-      //     advisor: {name: student.advisor_name},
-      //     parent_id: student.parent_id,
-      //     buy_type: 2
-      //   };
-      //   this.dialogStatus.course = true;
-
 
       let params = {
         student_id: data.student_id,
@@ -1367,9 +1373,8 @@ export default {
 
     },
     //学员请假
-    leave_student (s_id, t_id, status, item) {
-      this.leaveDialog = true;
-
+    async leave_student (s_id, t_id, status, item) {
+      this.showLeaveMessage();
       if (status === 5 && this.all_student_info.leave) {
         item.status2 = 6;
         const params = {
@@ -1378,10 +1383,16 @@ export default {
           student_id: s_id
         };
 
-        this.$$request.post('/leaveTicket/add', params).then(() => {
-          this.$message.success('已请假');
-          this.get_all_student_list(t_id);
-        });
+        let result = await this.$$request.post('/leaveTicket/add', params);
+
+        if (!result) {
+          return 0;
+        }
+
+        this.$message.success('已请假');
+        this.get_all_student_list(t_id);
+
+        this.showLeaveMessage();
       }
     },
     //================今日跟进管理模块================
@@ -1644,6 +1655,8 @@ export default {
     }
   },
   async created () {
+    this.$store.dispatch('getSynstemSetLists');
+
     this.user_info = this.$$cache.getMemberInfo();
     this.activeName = this.user_info.class_pattern !== 2 ? 'leave' : 'renewal';
     let now = new Date().setDate(1);
@@ -1663,7 +1676,7 @@ export default {
       this.init_bar_charts(this.charts_data.bar_data);
     });
   },
-  components: { TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog, LeaveConfirm }
+  components: { TableHeader, MyButton, AddStudentDialog }
 };
 </script>
 

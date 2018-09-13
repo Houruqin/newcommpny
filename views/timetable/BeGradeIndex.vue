@@ -282,7 +282,7 @@
                                     <el-cascader :options="timetableFull.course" v-model="timetableForm.grade_info" @change="formGradeChange" expand-trigger="hover"></el-cascader>
                                 </el-form-item>
 
-                                <el-form-item label="开课日期：" prop="start_time" v-if="addTableType == 'multiple'">
+                                <el-form-item label="开课日期：" prop="start_time" v-if="addTableType == 'multiple'" key="start_time">
                                     <el-date-picker v-model="timetableForm.start_time" @change="startTimeChange" type="date" :editable="false" :picker-options="pickerBeginDateAfter" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                                 </el-form-item>
 
@@ -298,7 +298,7 @@
                                     </el-select>
                                 </el-form-item>
 
-                                <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType !== 1">
+                                <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType !== 1" key="loop2">
                                     <el-select placeholder="请选择" v-model="timetableForm.loop">
                                         <el-option label="无" value="no"></el-option>
                                         <el-option label="按周循环" value="yes"></el-option>
@@ -334,7 +334,7 @@
                                         <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                     </el-form-item>
                                 </div>
-                                <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1">
+                                <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1" key="loop1">
                                     <el-select placeholder="请选择" v-model="timetableForm.loop">
                                         <el-option label="无" value="no"></el-option>
                                         <el-option label="按周循环" value="yes"></el-option>
@@ -351,7 +351,7 @@
                                         <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}</span>
                                     </div>
                                 </el-form-item>
-                                <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1">
+                                <el-form-item label="排课次数：" prop="loop_time" v-if="addTableType == 'multiple' && courseType !== 1" key="loop_time">
                                     <el-input type="number" v-model.number="timetableForm.loop_time" :disabled="timetableForm.loop == 'no'"></el-input><span class="pl-10">次</span>
                                 </el-form-item>
                             </div>
@@ -706,8 +706,6 @@ export default {
     },
     dialogClose () {
       this.formAddDate.splice(0, this.formAddDate.length);
-      // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
-
       this.$refs.addTimeTable.resetFields();
 
       Object.keys(this.timetableForm).forEach(v => {

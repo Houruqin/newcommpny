@@ -23,7 +23,8 @@ const state = {
   listen_status: [], //试听状态
   familyRelations: [], //家长关系
   allUser: [], //所有用户列表
-  roleLists: [] //所有用户角色列表
+  roleLists: [], //所有用户角色列表
+  systemSetting: {}
 };
 
 const mutations = {
@@ -42,6 +43,15 @@ const mutations = {
         state.errorType = pageStateObj.errorType;
         state.pageErrorText = pageStateObj.errorMsg;
     }
+  },
+  async getSynstemSetLists (state) {
+    let result = await Request.get('/school/systemSetLists');
+
+    if (!result) {
+      return 0;
+    }
+
+    state.systemSetting = result.datas;
   },
   //引导页改变
   guideChange (state, type) {
@@ -157,6 +167,10 @@ const mutations = {
 const actions = {
   guideChange (context, type) {
     context.commit('guideChange', type);
+  },
+
+  getSynstemSetLists (context) {
+    context.commit('getSynstemSetLists');
   },
 
   getAllUser (context) {

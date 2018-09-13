@@ -32,9 +32,9 @@
                     </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
-                    <li><MyButton @click.native="checkboxEdit" :radius="false">{{ !isShowCheckbox ? '编辑' : '删除' }}</MyButton></li>
                 </ul>
 
+                <MyButton @click.native="checkboxEdit" type="border" fontColor="fc-m" v-if="isShowCheckbox">批量删除</MyButton>
                 <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
@@ -130,8 +130,8 @@ export default {
     return {
       state: 'loading',
       activeTab: 'unsign',
-      isShowCheckbox: false,
-      selectedIds: [],
+      isShowCheckbox: true,
+      selectedIds: [],    //批量删除学员列表
       loading: true,
       tabLists: [],
 
@@ -200,27 +200,30 @@ export default {
   },
   methods: {
     async checkboxEdit () {
-      // 编辑
-      if (!this.isShowCheckbox) {
-        this.isShowCheckbox = true;
-
-        return void 0;
-      }
-
       // 删除
       if (this.selectedIds && this.selectedIds.length) {
-        let result = await this.$$request.post('/student/delete', {id: this.selectedIds});
-
-        if (!result) {
+        this.$confirm('学员删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.multipleDelete();
+        }).catch(() => {
           return 0;
-        }
-
-        this.getAllLists();
-        this.$message.success('已删除');
-        this.isShowCheckbox = false;
+        });
       } else {
         this.$message.error('请至少选中一条数据');
       }
+    },
+    async multipleDelete () {
+      let result = await this.$$request.post('/student/delete', {id: this.selectedIds});
+
+      if (!result) {
+        return 0;
+      }
+
+      this.getAllLists();
+      this.$message.success('已删除');
     },
     handleSelectionChange (x) {
       this.selectedIds = x.map(v => v.id);
@@ -363,7 +366,6 @@ export default {
     async getAllLists (isCurrPage) {
       let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
 
-
       return a && b;
     },
     //获取tab列表
@@ -420,7 +422,9 @@ export default {
   },
   async created () {
     let datas = await this.getAllLists();
+    let member = this.$$cache.getMemberInfo();
 
+    this.isShowCheckbox = member.type === 'institution' || member.type === 'master';
     if (datas) {
       this.state = 'loaded';
     }
