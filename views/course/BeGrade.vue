@@ -13,7 +13,7 @@
                             <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                         </span>
                         <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
-                        <span class="syllabus fc-m ml-20" @click="syllabusClick(course.id)">课程大纲</span>
+                        <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                     </div>
                     <div class="d-f f-a-c">
                         <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
@@ -164,7 +164,7 @@
                             </el-form-item>
 
                             <el-form-item label="重复规则：" prop="loop" v-if="courseType !== 1" key="loop2">
-                                <el-select placeholder="请选择" v-model="timetableForm.loop">
+                                <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
@@ -189,7 +189,7 @@
                             </el-form-item>
 
                             <el-form-item label="重复规则：" prop="loop" v-if="courseType === 1" key="loop1">
-                                <el-select placeholder="请选择" v-model="timetableForm.loop">
+                                <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
                                     <el-option label="无" value="no"></el-option>
                                     <el-option label="按周循环" value="yes"></el-option>
                                 </el-select>
@@ -713,6 +713,7 @@ export default {
       }
       this.getGradeFill(option.grade_info.course_id, option.grade_info.id);
 
+      this.timetableForm.loop_time = 1;
       this.timetableForm.class_name = `${option.course_info.name}/${option.grade_info.name}`;
       this.timetableForm.lesson_time = option.course_info.lesson_time;
       this.timetableForm.teacher_ids = option.grade_info.teacher_lists.length ? option.grade_info.teacher_lists[0].id : ''; //任课老师
@@ -1087,6 +1088,7 @@ export default {
   },
   async created () {
     this.getWeek();
+    this.$store.dispatch('getSynstemSetLists');
     let datas = await this.getCourseLists();
 
     if (datas) {

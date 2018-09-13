@@ -6,8 +6,8 @@
       <el-tabs v-model="activeTab" @tab-click="tabClick">
           <el-tab-pane v-for="(item, index) in tabHeader" :key="index" :label="item.name" :name="item.id"></el-tab-pane>
       </el-tabs>
-      <div class="fifter-toolbar mt-10 mb-10">
-        <ul class="d-f f-a-c">
+      <div class="fifter-toolbar mt-10 mb-10 d-f">
+        <ul class="d-f f-a-c flex1">
           <li>
               <el-date-picker size="small" :editable="false" :clearable="false"
                   @change="dateChange" v-model="searchFilter.begin_time"
@@ -30,6 +30,8 @@
           <li class="name ml-20"><el-input size="small" placeholder="请输入老师姓名" v-model.trim="searchFilter.keyword"></el-input></li>
           <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
         </ul>
+
+        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
 
       <el-table class="mt-20 bor-t" :data="lessonTable.data" v-loading="loading" stripe>
@@ -63,7 +65,7 @@
       </el-pagination>
     </el-card>
 
-    <el-dialog title="上课详情" width="650px" center :visible.sync="dialogStatus.course" :close-on-click-modal="false" @close="dialogClose">
+    <el-dialog title="上课详情" width="650px" center :visible.sync="dialogStatus.course" :close-on-click-modal="false">
       <p class="fs-15">上课老师：{{courseDetail.teacher_name}}</p>
       <el-table class="mt-20 bor-t" :data="courseDetail.lists" v-loading="loading" stripe height="300">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
@@ -79,6 +81,8 @@
 <script>
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
+import qs from 'qs';
+import config from 'config';
 
 export default {
   components: {TableHeader, MyButton},
@@ -99,9 +103,6 @@ export default {
     };
   },
   methods: {
-    dialogClose () {
-
-    },
     tabClick () {
       this.searchFilter.begin_time = new Date(this.$format_date(new Date(), 'yyyy/MM/01'));
       this.searchFilter.end_time = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);
@@ -126,6 +127,23 @@ export default {
     },
     paginationClick (current_page) {
       this.getLessonLists(current_page);
+    },
+    //导出列表
+    async exportTable () {
+      let baseUrl = config.api;
+      let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+
+      let params = {
+        type: 1,
+        teacherType: this.activeTab,
+        beginDate: this.searchFilter.begin_time / 1000,
+        endDate: this.searchFilter.end_time / 1000,
+        teacherName: this.searchFilter.keyword,
+        courseId: this.searchFilter.course_id,
+        token: token.replace('bearer ', '')
+      };
+
+      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
     },
     //获取课时列表
     async getLessonLists (page) {

@@ -12,8 +12,8 @@
         </el-tabs>
       </div>
 
-      <div class="toolbar mt-20">
-        <ul class="d-f">
+      <div class="toolbar mt-20 d-f">
+        <ul class="d-f flex1">
           <li>
             <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <span>至</span>
@@ -34,10 +34,12 @@
           <li class="name ml-20">
             <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
           </li>
-          <li>
+          <li class="ml-20">
             <MyButton @click.native="search" :radius="false">搜索</MyButton>
           </li>
         </ul>
+
+        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
       <!-- 消课模块 -->
       <el-table key="elimination" v-if="active === 'elimination'" stripe class="student-table mt-30" :data="elimination_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true" :cell-style="cell_style">
@@ -182,6 +184,8 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import NameRoute from '../../components/common/NameRoute';
+import qs from 'qs';
+import config from 'config';
 
 export default {
   data () {
@@ -406,6 +410,23 @@ export default {
           this.get_absenteeism_data();
           break;
       }
+    },
+    //导出列表
+    async exportTable () {
+      let baseUrl = config.api;
+      let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+
+      // let params = {
+      //   type: 1,
+      //   teacherType: this.activeTab,
+      //   beginDate: this.searchFilter.begin_time / 1000,
+      //   endDate: this.searchFilter.end_time / 1000,
+      //   teacherName: this.searchFilter.keyword,
+      //   courseId: this.searchFilter.course_id,
+      //   token: token.replace('bearer ', '')
+      // };
+
+      // window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
     },
     //获取消课记录
     async get_elimination_data () {

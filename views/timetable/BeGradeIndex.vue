@@ -299,7 +299,7 @@
                                 </el-form-item>
 
                                 <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType !== 1" key="loop2">
-                                    <el-select placeholder="请选择" v-model="timetableForm.loop">
+                                    <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
                                         <el-option label="无" value="no"></el-option>
                                         <el-option label="按周循环" value="yes"></el-option>
                                     </el-select>
@@ -335,7 +335,7 @@
                                     </el-form-item>
                                 </div>
                                 <el-form-item label="重复规则：" prop="loop" v-if="addTableType == 'multiple' && courseType === 1" key="loop1">
-                                    <el-select placeholder="请选择" v-model="timetableForm.loop">
+                                    <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
                                         <el-option label="无" value="no"></el-option>
                                         <el-option label="按周循环" value="yes"></el-option>
                                     </el-select>
@@ -912,6 +912,7 @@ export default {
     //新增排课  type: single / multiple
     addTimetableHandle (type, time, full_day, week) {
       this.addTableType = type;
+      this.timetableForm.loop_time = 1;
 
       if (type === 'single') {
         this.timetableForm.room_id = '';

@@ -121,7 +121,6 @@ import BuyCourseDialog from '../../components/dialog/BuyCourse';
 import ContractDialog from '../../components/dialog/Contract';
 
 import {StudentStatic} from '../../script/static';
-import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
 

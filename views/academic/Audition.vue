@@ -5,8 +5,8 @@
       <TableHeader title="试听课记录">
       </TableHeader>
 
-      <div class="toolbar mt-20">
-        <ul class="d-f">
+      <div class="toolbar mt-20 d-f">
+        <ul class="d-f flex1">
           <li>
             <el-date-picker size="small" class="date-select" @change="date_change" v-model="search_info.begin" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
             <span>至</span>
@@ -27,10 +27,12 @@
           <li class="name ml-20">
             <el-input size="small" placeholder="请输入学员姓名" v-model.trim="search_info.name"></el-input>
           </li>
-          <li>
+          <li class="ml-20">
             <MyButton @click.native="search" :radius="false">搜索</MyButton>
           </li>
         </ul>
+
+        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
 
       <el-table stripe class="student-table mt-30" :data="audition_info.data" v-loading="loading" :show-header="true">
@@ -79,6 +81,8 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import NameRoute from '../../components/common/NameRoute';
+import qs from 'qs';
+import config from 'config';
 
 export default {
   data () {
@@ -134,6 +138,23 @@ export default {
       };
 
       this.search_info = search_info;
+    },
+    //导出列表
+    async exportTable () {
+      let baseUrl = config.api;
+      let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
+
+      let params = {
+        type: 3,
+        start_date: this.get_seconde(this.search_info.begin),
+        end_date: this.get_seconde(this.search_info.end),
+        stu_name: this.search_info.name,
+        status: this.search_info.status,
+        grade_id: this.search_info.grade,
+        token: token.replace('bearer ', '')
+      };
+
+      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
     },
     tab_change () {
       this.page_info.page = 1;
