@@ -69,16 +69,21 @@ router.beforeEach((to, from, next) => {
 
   // 用于测试
   if (from.query.debugger && !to.query.debugger) {
-    return location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+    location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;
+
+    return null;
   }
 
   if (!navigator.onLine) {
     return store.commit('stateChange', { state: 'error', errorMsg: '网络异常'});
   }
+
   store.commit('stateChange', { state: 'loading' });
+
   if (to.path === '/login' && (Cache.get('TOKEN') || Cache.getSession('TOKEN'))) {
     return router.replace({path: '/'});
   }
+
   if (to.meta.needlogin === true && !Cache.get('TOKEN') && !Cache.getSession('TOKEN')) {
     return router.replace({path: '/login'});
   }
@@ -87,6 +92,7 @@ router.beforeEach((to, from, next) => {
   _hmt.push(['_trackPageview', to.path]);
 
   window.scrollTo(0, 0); //跳转之后，页面到最顶部
+
   next();
 });
 
