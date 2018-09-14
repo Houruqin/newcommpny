@@ -28,7 +28,7 @@ axios.interceptors.request.use(config => {
   config.headers.Authorization = cache.get('TOKEN') || cache.getSession('TOKEN') || 'reset';
 
   return config;
-}, error => {
+}, () => {
   return Message.warning('请求错误，请稍后再试');
 }
 );
@@ -72,9 +72,11 @@ axios.interceptors.response.use(res => {
 
       return null;
     default:
-      let errorMsg = result.message || '请求错误，请稍后再试';
-
-      store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
+      if (store.state.pageState === 'loaded') {
+        Message.warning(result.message || '请求错误，请稍后再试');
+      } else {
+        store.commit('stateChange', { state: 'error', errorMsg: result.message || '请求错误，请稍后再试' });
+      }
 
       return null;
   }
@@ -92,21 +94,19 @@ axios.interceptors.response.use(res => {
       errorMsg = '请求失败，请稍后再试';
   }
 
-  store.state.pageState === 'loaded' ? Message.warning(errorMsg) : store.commit('stateChange', { state: 'error', errorMsg });
+  if (store.state.pageState === 'loaded') {
+    Message.warning(errorMsg);
+  } else {
+    store.commit('stateChange', { state: 'error', errorMsg });
+  }
 
   return null;
 });
 
 
 const Request = {
-  /**
-	 * @param {String} url 请求url
-	 * @param {Object} params 请求参数
-     * @param {object} options 请求配置config
-	 */
   get (url, data, options) {
     let params = { ...DEFAULT_DATA, ...data };
-
 
     return axios.get(`${url}?${qs.stringify(params)}`, { options });
   },

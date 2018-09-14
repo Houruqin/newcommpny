@@ -19,6 +19,8 @@ module.exports = {
     document: true,
     echarts: true,
     process: true,
+    _hmt: true,
+    navigator: true,
     _: true,
     FileReader: true,
   },
