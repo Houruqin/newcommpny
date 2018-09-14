@@ -413,20 +413,39 @@ export default {
     },
     //导出列表
     async exportTable () {
-      let baseUrl = config.api;
+      let baseUrl = config.api, params;
       let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
 
-      // let params = {
-      //   type: 1,
-      //   teacherType: this.activeTab,
-      //   beginDate: this.searchFilter.begin_time / 1000,
-      //   endDate: this.searchFilter.end_time / 1000,
-      //   teacherName: this.searchFilter.keyword,
-      //   courseId: this.searchFilter.course_id,
-      //   token: token.replace('bearer ', '')
-      // };
+      if (this.active === 'elimination') {
+        params = {
+          type: 2,
+          course_id: this.search_info.course,
+          start_date: this.get_seconde(this.search_info.begin),
+          end_date: this.get_seconde(this.search_info.end),
+          stu_name: this.search_info.name,
+          token: token.replace('bearer ', '')
+        };
+      } else if (this.active === 'leave') {
+        params = {
+          type: 6,
+          start: this.get_seconde(this.search_info.begin),
+          end: this.get_seconde(this.search_info.end),
+          student_name: this.search_info.name,
+          grade_id: this.search_info.grade,
+          token: token.replace('bearer ', '')
+        };
+      } else {
+        params = {
+          type: 5,
+          start: this.get_seconde(this.search_info.begin),
+          end: this.get_seconde(this.search_info.end),
+          course_id: this.search_info.course,
+          name: this.search_info.name,
+          token: token.replace('bearer ', '')
+        };
+      }
 
-      // window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
     },
     //获取消课记录
     async get_elimination_data () {
@@ -508,8 +527,8 @@ export default {
           start: this.get_seconde(this.search_info.begin),
           end: this.get_seconde(this.search_info.end),
           course_id: this.search_info.course,
-          name: this.search_info.name,
-          mobile: ''
+          name: this.search_info.name
+          // mobile: ''
         },
         page: this.page_info.page
       };
