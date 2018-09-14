@@ -1008,7 +1008,7 @@ export default {
       this.$message.success('已处理');
 
       if (status === 2) {
-        this.showLeaveMessage(result, data.student_timetables_id, data.student.name);
+        this.showLeaveMessage(result, data.student_timetable_id, data.student.name);
       }
     },
     //打开拒绝请假弹窗
