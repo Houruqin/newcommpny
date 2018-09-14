@@ -99,11 +99,32 @@ export default {
       this.$message.success('删除成功');
     },
     //结课
-    endTimeTable (item) {
-      this.$confirm('确定结课吗?', '提示', {
+    async endTimeTable (item) {
+      let result = await this.$$request.get('/timetable/finishClassInfo', {timetable_id: item.id});
+
+      console.log(result);
+
+      if (!result) {
+        return 0;
+      }
+
+      this.$refs.myPopver.showPopper = false;
+
+      let title = `<div class="d-f">
+          <span class="flex1">应到人数：${result.should_come_num}</span>
+          <span class="flex1">实到人数：${result.come_num}</span>
+        </div>
+
+        <div class="d-f">
+          <span class="flex1">未到人数：${result.not_come_num}</span>
+          <span class="flex1">请假人数：${result.leave_ticket_num}</span>
+        </div>`;
+
+      this.$confirm(title, '确定结课吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        dangerouslyUseHTMLString: true,
+        center: true
       }).then(() => {
         this.endTimeTableHandle(item.id);
       }).catch(() => {
@@ -117,7 +138,6 @@ export default {
         return 0;
       }
 
-      this.$refs.myPopver.showPopper = false;
       this.$emit('CB-deleteTable');
       this.$message.success('已结课');
     }

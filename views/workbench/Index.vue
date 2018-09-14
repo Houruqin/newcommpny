@@ -79,7 +79,7 @@
                 <el-table-column label="请假原因" prop="reason" align="center"></el-table-column>
                 <el-table-column label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
-                    <a class="student_handle able_handle" @click="leave_handle(scope.row.id,2)">同意</a>
+                    <a class="student_handle able_handle" @click="leave_handle(scope.row.id,2,scope.row)">同意</a>
                     <a class="student_handle able_sub_handle" @click="open_refuse_dialog(scope.row.id)">拒绝</a>
                   </template>
                 </el-table-column>
@@ -942,9 +942,12 @@ export default {
     //请假处理以后，弹窗提醒扣不扣课时
     showLeaveMessage (data, id, student_name) {
       let lessonStatus = this.$store.state.systemSetting.LeaveTicketDeductLessonNum.num;
+      let title1 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span></div><div class="mt-10 t-a-l">本次请假将不会扣除课</div>`;
+      let title2 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span></div><div class="mt-10 t-a-l">本次请假扣除课时：${data.num}课时</div>`;
+      let title3 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span><span class="ml-60">本次课时数为：${data.num}课时</span></div><div class="mt-10 t-a-l">本次请假是否扣除课时？</div>`;
 
       if (lessonStatus == 3) {
-        this.$confirm(`<div class="d-f t-a-l"><span>该学员已请假次数：${data.leave_num}次</span><span class="ml-60">扣课时数：${data.num}</span></div><div class="mt-10 t-a-l">此次请假是否需要扣除课时？</div>`, '请假确认', {
+        this.$confirm(title3, '请假确认', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: '是',
           cancelButtonText: '否',
@@ -955,15 +958,7 @@ export default {
           return 0;
         });
       } else {
-        let subtitle;
-
-        if (lessonStatus == 1) {
-          subtitle = `<div class="t-a-l">该学员已请假次数：${data.leave_num}次</div><div class="mt-10 t-a-l">此次请假将不会扣除课时！</div>`;
-        } else {
-          subtitle = `<div class="d-f t-a-l"><span>该学员已请假次数：${data.leave_num}次</span><span class="ml-60">扣课时数：${data.num}</span></div><div class="mt-10 t-a-l">此次请假将会扣除课时！</div>`;
-        }
-
-        this.$alert(subtitle, '请假提醒', {
+        this.$alert(lessonStatus == 1 ? title1 : title2, '请假提醒', {
           confirmButtonText: '确定',
           dangerouslyUseHTMLString: true,
           center: true,
@@ -987,7 +982,7 @@ export default {
     },
 
     //处理请假
-    async leave_handle (id, status) {
+    async leave_handle (id, status, data) {
       let params = {
         page_num: 5,
         leaveTicket_id: id,
@@ -1013,7 +1008,7 @@ export default {
       this.$message.success('已处理');
 
       if (status === 2) {
-        this.showLeaveMessage(result);
+        this.showLeaveMessage(result, data.student_timetables_id, data.student.name);
       }
     },
     //打开拒绝请假弹窗
