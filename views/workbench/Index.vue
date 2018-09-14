@@ -557,7 +557,7 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
               <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.leave && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row)" :class="[scope.row.status2 === 5 && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>
@@ -573,11 +573,7 @@
       </el-row>
       <el-row v-html="notice_info.content"></el-row>
     </el-dialog>
-
-    <!-- 请假二次确认 -->
-    <!-- <LeaveConfirm v-model="leaveDialog" @CB-confirm="CB_confirm"></LeaveConfirm> -->
   </div>
-
 </template>
 
 <script>
@@ -586,7 +582,6 @@ import MyButton from '../../components/common/MyButton';
 import echarts from 'echarts';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
-// import LeaveConfirm from '../../components/dialog/LeaveConfirm';
 
 export default {
   data () {
@@ -776,13 +771,6 @@ export default {
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
-    //请假确认处理
-    // CB_confirm () {
-    //   this.$$request.post('/leaveTicket/add', this.leaveParams).then(() => {
-    //     this.get_all_student_list(this.leaveParams.timetable_id);
-    //     this.$message.success('已请假');
-    //   });
-    // },
     //切换tab标签
     change_tab () {
       this.page_info.current_page = 1;
@@ -952,33 +940,50 @@ export default {
     },
 
     //请假处理以后，弹窗提醒扣不扣课时
-    showLeaveMessage () {
+    showLeaveMessage (data, id, student_name) {
       let lessonStatus = this.$store.state.systemSetting.LeaveTicketDeductLessonNum.num;
 
       if (lessonStatus == 3) {
-        this.$confirm(`<div class="d-f t-a-l"><span>该学员已请假次数：次</span><span class="ml-60">扣课时数：</span></div><div class="mt-10 t-a-l">此次请假是否需要扣除课时？</div>`, '请假确认', {
+        this.$confirm(`<div class="d-f t-a-l"><span>该学员已请假次数：${data.leave_num}次</span><span class="ml-60">扣课时数：${data.num}</span></div><div class="mt-10 t-a-l">此次请假是否需要扣除课时？</div>`, '请假确认', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: '是',
           cancelButtonText: '否',
           center: true
-        }, () => {
-        }, () => { return 0; });
+        }).then(() => {
+          this.leaveLessonNumDone(id);
+        }).catch(() => {
+          return 0;
+        });
       } else {
         let subtitle;
 
         if (lessonStatus == 1) {
-          subtitle = `<div class="t-a-l">该学员已请假次数：次</div><div class="mt-10 t-a-l">此次请假将不会扣除课时！</div>`;
+          subtitle = `<div class="t-a-l">该学员已请假次数：${data.leave_num}次</div><div class="mt-10 t-a-l">此次请假将不会扣除课时！</div>`;
         } else {
-          subtitle = `<div class="d-f t-a-l"><span>该学员已请假次数：次</span><span class="ml-60">扣课时数：</span></div><div class="mt-10 t-a-l">此次请假将会扣除课时！</div>`;
+          subtitle = `<div class="d-f t-a-l"><span>该学员已请假次数：${data.leave_num}次</span><span class="ml-60">扣课时数：${data.num}</span></div><div class="mt-10 t-a-l">此次请假将会扣除课时！</div>`;
         }
 
         this.$alert(subtitle, '请假提醒', {
           confirmButtonText: '确定',
           dangerouslyUseHTMLString: true,
           center: true,
-          callback: () => {return 0}
+          callback: () => {
+            return 0;
+          }
         });
       }
+    },
+
+    //请假扣课时 确认
+    async leaveLessonNumDone (id) {
+      let result = await this.$$request.post('/student/leaveTicketDeductLesson', {student_timetable_id: id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.$message.success('扣除课时成功！');
     },
 
     //处理请假
@@ -996,7 +1001,6 @@ export default {
           return false;
         }
         params.remark = this.leave_info.remark;
-
       }
 
       let result = await this.$$request.post('/student/leaveTicketCheck', params);
@@ -1343,18 +1347,23 @@ export default {
       this.all_student_info.course_type = obj.course.is_order;
       this.get_all_student_list(obj.id);
       //当且仅当在上课前一小时和上课后一小时内才能签到
-      if (new Date().getTime() / 1000 > obj.begin_time - 60 * 60
-       && new Date().getTime() / 1000 < obj.end_time + 60 * 60) {
-        this.all_student_info.sign = true;
-      } else {
-        this.all_student_info.sign = false;
-      }
+      // if (new Date().getTime() / 1000 > obj.begin_time - 60 * 60
+      //  && new Date().getTime() / 1000 < obj.end_time + 60 * 60) {
+      //   this.all_student_info.sign = true;
+      // } else {
+      //   this.all_student_info.sign = false;
+      // }
+
+      let signTime = this.$store.state.systemSetting.teacherSign.num * 60;
+
+      this.all_student_info.sign = obj.begin_time - new Date().getTime() / 1000 <= signTime;
+
       //当且仅当在上课前两个小时之前才能请假
-      if (new Date().getTime() / 1000 < obj.begin_time - 2 * 60 * 60) {
-        this.all_student_info.leave = true;
-      } else {
-        this.all_student_info.leave = false;
-      }
+      // if (new Date().getTime() / 1000 < obj.begin_time - 2 * 60 * 60) {
+      //   this.all_student_info.leave = true;
+      // } else {
+      //   this.all_student_info.leave = false;
+      // }
     },
     get_all_student_list (id) {
       const params = {
@@ -1368,7 +1377,7 @@ export default {
       });
     },
     //学员签到
-    sign_student (s_id, t_id, status, item) {
+    async sign_student (s_id, t_id, status, item) {
       if (status === 5 && this.all_student_info.sign && !this.all_student_info.end) {
         item.status2 = 6;
         const params = {
@@ -1376,21 +1385,25 @@ export default {
           student_id: s_id
         };
 
-        this.$$request.post('/signRecord/add', params).then(() => {
-          this.$message.success('已签到');
-          this.get_all_student_list(t_id);
-        });
+        let result = await this.$$request.post('/signRecord/add', params);
+
+        if (!result) {
+          return 0;
+        }
+
+        this.$message.success('已签到');
+        this.get_all_student_list(t_id);
       }
 
     },
     //学员请假
-    async leave_student (s_id, t_id, status, item) {
-      if (status === 5 && this.all_student_info.leave) {
+    async leave_student (item) {
+      if (item.status2 === 5) {
         item.status2 = 6;
         const params = {
           grade_id: this.all_student_info.grade_id,
-          timetable_id: t_id,
-          student_id: s_id
+          timetable_id: item.timetable_id,
+          student_id: item.student_id
         };
 
         let result = await this.$$request.post('/leaveTicket/add', params);
@@ -1400,9 +1413,9 @@ export default {
         }
 
         this.$message.success('已请假');
-        this.get_all_student_list(t_id);
-
-        this.showLeaveMessage();
+        this.get_all_student_list(item.timetable_id);
+        this.all_student_info.show = false;
+        this.showLeaveMessage(result, item.id, item.student.name);
       }
     },
     //================今日跟进管理模块================
