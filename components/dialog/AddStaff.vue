@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="staffType == 'add' ? '添加员工' : '修改员工'" width="700px" center :visible.sync="staffDialogStatus" :close-on-click-modal="false" @close="formClose" :append-to-body="appendBody">
+    <el-dialog :title="staffType == 'add' ? '添加员工' : '编辑员工资料'" width="700px" center :visible.sync="staffDialogStatus" :close-on-click-modal="false" @close="formClose" :append-to-body="appendBody">
         <el-form :model="staffForm" label-width="100px" :rules="rules" ref="userForm" size="small">
             <div class="form-box">
                 <el-row>

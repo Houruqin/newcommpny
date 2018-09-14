@@ -57,6 +57,8 @@
                 <i class="iconfont fs-13 icon-shijian"></i>
                 <span class="pl-5 fs-12">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
             </p>
+
+            <div class="rm-table" v-if="item.origin == 3">手动消课</div>
         </div>
     </el-popover>
 </template>
@@ -101,8 +103,6 @@ export default {
     //结课
     async endTimeTable (item) {
       let result = await this.$$request.get('/timetable/finishClassInfo', {timetable_id: item.id});
-
-      console.log(result);
 
       if (!result) {
         return 0;
@@ -186,6 +186,17 @@ export default {
         .icon {
             position: relative;
             top: 3px;
+        }
+        .rm-table {
+          position: absolute;
+          background-color: #fff;
+          // padding: 2px 5px;
+          top: 0;
+          right: 0;
+          font-size: 12px;
+          width: 60px;
+          line-height: 24px;
+          text-align: center;
         }
     }
     .course-popver {
