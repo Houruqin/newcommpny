@@ -62,7 +62,7 @@
                 <!-- 上课学员列表 -->
                 <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
+                    <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
                             <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                         </template>
@@ -124,7 +124,7 @@
                 <!-- 生日学员 -->
                 <el-table class="student-table" key='bTable' v-else-if="activeTab === 'birthday'" :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
+                    <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
                             <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                         </template>
@@ -170,7 +170,7 @@
                 <!-- 未分班列表 -->
                 <el-table class="student-table" key='cTable' v-else-if="activeTab === 'noGrade'" :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
+                    <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
                             <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                         </template>
@@ -221,7 +221,7 @@
                 <!-- 需续约学员列表 -->
                 <el-table class="student-table" key='dTable' v-else-if="activeTab === 'contract'" :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
+                    <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
                             <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                         </template>
@@ -278,10 +278,10 @@
                     </el-table-column>
                 </el-table>
 
-                <!-- 结业学员/流水学员列表 -->
+                <!-- 结业学员/流失学员列表 -->
                 <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" stripe>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" align="center">
+                    <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
                             <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                         </template>
@@ -315,7 +315,7 @@
                     </el-table-column>
                     <el-table-column label="课程有效期" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <ul class="table-item-list">
+                            <ul class="table-item-list" :class="{'last-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
                                     {{list.expired_at && $$tools.format(list.expired_at)}}
                                 </li>

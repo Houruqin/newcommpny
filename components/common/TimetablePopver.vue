@@ -57,6 +57,8 @@
                 <i class="iconfont fs-13 icon-shijian"></i>
                 <span class="pl-5 fs-12">{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span>
             </p>
+
+            <div class="rm-table" v-if="item.origin == 3">手动消课</div>
         </div>
     </el-popover>
 </template>
@@ -99,11 +101,30 @@ export default {
       this.$message.success('删除成功');
     },
     //结课
-    endTimeTable (item) {
-      this.$confirm('确定结课吗?', '提示', {
+    async endTimeTable (item) {
+      let result = await this.$$request.get('/timetable/finishClassInfo', {timetable_id: item.id});
+
+      if (!result) {
+        return 0;
+      }
+
+      this.$refs.myPopver.showPopper = false;
+
+      let title = `<div class="d-f">
+          <span class="flex1">应到人数：${result.should_come_num}</span>
+          <span class="flex1">实到人数：${result.come_num}</span>
+        </div>
+
+        <div class="d-f">
+          <span class="flex1">未到人数：${result.not_come_num}</span>
+          <span class="flex1">请假人数：${result.leave_ticket_num}</span>
+        </div>`;
+
+      this.$confirm(title, '确定结课吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        dangerouslyUseHTMLString: true,
+        center: true
       }).then(() => {
         this.endTimeTableHandle(item.id);
       }).catch(() => {
@@ -117,7 +138,6 @@ export default {
         return 0;
       }
 
-      this.$refs.myPopver.showPopper = false;
       this.$emit('CB-deleteTable');
       this.$message.success('已结课');
     }
@@ -166,6 +186,17 @@ export default {
         .icon {
             position: relative;
             top: 3px;
+        }
+        .rm-table {
+          position: absolute;
+          background-color: #fff;
+          // padding: 2px 5px;
+          top: 0;
+          right: 0;
+          font-size: 12px;
+          width: 60px;
+          line-height: 24px;
+          text-align: center;
         }
     }
     .course-popver {

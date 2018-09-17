@@ -41,13 +41,13 @@
             <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="姓名" align="center">
+                <el-table-column label="学员姓名" align="center">
                     <template slot-scope="scope">
                         <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                     </template>
                 </el-table-column>
                 <el-table-column label="联系电话" prop="parent_info.mobile" align="center"></el-table-column>
-                <el-table-column label="学员顾问" align="center">
+                <el-table-column label="课程顾问" align="center">
                     <template slot-scope="scope">
                         <div v-if="scope.row.advisor_info">{{scope.row.advisor_info.name}}</div>
                         <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor' || activeTab == 'following'" class="d-f f-a-c f-j-c">
@@ -75,7 +75,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="渠道" prop="source_info.name" align="center"></el-table-column>
-                <el-table-column label="学员录入时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
+                <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <a class="cursor-pointer fc-m" @click="editStudent(scope.row)">编辑</a>

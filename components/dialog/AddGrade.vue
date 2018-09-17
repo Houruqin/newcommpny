@@ -1,6 +1,6 @@
 <template>
     <!-- 修改班级弹窗 -->
-    <el-dialog :title="gradeType == 'add' ? '添加班级' : '修改班级'" width="780px" center :visible.sync="gradeDialogStatus" :close-on-click-modal="false" @close="dialogClose('gradeForm')">
+    <el-dialog :title="gradeType == 'add' ? '添加班级' : '编辑班级资料'" width="780px" center :visible.sync="gradeDialogStatus" :close-on-click-modal="false" @close="dialogClose('gradeForm')">
         <el-form :model="classForm" label-width="120px" size="small" ref="gradeForm" :rules="classRules" class="form-box pl-20 pr-20">
             <div class="d-f">
               <div class="flex1">
