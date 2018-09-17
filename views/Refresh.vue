@@ -5,12 +5,13 @@
 <script>
 export default {
   data () {
-    return {};
+    return {
+      url: this.$route.query.url
+    };
   },
-  beforeRouteEnter (to, from, next) {
-    next(vm => {
-      vm.$router.replace('/');
-    });
+  mounted () {
+    console.log(this.url)
+    this.$router.replace(this.url);
   }
 };
 </script>

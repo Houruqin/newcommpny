@@ -24,7 +24,7 @@
             <el-switch v-model="setting[list].status" active-color="#45DAD5" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
             <div class="mt-20 fc-7 p-r">
               <span>在课程结束后</span>
-              <el-input type="number" class="ml-10 mr-10" v-model="setting[list].num" size="small" :disabled="!setting[list].status" />
+              <el-input type="number" class="ml-10 mr-10" v-model.trim="setting[list].num" size="small" :disabled="!setting[list].status"/>
               <span>天未续费，自动进入流失学员名单</span>
               <div v-if="setting[list].num != setting[list].oldVal" class="save-btn" @click="saveSetting(list)">保存</div>
             </div>
@@ -32,7 +32,7 @@
 
           <!-- 其他输入值 -->
           <div v-else class="p-r">
-            <el-input type="number" v-model="setting[list].num" size="small"/>
+            <el-input type="number" v-model.trim="setting[list].num" size="small"/>
             <span class="pl-10 fc-9 fs-12">{{setting[list].unit}}</span>
             <div v-if="setting[list].num != setting[list].oldVal" class="save-btn" @click="saveSetting(list)">保存</div>
           </div>
@@ -94,9 +94,27 @@ export default {
     },
     // 保存设置值
     async saveSetting (name) {
+
+      let val = this.setting[name].num;
+
+      console.log(val);
+
+      if (!val.length) return this.$message.error('格式不对,不能输入特殊字符');
+      if (String(val).indexOf('.') > -1) return this.$message.error('不能输入小数');
+
+      if (name === 'studentCourseRemain' || name === 'longTimeNoByCourse') {
+        if (val < 1) return this.$message.error('最小值为1');
+      } else if (name === 'studentAppointCourse' || name === 'studentCancelAppointCourse' || name === 'studentLeaveTicket') {
+        if (val < 0) return this.$message.error('最小值为0');
+        if (val > 24) return this.$message.error('最大值为24');
+      } else if (name === 'teacherSign') {
+        if (val < 0) return this.$message.error('最小值为0');
+        if (val > 180) return this.$message.error('最大值为180');
+      }
+
       let params = {};
 
-      params[name] = {name: name, status: this.setting[name].status, num: this.setting[name].num};
+      params[name] = {name: name, status: this.setting[name].status, num: val};
 
       console.log(params);
 

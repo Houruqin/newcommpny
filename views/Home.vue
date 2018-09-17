@@ -719,7 +719,7 @@ export default {
 
       this.getSchoolName();
 
-      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+      this.$router.push({path: '/refresh', url: '/'}); //刷新工作台路由
     },
     //根据school_id获取校区名称
     getSchoolName () {
@@ -771,7 +771,7 @@ export default {
       this.$store.dispatch('guideChange', false);
       document.body.removeAttribute('style');
       this.modalObj = null;
-      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+      this.$router.push({path: '/refresh', url: '/'}); //刷新工作台路由
     },
     //翻页
     go_page (page) {

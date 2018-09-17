@@ -287,7 +287,7 @@
                                 </el-form-item>
 
                                 <el-form-item label="上课老师：" prop="teacher_ids">
-                                    <el-select placeholder="请选择" v-model="timetableForm.teacher_ids">
+                                    <el-select placeholder="请选择" v-model="timetableForm.teacher_ids" @change="$refs.addTimeTable.validateField('counselor_ids')">
                                         <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -319,14 +319,14 @@
                                     </el-form-item>
 
                                     <el-form-item label="辅助老师：" prop="counselor_ids">
-                                        <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
+                                        <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
                                             <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                         </el-select>
                                     </el-form-item>
                                 </div>
                                 <div v-else key="single">
                                     <el-form-item label="辅助老师：" prop="counselor_ids">
-                                        <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable>
+                                        <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
                                             <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                                         </el-select>
                                     </el-form-item>
@@ -615,9 +615,12 @@ export default {
           {required: true, message: '请选择教室', trigger: 'change'}
         ],
         teacher_ids: [
-          {required: true, message: '请选择任课老师', trigger: 'change'}
+          {required: true, message: '请选择任课老师', trigger: 'change'},
+          {validator: this.teacherValidator('teacher')}
         ],
-        counselor_ids: [],
+        counselor_ids: [
+          {validator: this.teacherValidator('counselor')}
+        ],
         lesson_num: [
           {required: true, message: '请输入课时数'},
           {validator: this.$$tools.formOtherValidate('int')},
@@ -673,6 +676,18 @@ export default {
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
+    },
+    //任课老师、辅助老师不能重复验证
+    teacherValidator (type) {
+      return (rule, value, callback) => {
+        if (type === 'teacher' && value == this.timetableForm.counselor_ids) {
+          return callback(new Error('任课老师不能和辅助老师相同'));
+        } else if(type === 'counselor' && value == this.timetableForm.teacher_ids) {
+          return callback(new Error('辅助老师不能和任课老师相同'));
+        }
+
+        return callback();
+      };
     },
     //上一周翻页
     lastWeekLists () {
