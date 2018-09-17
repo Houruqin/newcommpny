@@ -104,11 +104,11 @@ export default {
       }
 
       if (+nowSetting.num < nowSetting.min) {
-        return this.$message.error(`最小值${nowSetting.min}`);
+        return this.$message.error(`最小值：${nowSetting.min}`);
       }
 
       if (+nowSetting.num > nowSetting.max) {
-        return this.$message.error(`最小值${nowSetting.max}`);
+        return this.$message.error(`最大值：${nowSetting.max}`);
       }
 
       let result = await this.saveWechatSettings(name);
