@@ -670,9 +670,6 @@ export default {
       this.$refs.addTimeTable.resetFields();
 
       Object.keys(this.timetableForm).forEach(v => {
-        // if(v == 'room_id') this.timetableForm[v] = this.addTableType == 'multiple' ? [] : '';
-        // if(v == 'loop') this.timetableForm[v] = 'no';
-        // else this.timetableForm[v] = '';
         this.timetableForm[v] = '';
       });
       this.timePicker.minTime = 0;
@@ -830,8 +827,6 @@ export default {
         }
       });
 
-      console.log(this.allStudentLists);
-
       this.addTimetableMask = true;
     },
     //详情删除
@@ -968,9 +963,13 @@ export default {
     },
     //学员checkbox，全选
     studentCheckAllChange (val) {
-      this.studentLists = val ? this.allStudentLists.map(v => {
-        return v.id;
-      }) : [];
+      // this.studentLists = val ? this.allStudentLists.map(v => {
+      //   return v.id;
+      // }) : [];
+      this.studentLists.splice(0, this.studentLists.length);
+      if (val) {
+        this.allStudentLists.forEach(v => {if (!v.disabled) this.studentLists.push(v.id)});
+      }
     },
     //学员checkbox，多选
     studentCheckChange (val) {
@@ -999,7 +998,8 @@ export default {
 
       if (this.courseType === 1) {
         this.studentLists = this.checkStudentForm;
-        this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
+        // this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
+        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return m.scheduled}).length;
       } else {
         this.studentRadio = this.radioStudentForm;
       }

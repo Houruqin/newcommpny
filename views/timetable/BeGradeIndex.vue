@@ -870,6 +870,7 @@ export default {
         }
       });
 
+      console.log(detail);
       console.log(this.gradeInfo);
 
       this.allStudentLists = this.gradeInfo.student_course.concat(this.gradeInfo.student_grade);
@@ -892,8 +893,6 @@ export default {
           m.disabled = !(m.buy_lesson_num - m.scheduled);
         }
       });
-
-      console.log(this.allStudentLists);
 
       this.addTimetableMask = true;
     },
@@ -992,9 +991,7 @@ export default {
 
       this.allStudentLists.forEach(m => {
         m.disabled = !(m.buy_lesson_num - m.scheduled);
-      }); //手动判断学员是够还能排课
-
-      console.log(this.allStudentLists);
+      }); //手动判断学员是否还能排课
 
       if (this.courseType === 1) {
         this.studentLists.splice(0, this.studentLists.length);
@@ -1004,9 +1001,9 @@ export default {
           }
         });
 
-        // this.studentLists = this.gradeInfo.student_grade.map(v => {return v.student_id});
         this.checkStudentForm = this.studentLists;
-        this.studentCheckAll = !this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length;
+        // this.studentCheckAll = !this.gradeInfo.student_course.length && this.gradeInfo.student_grade.length;
+        // this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return !f.disabled}).length;
       }
 
       if (this.gradeInfo.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
@@ -1058,9 +1055,10 @@ export default {
     },
     //学员checkbox，全选
     studentCheckAllChange (val) {
-      this.studentLists = val ? this.allStudentLists.map(v => {
-        return v.student_id;
-      }) : [];
+      this.studentLists.splice(0, this.studentLists.length);
+      if (val) {
+        this.allStudentLists.forEach(v => {if (!v.disabled) this.studentLists.push(v.student_id)});
+      }
     },
     //学员checkbox，多选
     studentCheckChange (val) {
@@ -1088,7 +1086,8 @@ export default {
 
       if (this.courseType === 1) {
         this.studentLists = this.checkStudentForm;
-        this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
+        // this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
+        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return (f.buy_lesson_num - f.scheduled)}).length;
       } else {
         this.studentRadio = this.radioStudentForm;
       }
@@ -1180,8 +1179,6 @@ export default {
     },
     //批量、单个排课参数整理
     addTimeTableParams () {
-      console.log(this.timetableForm);
-
       if (this.courseType !== 1 && !this.radioStudentForm) {
         return this.$message.warning('请选择学员！');
       }

@@ -463,7 +463,7 @@
     </AddStudentDialog>
 
     <!-- 拒绝请假弹窗 -->
-    <el-dialog :visible.sync="leave_info.show_refuse_dialog" :show-close="false" width="400px">
+    <el-dialog :visible.sync="leave_info.show_refuse_dialog" width="400px">
       <el-input type="textarea" :rows="2" placeholder="请输入拒绝理由" resize="none" :autosize="{ minRows: 4, maxRows: 6}" :maxlength="20" v-model="leave_info.remark">
       </el-input>
       <span slot="footer" class="dialog-footer">

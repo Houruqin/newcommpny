@@ -277,11 +277,11 @@
                     <template v-if="courseType === 1">
                         <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange" class="pl-20">全选</el-checkbox>
                         <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length" class="time-table-student-check pl-20 pr-20 mt-10">
-                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index">{{item.student_name}}</el-checkbox>
+                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="item.disabled">{{item.student_name}}</el-checkbox>
                         </el-checkbox-group>
                     </template>
                     <el-radio-group v-model="studentRadio" class="time-table-student-check pl-20 pr-20" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :disabled="!(item.buy_lesson_num - item.scheduled)" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
+                        <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
                     </el-radio-group>
 
                     <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
@@ -583,9 +583,10 @@ export default {
     },
     //排课学员checkbox，全选
     timetable_studentCheckAllChange (val) {
-      this.timetable_studentLists = val ? this.allStudentLists.map(v => {
-        return v.student_id;
-      }) : [];
+      this.timetable_studentLists.splice(0, this.timetable_studentLists.length);
+      if (val) {
+        this.allStudentLists.forEach(v => {if (!v.disabled) this.timetable_studentLists.push(v.student_id)});
+      }
     },
     //学员checkbox，多选
     studentCheckChange (val) {
@@ -620,7 +621,8 @@ export default {
 
       if (this.courseType === 1) {
         this.timetable_studentLists = this.checkStudentForm;
-        this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.length;
+        // this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.length;
+        this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.filter(f => {return (f.buy_lesson_num - f.scheduled)}).length;
       } else {
         this.studentRadio = this.radioStudentForm;
       }
@@ -930,13 +932,31 @@ export default {
       this.classSelectInfo = result.lists;
 
       this.allStudentLists = result.lists.student_course.concat(result.lists.student_grade);
-      this.timetable_studentLists = result.lists.student_grade.map(v => {
-        return v.student_id;
+
+      this.allStudentLists.forEach(m => {
+        m.disabled = !(m.buy_lesson_num - m.scheduled);
       });
-      this.checkStudentForm = this.timetable_studentLists;
-      if (!result.lists.student_course.length && result.lists.student_grade.length) {
-        this.timetable_studentCheckAll = true;
+
+      if (result.lists.course.type === 1) {
+        this.timetable_studentLists.splice(0, this.timetable_studentLists.length);
+        result.lists.student_grade.forEach(k => {
+          if (k.buy_lesson_num - k.scheduled > 0) {
+            this.timetable_studentLists.push(k.student_id);
+          }
+        });
+
+        this.checkStudentForm = this.timetable_studentLists;
+        // this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.filter(f => {return !f.disabled}).length;
       }
+
+      // this.timetable_studentLists = result.lists.student_grade.map(v => {
+      //   return v.student_id;
+      // });
+
+      // this.checkStudentForm = this.timetable_studentLists;
+      // if (!result.lists.student_course.length && result.lists.student_grade.length) {
+      //   this.timetable_studentCheckAll = true;
+      // }
     },
     //班级课程结课、停课、开课
     classCourseState (option) {

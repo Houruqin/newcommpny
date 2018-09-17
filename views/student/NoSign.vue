@@ -339,7 +339,7 @@ export default {
       });
     },
     async deleteHandle (id) {
-      let result = await this.$$request.post('/student/delete', {id: id});
+      let result = await this.$$request.post('/student/delete', {id: [id]});
 
       if (!result) {
         return 0;
