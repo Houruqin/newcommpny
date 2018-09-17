@@ -19,8 +19,8 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
-                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" type="number")
+                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num != setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
         el-col.student_alarm(:span="9" :offset="3")
@@ -36,8 +36,8 @@
               el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model.number="setting[name].num" size="small" :disabled="!setting[name].status")
-                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num !== setting[name].oldval" @click="buttonClickHandler(name)") 保存
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" type="number")
+                .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num != setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>
 import TableHeader from '../../components/common/TableHeader';
@@ -57,22 +57,22 @@ export default {
         studentCourse: { status: 0, label: '学员-购买通知'},
         studentGrade: { status: 0, label: '学员-分班通知' },
         timetableStudent: { status: 0, label: '学员-排课通知' },
-        studentLessonRemind: { status: 0, label: '学员-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
+        studentLessonRemind: { status: 0, label: '学员-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时', min: 1, max: 24 },
         studentLessonEnd: { status: 0, label: '学员-课时消耗提醒' },
         studentLeaveTicketProcessRemind: { status: 0, label: '学员-请假审核通知' },
         studentTimetableChange: { status: 0, label: '学员-修改课表' },
         studentTimetableCancel: { status: 0, label: '学员-课程取消' },
-        studentLessonRemainRemind: { status: 0, label: '学员-学费即将到期提醒', oldval: 0, num: 0, prefix: '剩余多少课时' },
+        studentLessonRemainRemind: { status: 0, label: '学员-学费即将到期提醒', oldval: 0, num: 0, prefix: '剩余多少课时', min: 1, max: 5 },
         studentLessonEndRemind: { status: 0, label: '学员-结课通知' },
         timetableTeacher: { status: 0, label: '教师-排课通知' },
-        teacherLessonRemind: { status: 0, label: '老师-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
-        teacherLessonEndReminding: { status: 0, label: '老师-课程结束未结课时间提醒', oldval: 0, num: 0, prefix: '课后多少小时' },
+        teacherLessonRemind: { status: 0, label: '老师-上课提醒', oldval: 0, num: 0, prefix: '提前多少小时', min: 1, max: 24 },
+        teacherLessonEndReminding: { status: 0, label: '老师-课程结束未结课时间提醒', oldval: 0, num: 0, prefix: '课后多少小时', min: 1, max: 24 },
         teacherLeaveTicketRemind: { status: 0, label: '教师-学员请假提醒' },
         teacherTimetableChange: { status: 0, label: '老师-修改课表' },
         teacherTimetableCancel: { status: 0, label: '教师-课程取消' },
-        teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', oldval: 0, num: 0, prefix: '剩余多少课时' },
+        teacherStudentLessonRemainRemind: { status: 0, label: '老师-学员剩余课时提醒', oldval: 0, num: 0, prefix: '剩余多少课时', min: 1, max: 5 },
         sellerStudentDistribute: { status: 0, label: '顾问-学员分配提醒' },
-        sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', oldval: 0, num: 0, prefix: '提前多少小时' },
+        sellerFollowUpReminding: { status: 0, label: '顾问-客户跟进提醒', oldval: 0, num: 0, prefix: '提前多少小时', min: 1, max: 24 },
         sellerStudentSign: { status: 0, label: '顾问-签约成功通知' }
       }
     };
@@ -95,6 +95,20 @@ export default {
     async buttonClickHandler (name) {
       if (!this.setting[name].status) {
         return void 0;
+      }
+
+      let nowSetting = this.setting[name];
+
+      if (!Number.isInteger(+nowSetting.num)) {
+        return this.$message.error('请输入整数');
+      }
+
+      if (+nowSetting.num < nowSetting.min) {
+        return this.$message.error(`最小值${nowSetting.min}`);
+      }
+
+      if (+nowSetting.num > nowSetting.max) {
+        return this.$message.error(`最小值${nowSetting.max}`);
       }
 
       let result = await this.saveWechatSettings(name);
