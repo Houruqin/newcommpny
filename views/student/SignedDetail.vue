@@ -1613,26 +1613,28 @@ export default {
 
       let result = await this.$$request.post('/listenCourse/lists', {data: params});
 
-      console.log(result);
       if (!result) {
         return 0;
       }
       this.listenCourseLists = result.lists;
+    },
+    async pageInit () {
+      let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
+
+      if (a && b) {
+        this.state = 'loaded';
+      }
     }
   },
-  async created () {
+  created () {
     this.studentId = this.$route.query.id;
-    let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
-
-    if (a && b) {
-      this.state = 'loaded';
-    }
+    this.pageInit();
   },
   watch: {
-    $route: function (val, oldval) {
+    $route: function (val) {
+      this.state = 'loading';
       this.studentId = val.query.id;
-      this.getStudentDetail();
-      this.getBottomTabLists();
+      this.pageInit();
     }
   },
   components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}

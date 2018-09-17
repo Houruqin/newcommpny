@@ -355,7 +355,7 @@ export default {
     },
     //回到工作台
     goWorkBench () {
-      this.$router.replace({path: '/refresh'}); //刷新工作台路由
+      this.$router.push({path: '/refresh', url: '/'}); //刷新工作台路由
     },
     //回到学员列表
     goStudentLists () {

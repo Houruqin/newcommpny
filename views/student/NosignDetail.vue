@@ -572,9 +572,16 @@ export default {
         return 0;
       }
       this.listenCourseLists = result.lists;
+    },
+    async pageInit () {
+      let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
+
+      if (a && b) {
+        this.state = 'loaded';
+      }
     }
   },
-  async created () {
+  created () {
     if (this.$route.query.student_id) {
       this.studentId = this.$route.query.student_id;
     }
@@ -590,17 +597,13 @@ export default {
       this.resultArr = StudentStatic.followUp.status;
     }
 
-    let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
-
-    if (a && b) {
-      this.state = 'loaded';
-    }
+    this.pageInit();
   },
   watch: {
-    $route: function (val, oldval) {
+    $route (val) {
+      this.state = 'loading';
       this.studentId = val.query.student_id;
-      this.getStudentDetail();
-      this.getFollowUpLists();
+      this.pageInit();
     }
   },
   components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}

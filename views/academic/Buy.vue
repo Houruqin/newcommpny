@@ -44,11 +44,7 @@
         </el-table-column>
         <el-table-column label="学员状态" align="center">
           <template slot-scope="scope">
-            <div>
-              <div>
-                <span :class="[scope.row.state === 0 ? 'in_school' : 'graduation','student_status']">{{scope.row.state === 0  ? '在校' : '结业'}}</span>
-              </div>
-            </div>
+            <span :class="[scope.row.state === 0 ? 'in_school' : 'graduation','student_status']">{{scope.row.state === 0  ? '在校' : '结业'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="合约详情" align="center">

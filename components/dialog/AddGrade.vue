@@ -276,9 +276,9 @@ export default {
     //任课老师、辅助老师不能重复验证
     teacherValidator (type) {
       return (rule, value, callback) => {
-        if(type === 'teacher' && value == this.classForm.counselor_ids) {
+        if (type === 'teacher' && value == this.classForm.counselor_ids) {
           return callback(new Error('任课老师不能和辅助老师相同'));
-        } else if(type === 'counselor' && value == this.classForm.teacher_ids) {
+        } else if (type === 'counselor' && value == this.classForm.teacher_ids) {
           return callback(new Error('辅助老师不能和任课老师相同'));
         }
 
