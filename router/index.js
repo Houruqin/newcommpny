@@ -67,6 +67,12 @@ const router = new Router({
 //跳转之前先做判断
 router.beforeEach((to, from, next) => {
 
+  if (to.path === '/login') {
+    document.title = '教优方 - 教优方系统登录';
+  } else {
+    document.title = '教优方 - 校区运营管理系统';
+  }
+
   // 用于测试
   if (from.query.debugger && !to.query.debugger) {
     location.href = `${to.path}?${qs.stringify({...to.query, debugger: from.query.debugger})}`;

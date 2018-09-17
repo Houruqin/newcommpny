@@ -37,7 +37,7 @@ if (!isLocalEnv) {
 
 // 本地开发环境的配置项
 let localDevConf = {
-  devtool: 'cheap-module-eval-source-map'
+  devtool: '#source-map'
 };
 
 // 生产环境的配置项
