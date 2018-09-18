@@ -481,7 +481,11 @@
             <li v-for="(list, index) in divide_info.class.lists" :key="index" class="mt-20">
               <el-radio :label="list.id">
                 <span>{{list.name}}</span>
-                <span class="ml-20">{{list.join_num}}/{{list.limit_num}}</span>
+                <span class="ml-20">
+                  <i class="iconfont" :class="list.course.type == 1 ? 'fs-13 icon-renshu' : 'icon-renyuan'"></i>
+                  <i>{{list.join_num}}</i>
+                  <i v-if="list.course.type == 1">/{{list.limit_num}}</i>
+                </span>
               </el-radio>
             </li>
           </ul>

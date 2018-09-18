@@ -398,7 +398,7 @@
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span>
                                         <span class="ml-20">
-                                          <i class="iconfont fs-13" :class="course.type == 1 ? 'icon-renshu' : 'icon-renyuan'"></i>
+                                          <i class="iconfont" :class="course.type == 1 ? 'fs-13 icon-renshu' : 'icon-renyuan'"></i>
                                           <i>{{list.join_num}}</i>
                                           <i v-if="course.type == 1">/{{list.limit_num}}</i>
                                         </span>
