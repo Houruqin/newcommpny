@@ -1,6 +1,7 @@
 <template>
-    <div class="my-btn d-f f-a-c f-j-c cursor-pointer" 
-    :class="{'b-radius': radius, 'fc-f': fontColor == 'fc-f', 'fc-m': fontColor == 'fc-m', 'border': type == 'border', 
+    <div class="my-btn d-f f-a-c f-j-c cursor-pointer"
+    :style="{'min-width' : minWidth + 'px'}"
+    :class="{'b-radius': radius, 'fc-f': fontColor == 'fc-f', 'fc-m': fontColor == 'fc-m', 'border': type == 'border',
             'btn-m': type == 'main', 'btn-subm': type == 'subm', 'btn-gray': type == 'gray', 'loading': loading}">
         <!-- <img class="mr-5" v-if="icon" :src="ImportIcon"> -->
         <i class="iconfont icon-daoruexcel mr-5" v-if="icon"></i>
@@ -19,7 +20,8 @@ export default {
     type: {default: 'main'}, //main: 绿色背景, subm: 黄色背景, gray: 灰色背景, none: 无背景， border： 边框
     icon: {default: false}, //默认按钮无图标
     fontColor: {default: 'fc-f'}, //字体颜色，默认白色
-    radius: {default: true}
+    radius: {default: true},
+    minWidth: {default: 94}
   },
   data () {
     return {
@@ -32,7 +34,7 @@ export default {
 <style lang="less" scoped>
     .my-btn {
         height: 32px;
-        min-width: 94px;
+        // min-width: 94px;
         padding: 0 18px;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;

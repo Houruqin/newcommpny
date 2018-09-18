@@ -219,14 +219,6 @@
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
 
-        <!-- 购买课程弹窗 -->
-        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
-            @CB-contract="CB_contract">
-        </BuyCourseDialog> -->
-
-        <!-- 购课合约弹窗 -->
-        <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
-
         <!-- 添加、修改课程弹窗 -->
         <AddCourseDialog :dialogStatus="dialogStatus.addCourse"
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
@@ -328,8 +320,6 @@ import Bus from '../script/bus';
 import MyButton from '../components/common/MyButton';
 
 import AddStudentDialog from '../components/dialog/AddStudent';
-import BuyCourseDialog from '../components/dialog/BuyCourse';
-import ContractDialog from '../components/dialog/Contract';
 import AddCourseDialog from '../components/dialog/AddCourse';
 
 import errorLoading from '!url-loader!../images/state-500.png';
@@ -357,7 +347,6 @@ export default {
 
       dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
       // buyCourseData: {},
-      // contractData: {},
 
       auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
       listenCourseLists: [], //试听课程列表
@@ -453,24 +442,21 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'student') {
-        return this.dialogStatus.student = false;
-      }
-      if (type == 'add_course') {
-        return this.dialogStatus.addCourse = false;
+      if (type === 'student') {
+        this.dialogStatus.student = false;
+      } else if (type === 'add_course') {
+        this.dialogStatus.addCourse = false;
       }
     },
     //登记成功，刷新列表
     CB_addStudent () {
       this.dialogStatus.student = false;
+      if (this.$route.path === '/student/nosign') {
+        Bus.$emit('refresh', 'student');
+      } //如果是在课程列表页面，刷新课程列表
     },
     //登记成功，购课回调
     CB_buyCourse (data) {
-      console.log(data);
-      // this.buyCourseData = data;
-      // this.dialogStatus.student = false;
-      // this.dialogStatus.course = true;
-
       let params = {
         student_id: data.id,
         advisor_id: data.advisor_id,
@@ -480,22 +466,13 @@ export default {
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
-    //购课成功，合约回调
-    // CB_contract(data) {
-    //     this.contractData = data;
-    //     this.dialogStatus.course = false;
-    //     this.dialogStatus.contract = true;
-    // },
     //新增课程成功，回调
     CB_addCourse () {
       this.dialogStatus.addCourse = false;
-      if (this.$route.path == '/course') {
-        Bus.$emit('refreshCourseLists');
-      } //如果是在课程列表页面，刷新课程列表
     },
     //试听窗口关闭
     dialogClose (type) {
-      if (type == 'listen') {
+      if (type === 'listen') {
         this.listenCourseLists = [];
         this.auditionData = {
           time: new Date().getTime(),
@@ -504,7 +481,7 @@ export default {
           teacher_id: '',
           course_id: ''
         };
-      } else if (type == 'listen_student') {
+      } else if (type === 'listen_student') {
         this.checkListenStudent = [];
         this.listenTimetableId = '';
       }
@@ -529,7 +506,7 @@ export default {
     },
     //试听学员列表操作
     listenStudentClick (data, type) {
-      if (type == 'add') {
+      if (type === 'add') {
         data.active = true;
         this.checkListenStudent.push(data.id);
       } else {
@@ -642,22 +619,22 @@ export default {
     },
     //在线帮助下拉
     helpHandleCommand (val) {
-      if (val == 'lineQQ') {
+      if (val === 'lineQQ') {
         return window.open('http://wpa.qq.com/msgrd?v=3&uin=3266315153&site=qq&menu=yes');
       }
-      if (val == 'helpCenter') {
+      if (val === 'helpCenter') {
         return window.open('http://csdoc.jiaoyf.com/');
       }
     },
     //设置下拉
     settingHandleCommand (val) {
-      if (val == 'usersetting') {
+      if (val === 'usersetting') {
         return this.$router.push({path: '/staff/detail', query: {user_id: this.$$cache.getMemberInfo().id}});
       }
-      if (val == 'schoolsetting') {
+      if (val === 'schoolsetting') {
         return this.$router.push({path: '/workbench/schoolsetting'});
       }
-      if (val == 'loginOut') {
+      if (val === 'loginOut') {
         this.loginOut();
       }
     },
@@ -821,7 +798,7 @@ export default {
     this.modalObj = null;
     next();
   },
-  components: {Menu, AddStudentDialog, BuyCourseDialog, ContractDialog, AddCourseDialog, MyButton}
+  components: {Menu, AddStudentDialog, AddCourseDialog, MyButton}
 };
 </script>
 

@@ -34,11 +34,10 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton @click.native="checkboxEdit" type="border" fontColor="fc-m" v-if="isShowCheckbox">批量删除</MyButton>
                 <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
-            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange">
+            <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange" ref="studentTable">
                 <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="学员姓名" align="center">
@@ -84,15 +83,22 @@
                 </el-table-column>
             </el-table>
 
+            <div class="d-f p-r" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'">
+              <div class="multiple-del-box d-f f-a-c">
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="checkboxEdit">批量删除</span>
+                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
+              </div>
+            </div>
             <el-pagination v-if="studentTable.total"
-                class="d-f f-j-c mt-50 mb-50"
-                :page-size="studentTable.per_page"
-                background layout="total, prev, pager, next"
-                :total="studentTable.total"
-                :current-page="studentTable.current_page"
-                @current-change="paginationClick"
-                @next-click="nextClick"
-                @prev-click="prevClick">
+              class="d-f f-j-c mt-50 mb-50"
+              :page-size="studentTable.per_page"
+              background layout="total, prev, pager, next"
+              :total="studentTable.total"
+              :current-page="studentTable.current_page"
+              @current-change="paginationClick"
+              @next-click="nextClick"
+              @prev-click="prevClick">
             </el-pagination>
         </el-card>
 
@@ -100,14 +106,6 @@
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
-
-        <!-- 购买课程弹窗 -->
-        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
-            @CB-contract="CB_contract">
-        </BuyCourseDialog> -->
-
-        <!-- 购课合约弹窗 -->
-        <!-- <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog> -->
     </div>
 </template>
 
@@ -117,8 +115,7 @@ import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
-import BuyCourseDialog from '../../components/dialog/BuyCourse';
-import ContractDialog from '../../components/dialog/Contract';
+import Bus from '../../script/bus';
 
 import {StudentStatic} from '../../script/static';
 import qs from 'qs';
@@ -129,7 +126,7 @@ export default {
     return {
       state: 'loading',
       activeTab: 'unsign',
-      isShowCheckbox: true,
+      isShowCheckbox: false,
       selectedIds: [],    //批量删除学员列表
       loading: true,
       tabLists: [],
@@ -149,9 +146,7 @@ export default {
       dialogStatus: {student: false, course: false, contract: false},
       studentType: '',
 
-      // buyCourseData: {},
       editDetail: {},
-      // contractData: {},   //合约数据
 
       studentLists: [],
       editStudentData: {},
@@ -198,7 +193,7 @@ export default {
     };
   },
   methods: {
-    async checkboxEdit () {
+    checkboxEdit () {
       // 删除
       if (this.selectedIds && this.selectedIds.length) {
         this.$confirm('学员删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
@@ -223,14 +218,22 @@ export default {
 
       this.getAllLists();
       this.$message.success('已删除');
+      this.isShowCheckbox = false;
+      this.selectedIds.splice(0, this.selectedIds.length);
+    },
+    // 取消批量删除
+    cancelMultipleDel () {
+      this.isShowCheckbox = false;
+      this.selectedIds.splice(0, this.selectedIds.length);
+      this.$refs.studentTable.clearSelection();
     },
     handleSelectionChange (x) {
       this.selectedIds = x.map(v => v.id);
     },
     tabClick (tab) {
-      if (tab.type == 'following' && this.followUp.length == 5) {
+      if (tab.type === 'following' && this.followUp.length == 5) {
         this.followUp.splice(0, 1);
-      } else if (tab.type == 'unsign' && this.followUp.length == 4) {
+      } else if (tab.type === 'unsign' && this.followUp.length == 4) {
         this.followUp.unshift({id: 0, name: '未跟进'});
       }
 
@@ -245,6 +248,7 @@ export default {
         }
         this.activeTab = tab.type;
         this.getStudentLists();
+        this.isShowCheckbox = false;
       }
     },
     addStudent () {
@@ -274,20 +278,15 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'student') {
+      if (type === 'student') {
         this.dialogStatus.student = false;
         this.editDetail = {};
         this.studentType = '';
-
-        return 0;
-      }
-      if (type == 'course') {
-        return this.dialogStatus.course = false;
       }
     },
     //登记成功，刷新列表
     CB_addStudent (type) {
-      this.getAllLists(type == 'edit');
+      this.getAllLists(type === 'edit');
       this.dialogStatus.student = false;
     },
     //登记成功，购课回调
@@ -368,7 +367,7 @@ export default {
       return a && b;
     },
     //获取tab列表
-    async getTabLists (isCurrPage) {
+    async getTabLists () {
       let result = await this.$$request.post('/student/tab');
 
       console.log(result);
@@ -420,17 +419,21 @@ export default {
     }
   },
   async created () {
-    let datas = await this.getAllLists();
-    let member = this.$$cache.getMemberInfo();
+    Bus.$on('refresh', (type) => {
+      if (type === 'student') {
+        this.getAllLists();
+      }
+    });
 
-    this.isShowCheckbox = member.type === 'institution' || member.type === 'master';
+    let datas = await this.getAllLists();
+
     if (datas) {
       this.state = 'loaded';
     }
   },
   beforeRouteEnter (to, from, next) {
     //判断如果是未签约详情过来，那么就不用刷新，直接取缓存即可，否则其他页面过来的，都需要刷新整个页面
-    if (from.name == 'nosignDetail') {
+    if (from.name === 'nosignDetail') {
       to.meta.keepAlive = true;
     } else {
       to.meta.keepAlive = false;
@@ -440,7 +443,10 @@ export default {
   beforeRouteLeave (to, from, next) {
     next(); //离开页面时，做判断
   },
-  components: {Classify, MyButton, TableHeader, AddStudentDialog, BuyCourseDialog, ContractDialog}
+  beforeDestroy () {
+    Bus.$off('refresh');
+  },
+  components: {Classify, MyButton, TableHeader, AddStudentDialog}
 };
 </script>
 
@@ -528,6 +534,11 @@ export default {
                 line-height: 40px;
             }
         }
+    }
+    .multiple-del-box {
+      position: absolute;
+      top: 20px;
+      left: 0;
     }
 </style>
 

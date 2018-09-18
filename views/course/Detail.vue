@@ -34,12 +34,15 @@
 
         <el-card shadow="hover" class="mt-20">
             <TableHeader title="班级课表">
-                <div class="delete-btn fc-f t-a-c cursor-pointer" v-if="timetableCheckbox" @click="deleteTimeTable" :class="{'btn-subm': deleteTimeTableLists.length}">删除</div>
-                <div class="edit-btn fc-m t-a-c ml-10 cursor-pointer" @click="timetableEdit">{{timetableCheckbox ? '取消' : '编辑'}}</div>
+              <div class="d-f f-a-c">
+                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteTimeTable">批量删除</span>
+                <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
+              </div>
             </TableHeader>
 
             <el-table :data="timeTableLists.data" strip ref="timetable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableCheckbox"></el-table-column>
+                <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="isShowCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="上课日期" align="center">
                     <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
@@ -106,8 +109,8 @@ export default {
       editDetail: {},
       syllabusParams: {},
 
-      deleteTimeTableLists: [], //删除课表，选中的课表
-      timetableCheckbox: false //班级详情删除课表，checkbox是否显示
+      selectedIds: [], //删除课表，选中的课表
+      isShowCheckbox: false //班级详情删除课表，checkbox是否显示
     };
   },
   methods: {
@@ -157,20 +160,14 @@ export default {
 
       this.dialogStatus.syllabus = true;
     },
-    //编辑详情
-    // editCourseDetail() {
-    //     this.gradeType = 'edit';
-    //     this.editDetail = {...this.gradeDetail, course_type: this.gradeDetail.course.type};
-    //     this.dialogStatus.grade = true;
-    // },
     paginationClick (curr) {
       this.getTimeTableLists(curr);
     },
-    checkboxIsDisabled (row, index) {
+    checkboxIsDisabled (row) {
       return row.begin_time > new Date().getTime() / 1000;
     },
     handleSelectionChange (val) {
-      this.deleteTimeTableLists = val;
+      this.selectedIds = val.map(v => v.id);
     },
     //删除班级
     deleteGrade () {
@@ -194,16 +191,26 @@ export default {
       this.$router.go(-1);
     },
     async deleteTimeTable () {
-      if (!this.deleteTimeTableLists.length) {
-        return this.$message.warning('请选择数据!');
+      console.log(this.selectedIds)
+      if (this.selectedIds && this.selectedIds.length) {
+        this.$confirm('删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.multipleDelete();
+        }).catch(() => {
+          return 0;
+        });
+      } else {
+        this.$message.error('请至少选中一条数据');
       }
-      let timetableLists = this.deleteTimeTableLists.map(v => {
-        return v.id;
-      });
-
-      let result = await this.$$request.post('/timetable/deleteAll', {id: timetableLists});
+    },
+    async multipleDelete () {
+      let result = await this.$$request.post('/timetable/deleteAll', {id: this.selectedIds});
 
       console.log(result);
+
       if (!result) {
         return 0;
       }
@@ -211,21 +218,19 @@ export default {
       if (result.status == 1) {
         this.$message.success('删除成功');
         this.getTimeTableLists();
-        this.timetableCheckbox = false;
-        this.deleteTimeTableLists = [];
+        this.isShowCheckbox = false;
+        this.selectedIds.splice(0, this.selectedIds.length);
       } else {
         this.$message.warning('删除失败');
       }
     },
-    timetableEdit () {
-      this.timetableCheckbox = !this.timetableCheckbox;
-      if (!this.timetableCheckbox) {
-        this.$refs.timetable.clearSelection();
-      }
+    cancelMultipleDel () {
+      this.isShowCheckbox = false;
+      this.selectedIds.splice(0, this.selectedIds.length);
+      this.$refs.timetable.clearSelection();
     },
     async getPageData () {
       let [a, b] = await Promise.all([this.getGradeDetail(), this.getTimeTableLists()]);
-
 
       return a && b;
     },
@@ -283,21 +288,6 @@ export default {
                 color: #222;
             }
         }
-    }
-    .delete-btn {
-        width: 70px;
-        height: 35px;
-        line-height: 35px;
-        background-color: #D6D6D6;
-        border-radius: 5px;
-    }
-    .edit-btn {
-        width: 70px;
-        height: 35px;
-        box-sizing: border-box;
-        border: 1px #45DAD5 solid;
-        line-height: 35px;
-        border-radius: 5px;
     }
     .student-box {
         max-width: 600px;
