@@ -55,7 +55,7 @@ export default {
       title: '',
       all_authority: false,
       authority: [],
-      auth_options: ['校长', '老师', '教务', '顾问', '销售主管', '教务主管'],
+      auth_options: ['校长', '老师', '教务', '顾问', '销售主管', '教务主管', '学术主管'],
       notice_person: [],
       show_notice_person: [],
       master_lists: [], //校长
@@ -64,6 +64,7 @@ export default {
       educate_lists: [], //教务
       director_lists: [], //销售主管
       dean_lists: [], //教务主管
+      academic_lists: [], //教务主管
       all_lists: []
     };
   },
@@ -100,6 +101,9 @@ export default {
           case '教务主管':
             this.notice_person.push(...this.dean_lists);
             break;
+          case '学术主管':
+            this.notice_person.push(...this.academic_lists);
+            break;
         }
       }
       console.log(this.notice_person);
@@ -109,6 +113,7 @@ export default {
       this.all_authority = checkedCount === this.auth_options.length;
     },
     get_not_repeat_notice_person (arr) {
+      console.log(arr)
       let hash = {};
 
       arr = arr.reduce((item, next) => {
@@ -131,13 +136,15 @@ export default {
       this.educate_lists = [...res.register];
       this.director_lists = [...res.director];
       this.dean_lists = [...res.dean];
+      this.academic_lists = [...res.academic];
       this.all_lists = [
         ...this.master_lists,
         ...this.teacher_lists,
         ...this.seller_lists,
         ...this.educate_lists,
         ...this.director_lists,
-        ...this.dean_lists
+        ...this.dean_lists,
+        ...this.academic_lists
       ];
 
       return true;
