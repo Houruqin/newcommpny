@@ -397,7 +397,11 @@
                                 <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span>
-                                        <span class="ml-20">{{list.join_num}}<i v-if="course.type == 1">/{{list.limit_num}}</i></span>
+                                        <span class="ml-20">
+                                          <i class="iconfont fs-13" :class="course.type == 1 ? 'icon-renshu' : 'icon-renyuan'"></i>
+                                          <i>{{list.join_num}}</i>
+                                          <i v-if="course.type == 1">/{{list.limit_num}}</i>
+                                        </span>
                                     </el-radio>
                                 </li>
                             </ul>

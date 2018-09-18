@@ -573,6 +573,9 @@
       </el-row>
       <el-row v-html="notice_info.content"></el-row>
     </el-dialog>
+
+     <!-- 请假是否扣课时弹窗 -->
+    <!-- <LeaveConfirmDialog v-model="dialogStatus.leaveConfirm" :detail="leaveDetail"></LeaveConfirmDialog> -->
   </div>
 </template>
 
@@ -582,6 +585,7 @@ import MyButton from '../../components/common/MyButton';
 import echarts from 'echarts';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
+// import LeaveConfirmDialog from '../../components/dialog/LeaveConfirm';
 
 export default {
   data () {
@@ -593,7 +597,8 @@ export default {
 
       user_info: '',
 
-      dialogStatus: {student: false},
+      dialogStatus: {student: false, leaveConfirm: false},
+      // leaveDetail: {},
       buyCourseData: {},
 
       // leaveDialog: false,  //请假弹窗
@@ -941,10 +946,14 @@ export default {
 
     //请假处理以后，弹窗提醒扣不扣课时
     showLeaveMessage (data, id, student_name) {
+      // this.leaveNum = 5;
+      // this.lessonNum = 6;
+      // this.leaveDetail = {leaveNum: 2, lessonNum: 3, studentName: '傻大个傻大个'};
+      // this.dialogStatus.leaveConfirm = true;
       let lessonStatus = this.$store.state.systemSetting.LeaveTicketDeductLessonNum.num;
       let title1 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span></div><div class="mt-10 t-a-l">本次请假将不会扣除课</div>`;
       let title2 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span></div><div class="mt-10 t-a-l">本次请假扣除课时：${data.num}课时</div>`;
-      let title3 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span><span class="ml-60">本次课时数为：${data.num}课时</span></div><div class="mt-10 t-a-l">本次请假是否扣除课时？</div>`;
+      let title3 = `<div class="d-f t-a-l"><span>${student_name}</span><span class="ml-20">已请假次数：${data.leave_num}次</span><span class="ml-60">本次课时数为：${data.num}课时</span></div><div class="mt-10 fc-m">本次请假是否扣除课时？</div>`;
 
       if (lessonStatus == 3) {
         this.$confirm(title3, '请假确认', {
@@ -1695,7 +1704,7 @@ export default {
     });
   },
   components: { TableHeader, MyButton, AddStudentDialog }
-};
+}
 </script>
 
 <style lang="less" scoped>
