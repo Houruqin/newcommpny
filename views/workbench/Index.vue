@@ -556,7 +556,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 === 5 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
+              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 !== 1 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
               <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row)" :class="[scope.row.status2 === 5 && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
@@ -1373,8 +1373,8 @@ export default {
     },
     //学员签到
     async sign_student (s_id, t_id, status, item) {
-      if (status === 5 && this.all_student_info.sign && !this.all_student_info.end) {
-        item.status2 = 6;
+      if (status !== 1 && this.all_student_info.sign && !this.all_student_info.end) {
+        item.status2 = 1;
         const params = {
           timetable_id: t_id,
           student_id: s_id
