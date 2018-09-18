@@ -3,7 +3,7 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="班级详情" :other="true">
-              <span class="syllabus fc-m ml-20 mt-2 cursor-pointer" v-if="$store.state.systemSetting.outline.status" @click="syllabusClick">班级大纲</span>
+              <span class="syllabus fc-m ml-20 mt-2 cursor-pointer" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick">班级大纲</span>
             </TableHeader>
 
             <h3 class="fs-18 fc-2 f-w-n mt-20 mb-10">{{gradeDetail.name}}</h3>

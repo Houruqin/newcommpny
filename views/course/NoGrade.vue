@@ -14,7 +14,7 @@
                             <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                         </span>
                         <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
-                        <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
+                        <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                     </div>
                     <div class="d-f f-a-c">
                         <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
@@ -521,6 +521,7 @@ export default {
     }
   },
   async created () {
+    this.$store.dispatch('getSynstemSetLists');
     let datas = await this.getCourseLists();
 
     if (datas) {
