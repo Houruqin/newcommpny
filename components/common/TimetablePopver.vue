@@ -116,7 +116,7 @@ export default {
         </div>
 
         <div class="d-f">
-          <span class="flex1">未到人数：${result.not_come_num}</span>
+          <span class="flex1">旷课人数：${result.not_come_num}</span>
           <span class="flex1">请假人数：${result.leave_ticket_num}</span>
         </div>`;
 

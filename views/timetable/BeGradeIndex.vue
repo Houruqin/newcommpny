@@ -1064,7 +1064,7 @@ export default {
     studentCheckChange (val) {
       let checkedCount = val.length;
 
-      this.studentCheckAll = checkedCount === this.allStudentLists.length;
+      this.studentCheckAll = checkedCount === this.allStudentLists.filter(f => {return !f.disabled}).length;
     },
     //排课弹窗通过选中的student_id获取student_name
     getStudentName (student_id) {

@@ -597,7 +597,7 @@ export default {
     timetable_studentCheckChange (val) {
       let checkedCount = val.length;
 
-      this.timetable_studentCheckAll = checkedCount === this.allStudentLists.length;
+      this.timetable_studentCheckAll = checkedCount === this.allStudentLists.filter(f => {return !f.disabled}).length;
     },
 
     //排课弹窗通过选中的student_id获取student_name
