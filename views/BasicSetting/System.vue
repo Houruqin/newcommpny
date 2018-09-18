@@ -75,10 +75,17 @@ export default {
 
         if (key === 'studentCourseRemain') {
           result.datas[key].unit = '课时';
+          result.datas[key].min = 1;
+        } else if (key === 'longTimeNoByCourse') {
+          result.datas[key].min = 1;
         } else if (key === 'teacherSign') {
           result.datas[key].unit = '分钟';
-        } else if (key === 'studentAppointCourse' || key === 'studentCancelAppointCourse' || key === 'studentLeaveTicket' || key === 'outline') {
+          result.datas[key].min = 0;
+          result.datas[key].max = 180;
+        } else if (key === 'studentAppointCourse' || key === 'studentCancelAppointCourse' || key === 'studentLeaveTicket') {
           result.datas[key].unit = '小时';
+          result.datas[key].min = 0;
+          result.datas[key].max = 24;
         }
       });
 
@@ -95,26 +102,23 @@ export default {
     // 保存设置值
     async saveSetting (name) {
 
-      let val = this.setting[name].num;
+      let nowSetting = this.setting[name];
 
-      console.log(val);
+      if (!Number.isInteger(+nowSetting.num)) {
+        return this.$message.error('请输入整数');
+      }
 
-      if (!val.length) return this.$message.error('格式不对,不能输入特殊字符');
-      if (String(val).indexOf('.') > -1) return this.$message.error('不能输入小数');
+      if (+nowSetting.num < nowSetting.min) {
+        return this.$message.error(`最小值：${nowSetting.min}`);
+      }
 
-      if (name === 'studentCourseRemain' || name === 'longTimeNoByCourse') {
-        if (val < 1) return this.$message.error('最小值为1');
-      } else if (name === 'studentAppointCourse' || name === 'studentCancelAppointCourse' || name === 'studentLeaveTicket') {
-        if (val < 0) return this.$message.error('最小值为0');
-        if (val > 24) return this.$message.error('最大值为24');
-      } else if (name === 'teacherSign') {
-        if (val < 0) return this.$message.error('最小值为0');
-        if (val > 180) return this.$message.error('最大值为180');
+      if (+nowSetting.num > nowSetting.max) {
+        return this.$message.error(`最大值：${nowSetting.max}`);
       }
 
       let params = {};
 
-      params[name] = {name: name, status: this.setting[name].status, num: val};
+      params[name] = {name: name, status: nowSetting.status, num: nowSetting.num};
 
       console.log(params);
 
@@ -125,7 +129,7 @@ export default {
       }
 
       this.$store.dispatch('getSynstemSetLists');
-      this.setting[name].oldVal = this.setting[name].num;
+      this.setting[name].oldVal = nowSetting.num;
       this.$message.success('保存成功');
     }
   },

@@ -144,7 +144,7 @@ export default {
       searchKeyWord: '',
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
-      followUp: StudentStatic.followUp.status,
+      followUp: JSON.parse(JSON.stringify(StudentStatic.followUp.status)),
 
       dialogStatus: {student: false, course: false, contract: false},
       studentType: '',

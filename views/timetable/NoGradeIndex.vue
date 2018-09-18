@@ -1717,9 +1717,6 @@ export default {
         .lesson-num .el-input {
             width: 180px;
         }
-        .el-cascader {
-            display: block;
-        }
         /deep/.el-radio {
             .el-radio__input {
                 input {

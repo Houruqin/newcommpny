@@ -1815,11 +1815,8 @@ export default {
             right: -35px;
             top: 5px;
         }
-        /deep/ .el-input {
+        /deep/ .el-input, /deep/ .el-cascader {
             width: 240px;
-        }
-        .el-cascader {
-            display: block;
         }
         /deep/.el-radio {
             .el-radio__input {

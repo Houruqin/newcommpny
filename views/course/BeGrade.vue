@@ -1230,9 +1230,6 @@ export default {
         .el-select, .el-date-editor {
             width: 100%;
         }
-        .el-cascader {
-            display: block;
-        }
         .form-unit {
             position: absolute;
             right: -30px;
