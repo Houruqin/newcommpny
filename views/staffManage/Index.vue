@@ -43,11 +43,14 @@
                 </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
+                      <div class="operable-btn-box">
                         <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
                         <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable" @click="modifyHandle(scope.row)">编辑</span>
-                        <span class="cursor-pointer fc-m ml-10" v-if="scope.row.operable" @click="forbidClick(scope.row)">
+                        <span class="cursor-pointer fc-m" v-if="scope.row.operable" @click="forbidClick(scope.row)">
                             {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
                         </span>
+                        <span class="cursor-pointer fc-m" v-if="scope.row.leaveEnable && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
+                      </div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -65,7 +68,7 @@
 
         <!-- 新增员工弹窗 -->
         <AddStaffDialog :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
-            @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff" @CB-dimission="CB_dimission">
+            @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </div>
 </template>
@@ -120,10 +123,6 @@ export default {
       this.dialogStatus = false;
       this.getUserLists(this.activePage);
     },
-    CB_dimission () {
-      this.dialogStatus = false;
-      this.getUserLists(this.activePage);
-    },
     //员工状态筛选
     filterChange () {
       this.getUserLists();
@@ -170,6 +169,31 @@ export default {
       console.log(data);
       this.editDetail = data;
       this.dialogStatus = true;
+    },
+    //离职
+    dimissionClick (data) {
+      this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.dimissionHandle(data.id);
+      }).catch(() => {
+        return 0;
+      });
+    },
+    async dimissionHandle (id) {
+      let result = await this.$$request.post('/user/changeStatus', {id: id});
+
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+
+      this.getUserLists(this.activePage);
+      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
+      this.$store.dispatch('getTeacher');
+      this.$message.success('已修改为离职状态');
     },
     //禁用账号
     forbidClick (data) {
@@ -291,6 +315,13 @@ export default {
     }
     .filter-box {
         width: 125px;
+    }
+    .operable-btn-box {
+      span {
+        &:not(:first-child) {
+          margin-left: 10px;
+        }
+      }
     }
 </style>
 

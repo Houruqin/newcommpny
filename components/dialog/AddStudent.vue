@@ -15,9 +15,30 @@
                         <el-form-item label="就读学校：" prop="school_name">
                             <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
                         </el-form-item>
+                    </el-col>
 
-                        <el-form-item label="家长姓名：" prop="parent_name">
+                    <el-col :span="11" class="ml-30">
+                        <el-form-item label="性别：" prop="sex" >
+                            <el-select v-model="studentForm.sex" placeholder="选择性别">
+                                <el-option label="男" :value="1"></el-option>
+                                <el-option label="女" :value="0"></el-option>
+                            </el-select>
+                        </el-form-item>
+
+                        <el-form-item label="出生日期：">
+                            <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="11">
+                      <el-form-item label="家长姓名：" prop="parent_name">
                             <el-input v-model.trim="studentForm.parent_name"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="家长工作：" prop="parent_job">
+                            <el-input v-model.trim="studentForm.parent_job" placeholder="选填"></el-input>
                         </el-form-item>
 
                         <el-form-item label="意向课程：">
@@ -33,27 +54,21 @@
                             <div class="p-a add-source ver-c cursor-pointer" @click="addSource"><img src="../../images/common/add.png" alt=""></div>
                         </el-form-item>
                     </el-col>
-
                     <el-col :span="11" class="ml-30">
-                        <el-form-item label="性别：" prop="sex" >
-                            <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                <el-option label="男" :value="1"></el-option>
-                                <el-option label="女" :value="0"></el-option>
+                        <el-form-item label="家长关系：" key="relation1" v-if="!studentForm.parent_name">
+                            <el-select v-model="studentForm.relation" placeholder="请选择" :disabled="!studentForm.parent_name">
+                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item label="出生日期：">
-                            <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                        <el-form-item label="家长关系：" key="relation2" prop="relation"  v-else>
+                            <el-select v-model="studentForm.relation" placeholder="请选择" :disabled="!studentForm.parent_name">
+                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
                         </el-form-item>
 
                         <el-form-item label="家庭住址：" prop="address">
                             <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="家长关系：" prop="relation">
-                            <el-select v-model="studentForm.relation" placeholder="请选择">
-                                <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
-                            </el-select>
                         </el-form-item>
 
                         <el-form-item label="课程意向：">
@@ -70,7 +85,6 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-
                 <el-row class="mt-10">
                     <el-form-item label="备注：" class="textarea-cls pr-30" prop="remark">
                         <el-input type="textarea" :rows="4" placeholder="请输入备注信息" v-model.trim="studentForm.remark"></el-input>
@@ -154,6 +168,7 @@ export default {
         birthday: '',
         like_course: '',
         like_grade: '',
+        parent_job: '',
         source_id: '', //渠道id
         advisor_id: '', //顾问id
         remark: '', //备注信息
@@ -172,6 +187,9 @@ export default {
         ],
         school_name: [
           {max: 20, message: '长度不能超过20个字符'}
+        ],
+        relation: [
+          {required: true, message: '请选择家长关系', trigger: 'change'}
         ],
         mobile: [
           {required: true, message: '请输入家长电话'},

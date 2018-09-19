@@ -2,87 +2,58 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader :title="detail.name" :icon="true" @clicked="editStudent">
-                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
-                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
-            </TableHeader>
-            <div class="detail-box fc-9">
+            <div class="d-f detail-header p-r">
+              <div class="left t-a-c">
+                <img v-if="detail.sex" src="../../images/student/boy.png" alt="">
+                <img v-else src="../../images/student/girl.png" alt="">
+                <p class="mt-5">
+                  <span class="fs-16">{{detail.name}}</span>
+                  <i class="iconfont icon-bianji cursor-pointer" @click="editStudent"></i>
+                </p>
+                <p class="mt-10"><span class="fc-9">学员编号：</span>{{detail.id}}</p>
+                <p><span class="fc-9">课堂评分：</span>{{detail.score}}</p>
+              </div>
+              <div class="right flex1 pl-20 pt-20" v-if="detail.parent_info">
+                <p><span>性　　别：</span>{{detail.sex ? '男' : '女'}}</p>
+                <p><span>出生日期：</span>{{detail.birthday > 0 ? $$tools.format(detail.birthday) : ''}}</p>
                 <p>
-                    <span>学员编号：<i>0{{detail.id}}</i></span>
-                    <span>性别：<i>{{detail.sex ? '男' : '女'}}</i></span>
-                    <span>出生日期：<i>{{detail.birthday > 0 ? $$tools.format(detail.birthday) : ''}}</i></span>
+                  <span>家长信息：</span>
+                  <span v-if="detail.parent_info.name && detail.parent_info.relation">
+                    <i>{{detail.parent_info.name}}</i>
+                    <i>({{getRelations(detail.parent_info.relation)}})</i>
+                  </span>
+                  <span v-else>暂无</span>
                 </p>
-                <p v-if="detail.parent_info">
-                    <span>家长：<i>{{detail.parent_info.name}}</i><i>({{getRelations(detail.parent_info.relation)}})</i></span>
-                    <span>联系电话：<i>{{detail.parent_info.mobile}}</i></span>
-                </p>
-
-                <p v-if="detail.parent_info"><span>家庭住址：<i>{{detail.address}}</i></span></p>
-                <div class="mt-15 d-f">
-                  <a>学员备注：</a>
+                <p><span>联系电话：</span>{{detail.parent_info.mobile}}</p>
+                <p><span>家庭住址：</span>{{detail.address}}</p>
+                <p><span>登记时间：</span>{{$$tools.format(detail.registerInfo.created_at)}}</p>
+                <p><span>登记人员：</span>{{detail.registerInfo.operator.name}}</p>
+                <div class="d-f">
+                  <span>学员备注：</span>
                   <template v-if="detail.remark && detail.remark.length > 30">
                       <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="detail.remark">
                           <div slot="reference" class="cursor-pointer">
                               <a class="fc-2">{{detail.remark.substring(0, 30)}}...</a>
-                              <!-- <i class="iconfont icon-zhuyidapx"></i> -->
                           </div>
                       </el-popover>
                   </template>
                   <span v-else>{{detail.remark}}</span>
                 </div>
+              </div>
+              <div class="p-a d-f btn-toolbar">
+                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
+                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
+              </div>
             </div>
         </el-card>
 
-        <el-card class="detail-bottom mt-20" shadow="hover">
-            <TableHeader title="跟进记录">
-                <MyButton class="ml-20" @click.native="addFollowUp">添加跟进</MyButton>
-            </TableHeader>
-
+        <el-card class="detail-bottom mt-20 bgc-m" shadow="hover">
+            <div class="bgc-f pl-20 header fs-16">跟进记录</div>
             <div class="followup-lists-box" v-loading="loading">
                 <div class="followup-lists" v-if="followUpLists.total">
-                    <ul>
-                        <li class="d-f" v-for="(list, index) in followUpLists.data" :key="index">
-                            <h5 class="fs-14">{{$$tools.format(list.created_at, 'second')}}</h5>
-                            <div class="content fs-15 pl-20 flex1">
-                                <a class="fc-m">【{{list.type_name}}】</a>
-                                <!--学员登记,顾问变更-->
-                                <p v-if="list.type_id === 1 || list.type_id === 3" class="pt-10">
-                                    <span>跟进顾问：<i>{{list.advisor_name ? list.advisor_name : '无'}}</i></span>
-                                    <span>操作人：<i>{{list.user_name}}</i></span>
-                                </p>
-                                <!--购课-->
-                                <p v-else-if="list.type_id === 2" class="pt-10">
-                                    <span>购买课程：<i>{{list.course_name}}</i></span>
-                                    <span>业绩归属：<i>{{list.advisor_name}}</i></span>
-                                    <span>操作人：<i>{{list.user_name}}</i></span>
-                                </p>
-                                <!--续约-->
-                                <p v-else-if="list.type_id === 4" class="pt-10">
-                                    <span>续约课程：<i>{{list.course_name}}</i></span>
-                                    <span>业绩归属：<i>{{list.advisor_name}}</i></span>
-                                    <span>操作人：<i>{{list.user_name}}</i></span>
-                                </p>
-                                <!--售前跟进，售后跟进-->
-                                <p v-else class="pt-10">
-                                    <span>跟进形式：<i>{{list.way_name}}</i></span>
-                                    <span>
-                                        跟进结果：<i>{{list.status_name}}</i>
-                                        <i v-if="list.status === 2">
-                                            (<i>{{$$tools.format(list.invited_at, 'second')}}</i>)
-                                        </i>
-                                        <i v-if="list.status === 4">
-                                            (<i>{{$$tools.format(list.listen.begin_time, 'second')}}</i>
-                                            <i class="pl-10">{{list.listen.grade_name}}</i>
-                                            <i class="pl-10">{{list.listen.teachers.length>0 ? list.listen.teachers[0].name : ''}}</i>)
-                                        </i>
-                                    </span>
-                                    <span>跟进内容：<i>{{list.content}}</i></span>
-                                    <span>操作人：<i>{{list.user_name}}</i></span>
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                    <el-pagination v-if="followUpLists.total"
+                    <div class="d-f"><MyButton class="ml-160" @click.native="addFollowUp">添加跟进</MyButton></div>
+                    <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
+                    <!-- <el-pagination v-if="followUpLists.total"
                         class="d-f f-j-c mt-50 mb-20"
                         :page-size="followUpLists.per_page"
                         background layout="total, prev, pager, next"
@@ -91,7 +62,7 @@
                         @current-change="paginationClick"
                         @next-click="nextClick"
                         @prev-click="prevClick">
-                    </el-pagination>
+                    </el-pagination> -->
                 </div>
                 <div v-else class="d-f f-a-c f-j-c fc-5 nothing"><span>暂无数据</span></div>
             </div>
@@ -194,27 +165,17 @@
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
-
-        <!-- 购买课程弹窗 -->
-        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
-            @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
-        </BuyCourseDialog> -->
-
-        <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData"></ContractDialog>
     </div>
 </template>
 
 <script>
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
+import FollowUpList from '../../components/common/FollowUp';
+
 import {StudentStatic} from '../../script/static';
-import Bus from '../../script/bus';
-import Tools from '../../script/tools';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
-import BuyCourseDialog from '../../components/dialog/BuyCourse';
-import ContractDialog from '../../components/dialog/Contract';
 
 export default {
   data () {
@@ -235,12 +196,10 @@ export default {
       currPage: false,
 
       auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
-      contractData: {}, //合约数据
       maskAudition: false, //试听弹窗
       maskFollowUp: false, //跟进弹窗
 
       dialogStatus: {student: false, course: false, contract: false},
-      buyCourseData: {},
       editDetail: {},
 
       studentType: '',
@@ -321,35 +280,21 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'student') {
+      if (type === 'student') {
         this.dialogStatus.student = false;
         this.editDetail = {};
-
-        return 0;
       }
-      // if(type == 'course') {
-      //     this.dialogStatus.course = false;
-      //     this.buyCourseData = {};
-      //     return 0;
-      // };
     },
     //修改详情成功，刷新列表
     CB_addStudent () {
       this.getStudentDetail();
       this.dialogStatus.student = false;
     },
-    //购课成功，合约回调
-    CB_contract (data) {
-      this.contractData = data;
-      this.getFollowUpLists();
-      this.dialogStatus.course = false;
-      this.dialogStatus.contract = true;
-    },
     //添加跟进
     addFollowUp () {
-      for (let key in this.followUpForm) {
-        this.followUpForm[key] = '';
-      }
+      Object.keys(this.followUpForm).forEach(v => {
+        this.followUpForm[v] = '';
+      });
       this.followupStatus = '';
       this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
       this.maskFollowUp = true;
@@ -401,8 +346,6 @@ export default {
     },
     //购课
     buyCourse () {
-      // this.dialogStatus.course = true;
-      // this.buyCourseData = this.detail;
       let params = {
         student_id: this.detail.id,
         advisor_id: this.detail.advisor_id,
@@ -608,7 +551,7 @@ export default {
       this.pageInit();
     }
   },
-  components: {TableHeader, MyButton, AddStudentDialog, BuyCourseDialog, ContractDialog}
+  components: {TableHeader, MyButton, AddStudentDialog, FollowUpList}
 };
 </script>
 
@@ -628,44 +571,40 @@ export default {
             margin-left: 20px;
         }
     }
-    .detail-box {
+    .detail-header {
+      padding: 20px;
+      .btn-toolbar {
+        top: 30px;
+        right: 30px;
+      }
+      .left {
+        border-right: 1px #e3e3e3 solid;
         padding: 20px;
-        p:not(:first-child){
-            margin-top: 15px;
+      }
+      .right {
+        p {
+          margin-bottom: 10px;
         }
         span {
-            margin-right: 20px;
-            i {
-                color: #222;
-            }
+          color: #999;
         }
+      }
     }
     .detail-bottom {
-        .followup-lists-box {
-            .nothing {
-                height: 200px;
-            }
-            .followup-lists {
-                padding: 30px;
-                h5 {
-                    width: 150px;
-                    font-weight: normal;
-                }
-                ul li {
-                    &:not(:first-child) {
-                        .content, h5 {
-                            padding-top: 40px;
-                        }
-                    }
-                    p span {
-                        padding-right: 30px;
-                    }
-                }
-                .content {
-                    border-left: 1px #e3e3e3 solid;
-                }
-            }
+      /deep/ .el-card__body {
+        padding: 0;
+      }
+      .header {
+        line-height: 50px;
+      }
+      .followup-lists-box {
+        .nothing {
+            height: 200px;
         }
+        .followup-lists {
+            padding: 20px 30px;
+        }
+    }
     }
     .form-box {
         padding: 0 20px;

@@ -1,5 +1,5 @@
 <template>
-    <div class="table-header d-f f-a-c f-j-b fc-5">
+    <div class="table-header d-f f-a-c f-j-b fc-5 bgc-f">
         <div class="d-f f-a-c">
             <span class="fs-16">{{title}}</span>
             <i v-if="icon" class="iconfont icon-bianji ml-10 cursor-pointer" @click="imgClick"></i>

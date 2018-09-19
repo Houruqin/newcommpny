@@ -2,13 +2,12 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <div class="table-header d-f f-a-c f-j-b fc-5">
+            <!-- <div class="table-header d-f f-a-c f-j-b fc-5">
                 <div class="d-f f-a-c">
                     <span class="fs-16">{{studentDetail.name}}</span>
                     <span><i class="iconfont icon-bianji ml-10 cursor-pointer" @click="editDetail"></i></span>
                     <span class="ml-20">学员编号：<i>0{{studentDetail.id}}</i></span>
                     <span class="ml-20">课堂评分：<i>{{studentDetail.score}}</i></span>
-                    <!-- <span class="conversion-btn t-a-c fc-f ml-20 cursor-pointer" @click="conversionClick">兑换</span> -->
                 </div>
                 <div class="d-f">
                     <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="gradeDivideClick('add')">分班</MyButton>
@@ -33,18 +32,54 @@
                       <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
                           <div slot="reference" class="cursor-pointer">
                               <a class="fc-2">{{studentDetail.remark.substring(0, 30)}}...</a>
-                              <!-- <i class="iconfont icon-zhuyidapx"></i> -->
                           </div>
                       </el-popover>
                   </template>
                   <span v-else>{{studentDetail.remark}}</span>
                 </div>
+            </div> -->
+
+            <div class="d-f detail-header p-r">
+              <div class="left t-a-c">
+                <img v-if="studentDetail.sex" src="../../images/student/boy.png" alt="">
+                <img v-else src="../../images/student/girl.png" alt="">
+                <p class="mt-5">
+                  <span class="fs-16">{{studentDetail.name}}</span>
+                  <i class="iconfont icon-bianji cursor-pointer" @click="editDetail"></i>
+                </p>
+                <p class="mt-10"><span class="fc-9">学员编号：</span>{{studentDetail.id}}</p>
+                <p><span class="fc-9">课堂评分：</span>{{studentDetail.score}}</p>
+              </div>
+              <div class="right flex1 pl-20 pt-20" v-if="studentDetail.parent_info">
+                <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
+                <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
+                <p><span>家长信息：</span><i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></p>
+                <p><span>联系电话：</span>{{studentDetail.parent_info.mobile}}</p>
+                <p><span>家庭住址：</span>{{studentDetail.address}}</p>
+                <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
+                <p><span>登记人员：</span>{{studentDetail.registerInfo.operator.name}}</p>
+                <div class="d-f">
+                  <span>学员备注：</span>
+                  <template v-if="studentDetail.remark && studentDetail.remark.length > 30">
+                      <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
+                          <div slot="reference" class="cursor-pointer">
+                              <a class="fc-2">{{studentDetail.remark.substring(0, 30)}}...</a>
+                          </div>
+                      </el-popover>
+                  </template>
+                  <span v-else>{{studentDetail.remark}}</span>
+                </div>
+              </div>
+              <div class="p-a d-f btn-toolbar">
+                <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="gradeDivideClick('add')">分班</MyButton>
+                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
+                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
+              </div>
             </div>
         </el-card>
 
         <el-card class="mt-20" shadow="hover">
-            <TableHeader title="课程资料"></TableHeader>
-            <el-tabs v-model="activeTab" @tab-click="tabClick">
+            <el-tabs v-model="activeTab" @tab-click="tabClick" class="mt-10">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
             </el-tabs>
             <div class="bottom-content-box">
@@ -210,57 +245,10 @@
                 </div>
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
-                    <div class="followup-lists-box p-r" v-loading="loading">
+                    <div class="followup-lists-box p-r bgc-m" v-loading="loading">
                         <div class="followup-lists">
-                            <ul>
-                                <li class="d-f" v-for="(list, index) in followUpLists.data" :key="index">
-                                    <h5 class="fs-14">{{$$tools.format(list.created_at, 'second')}}</h5>
-                                    <div class="content fs-15 pl-20 flex1">
-                                        <a class="fc-m">【{{list.type_name}}】</a>
-                                        <!--学员登记,顾问变更-->
-                                        <p v-if="list.type_id === 1 || list.type_id === 3" class="pt-10">
-                                            <span>跟进顾问：<i>{{list.advisor_name ? list.advisor_name : '无'}}</i></span>
-                                            <span>操作人：<i>{{list.user_name}}</i></span>
-                                        </p>
-                                        <!--购课-->
-                                        <p v-else-if="list.type_id === 2" class="pt-10">
-                                            <span>购买课程：<i>{{list.course_name}}</i></span>
-                                            <span>业绩归属：<i>{{list.advisor_name}}</i></span>
-                                            <span>操作人：<i>{{list.user_name}}</i></span>
-                                        </p>
-                                        <!--续约-->
-                                        <p v-else-if="list.type_id === 4" class="pt-10">
-                                            <span>续约课程：<i>{{list.course_name}}</i></span>
-                                            <span>业绩归属：<i>{{list.advisor_name}}</i></span>
-                                            <span>操作人：<i>{{list.user_name}}</i></span>
-                                        </p>
-                                        <!--售前跟进，售后跟进-->
-                                        <p v-else class="pt-10">
-                                            <span>跟进形式：<i>{{list.way_name}}</i></span>
-                                            <span>
-                                                跟进结果：<i>{{list.status_name}}</i>
-                                                <i v-if="list.status === 2">
-                                                    (<i>{{$$tools.format(list.invited_at, 'second')}}</i>)
-                                                </i>
-                                                <i v-if="list.status === 4">
-                                                    (<i>{{$$tools.format(list.listen.begin_time, 'second')}}</i>
-                                                    <i class="pl-10">{{list.listen.grade_name}}</i>
-                                                    <i class="pl-10">{{list.listen.teachers.length>0 ? list.listen.teachers[0].name : ''}}</i>)
-                                                </i>
-                                            </span>
-                                            <span>跟进内容：<i>{{list.content}}</i></span>
-                                            <span>操作人：<i>{{list.user_name}}</i></span>
-                                        </p>
-                                    </div>
-                                </li>
-                            </ul>
-                            <el-pagination v-if="followUpLists.total"
-                                class="d-f f-j-c mt-50 mb-20"
-                                :page-size="followUpLists.per_page"
-                                background layout="total, prev, pager, next"
-                                :total="followUpLists.total"
-                                :current-page="followUpLists.current_page" @current-change="paginationClick">
-                            </el-pagination>
+                          <div class="d-f"><MyButton class="ml-160" @click.native="addFollowUp">添加跟进</MyButton></div>
+                          <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                         </div>
                     </div>
                 </div>
@@ -662,6 +650,8 @@
 <script>
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
+import FollowUpList from '../../components/common/FollowUp';
+
 import RefundDialog from '../../components/dialog/Refund';
 import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
 import Bus from '../../script/bus';
@@ -1641,7 +1631,7 @@ export default {
       this.pageInit();
     }
   },
-  components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog}
+  components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog, FollowUpList}
 };
 </script>
 
@@ -1669,6 +1659,25 @@ export default {
                 color: #222;
             }
         }
+    }
+    .detail-header {
+      padding: 20px;
+      .btn-toolbar {
+        top: 30px;
+        right: 30px;
+      }
+      .left {
+        border-right: 1px #e3e3e3 solid;
+        padding: 20px;
+      }
+      .right {
+        p {
+          margin-bottom: 10px;
+        }
+        span {
+          color: #999;
+        }
+      }
     }
     .form-box {
         padding: 0 20px;
@@ -1699,25 +1708,9 @@ export default {
     .followup-lists-box {
         // overflow-y: scroll;
         // max-height: 450px;
+
         .followup-lists {
-            padding: 30px;
-            h5 {
-                font-weight: normal;
-                width: 150px;
-            }
-            ul li {
-                &:not(:first-child) {
-                    .content, h5 {
-                        padding-top: 40px;
-                    }
-                }
-                p span {
-                    padding-right: 30px;
-                }
-            }
-            .content {
-                border-left: 1px #e3e3e3 solid;
-            }
+            padding: 20px 30px;
         }
         .add-followup {
             top: 0;
