@@ -73,12 +73,27 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="渠道" prop="source_info.name" align="center"></el-table-column>
+                <el-table-column label="定金金额（元）" align="center">
+                  <template slot-scope="scope">{{scope.row.deposit_money > 0 ? scope.row.deposit_money : '-'}}</template>
+                </el-table-column>
+                <el-table-column label="渠道来源" prop="source_info.name" align="center"></el-table-column>
                 <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <a class="cursor-pointer fc-m" @click="editStudent(scope.row)">编辑</a>
-                        <a v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.id)">删除</a>
+                        <span class="cursor-pointer fc-m" @click="handleCommand({type: 'buyCourse', data: scope.row})">购课</span>
+                        <span class="cursor-pointer fc-m ml-10" @click="handleCommand({type: 'audition', data: scope.row})">试听</span>
+                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                          <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                          <el-dropdown-menu slot="dropdown" class="operation-lists">
+                            <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                              v-if="operation.type === 'edit'
+                              || operation.type === 'down_payment' && scope.row.deposit_money <= 0
+                              || operation.type === 'back_payment' && scope.row.deposit_money > 0
+                              || (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                              :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </el-dropdown>
                     </template>
                 </el-table-column>
             </el-table>
@@ -107,6 +122,12 @@
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
+
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
+
+        <!-- 缴纳定金/退回定金 -->
+        <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
     </div>
 </template>
 
@@ -116,6 +137,8 @@ import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
+import AddAudition from '../../components/dialog/AddAudition';
+import PayDeposit from '../../components/dialog/PayDeposit';
 import Bus from '../../script/bus';
 
 import {StudentStatic} from '../../script/static';
@@ -135,7 +158,15 @@ export default {
       currPage: false,
       activePage: 1,
 
+      paymentDetail: {},
+
       listStudentId: '',
+      operationLists: [
+        {type: 'edit', text: '编辑'},
+        {type: 'delete', text: '删除'},
+        {type: 'down_payment', text: '缴纳定金'},
+        {type: 'back_payment', text: '退回定金'}
+      ],
 
       headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
       studentTable: {},
@@ -144,7 +175,7 @@ export default {
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
       followUp: JSON.parse(JSON.stringify(StudentStatic.followUp.status)),
 
-      dialogStatus: {student: false, course: false, contract: false},
+      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false},
       studentType: '',
 
       editDetail: {},
@@ -211,7 +242,6 @@ export default {
       });
     },
     async deleteHandle (id) {
-      console.log(id);
       let result = await this.$$request.post('/student/delete', {id: id === 'all' ? this.selectedIds : [id]});
 
       if (!result) {
@@ -254,6 +284,59 @@ export default {
         this.getStudentLists();
         this.isShowCheckbox = false;
       }
+    },
+    CB_payment () {
+      this.paymentDetail = {};
+      this.getAllLists(true);
+    },
+    handleCommand (d) {
+      console.log(d);
+      switch (d.type) {
+        case 'buyCourse':
+          this.buyCourse();
+          break;
+        case 'audition':
+          this.listStudentId = d.data.id;
+          this.dialogStatus.audition = true;
+          break;
+        case 'edit':
+          this.studentType = 'edit';
+          this.editDetail = d.data;
+          this.dialogStatus.student = true;
+          break;
+        case 'delete':
+          this.deleteStudent(d.data.id);
+          break;
+        case 'down_payment':
+          this.paymentDetail = {
+            id: d.data.id,
+            paymentType: 'add'
+          };
+          this.dialogStatus.payment = true;
+          break;
+        case 'back_payment':
+          this.paymentDetail = {
+            id: d.data.id,
+            name: d.data.name,
+            paymentType: 'back',
+            depositMoney: d.data.deposit_money
+          };
+          this.dialogStatus.payment = true;
+          break;
+        default:
+          console.log(111);
+      }
+    },
+    //购课
+    buyCourse () {
+      let params = {
+        student_id: this.detail.id,
+        advisor_id: this.detail.advisor_id,
+        advisor: this.detail.advisor,
+        parent_id: this.detail.parent_id
+      };
+
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     addStudent () {
       this.studentType = 'add';
@@ -322,12 +405,6 @@ export default {
       }
 
       this.getAllLists(true);
-    },
-    //修改学员信息
-    editStudent (data) {
-      this.studentType = 'edit';
-      this.editDetail = data;
-      this.dialogStatus.student = true;
     },
     nextClick (currentPage) {
       this.currPage = true;
@@ -429,7 +506,7 @@ export default {
   beforeDestroy () {
     Bus.$off('refresh');
   },
-  components: {Classify, MyButton, TableHeader, AddStudentDialog}
+  components: {Classify, MyButton, TableHeader, AddStudentDialog, AddAudition, PayDeposit}
 };
 </script>
 

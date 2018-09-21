@@ -60,7 +60,7 @@
 
             <div class="student-lists-box mt-20">
                 <!-- 上课学员列表 -->
-                <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
                     <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
@@ -124,7 +124,7 @@
                 </el-table>
 
                 <!-- 生日学员 -->
-                <el-table class="student-table" key='bTable' v-else-if="activeTab === 'birthday'" :data="studentTable.data" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table class="student-table" key='bTable' v-else-if="activeTab === 'birthday'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
                     <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
@@ -172,7 +172,7 @@
 
 
                 <!-- 未分班列表 -->
-                <el-table class="student-table" key='cTable' v-else-if="activeTab === 'noGrade'" :data="studentTable.data" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table class="student-table" key='cTable' v-else-if="activeTab === 'noGrade'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
                     <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
@@ -225,7 +225,7 @@
                 </el-table>
 
                 <!-- 需续约学员列表 -->
-                <el-table class="student-table" key='dTable' v-else-if="activeTab === 'contract'" :data="studentTable.data" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table class="student-table" key='dTable' v-else-if="activeTab === 'contract'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
                     <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
@@ -287,7 +287,7 @@
                 </el-table>
 
                 <!-- 结业学员/流失学员列表 -->
-                <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
                     <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
@@ -737,7 +737,11 @@ export default {
     },
     //删除学员
     deleteStudent (id) {
-      this.$confirm('确定删除该学员吗?', '提示', {
+      if (id === 'all' && !this.selectedIds.length) {
+        return this.$message.error('请至少选中一条数据');
+      }
+
+      this.$confirm(`学员删除之后数据不能恢复，请确认进行${id === 'all' ? '批量' : ''}删除操作！`, '删除确认', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -748,13 +752,25 @@ export default {
       });
     },
     async deleteHandle (id) {
-      let result = await this.$$request.post('/sign/delete', {student_id: id});
+      let result = await this.$$request.post('/sign/delete', {student_id: id === 'all' ? this.selectedIds : [id]});
 
       if (!result) {
         return 0;
       }
+
+      if (id === 'all') {
+        this.isShowCheckbox = false;
+        this.selectedIds.splice(0, this.selectedIds.length);
+      }
+
       this.$message.success('已删除');
       this.getAllLists();
+    },
+    // 取消批量删除
+    cancelMultipleDel () {
+      this.isShowCheckbox = false;
+      this.selectedIds.splice(0, this.selectedIds.length);
+      this.$refs.studentTable.clearSelection();
     },
     nextClick (currentPage) {
       this.currPage = true;

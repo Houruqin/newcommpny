@@ -2,43 +2,6 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <!-- <div class="table-header d-f f-a-c f-j-b fc-5">
-                <div class="d-f f-a-c">
-                    <span class="fs-16">{{studentDetail.name}}</span>
-                    <span><i class="iconfont icon-bianji ml-10 cursor-pointer" @click="editDetail"></i></span>
-                    <span class="ml-20">学员编号：<i>0{{studentDetail.id}}</i></span>
-                    <span class="ml-20">课堂评分：<i>{{studentDetail.score}}</i></span>
-                </div>
-                <div class="d-f">
-                    <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="gradeDivideClick('add')">分班</MyButton>
-                    <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
-                    <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
-                </div>
-            </div>
-
-            <div class="detail-box fc-9">
-                <p>
-                    <span>性别：<i>{{studentDetail.sex ? '男' : '女'}}</i></span>
-                    <span>出生日期：<i>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</i></span>
-                </p>
-                <p v-if="studentDetail.parent_info">
-                    <span>家长：<i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></span>
-                    <span>联系电话：<i>{{studentDetail.parent_info.mobile}}</i></span>
-                </p>
-                <p><span>家庭住址：<i>{{studentDetail.parent_info && studentDetail.parent_info.address}}</i></span></p>
-                <div class="mt-15 d-f">
-                  <a>学员备注：</a>
-                  <template v-if="studentDetail.remark && studentDetail.remark.length > 30">
-                      <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
-                          <div slot="reference" class="cursor-pointer">
-                              <a class="fc-2">{{studentDetail.remark.substring(0, 30)}}...</a>
-                          </div>
-                      </el-popover>
-                  </template>
-                  <span v-else>{{studentDetail.remark}}</span>
-                </div>
-            </div> -->
-
             <div class="d-f detail-header p-r">
               <div class="left t-a-c">
                 <img v-if="studentDetail.sex" src="../../images/student/boy.png" alt="">
@@ -114,9 +77,9 @@
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
+                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
-                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain && scope.row.status != 2"
+                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -1636,30 +1599,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    .table-header {
-        height: 50px;
-        border-bottom: 1px #e3e3e3 solid;
-        img {
-            display: block;
-        }
-        .conversion-btn {
-            background-color: #ED9374;
-            padding: 2px 7px;
-            border-radius: 3px;
-        }
-    }
-    .detail-box {
-        padding: 20px;
-        p:not(:first-child){
-            margin-top: 15px;
-        }
-        span {
-            margin-right: 20px;
-            i {
-                color: #222;
-            }
-        }
-    }
     .detail-header {
       padding: 20px;
       .btn-toolbar {

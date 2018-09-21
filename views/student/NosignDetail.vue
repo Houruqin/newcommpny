@@ -436,19 +436,19 @@ export default {
 
       console.log(params);
 
-      let result = await this.$$request.post('/followUp/add', params);
+      // let result = await this.$$request.post('/followUp/add', params);
 
-      this.submitLoading = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.$message.success('添加成功');
+      // this.submitLoading = false;
+      // console.log(result);
+      // if (!result) {
+      //   return 0;
+      // }
+      // this.$message.success('添加成功');
 
-      this.maskFollowUp = false;
-      this.maskAudition = false;
-      this.listenCourseInit();
-      this.getFollowUpLists();
+      // this.maskFollowUp = false;
+      // this.maskAudition = false;
+      // this.listenCourseInit();
+      // this.getFollowUpLists();
     },
     //获取跟进列表
     async getFollowUpLists (currentPage) {

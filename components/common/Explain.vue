@@ -20,7 +20,7 @@ export default {
     };
   },
   mounted () {
-    this.$refs.popverItem.parentElement.style.cssText = 'display: -webkit-flex; display: flex;';
+    this.$refs.popverItem.parentElement.style.cssText = 'display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center;';
   }
 };
 </script>
