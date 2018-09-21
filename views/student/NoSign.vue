@@ -63,7 +63,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="最新跟进状态" prop="follow_cn" align="center">
+                <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
                         <div class="d-f f-a-c f-j-c">
                             <span class="follow-status fs-12" :class="{'green': scope.row.follow_status === 2 || scope.row.follow_status === 3 || scope.row.follow_status === 4 || scope.row.follow_status === 5,
@@ -78,18 +78,19 @@
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <a class="cursor-pointer fc-m" @click="editStudent(scope.row)">编辑</a>
-                        <a v-if="activeTab == 'invalid'" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.id)">删除</a>
+                        <a v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.id)">删除</a>
                     </template>
                 </el-table-column>
             </el-table>
 
             <div class="d-f p-r" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="checkboxEdit">批量删除</span>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
                 <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </div>
+
             <el-pagination v-if="studentTable.total"
               class="d-f f-j-c mt-50 mb-50"
               :page-size="studentTable.per_page"
@@ -193,24 +194,25 @@ export default {
     };
   },
   methods: {
-    checkboxEdit () {
-      // 删除
-      if (this.selectedIds && this.selectedIds.length) {
-        this.$confirm('学员删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.multipleDelete();
-        }).catch(() => {
-          return 0;
-        });
-      } else {
-        this.$message.error('请至少选中一条数据');
+    //删除学员
+    deleteStudent (id) {
+      if (id === 'all' && !this.selectedIds.length) {
+        return this.$message.error('请至少选中一条数据');
       }
+
+      this.$confirm(`学员删除之后数据不能恢复，请确认进行${id === 'all' ? '批量' : ''}删除操作！`, '删除确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(id);
+      }).catch(() => {
+        return 0;
+      });
     },
-    async multipleDelete () {
-      let result = await this.$$request.post('/student/delete', {id: this.selectedIds});
+    async deleteHandle (id) {
+      console.log(id);
+      let result = await this.$$request.post('/student/delete', {id: id === 'all' ? this.selectedIds : [id]});
 
       if (!result) {
         return 0;
@@ -218,8 +220,10 @@ export default {
 
       this.getAllLists();
       this.$message.success('已删除');
-      this.isShowCheckbox = false;
-      this.selectedIds.splice(0, this.selectedIds.length);
+      if (id === 'all') {
+        this.isShowCheckbox = false;
+        this.selectedIds.splice(0, this.selectedIds.length);
+      }
     },
     // 取消批量删除
     cancelMultipleDel () {
@@ -324,27 +328,6 @@ export default {
       this.studentType = 'edit';
       this.editDetail = data;
       this.dialogStatus.student = true;
-    },
-    //删除学员
-    deleteStudent (id) {
-      this.$confirm('确定删除该学员吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteHandle(id);
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async deleteHandle (id) {
-      let result = await this.$$request.post('/student/delete', {id: [id]});
-
-      if (!result) {
-        return 0;
-      }
-      this.getAllLists();
-      this.$message.success('已删除');
     },
     nextClick (currentPage) {
       this.currPage = true;

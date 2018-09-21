@@ -34,7 +34,7 @@
             <el-col :span="6">上月</el-col>
           </el-row>
           <el-row v-cloak>
-            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课节数(次)</el-col>
+            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课时数(次)</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.today.count}}</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.present_month.count}}</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.last_month.count}}</el-col>

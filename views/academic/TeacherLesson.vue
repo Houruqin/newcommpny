@@ -48,12 +48,12 @@
             {{scope.row.classPattern == 2 ? '--' : scope.row.gradeName}}
           </template>
         </el-table-column>
-        <el-table-column label="课程时长" prop="lessonTime" align="center"></el-table-column>
-        <el-table-column label="消课人次" prop="eliminateTime" align="center"></el-table-column>
-        <el-table-column label="上课次数" prop="attendTime" align="center">
+        <el-table-column prop="lessonTime" align="center" :render-header="lessonTimeRenderHeader"></el-table-column>
+        <el-table-column prop="eliminateTime" :render-header="removeRenderHeader" align="center"></el-table-column>
+        <el-table-column prop="attendTime" :render-header="courseRenderHeader" align="center">
           <template slot-scope="scope"><span class="fc-m cursor-pointer" @click="attendDetail(scope.row)">{{scope.row.attendTime}}</span></template>
         </el-table-column>
-        <el-table-column label="课时数" prop="lessonNum" align="center"></el-table-column>
+        <el-table-column prop="lessonNum" :render-header="lessonNumRenderHeader" align="center"></el-table-column>
       </el-table>
       <el-pagination v-if="lessonTable.total"
           class="d-f f-j-c mt-50 mb-50"
@@ -103,6 +103,19 @@ export default {
     };
   },
   methods: {
+    lessonTimeRenderHeader (elem) {
+      // return elem('div', {'class': {'d-f f-j-c': true}}, [elem('Explain', {attrs: {title: 'explain_l'}})]);
+      return elem('Explain', {attrs: {title: 'explain_l'}});
+    },
+    removeRenderHeader (elem) {
+      return elem('Explain', {attrs: {title: 'explain_m'}});
+    },
+    courseRenderHeader (elem) {
+      return elem('Explain', {attrs: {title: 'explain_n'}});
+    },
+    lessonNumRenderHeader (elem) {
+      return elem('Explain', {attrs: {title: 'explain_o'}});
+    },
     tabClick () {
       this.searchFilter.begin_time = new Date(this.$format_date(new Date(), 'yyyy/MM/01'));
       this.searchFilter.end_time = new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0);

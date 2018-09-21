@@ -11,7 +11,6 @@
           <el-tab-pane v-if="$$cache.getMemberInfo().class_pattern !== 2"  label="旷课记录" name="absenteeism"></el-tab-pane>
         </el-tabs>
       </div>
-
       <div class="toolbar mt-20 d-f">
         <ul class="d-f flex1">
           <li>
@@ -59,7 +58,7 @@
         </el-table-column>
         <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
         <el-table-column label="购课总课时" prop="buy_total" align="center"></el-table-column>
-        <el-table-column label="签约前扣课时" prop="reduce_total" align="center"></el-table-column>
+        <el-table-column prop="reduce_total" align="center" :render-header="renderHeader"></el-table-column>
         <el-table-column label="签到扣课时" align="center">
           <template slot-scope="scope">
             <div>
@@ -113,7 +112,14 @@
             <div>{{scope.row.is_receive_apply | date('yyyy-MM-dd hh:mm')}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="批复人" prop="teacher.name" align="center"></el-table-column>
+        <el-table-column label="批复人" align="center">
+          <template slot-scope="scope">
+            <div class="d-f f-j-c">
+              <Explain v-if="scope.row.teacher.id === 0" title="explain_j"></Explain>
+              <span v-else>{{scope.row.teacher.name}}</span>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 旷课模块 -->
       <el-table key="absenteeism" v-if="active === 'absenteeism'" stripe class="student-table mt-30" :data="absenteeism_info.data" v-loading="loading" :show-header="true">
@@ -297,6 +303,9 @@ export default {
     }
   },
   methods: {
+    renderHeader (elem, {column, $index}) {
+      return elem('Explain', {attrs: {title: 'explain_i'}});
+    },
     init_search_info () {
       let search_info = {
         course: 0,

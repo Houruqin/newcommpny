@@ -34,7 +34,7 @@
                   <i v-if="list.status === 4">
                       (<i>{{$$tools.format(list.listen.begin_time, 'second')}}</i>
                       <i class="pl-10">{{list.listen.grade_name}}</i>
-                      <i class="pl-10">{{list.listen.teachers.length>0 ? list.listen.teachers[0].name : ''}}</i>)
+                      <i class="pl-10">{{list.listen.teachers.length > 0 ? list.listen.teachers[0].name : ''}}</i>)
                   </i>
               </p>
               <p>跟进内容：<i>{{list.content}}</i></p>

@@ -185,4 +185,27 @@ const conflictLists = [
 //排课时间选择范围
 const timePicker = {start: '08:00', step: '00:05', end: '21:45', minTime: 0, maxTime: '22:00'};
 
-export {StudentStatic, courseStatic, timeTableStatic, excelHeader, conflictLists, timePicker};
+const explainLists = {
+  'explain_a': { title: '需续约学员', text: '课时即将消耗完，需要进行续约的学员' },
+  'explain_b': { title: '意向学员', text: '有购课意向的学员' },
+  'explain_c': { title: '无效学员', text: '跟进过程中判定为无效的未签约学员' },
+  'explain_d': { title: '在校学员', text: '剩余课时不为0的签约学员' },
+  'explain_e': { title: '结业学员', text: '剩余课时为0的签约学员' },
+  'explain_f': { title: '流失学员', text: '剩余课时耗完以后，且明确表示不续费的结业学员' },
+  'explain_g': { title: '有班课程', text: '以班级为中心，有固定班级的课程，分为普通课程（一对多）和一对一课程两种类型' },
+  'explain_h': { title: '无班课程', text: '以学员为中心，无固定班级的课程，分为普通课程（一对多）和一对一课程两种类型，无班课程支持学员预约上课' },
+  'explain_i': { title: '签约前扣课时', text: '办理购课流程时，学员已产生课消数据（如购课时已经产生课消，则需要扣除相关课时）' },
+  'explain_j': { title: '系统', text: '学员请假后老师未及时处理，上课后系统判定为“请假通过”' },
+  'explain_k': { title: '已过期', text: '成功邀约试听但未试听的状态' },
+  'explain_l': { title: '课节时长', text: '单节课程上课的时长' },
+  'explain_m': { title: '学员消课次数总和', text: '时间区间内，该老师的上课学员消耗的课次总和（学员消课次数总和=学员a消课次数+学员b消课次数…，含试听学员）' },
+  'explain_n': { title: '老师上课次数总和', text: '时间区间内，该上课老师完成上课的课次总和（老师上课次数总和=课程a上课次数+课程b上课次数…含试听课）' },
+  'explain_o': { title: '老师消课时数总和', text: '时间区间内，该上课老师完成上课的课时总和（老师消课时数总和=课程a上课次数*单节课耗课时数+课程b上课次数*单节课耗课时数…，含试听课）' },
+  'explain_p': { title: '类型设置', text: '根据物品用途，设置物品的种类，例如教具、教材' },
+  'explain_q': { title: '实际库存', text: '实际库存=待售库存+学员库存' },
+  'explain_r': { title: '待售库存', text: '仓库内该库存未售出，所有权归属于机构的库存' },
+  'explain_s': { title: '学员库存', text: '学员已经购买，但还未发放的物品库存' }
+};
+
+
+export {StudentStatic, courseStatic, timeTableStatic, excelHeader, conflictLists, timePicker, explainLists};
