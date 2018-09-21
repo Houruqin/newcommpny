@@ -1,5 +1,16 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import config from 'config';
+
+if ('publish' === config.env) {
+  let hm = document.createElement('script');
+
+  hm.src = '';
+  let s = document.getElementsByTagName('script')[0];
+
+  s.parentNode.insertBefore(hm, s);
+}
+
 import Vue from 'vue';
 import App from './App';
 import router from './router';
