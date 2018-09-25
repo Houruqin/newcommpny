@@ -1486,6 +1486,13 @@ export default {
 
     //查看通知
     async notice_detail (notice) {
+      this.notice_info = {
+        show_dialog: false,
+        title: null,
+        content: null,
+        sender: null,
+        time: null
+      };
       switch (this.notice_activeName) {
         case 'receive':
           const params = {
