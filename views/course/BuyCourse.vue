@@ -260,7 +260,7 @@ export default {
           {validator: this.courseValidator('text_book')}
         ],
         explain: [
-          {max: 200, message: '长度不能超过200个字符'}
+          {max: 100, message: '长度不能超过100个字符'}
         ],
         type: [
           {required: true, message: '请选择购课类型', trigger: 'change'}

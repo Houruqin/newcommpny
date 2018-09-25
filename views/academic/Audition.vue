@@ -62,8 +62,9 @@
         </el-table-column>
         <el-table-column label="试听状态" prop="status" align="center">
           <template slot-scope="scope">
-            <div>
-              <div :style="{'color' : scope.row.status === 4 ? '#606266' : (scope.row.status === 2 ? '#de7b1c' : '#45DAD5')}">{{scope.row.status === 4 ? '已试听' : (scope.row.status === 2 ? '待试听' : '已过期')}}</div>
+            <div :style="{'color' : scope.row.status === 4 ? '#606266' : (scope.row.status === 2 ? '#de7b1c' : '#45DAD5')}" class="d-f f-j-c">
+              <Explain v-if="scope.row.status === 1" title="explain_k"></Explain>
+              <span v-else>{{scope.row.status === 4 ? '已试听' : '待试听'}}</span>
             </div>
           </template>
         </el-table-column>

@@ -197,7 +197,7 @@ export default {
     },
     async getBottomLists (curr_page) {
       this.loading = true;
-      let key = this.activeTab == 'followUp' ? 'followRoster' : this.activeTab == 'student' ? 'signRoster' : 'grade';
+      let key = this.activeTab === 'followUp' ? 'followRoster' : this.activeTab === 'student' ? 'signRoster' : 'grade';
       let params = {user_id: this.userId};
 
       if (curr_page) {

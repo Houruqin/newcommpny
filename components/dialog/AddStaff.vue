@@ -18,6 +18,12 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="11" :offset="1">
+                        <el-form-item label="性别：" prop="sex" >
+                            <el-select v-model="staffForm.sex" placeholder="选择性别">
+                                <el-option label="男" :value="1"></el-option>
+                                <el-option label="女" :value="0"></el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item label="职务：" prop="role_type">
                             <el-select v-if="!role" v-model="staffForm.role_type" multiple  placeholder="选择职务名称" @remove-tag="remove_tag">
                                 <el-option v-if="staffForm.role_type.indexOf('master') !== -1" value="master" label="校长" :disabled="true"></el-option>
@@ -46,7 +52,6 @@
         </el-form>
         <div class="mt-20 d-f f-j-c">
             <MyButton @click.native="doneHandle" :loading="submitLoading.add">确定</MyButton>
-            <MyButton v-if="type == 'edit' && origin === 'list' && leaveEnable" @click.native="dimissionClick" type="gray" class="ml-20" :loading="submitLoading.remove">离职</MyButton>
         </div>
     </el-dialog>
 </template>
@@ -76,7 +81,6 @@ export default {
         return 0;
       }
 
-      this.leaveEnable = newVal.leaveEnable;
       for (let key in this.staffForm) {
         if (key == 'entry_date') {
           this.staffForm[key] = newVal.entry_at * 1000;
@@ -106,8 +110,7 @@ export default {
         add: false, remove: false
       },
       staffDialogStatus: false,
-      leaveEnable: false,
-      staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: ''},
+      staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: '', sex: ''},
       roleLists: [],
       staffType: 'add',
       rules: {
@@ -119,6 +122,7 @@ export default {
           {required: true, message: '请输入员工电话'},
           {validator: this.$$tools.formValidate('phone')}
         ],
+        sex: [],
         role_type: [
           {required: true, message: '请选择职务', trigger: 'change'}
         ],
@@ -144,7 +148,6 @@ export default {
       let result = await this.$$request.post('/permission/roleLists');
 
       console.log(result);
-
       if (!result) {
         return 0;
       }
@@ -193,37 +196,6 @@ export default {
       this.$store.dispatch('getAdvisor'); //更新员工顾问信息
       this.$store.dispatch('getTeacher');
       this.$message.success(this.staffType == 'edit' ? '修改成功' : '添加成功');
-    },
-    //离职
-    async dimissionClick () {
-      this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.dimissionHandle();
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async dimissionHandle () {
-      if (this.submitLoading.remove) {
-        return 0;
-      }
-      this.submitLoading.remove = true;
-
-      let result = await this.$$request.post('/user/changeStatus', {id: this.staffForm.id});
-
-      this.submitLoading.remove = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.$emit('CB-dimission');
-      this.staffDialogStatus = false;
-      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
-      this.$store.dispatch('getTeacher');
-      this.$message.success('已修改为离职状态');
     },
     remove_tag (tag) {
       console.log(tag);

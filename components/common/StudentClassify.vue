@@ -1,10 +1,12 @@
 <template>
     <div class="classify-box cursor-pointer" :class="{'active': active, 'invalid': tab.type == 'loss'}" @click="classifyHandle">
-        <div class="header p-r">{{tab.name}}</div>
+        <div class="header p-r d-f">
+          <Explain v-if="explain" :title="explain"></Explain>
+          <span v-else>{{tab.name}}</span>
+        </div>
         <h2>{{tab.num}}</h2>
     </div>
 </template>
-
 
 <script>
 export default {
@@ -13,11 +15,34 @@ export default {
     active: {default: false}
   },
   data () {
-    return {};
+    return {
+      explain: ''
+    };
+  },
+  created () {
+    this.explain = this.getExplain();
   },
   methods: {
     classifyHandle (tab) {
       this.$emit('tabclick', {tab: tab});
+    },
+    getExplain () {
+      switch (this.tab.type) {
+        case 'contract':
+          return 'explain_a';
+        case 'unsign':
+          return 'explain_b';
+        case 'invalid':
+          return 'explain_c';
+        case 'onCourse':
+          return 'explain_d';
+        case 'over':
+          return 'explain_e';
+        case 'loss':
+          return 'explain_f';
+        default:
+          return null;
+      }
     }
   }
 };

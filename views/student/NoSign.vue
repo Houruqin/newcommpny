@@ -63,7 +63,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="最新跟进状态" prop="follow_cn" align="center">
+                <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
                         <div class="d-f f-a-c f-j-c">
                             <span class="follow-status fs-12" :class="{'green': scope.row.follow_status === 2 || scope.row.follow_status === 3 || scope.row.follow_status === 4 || scope.row.follow_status === 5,
@@ -73,23 +73,39 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="渠道" prop="source_info.name" align="center"></el-table-column>
+                <el-table-column label="定金金额（元）" align="center">
+                  <template slot-scope="scope">{{scope.row.deposit_money > 0 ? scope.row.deposit_money : '-'}}</template>
+                </el-table-column>
+                <el-table-column label="渠道来源" prop="source_info.name" align="center"></el-table-column>
                 <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <a class="cursor-pointer fc-m" @click="editStudent(scope.row)">编辑</a>
-                        <a v-if="activeTab == 'invalid'" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.id)">删除</a>
+                        <span class="cursor-pointer fc-m" @click="handleCommand({type: 'buyCourse', data: scope.row})">购课</span>
+                        <span class="cursor-pointer fc-m ml-10" @click="handleCommand({type: 'audition', data: scope.row})">试听</span>
+                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                          <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                          <el-dropdown-menu slot="dropdown" class="operation-lists">
+                            <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                              v-if="operation.type === 'edit'
+                              || operation.type === 'down_payment' && scope.row.deposit_money <= 0
+                              || operation.type === 'back_payment' && scope.row.deposit_money > 0
+                              || (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                              :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </el-dropdown>
                     </template>
                 </el-table-column>
             </el-table>
 
             <div class="d-f p-r" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="checkboxEdit">批量删除</span>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
                 <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </div>
+
             <el-pagination v-if="studentTable.total"
               class="d-f f-j-c mt-50 mb-50"
               :page-size="studentTable.per_page"
@@ -106,6 +122,12 @@
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
+
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
+
+        <!-- 缴纳定金/退回定金 -->
+        <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
     </div>
 </template>
 
@@ -115,6 +137,8 @@ import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
+import AddAudition from '../../components/dialog/AddAudition';
+import PayDeposit from '../../components/dialog/PayDeposit';
 import Bus from '../../script/bus';
 
 import {StudentStatic} from '../../script/static';
@@ -134,7 +158,15 @@ export default {
       currPage: false,
       activePage: 1,
 
+      paymentDetail: {},
+
       listStudentId: '',
+      operationLists: [
+        {type: 'edit', text: '编辑'},
+        {type: 'delete', text: '删除'},
+        {type: 'down_payment', text: '缴纳定金'},
+        {type: 'back_payment', text: '退回定金'}
+      ],
 
       headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
       studentTable: {},
@@ -143,7 +175,7 @@ export default {
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
       followUp: JSON.parse(JSON.stringify(StudentStatic.followUp.status)),
 
-      dialogStatus: {student: false, course: false, contract: false},
+      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false},
       studentType: '',
 
       editDetail: {},
@@ -193,24 +225,24 @@ export default {
     };
   },
   methods: {
-    checkboxEdit () {
-      // 删除
-      if (this.selectedIds && this.selectedIds.length) {
-        this.$confirm('学员删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.multipleDelete();
-        }).catch(() => {
-          return 0;
-        });
-      } else {
-        this.$message.error('请至少选中一条数据');
+    //删除学员
+    deleteStudent (id) {
+      if (id === 'all' && !this.selectedIds.length) {
+        return this.$message.error('请至少选中一条数据');
       }
+
+      this.$confirm(`学员删除之后数据不能恢复，请确认进行${id === 'all' ? '批量' : ''}删除操作！`, '删除确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteHandle(id);
+      }).catch(() => {
+        return 0;
+      });
     },
-    async multipleDelete () {
-      let result = await this.$$request.post('/student/delete', {id: this.selectedIds});
+    async deleteHandle (id) {
+      let result = await this.$$request.post('/student/delete', {id: id === 'all' ? this.selectedIds : [id]});
 
       if (!result) {
         return 0;
@@ -218,8 +250,10 @@ export default {
 
       this.getAllLists();
       this.$message.success('已删除');
-      this.isShowCheckbox = false;
-      this.selectedIds.splice(0, this.selectedIds.length);
+      if (id === 'all') {
+        this.isShowCheckbox = false;
+        this.selectedIds.splice(0, this.selectedIds.length);
+      }
     },
     // 取消批量删除
     cancelMultipleDel () {
@@ -250,6 +284,59 @@ export default {
         this.getStudentLists();
         this.isShowCheckbox = false;
       }
+    },
+    CB_payment () {
+      this.paymentDetail = {};
+      this.getAllLists(true);
+    },
+    handleCommand (d) {
+      console.log(d);
+      switch (d.type) {
+        case 'buyCourse':
+          this.buyCourse();
+          break;
+        case 'audition':
+          this.listStudentId = d.data.id;
+          this.dialogStatus.audition = true;
+          break;
+        case 'edit':
+          this.studentType = 'edit';
+          this.editDetail = d.data;
+          this.dialogStatus.student = true;
+          break;
+        case 'delete':
+          this.deleteStudent(d.data.id);
+          break;
+        case 'down_payment':
+          this.paymentDetail = {
+            id: d.data.id,
+            paymentType: 'add'
+          };
+          this.dialogStatus.payment = true;
+          break;
+        case 'back_payment':
+          this.paymentDetail = {
+            id: d.data.id,
+            name: d.data.name,
+            paymentType: 'back',
+            depositMoney: d.data.deposit_money
+          };
+          this.dialogStatus.payment = true;
+          break;
+        default:
+          console.log(111);
+      }
+    },
+    //购课
+    buyCourse () {
+      let params = {
+        student_id: this.detail.id,
+        advisor_id: this.detail.advisor_id,
+        advisor: this.detail.advisor,
+        parent_id: this.detail.parent_id
+      };
+
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     addStudent () {
       this.studentType = 'add';
@@ -318,33 +405,6 @@ export default {
       }
 
       this.getAllLists(true);
-    },
-    //修改学员信息
-    editStudent (data) {
-      this.studentType = 'edit';
-      this.editDetail = data;
-      this.dialogStatus.student = true;
-    },
-    //删除学员
-    deleteStudent (id) {
-      this.$confirm('确定删除该学员吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteHandle(id);
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async deleteHandle (id) {
-      let result = await this.$$request.post('/student/delete', {id: [id]});
-
-      if (!result) {
-        return 0;
-      }
-      this.getAllLists();
-      this.$message.success('已删除');
     },
     nextClick (currentPage) {
       this.currPage = true;
@@ -446,7 +506,7 @@ export default {
   beforeDestroy () {
     Bus.$off('refresh');
   },
-  components: {Classify, MyButton, TableHeader, AddStudentDialog}
+  components: {Classify, MyButton, TableHeader, AddStudentDialog, AddAudition, PayDeposit}
 };
 </script>
 

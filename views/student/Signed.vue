@@ -60,7 +60,8 @@
 
             <div class="student-lists-box mt-20">
                 <!-- 上课学员列表 -->
-                <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" stripe>
+                <el-table class="student-table" key='aTable' v-if="activeTab === 'onCourse'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
+                    <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
@@ -116,13 +117,15 @@
 
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
+                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
+                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
                         </template>
                     </el-table-column>
                 </el-table>
 
                 <!-- 生日学员 -->
-                <el-table class="student-table" key='bTable' v-else-if="activeTab === 'birthday'" :data="studentTable.data" v-loading="loading" stripe>
+                <el-table class="student-table" key='bTable' v-else-if="activeTab === 'birthday'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
+                    <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
@@ -161,6 +164,7 @@
                         <template slot-scope="scope">
                             <div class="d-f f-a-c f-j-c">
                                 <span class="grant-gift t-a-c" :class="{'active': !scope.row.gift_status}" @click="grantGift(scope.row)">发放礼品</span>
+                                <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
                             </div>
                         </template>
                     </el-table-column>
@@ -168,7 +172,8 @@
 
 
                 <!-- 未分班列表 -->
-                <el-table class="student-table" key='cTable' v-else-if="activeTab === 'noGrade'" :data="studentTable.data" v-loading="loading" stripe>
+                <el-table class="student-table" key='cTable' v-else-if="activeTab === 'noGrade'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
+                    <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
@@ -213,13 +218,15 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
+                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
+                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
                         </template>
                     </el-table-column>
                 </el-table>
 
                 <!-- 需续约学员列表 -->
-                <el-table class="student-table" key='dTable' v-else-if="activeTab === 'contract'" :data="studentTable.data" v-loading="loading" stripe>
+                <el-table class="student-table" key='dTable' v-else-if="activeTab === 'contract'" :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
+                    <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
@@ -273,13 +280,15 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</a>
+                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
+                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
                         </template>
                     </el-table-column>
                 </el-table>
 
                 <!-- 结业学员/流失学员列表 -->
-                <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" stripe>
+                <el-table class="student-table" key='fTable' v-else :data="studentTable.data" v-loading="loading" ref="studentTable" @selection-change="handleSelectionChange" stripe>
+                    <el-table-column type="selection" width="30" v-if="isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
@@ -324,12 +333,21 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a v-if="activeTab === 'invalid'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</a>
-                            <a v-else class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.course_lists[0].student_id)">删除</a>
+                            <a v-if="activeTab === 'over'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</a>
+                            <span v-if="isDelete" class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.student_id)">删除</span>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
+
+            <div class="d-f p-r" v-if="isDelete">
+              <div class="multiple-del-box d-f f-a-c">
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
+              </div>
+            </div>
+
             <el-pagination v-if="studentTable.total"
                 class="d-f f-j-c mt-50 mb-20"
                 :page-size="studentTable.per_page"
@@ -338,8 +356,7 @@
                 :current-page.sync="studentTable.current_page"
                 @current-change="paginationClick"
                 @next-click="nextClick"
-                @prev-click="prevClick"
-                >
+                @prev-click="prevClick">
             </el-pagination>
         </el-card>
 
@@ -438,6 +455,9 @@ export default {
       currPage: false,
 
       activePage: 1,
+      isDelete: false,
+      isShowCheckbox: false,
+      selectedIds: [],    //批量删除学员列表
 
       hasContact: true,
       contactDot: 0,
@@ -524,6 +544,9 @@ export default {
         this.activeTab = tab.type;
         this.getStudentLists();
       }
+    },
+    handleSelectionChange (x) {
+      this.selectedIds = x.map(v => v.id);
     },
     //搜索
     searchHandle () {
@@ -714,7 +737,11 @@ export default {
     },
     //删除学员
     deleteStudent (id) {
-      this.$confirm('确定删除该学员吗?', '提示', {
+      if (id === 'all' && !this.selectedIds.length) {
+        return this.$message.error('请至少选中一条数据');
+      }
+
+      this.$confirm(`学员删除之后数据不能恢复，请确认进行${id === 'all' ? '批量' : ''}删除操作！`, '删除确认', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -725,13 +752,25 @@ export default {
       });
     },
     async deleteHandle (id) {
-      let result = await this.$$request.post('/sign/delete', {student_id: id});
+      let result = await this.$$request.post('/sign/delete', {student_id: id === 'all' ? this.selectedIds : [id]});
 
       if (!result) {
         return 0;
       }
+
+      if (id === 'all') {
+        this.isShowCheckbox = false;
+        this.selectedIds.splice(0, this.selectedIds.length);
+      }
+
       this.$message.success('已删除');
       this.getAllLists();
+    },
+    // 取消批量删除
+    cancelMultipleDel () {
+      this.isShowCheckbox = false;
+      this.selectedIds.splice(0, this.selectedIds.length);
+      this.$refs.studentTable.clearSelection();
     },
     nextClick (currentPage) {
       this.currPage = true;
@@ -811,6 +850,8 @@ export default {
         return 0;
       }
 
+      result.lists.forEach(v => {if(v.type === 'invalid') v.type = 'over'});
+
       this.tabLists = result.lists;
 
       if (this.$$cache.getMemberInfo().class_pattern == 2) {
@@ -876,7 +917,7 @@ export default {
         newParams.page = currentPage;
       }
 
-      let result = await this.$$request.post(`sign/${this.activeTab}`, newParams);
+      let result = await this.$$request.post(`sign/${this.activeTab === 'over' ? 'invalid' : this.activeTab}`, newParams);
 
       console.log(result);
       if (!result) {
@@ -939,6 +980,7 @@ export default {
     }
   },
   async created () {
+    this.isDelete = this.$$cache.getMemberInfo().type === 'institution' || this.$$cache.getMemberInfo().type === 'master';
     this.searchFilter.month = new Date().getMonth() + 1;
     let datas = await this.getAllLists();
 
@@ -1040,7 +1082,11 @@ export default {
     .ground-route-table td{
         border: 1px solid #dfe6ec;
     }
-
+    .multiple-del-box {
+      position: absolute;
+      top: 20px;
+      left: 0;
+    }
 </style>
 
 

@@ -34,7 +34,7 @@
             <el-col :span="6">上月</el-col>
           </el-row>
           <el-row v-cloak>
-            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课节数(次)</el-col>
+            <el-col :span="6"> <i class="iconfont icon-kexiaobaobiao fs-18"></i> 消课时数(次)</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.today.count}}</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.present_month.count}}</el-col>
             <el-col :span="6" class="times">{{statitics_info.eliminate.last_month.count}}</el-col>
@@ -532,7 +532,14 @@
               <div>{{scope.row.is_receive_apply | date('yyyy-MM-dd hh:mm')}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="批复人" prop="teacher.name" align="center"></el-table-column>
+        <el-table-column label="批复人" align="center">
+          <template slot-scope="scope">
+            <div class="d-f f-j-c">
+              <Explain v-if="scope.row.teacher.id === 0" title="explain_j"></Explain>
+              <span v-else>{{scope.row.teacher.name}}</span>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 分页 -->
           <el-pagination v-if="all_leave_record.page_info.total > 7" class="d-f f-j-c mt-10" :page-size="7" background layout="total, prev, pager, next" :total="all_leave_record.page_info.total" :current-page="all_leave_record.page_info.current_page" @current-change="go_leave_record_page">

@@ -43,7 +43,7 @@
                       <span v-else>{{scope.row.price}}元</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="实际库存" prop="real_num" align="center">
+                <el-table-column prop="real_num" align="center" :render-header="realRender">
                   <template slot-scope="scope">
                       <div v-if="scope.row.real_num > scope.row.warning">{{scope.row.real_num}}</div>
                       <div v-else class="d-f f-j-c">
@@ -57,8 +57,8 @@
                   </template>
                 </el-table-column>
 
-                <el-table-column label="待售库存" prop="organ_has" align="center"></el-table-column>
-                <el-table-column label="学员库存" prop="student_total" align="center"></el-table-column>
+                <el-table-column prop="organ_has" align="center" :render-header="organRender"></el-table-column>
+                <el-table-column prop="student_total" align="center" :render-header="studentRender"></el-table-column>
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
@@ -140,7 +140,11 @@
         </el-dialog>
 
         <!-- 类型设置弹窗 -->
-        <el-dialog title="类型设置" width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false">
+        <el-dialog width="700px" center :visible.sync="dialogStatus.typeSetting" :close-on-click-modal="false">
+            <span slot="title" class="el-dialog__title">
+              <Explain title="explain_p"></Explain>
+            </span>
+
             <div class="d-f f-j-e"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
 
             <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe height="400">
@@ -389,6 +393,15 @@ export default {
         this.receivePeopleType = 1;
         this.studentCourseLists.splice(0, this.studentCourseLists.length);
       }
+    },
+    realRender (elem) {
+      return elem('Explain', {attrs: {title: 'explain_q'}});
+    },
+    organRender (elem) {
+      return elem('Explain', {attrs: {title: 'explain_r'}});
+    },
+    studentRender (elem) {
+      return elem('Explain', {attrs: {title: 'explain_s'}});
     },
     removeStorageNumValidate (type) {
       return (rule, value, callback, event, e, d) => {
