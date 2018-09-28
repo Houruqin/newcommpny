@@ -338,7 +338,7 @@ export default {
         price: [
           {required: true, message: '请输入销售价格'},
           {validator: this.$$tools.formOtherValidate('decimals', 2)},
-          {validator: this.$$tools.formOtherValidate('total', 20000)}
+          {validator: this.$$tools.formOtherValidate('total', 1000000)}
         ],
         warning: [
           {required: true, message: '请输入库存预警数量'},
@@ -355,7 +355,7 @@ export default {
         stock_price: [
           {required: true, message: '请输入进货单价'},
           {validator: this.$$tools.formOtherValidate('decimals', 2)},
-          {validator: this.$$tools.formOtherValidate('total', 20000)}
+          {validator: this.$$tools.formOtherValidate('total', 1000000)}
         ]
       },
       removeStorageRules: {
