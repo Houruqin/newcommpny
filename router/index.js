@@ -3,6 +3,7 @@ import Cache from '@/script/cache';
 import Router from 'vue-router';
 import store from '../store/store';
 import qs from 'qs';
+import Rquest from '@/script/request';
 
 Vue.use(Router);
 
@@ -98,6 +99,8 @@ router.beforeEach((to, from, next) => {
   _hmt.push(['_trackPageview', to.path]);
 
   window.scrollTo(0, 0); //跳转之后，页面到最顶部
+
+  Rquest.get('/operation/statistics');
 
   next();
 });
