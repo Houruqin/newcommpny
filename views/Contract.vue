@@ -56,10 +56,10 @@ export default {
     };
   },
   created () {
-    if (this.$route.params.contractData) {
-      this.contractData = this.$route.params.contractData;
-      // this.replace_path = this.$route.params.replace_path;
-      // this.query = this.$route.params.path_query ? this.$route.params.path_query : null
+    if (this.$route.query.contractData) {
+      this.contractData = JSON.parse(this.$route.query.contractData);
+      // this.replace_path = this.$route.query.replace_path;
+      // this.query = this.$route.query.path_query ? this.$route.query.path_query : null
     }
   },
   mounted () {

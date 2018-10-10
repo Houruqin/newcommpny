@@ -98,7 +98,7 @@ export default {
     },
     //打印合同
     printCompact () {
-      this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: 'student/signed'}});
+      this.$router.push({path: '/contract', query: {contractData: JSON.stringify(this.contractData), replace_path: 'student/signed'}});
     }
   }
 };
