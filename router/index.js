@@ -28,7 +28,7 @@ const router = new Router({
       { path: '/student/nosignbuycourse', component: () => import(/* webpackChunkName: 'page-student-nosignbuycourse' */ '@/views/course/BuyCourse'), meta: { needlogin: true, menu: '/student/nosign' } },
       { path: '/student/signedbuycourse', component: () => import(/* webpackChunkName: 'page-student-signedbuycourse' */ '@/views/course/BuyCourse'), meta: { needlogin: true, menu: '/student/signed' } },
 
-      { path: '/timetable/begrade', component: () => import(/* webpackChunkName: 'page-timetable-begrade' */ '@/views/timetable/BeGradeIndex'), meta: { needlogin: true } },
+      { path: '/timetable/begrade', component: () => import(/* webpackChunkName: 'page-timetable-begrade' */ '@/views/timetable/BeGradeIndex1'), meta: { needlogin: true } },
       { path: '/timetable/nograde', component: () => import(/* webpackChunkName: 'page-timetable-nograde' */ '@/views/timetable/NoGradeIndex'), meta: { needlogin: true } },
 
       { path: '/academic/classElimination', component: () => import(/* webpackChunkName: 'page-academic-classElimination' */ '@/views/academic/ClassElimination'), meta: { needlogin: true } },
