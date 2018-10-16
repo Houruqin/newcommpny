@@ -279,11 +279,6 @@
             </el-form>
         </el-dialog>
 
-        <!-- 购买课程弹窗 -->
-        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
-            @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
-        </BuyCourseDialog> -->
-
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
@@ -619,7 +614,6 @@ import RefundDialog from '../../components/dialog/Refund';
 import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
 import Bus from '../../script/bus';
 
-import BuyCourseDialog from '../../components/dialog/BuyCourse';
 import ContractDialog from '../../components/dialog/Contract';
 
 export default {
@@ -630,7 +624,7 @@ export default {
       },
 
       state: 'loading',
-      dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
+      dialogStatus: {student: false, editTeacher: false, quitPrice: false},
 
       studentId: '', //学员id
       studentDetail: {},
@@ -652,7 +646,6 @@ export default {
       checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
       checkListen: [],
 
-      buyCourseData: {},
       auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
 
       gradeDivideLists: {
@@ -850,8 +843,8 @@ export default {
     },
     //退费  课时退费和教材退费单独验证
     quitPriceValidate (type) {
-      return (rule, value, callback, event, e, d) => {
-        if (type == 'lesson') {
+      return (rule, value, callback) => {
+        if (type === 'lesson') {
           if (value > Number(this.quitCourseInfo.real_price)) {
             return callback(new Error('课时退费金额不能超过剩余课时费'));
           }
@@ -1044,6 +1037,7 @@ export default {
         advisor_id: data.advisor_id,
         advisor: data.advisor,
         parent_id: data.parent_id,
+        deposit_money: -1,
         expire: data.expire,
         buy_type: 2,
         course_id: data.course_id,
@@ -1078,39 +1072,25 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      // if(type == 'course') {
-      //     this.buyCourseData = {};
-      //     this.dialogStatus.course = false;
-      //     return 0;
-      // };
-      if (type == 'contract') {
+      if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
 
         return 0;
       }
 
-      if (type == 'refund') {
+      if (type === 'refund') {
         this.quitPriceDetail = {};
         this.dialogStatus.quitPrice = false;
 
         return 0;
       }
     },
-    //购课成功，合约回调
-    CB_contract (data) {
-      this.contractData = data;
-      if (this.activeTab == 'course_info') {
-        this.getBottomTabLists();
-      }
-      this.dialogStatus.course = false;
-      this.dialogStatus.contract = true;
-    },
     //添加跟进
     addFollowUp () {
-      for (let key in this.followUpForm) {
-        this.followUpForm[key] = '';
-      }
+      Object.keys(this.followUpForm).forEach(v => {
+        this.followUpForm[v] = '';
+      });
       this.followupStatus = '';
       this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
       this.maskFollowUp = true;
@@ -1249,13 +1229,12 @@ export default {
     },
     //购课
     buyCourse () {
-      // this.buyCourseData = this.studentDetail;
-      // this.dialogStatus.course = true;
       let params = {
         student_id: this.studentDetail.id,
         advisor_id: this.studentDetail.advisor_id,
         advisor: this.studentDetail.advisor,
-        parent_id: this.studentDetail.parent_id
+        parent_id: this.studentDetail.parent_id,
+        deposit_money: -1
       };
 
       this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
@@ -1594,7 +1573,7 @@ export default {
       this.pageInit();
     }
   },
-  components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog, FollowUpList}
+  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList}
 };
 </script>
 

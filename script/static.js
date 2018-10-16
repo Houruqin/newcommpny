@@ -4,17 +4,17 @@
 
 const StudentStatic = {
   followUp: {
-    status: [
-      // {id: -2, name: '已签约'},
-      {id: -1, name: '无效'},
-      // {id: 0, name: '未跟进'},
-      {id: 1, name: '已沟通'},
-      {id: 2, name: '邀约到访'},
-      // {id: 3, name: '已到访'},
-      {id: 4, name: '邀约试听'},
-      // {id: 5, name: '已试听'},
-      {id: 6, name: '未接通'}
-    ],
+    // status: [
+    //   // {id: -2, name: '已签约'},
+    //   {id: -1, name: '无效'},
+    //   // {id: 0, name: '未跟进'},
+    //   {id: 1, name: '已沟通'},
+    //   {id: 2, name: '邀约到访'},
+    //   // {id: 3, name: '已到访'},
+    //   {id: 4, name: '邀约试听'},
+    //   // {id: 5, name: '已试听'},
+    //   {id: 6, name: '未接通'}
+    // ],
     wayId: [
       {id: 1, name: '面谈'},
       {id: 2, name: '微信'},
@@ -45,7 +45,8 @@ const StudentStatic = {
     {id: 1, name: '现金付款', icon: 'icon-xianjin', font_color: '#FFB349'},
     {id: 2, name: '支付宝付款', icon: 'icon-zhifubao', font_color: '#1AACEB'},
     {id: 3, name: '微信付款', icon: 'icon-weixinhover', font_color: '#08BB08'},
-    {id: 4, name: '银行卡付款', icon: 'icon-icon-yinhangqia2', font_color: '#1FAED4'}
+    {id: 4, name: '银行卡付款', icon: 'icon-icon-yinhangqia2', font_color: '#1FAED4'},
+    {id: 5, name: '其他', icon: 'icon-qianbaozhifumaijia', font_color: '#999'}
   ]
 };
 

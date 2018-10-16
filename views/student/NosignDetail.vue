@@ -50,8 +50,8 @@
         <el-card class="detail-bottom mt-20 bgc-m" shadow="hover">
             <div class="bgc-f pl-20 header fs-16">跟进记录</div>
             <div class="followup-lists-box" v-loading="loading">
+                <div class="d-f"><MyButton class="ml-190 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
                 <div class="followup-lists" v-if="followUpLists.total">
-                    <div class="d-f"><MyButton class="ml-160" @click.native="addFollowUp">添加跟进</MyButton></div>
                     <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                     <!-- <el-pagination v-if="followUpLists.total"
                         class="d-f f-j-c mt-50 mb-20"
@@ -136,7 +136,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
@@ -206,7 +206,6 @@ export default {
 
       followupStatus: '', //跟进结果
       wayIdArr: StudentStatic.followUp.wayId,
-      resultArr: [],
 
       followUpLists: [], //跟进列表
       followUpForm: {
@@ -350,7 +349,8 @@ export default {
         student_id: this.detail.id,
         advisor_id: this.detail.advisor_id,
         advisor: this.detail.advisor,
-        parent_id: this.detail.parent_id
+        parent_id: this.detail.parent_id,
+        deposit_money: this.detail.deposit_money
       };
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
@@ -531,16 +531,16 @@ export default {
 
     console.log(StudentStatic.followUp.status)
 
-    if (this.$$cache.getMemberInfo().class_pattern === 2) {
-      this.resultArr.splice(0, this.resultArr.length);
-      StudentStatic.followUp.status.forEach(v => {
-        if (v.id != 4) {
-          this.resultArr.push(v);
-        }
-      });
-    } else {
-      this.resultArr = StudentStatic.followUp.status;
-    }
+    // if (this.$$cache.getMemberInfo().class_pattern === 2) {
+    //   this.resultArr.splice(0, this.resultArr.length);
+    //   StudentStatic.followUp.status.forEach(v => {
+    //     if (v.id != 4) {
+    //       this.resultArr.push(v);
+    //     }
+    //   });
+    // } else {
+    //   this.resultArr = StudentStatic.followUp.status;
+    // }
 
     this.pageInit();
   },
@@ -602,7 +602,7 @@ export default {
             height: 200px;
         }
         .followup-lists {
-            padding: 20px 30px;
+            padding: 10px 30px 20px;
         }
     }
     }

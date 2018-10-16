@@ -122,7 +122,12 @@
                         {{courseForm.textbook_price}}
                     </el-form-item> -->
                 </div>
-
+                <div v-if="courseForm.deposit_money >= 0">
+                  <p class="head-info">定金信息</p>
+                  <div class="mt-10">
+                    <el-form-item label="已交定金：">{{courseForm.deposit_money}}元</el-form-item>
+                  </div>
+                </div>
                 <p class="head-info">付费信息</p>
                 <div class="mt-20">
                     <el-form-item label="付款方式：" prop="pay_way">
@@ -213,15 +218,6 @@ export default {
         ],
         given_num: [
           {validator: this.$$tools.formOtherValidate('int')},
-          {validator: this.$$tools.formOtherValidate('total', 200)}
-        ],
-        expire: [
-          {required: true, message: '请输入课程有效期'},
-          {validator: this.$$tools.formOtherValidate('int')},
-          {validator: this.$$tools.formOtherValidate('total', 120)}
-        ],
-        pay_at: [
-          {required: true, message: '请选择购课日期', trigger: 'change'},
           {validator: this.$$tools.formOtherValidate('total', 200)}
         ],
         expire: [
@@ -485,11 +481,9 @@ export default {
     async getTextBookLists () {
       let result = await this.$$request.get('/goods/textbookList');
 
-      console.log(result); 2;
       if (!result) {
         return 0;
       }
-
       this.textbookList = result.lists;
 
       return true;
@@ -515,8 +509,10 @@ export default {
       let queryData = JSON.parse(this.$route.query.buyCourseData);
 
       this.getCourseLists(queryData.student_id);
+
       this.courseForm.student_id = queryData.student_id;
       this.courseForm.advisor_id = queryData.advisor_id;
+      this.courseForm.deposit_money = queryData.deposit_money;
       this.courseForm.advisor_name = queryData.advisor ? queryData.advisor.name : '';
       this.courseForm.parent_id = queryData.parent_id;
       this.courseForm.expire = queryData.expire || 12;

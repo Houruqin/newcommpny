@@ -24,7 +24,8 @@ const state = {
   familyRelations: [], //家长关系
   allUser: [], //所有用户列表
   roleLists: [], //所有用户角色列表
-  systemSetting: {}
+  systemSetting: {},
+  followupStatus: []
 };
 
 const mutations = {
@@ -161,6 +162,15 @@ const mutations = {
     }
     console.log(result);
     state.teacherList = result.lists;
+  },
+  async getFollowupStatusLists () {
+    let result = await Request.get('/followUp/status');
+
+    if (!result) {
+      return 0;
+    }
+    console.log(result);
+    state.followupStatus = result.status;
   }
 };
 
@@ -215,6 +225,10 @@ const actions = {
 
   getTeacher (context) {
     context.commit('getTeacher');
+  },
+
+  getFollowupStatus (context) {
+    context.commit('getFollowupStatusLists');
   }
 };
 
