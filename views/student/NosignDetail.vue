@@ -529,8 +529,6 @@ export default {
       this.studentId = this.$route.query.student_id;
     }
 
-    console.log(StudentStatic.followUp.status)
-
     // if (this.$$cache.getMemberInfo().class_pattern === 2) {
     //   this.resultArr.splice(0, this.resultArr.length);
     //   StudentStatic.followUp.status.forEach(v => {
