@@ -42,9 +42,16 @@
         </el-card>
 
         <el-card class="mt-20" shadow="hover">
-            <el-tabs v-model="activeTab" @tab-click="tabClick" class="mt-10">
+            <div class="mt-10 p-r">
+              <el-tabs v-model="activeTab" @tab-click="tabClick">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
-            </el-tabs>
+              </el-tabs>
+              <div class="d-f f-a-c p-a timetable-multiple" v-if="activeTab === 'timetable'">
+                <MyButton v-if="!timetableMultiple.isShowCheckbox" @click.native="timetableMultiple.isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="timetableMultiple.isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': timetableMultiple.selectedIds.length}" @click="deleteTimeTable">批量删除</span>
+                <MyButton v-if="timetableMultiple.isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
+              </div>
+            </div>
             <div class="bottom-content-box">
                 <!-- 订单记录列表 -->
                 <div key="course_info" v-if="activeTab == 'course_info'">
@@ -156,8 +163,8 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
-                                        <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
-                                        <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                        <span class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
+                                        <span v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
                                     </div>
@@ -170,7 +177,6 @@
                             </template>
                         </el-table-column>
                     </el-table>
-
                     <el-pagination v-if="courseTimeTable.total"
                         class="d-f f-j-c mt-50 mb-20"
                         :page-size="courseTimeTable.per_page"
@@ -179,7 +185,42 @@
                         :current-page="courseTimeTable.current_page" @current-change="paginationClick">
                     </el-pagination>
                 </div>
-
+                <!-- 学员课表 -->
+                <div key="timetable" v-else-if="activeTab == 'timetable'">
+                  <el-table :data="timetableLists.data" stripe v-loading="loading" @selection-change="handleSelectionChange" ref="timetable">
+                    <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableMultiple.isShowCheckbox"></el-table-column>
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="课程名称" prop="timetable.course.name" align="center"></el-table-column>
+                    <el-table-column label="上课日期" align="center">
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.timetable.begin_time, item.row.timetable.end_time)}}</template>
+                    </el-table-column>
+                    <el-table-column label="上课时间" align="center">
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.timetable.begin_time, item.row.timetable.end_time, 'time')}}</template>
+                    </el-table-column>
+                    <el-table-column label="上课老师" align="center">
+                      <template slot-scope="item">
+                          <span v-if="item.row.teachers.length">
+                              <i v-for="(teacher, index) in item.row.teachers" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
+                          </span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="上课教室" prop="timetable.class_room.name" align="center"></el-table-column>
+                    <el-table-column label="扣除课时" prop="lesson_num" align="center"></el-table-column>
+                    <el-table-column label="课程状态" align="center">
+                      <template slot-scope="item">{{item.row.timetable.lesson_end_time ? '已结课' : '未结课'}}</template>
+                    </el-table-column>
+                    <el-table-column label="学员状态" prop="status.define" align="center">
+                      <!-- <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template> -->
+                    </el-table-column>
+                  </el-table>
+                  <el-pagination v-if="timetableLists.total"
+                        class="d-f f-j-c mt-50 mb-20"
+                        :page-size="timetableLists.per_page"
+                        background layout="total, prev, pager, next"
+                        :total="timetableLists.total"
+                        :current-page="timetableLists.current_page" @current-change="paginationClick">
+                    </el-pagination>
+                </div>
                 <!-- 课程评价列表 -->
                 <div v-else-if="activeTab == 'comment'" key="comment" class="course-comment">
                     <div v-if="courseCommentLists.length" v-loading="loading">
@@ -637,7 +678,8 @@ export default {
       loading: false,
 
       quitCourseLists: {}, //退费课程列表
-      courseTimeTable: {}, //课程表
+      courseTimeTable: {}, //课程信息
+      timetableLists: {}, //学员课表
       courseCommentLists: {}, //课评列表
       followUpLists: {}, //跟进列表
 
@@ -684,7 +726,20 @@ export default {
       timeTableStatic: timeTableStatic.status, //上课状态
 
       quitCourseInfo: {}, //退费课程详细数据
-      tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+
+      //学员课表批量操作
+      timetableMultiple: {
+        isShowCheckbox: false,
+        selectedIds: [],
+      },
+
+      tabLists: [
+        {type: 'course_info', name: '订单记录'},
+        {type: 'grade', name: '课程信息'},
+        {type: 'timetable', name: '学员课表'},
+        {type: 'comment', name: '课评信息'},
+        {type: 'follow_up', name: '跟进记录'}
+      ],
 
       quitCourseForm: {
         rel_remain: '',
@@ -841,6 +896,46 @@ export default {
         this.$refs[form].resetFields();
       }
     },
+    // 批量删除课表
+    deleteTimeTable () {
+      if (this.timetableMultiple.selectedIds && this.timetableMultiple.selectedIds.length) {
+        this.$confirm('删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.multipleDelete();
+        }).catch(() => {
+          return 0;
+        });
+      } else {
+        this.$message.error('请至少选中一条数据');
+      }
+    },
+    async multipleDelete () {
+      let res = await this.$$request.post('/timetable/deleteStudentTiemtables', {
+        student_id: this.studentId,
+        student_timetable_ids: this.timetableMultiple.selectedIds
+      });
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      this.$message.success('删除成功');
+      this.getBottomTabLists();
+    },
+    cancelMultipleDel () {
+      this.timetableMultiple.isShowCheckbox = false;
+      this.timetableMultiple.selectedIds.splice(0, this.timetableMultiple.selectedIds.length);
+      this.$refs.timetable.clearSelection();
+    },
+    handleSelectionChange (val) {
+      this.timetableMultiple.selectedIds = val.map(v => v.student_timetable_id);
+    },
+    checkboxIsDisabled (row) {
+      return row.timetable.lesson_end_time === 0;
+    },
     //退费  课时退费和教材退费单独验证
     quitPriceValidate (type) {
       return (rule, value, callback) => {
@@ -950,6 +1045,7 @@ export default {
       this.removeTimetableDialog = true;
 
     },
+    // 手动消课选择课程班级
     removeTimeTableChange (val) {
       this.gradeLists.forEach(v =>{
         if (v.id == val) {
@@ -968,7 +1064,7 @@ export default {
     },
     //底部列表切换
     tabClick (item) {
-      if (this.oldActiveTab == this.activeTab) {
+      if (this.oldActiveTab === item.name) {
         return 0;
       }
       this.oldActiveTab = item.name;
@@ -1366,9 +1462,9 @@ export default {
 
       let params = {};
 
-      for (let key in this.studentForm) {
-        params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
-      }
+      Object.keys(this.studentForm).forEach(v => {
+        params[v] = v === 'birthday' ? this.studentForm[v] / 1000 : this.studentForm[v];
+      });
 
       let result = await this.$$request.post('/sign/edit', params);
 
@@ -1486,13 +1582,15 @@ export default {
 
       this.classMaskStatus = true;
     },
-    //获取4个列表方法
+    //获取5个列表方法
     async getBottomTabLists (currentPage) {
+      this.timetableMultiple.isShowCheckbox = false;
       this.loading = true;
 
       let requestUrl = {
         course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
         grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
+        timetable: {url: '/timetable/studentList', list: 'timetableLists'},
         comment: {url: '/sign/comment', list: 'courseCommentLists'},
         follow_up: {url: '/followUp/lists', list: 'followUpLists'}
       };
@@ -1503,8 +1601,13 @@ export default {
         params.page = currentPage;
       }
 
-      let result = await this.$$request.post(url, params);
+      let result = null;
 
+      if (this.activeTab === 'timetable') {
+        result = await this.$$request.get(url, params);
+      } else {
+        result = await this.$$request.post(url, params);
+      }
       console.log(result);
       if (!result) {
         return 0;
@@ -1518,7 +1621,6 @@ export default {
       }
 
       this[dataLists] = result.lists;
-
       this.loading = false;
 
       return true;
@@ -1767,17 +1869,10 @@ export default {
     .time_select /deep/ .el-input--suffix .el-input__inner{
         padding-right: 10px;
     }
-    // .t_button{
-    //     display: inline-block;
-    //     padding: 4px 10px;
-    //     border: 1px solid #45DAD5;
-    //     border-radius: 4px;
-    //     color: #45DAD5;
-    // }
-    // .d_button{
-    //     border: 1px solid #999999;
-    //     color: #999999;
-    // }
+    .timetable-multiple {
+      top: 0;
+      right: 0;
+    }
 </style>
 
 

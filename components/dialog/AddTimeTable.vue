@@ -32,17 +32,21 @@
                               <el-option label="按周循环" value="yes"></el-option>
                           </el-select>
                       </el-form-item>
+
+                      <el-form-item label="课程时长：" prop="lesson_time">
+                          <el-input type="number" v-model.number="timetableForm.lesson_time"></el-input><span class="pl-10">分钟</span>
+                      </el-form-item>
                   </div>
 
                   <div class="flex1">
                       <el-form-item label="课程属性：">
                           <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
-                          <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
+                          <!-- <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span> -->
                           <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
                       </el-form-item>
 
                       <div v-if="addTableType === 'multiple'" key="multiple">
-                          <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
+                          <el-form-item label="扣课时数：" prop="lesson_num">
                               <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                           </el-form-item>
 
@@ -58,7 +62,7 @@
                                   <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
                               </el-select>
                           </el-form-item>
-                          <el-form-item label="扣课时数：" prop="lesson_num" class="lesson-num">
+                          <el-form-item label="扣课时数：" prop="lesson_num">
                               <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                           </el-form-item>
                       </div>
@@ -89,7 +93,7 @@
                   <div class="add-date-box d-f flex1">
                       <div class="title p-r is-required">上课时间：</div>
                       <div class="flex1">
-                          <div class="list">
+                          <div class="scroll-box">
                               <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
                                   <div class="p-r d-f">
                                       <div :class="addTableType === 'edit' ? 'date-change' : 'flex1' ">
@@ -120,8 +124,8 @@
                                       <i v-if="addTableType === 'multiple' && formAddDate.length > 1" @click="deleteDateHandle(num)" class="p-a delete-time el-tag__close el-icon-close"></i>
                                   </div>
                               </el-form>
+                              <div class="d-f mt-10" v-if="addTableType === 'multiple'"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
                           </div>
-                          <div class="d-f mt-10" v-if="addTableType === 'multiple'"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
                       </div>
                   </div>
 
@@ -382,6 +386,11 @@ export default {
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
         loop: [],
+        lesson_time: [
+          {required: true, message: '请输入课程时长'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 180)}
+        ],
         loop_time: [
           {required: true, message: '请输入排课次数'},
           {validator: this.$$tools.formOtherValidate('int')},
@@ -451,7 +460,7 @@ export default {
         let newdate = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
         let {full_day} = this.day, {day} = this.day, {hours_id} = this.day;
 
-        if (this.isSameWeek(this.calendar)) {
+        if (this.isSameWeek(this.calendar * 1000)) {
           this.timePicker.minTime = day == new Date().getDay() ? newdate : 0;
         } else {
           this.timePicker.minTime = 0;
@@ -856,8 +865,6 @@ export default {
     },
     //检测是否有冲突，获取冲突数据列表
     async getConflictLists (params) {
-      console.log(params);
-
       if (this.submitLoading.timetable) {
         return 0;
       }
@@ -949,9 +956,9 @@ export default {
 
 <style lang="less" scoped>
   .form-box {
-      max-height: 450px;
-      overflow: hidden;
-      overflow-y: auto;
+      // max-height: 450px;
+      // overflow: hidden;
+      // overflow-y: auto;
       .add-date {
           position: absolute;
           right: -35px;
@@ -992,6 +999,11 @@ export default {
                       margin-right: 4px;
                   }
               }
+          }
+          .scroll-box {
+            max-height: 220px;
+            overflow: hidden;
+            overflow-y: auto;
           }
           .delete-time {
               top: 10px;

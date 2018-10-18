@@ -288,11 +288,11 @@ export default {
       if (this.sell.end_time < this.sell.start_time) {
         return this.$message.warning('结束时间不能小于开始时间，请从新选择');
       }
-      this.getSellLists();
+      this.getSellLists(true);
     },
     //销售顾问change
     sellAdvisorChange () {
-      this.getSellLists();
+      this.getSellLists(true);
     },
     //sourceFilter自定义筛选
     sourceFilterClick (item) {

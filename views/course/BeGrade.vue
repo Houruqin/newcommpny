@@ -232,11 +232,11 @@ export default {
     CB_timetableSuccess () {
       this.getCourseLists();
     },
-    tabClick (val) {
-      if (this.oldTab === val) {
+    tabClick (item) {
+      if (this.oldTab === item.name) {
         return 0;
       }
-      this.oldTab = val;
+      this.oldTab = item.name;
       this.getCourseLists();
     },
     //课程大纲 点击

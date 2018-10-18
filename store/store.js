@@ -23,7 +23,7 @@ const state = {
   listen_status: [], //试听状态
   familyRelations: [], //家长关系
   allUser: [], //所有用户列表
-  //roleLists: [], //所有用户角色列表
+  roleLists: [], //所有用户角色列表
   systemSetting: {},
   followupStatus: []
 };
@@ -71,16 +71,16 @@ const mutations = {
 
     state.allUser = result.users;
   },
-  // async getRoleLists (state) {
-  //   let result = await Request.post('/permission/roleLists');
+  async getRoleLists (state) {
+    let result = await Request.post('/permission/roleLists');
 
-  //   console.log(result);
+    console.log(result);
 
-  //   if (!result) {
-  //     return 0;
-  //   }
-  //   state.roleLists = result.lists;
-  // },
+    if (!result) {
+      return 0;
+    }
+    state.roleLists = result.lists;
+  },
   async getAdvisor (state) {
     let result = await Request.get('/user/normalLists', {type: 'seller'});
 
@@ -187,9 +187,9 @@ const actions = {
     context.commit('getAllUser');
   },
 
-  // getRoleLists (context) {
-  //   context.commit('getRoleLists');
-  // },
+  getRoleLists (context) {
+    context.commit('getRoleLists');
+  },
 
   getAdvisor (context) {
     context.commit('getAdvisor');

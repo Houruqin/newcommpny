@@ -104,7 +104,7 @@
         </el-dialog>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="userDialogStatus" :type="userType" :role="userRole" :appendBody="true"
+        <AddStaffDialog v-model="userDialogStatus" :type="userType" :role="userRole" :appendBody="true"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </el-dialog>
@@ -255,9 +255,8 @@ export default {
         this.$emit('CB-dialogStatus', 'grade');
       }
     },
-    CB_dialogStatus (type) {
+    CB_dialogStatus () {
       this.userRole = false;
-      this.userDialogStatus = false;
     },
     CB_addStaff (data) {
       this.getGradeFill();

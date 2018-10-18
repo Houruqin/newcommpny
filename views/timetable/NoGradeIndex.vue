@@ -91,7 +91,7 @@
                             <span slot="reference" class="cursor-pointer ml-5 mr-5 out-line" v-if="tableType == 'week'">
                                 {{defaultWeekList[0].day.newFullDay}}-{{defaultWeekList[6].day.newFullDay}}
                             </span>
-                            <span v-if="tableType == 'day'" slot="reference" class="out-line">{{$$tools.format(calendar.time)}}</span>
+                            <span v-if="tableType == 'day'" slot="reference" class="out-line">{{$$tools.format(calendarTtime)}}</span>
                             <div id="myCalendar"></div>
                         </el-popover>
                         <i class="iconfont icon-you fc-m cursor-pointer" @click="nextWeekLists"></i>
@@ -271,7 +271,7 @@
         </el-card>
 
         <!-- 新增排课弹窗 -->
-        <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="820px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
+        <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'" width="900px" center :visible.sync="addTimetableMask" :close-on-click-modal="false" @close="dialogClose">
             <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="addRules">
                 <div class="form-box" id="form-box">
                     <div class="d-f">
@@ -294,45 +294,45 @@
                                 </el-select>
                             </el-form-item>
 
-                            <div class="add-date-box">
-                                <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
-                                    <div class="d-f">
-                                        <div class="title p-r is-required pt-3"><span class="pr-12">上课时间：</span></div>
-                                        <el-row class="p-r flex1">
-                                            <el-col :span="addTableType == 'edit' ? 14 : 9">
-                                                <el-form-item v-if="addTableType == 'edit'">
-                                                    <el-date-picker v-model="addDate.week" @change="formEditDateChange"
-                                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false"
-                                                        placeholder="选择日期" value-format="yyyy/MM/dd">
-                                                    </el-date-picker>
-                                                </el-form-item>
-                                                <el-form-item label-width="0" prop="week" v-else>
-                                                    <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
-                                                        <el-option v-for="(item, index) in timetableWeekList" :key="index" :disabled="(addTableType == 'single' || addTableType == 'edit') && !item.day.past_due" :label="item.name" :value="item.id"></el-option>
-                                                    </el-select>
-                                                </el-form-item>
-                                            </el-col>
+                            <div class="add-date-box d-f">
+                                <div class="title p-r is-required pt-3"><span class="pr-12">上课时间：</span></div>
+                                <div class="flex1">
+                                  <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
+                                      <div class="d-f">
+                                          <div :class="addTableType === 'edit' ? 'date-change' : 'flex1' ">
+                                              <el-form-item v-if="addTableType == 'edit'">
+                                                  <el-date-picker v-model="addDate.week" @change="formEditDateChange"
+                                                      :picker-options="pickerBeginDateAfter" type="date" :editable="false"
+                                                      placeholder="选择日期" value-format="yyyy/MM/dd">
+                                                  </el-date-picker>
+                                              </el-form-item>
+                                              <el-form-item label-width="0" prop="week" v-else>
+                                                  <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
+                                                      <el-option v-for="(item, index) in timetableWeekList" :key="index" :disabled="(addTableType == 'single' || addTableType == 'edit') && !item.day.past_due" :label="item.name" :value="item.id"></el-option>
+                                                  </el-select>
+                                              </el-form-item>
+                                          </div>
 
-                                            <el-col :span="addTableType == 'edit' ? 9 : 14" class="p-r" :offset="1">
-                                                <el-form-item  label-width="0" prop="begin_time" class="p-r">
-                                                    <el-time-select
-                                                        :editable="false"
-                                                        v-model="addDate.begin_time"
-                                                        :picker-options="timePicker"
-                                                        placeholder="时间">
-                                                    </el-time-select>
-                                                </el-form-item>
-                                            </el-col>
-                                        </el-row>
-                                    </div>
-                                </el-form>
+                                          <div class="pl-15 flex1">
+                                              <el-form-item  label-width="0" prop="begin_time" class="p-r">
+                                                  <el-time-select
+                                                      :editable="false"
+                                                      v-model="addDate.begin_time"
+                                                      :picker-options="timePicker"
+                                                      placeholder="时间">
+                                                  </el-time-select>
+                                              </el-form-item>
+                                          </div>
+                                      </div>
+                                  </el-form>
+                                </div>
                             </div>
                         </div>
 
                         <div class="flex1 ml-20">
                             <el-form-item label="课程属性：">
                                 <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
-                                <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
+                                <!-- <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span> -->
                             </el-form-item>
 
                             <template v-if="addTableType == 'multiple'">
@@ -345,6 +345,9 @@
                                     <el-input type="number" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
                                 </el-form-item>
                             </template>
+                            <el-form-item label="课程时长：" prop="lesson_time">
+                                <el-input type="number" v-model.number="timetableForm.lesson_time"></el-input><span class="pl-10">分钟</span>
+                            </el-form-item>
                             <el-form-item label="上课学员：" class="addtimetable-student">
                                 <div v-if="courseType == 1">
                                     <div class="flex1" :class="{'d-f f-a-c': courseType === 2}">
@@ -512,7 +515,7 @@ export default {
 
       tableType: 'week', //按周、日展示课表
       timetableFilter: 'grade', //显示类型  default，teacher，classroom
-      calendar: {time: new Date().getTime() / 1000}, //日历默认时间
+      calendarTtime: new Date().getTime() / 1000, //日历默认时间
       timeTableInfo: {}, //课表总数据
       weekTableLists: [], //按周展示，课表列表
       dayTableLists: [], //按天展示，课表列表
@@ -585,6 +588,11 @@ export default {
           {validator: this.$$tools.formOtherValidate('int')},
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
+        lesson_time: [
+          {required: true, message: '请输入课程时长'},
+          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('total', 180)}
+        ],
         // loop: [],
         // loop_time: [
         //     {required: true, message: '请输入排课次数'},
@@ -603,7 +611,7 @@ export default {
   },
   methods: {
     setNewDate () {
-      let now = new Date(this.calendar.time * 1000);
+      let now = new Date(this.calendarTtime * 1000);
       let year = now.getFullYear();
       let month = now.getMonth() + 1;
       let day = now.getDate();
@@ -633,18 +641,19 @@ export default {
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
+      this.getAllTableLists();
     },
     //上一周翻页
     lastWeekLists () {
-      if (this.tableType == 'week') {
+      if (this.tableType === 'week') {
         let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
 
-        this.calendar.time = last / 1000;
-        this.getWeekList(last, 'default');
+        this.calendarTtime = last / 1000;
+        this.getWeekList(last, 'all');
       } else {
-        this.calendar.time = this.calendar.time - ONE_DAY_LONG / 1000;
+        this.calendarTtime = this.calendarTtime - ONE_DAY_LONG / 1000;
         this.setNewDate();
-        this.getWeekList(this.calendar.time, 'default');
+        this.getWeekList(this.calendarTtime, 'all');
       }
 
       this.getAllTableLists();
@@ -654,19 +663,18 @@ export default {
       if (this.tableType == 'week') {
         let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
 
-        this.calendar.time = next / 1000;
-        this.getWeekList(next, 'default');
+        this.calendarTtime = next / 1000;
+        this.getWeekList(next, 'all');
       } else {
-        this.calendar.time = this.calendar.time + ONE_DAY_LONG / 1000;
+        this.calendarTtime = this.calendarTtime + ONE_DAY_LONG / 1000;
         this.setNewDate();
-        this.getWeekList(this.calendar.time, 'default');
+        this.getWeekList(this.calendarTtime, 'all');
       }
 
       this.getAllTableLists();
     },
     dialogClose () {
       this.formAddDate.splice(0, this.formAddDate.length);
-      // for(let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {this.$refs.addDateForm[i].resetFields()};
       this.$refs.addTimeTable.resetFields();
 
       Object.keys(this.timetableForm).forEach(v => {
@@ -728,16 +736,15 @@ export default {
       }
       this.tableType = type;
 
-      this.calendar.time = new Date().getTime() / 1000;
-      this.getWeekList(null, 'default');
-      this.getWeekList(null, 'timetable');
+      this.calendarTtime = new Date().getTime() / 1000;
+      this.getWeekList(null, 'all');
       this.setNewDate();
       this.getAllTableLists();
     },
     //批量排课，新增多个时间段
     addDateHandle () {
       this.formAddDate.push({begin_time: '', end_time: '', week: ''});
-      setTimeout(v => {
+      setTimeout(() => {
         document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight);
       }, 10);
     },
@@ -780,7 +787,7 @@ export default {
       console.log(detail);
 
       this.addTableType = 'edit';
-      this.getWeekList(this.calendar.time * 1000, 'timetable');
+      // this.getWeekList(this.calendarTtime * 1000, 'timetable');
 
       this.courseType = detail.course_type;
       if (this.courseType !== 1 && detail.student_grades.length) {
@@ -867,11 +874,11 @@ export default {
       if (type === 'single') {
         this.timetableForm.room_id = '';
 
-        this.getWeekList(this.calendar.time * 1000, 'timetable');
+        // this.getWeekList(this.calendarTtime * 1000, 'timetable');
         // if(new Date(`${full_day} 00:00`).getTime() < new Date().getTime() && time < new Date().getHours()) return this.$message.warning('不能给过去时间排课!');
         let newdate = [new Date().getHours(), new Date().getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
 
-        if (this.isSameWeek(this.calendar.time * 1000)) {
+        if (this.isSameWeek(this.calendarTtime * 1000)) {
           this.timePicker.minTime = week == new Date().getDay() ? newdate : 0;
         } else {
           this.timePicker.minTime = 0;
@@ -938,7 +945,7 @@ export default {
     },
     //排课弹窗，选择一周某一天
     formWeekChange (val) {
-      if (this.addTableType == 'multiple') {
+      if (this.addTableType === 'multiple') {
         this.timePicker.minTime = 0;
       } else {
         this.formAddDate.forEach(d => {
@@ -963,9 +970,6 @@ export default {
     },
     //学员checkbox，全选
     studentCheckAllChange (val) {
-      // this.studentLists = val ? this.allStudentLists.map(v => {
-      //   return v.id;
-      // }) : [];
       this.studentLists.splice(0, this.studentLists.length);
       if (val) {
         this.allStudentLists.forEach(v => {if (!v.disabled) this.studentLists.push(v.id)});
@@ -975,7 +979,7 @@ export default {
     studentCheckChange (val) {
       let checkedCount = val.length;
 
-      this.studentCheckAll = checkedCount === this.allStudentLists.filter(f => {return m.scheduled}).length;
+      this.studentCheckAll = checkedCount === this.allStudentLists.filter(m => {return m.scheduled}).length;
     },
     //排课弹窗通过选中的student_id获取student_name
     getStudentName (student_id) {
@@ -998,8 +1002,7 @@ export default {
 
       if (this.courseType === 1) {
         this.studentLists = this.checkStudentForm;
-        // this.studentCheckAll = this.studentLists.length === this.allStudentLists.length;
-        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return m.scheduled}).length;
+        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(m => {return m.scheduled}).length;
       } else {
         this.studentRadio = this.radioStudentForm;
       }
@@ -1111,7 +1114,7 @@ export default {
       };
       //单个提交
 
-      if (this.addTableType == 'single') {
+      if (this.addTableType === 'single') {
         // params.commit_type = 'single';
         this.timetableWeekList.forEach(v => {
           if (v.id == this.formAddDate[0].week) {
@@ -1119,7 +1122,7 @@ export default {
             params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
           }
         });
-      } else if (this.addTableType == 'edit') {
+      } else if (this.addTableType === 'edit') {
         // params.commit_type = 'single';
         console.log(this.formAddDate);
         params.begin_time = new Date(`${this.formAddDate[0].week} ${this.formAddDate[0].begin_time}`).getTime() / 1000;
@@ -1127,7 +1130,7 @@ export default {
         params.edit_id = this.timetableForm.timetable_id;
       } else {
         //批量提交
-        params.commit_type = 'multiple',
+        params.commit_type = 'multiple';
         params.loop = this.timetableForm.loop;
 
         let time_lists = this.formAddDate.map(d => {
@@ -1171,7 +1174,7 @@ export default {
       }
       this.submitLoading.timetable = true;
 
-      this.conflict_room = this.addTableType == 'multiple' ? [] : '';
+      this.conflict_room = this.addTableType === 'multiple' ? [] : '';
 
       let result = await this.$$request.post('/timetable/notModelCourse', params);
 
@@ -1188,8 +1191,8 @@ export default {
       if (result.status === 1) {
         this.getAllTableLists();
         this.getAddTimeTableFull();
-        this.conflict_room = this.addTableType == 'multiple' ? [] : '';
-        let message = this.addTableType == 'edit' ? '修改' : '添加';
+        this.conflict_room = this.addTableType === 'multiple' ? [] : '';
+        let message = this.addTableType === 'edit' ? '修改' : '添加';
 
         this.$message.success(`${message}排课成功`);
         this.addTimetableMask = false;
@@ -1240,7 +1243,7 @@ export default {
     //默认获取全部课表
     async getAllTableLists () {
       this.loading = true;
-      let result = await this.$$request.post('/timetable/notModelList', {select_time: Math.round(this.calendar.time), type: this.tableType});
+      let result = await this.$$request.post('/timetable/notModelList', {select_time: Math.round(this.calendarTtime), type: this.tableType});
 
       console.log(result);
       if (!result) {
@@ -1273,7 +1276,7 @@ export default {
 
       this.loading = true;
       let result = await this.$$request.post('/timetable/noGradeCourseLists', {
-        select_time: Math.round(this.calendar.time),
+        select_time: Math.round(this.calendarTtime),
         type: this.tableType,
         course_id: this.timetable_gradeCheck.map(v => {
           return v.id;
@@ -1293,7 +1296,7 @@ export default {
 
       this.loading = true;
       let result = await this.$$request.post('/timetable/noGradeTeacherLists', {
-        select_time: Math.round(this.calendar.time),
+        select_time: Math.round(this.calendarTtime),
         type: this.tableType,
         teacher_id: this.timetable_teacherCheck.map(v => {
           return v.id;
@@ -1313,7 +1316,7 @@ export default {
 
       this.loading = true;
       let result = await this.$$request.post('/timetable/noGradeRoomLists', {
-        select_time: Math.round(this.calendar.time),
+        select_time: Math.round(this.calendarTtime),
         type: this.tableType,
         room_id: this.timetable_roomCheck.map(v => {
           return v.id;
@@ -1380,7 +1383,7 @@ export default {
 
           let past_due;
 
-          let full_date = this.$$tools.format(this.calendar.time).replace(/\-/g, '/');
+          let full_date = this.$$tools.format(this.calendarTtime).replace(/\-/g, '/');
 
           if (full_date == this.$$tools.format(new Date().getTime() / 1000).replace(/\-/g, '/')) {
             past_due = v.id <= new Date().getHours();
@@ -1428,16 +1431,12 @@ export default {
       }
 
       let weekLists = this.weekList.map(d => {
-
         let num = d.id, newTime, past_due;
-
         let day_a = day == 0 ? 7 : day;
 
         newTime = num == 0 ? nowTime + (7 - day_a) * ONE_DAY_LONG : nowTime - (day_a - num) * ONE_DAY_LONG;
 
         let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
-
-        // let isToday = this.$$tools.format(newTime / 1000) === this.$$tools.format(now.getTime() / 1000) ? true : false;  //是否是当天
         let isToday = new Date(newTime).toDateString() === new Date().toDateString();
 
         if (this.isSameWeek(nowTime)) {
@@ -1461,7 +1460,10 @@ export default {
         };
       });
 
-      if (type === 'default') {
+      if (type === 'all') {
+        this.defaultWeekList = weekLists;
+        this.timetableWeekList = weekLists;
+      } else if (type === 'default') {
         this.defaultWeekList = weekLists;
       } else {
         this.timetableWeekList = weekLists;
@@ -1474,11 +1476,11 @@ export default {
       height: 280,
       customClass: 'my-calender',
       onSelected: (view, date, data) => {
-        if (date.getTime() / 1000 === this.calendar.time) {
+        if (date.getTime() / 1000 === this.calendarTtime) {
           return 0;
         }
-        this.calendar.time = date.getTime() / 1000;
-        this.getWeekList(date.getTime(), 'default');
+        this.calendarTtime = date.getTime() / 1000;
+        this.getWeekList(date.getTime(), 'all');
         // this.nowTime = date.getTime();
         this.getAllTableLists();
         this.$refs.calendarPopover.showPopper = false;
@@ -1489,8 +1491,7 @@ export default {
     for (let a = 8; a <= 21; a++) {
       this.hourData.push({id: a, name: `${a}:00`});
     }
-    this.getWeekList(null, 'default');
-    this.getWeekList(null, 'timetable');
+    this.getWeekList(null, 'all');
 
     let [a, b] = await Promise.all([this.getAllTableLists(), this.getAddTimeTableFull()]);
 
@@ -1706,17 +1707,17 @@ export default {
         max-height: 450px;
         overflow: hidden;
         overflow-y: auto;
-        .el-select, .el-date-editor {
-            width: 100%;
-        }
         .add-date {
             position: absolute;
             right: -35px;
             top: 5px;
         }
-        .lesson-num .el-input {
-            width: 180px;
+        /deep/ .el-input, /deep/ .el-cascader {
+          width: 240px;
         }
+        // .lesson-num .el-input {
+        //     width: 180px;
+        // }
         /deep/.el-radio {
             .el-radio__input {
                 input {
@@ -1734,6 +1735,9 @@ export default {
             }
         }
         .add-date-box {
+            /deep/ .el-form {
+              width: 240px;
+            }
             .title {
                 text-align: right;
                 width: 120px;
@@ -1745,9 +1749,21 @@ export default {
                     }
                 }
             }
+            .scroll-box {
+              max-height: 220px;
+              overflow: hidden;
+              overflow-y: auto;
+            }
             .delete-time {
-                top: 5px;
+                top: 10px;
+                right: -20px;
                 cursor: pointer;
+            }
+            /deep/ .el-input {
+                width: 100%;
+            }
+            .date-change {
+                width: 130px;
             }
         }
         .addtimetable-student {

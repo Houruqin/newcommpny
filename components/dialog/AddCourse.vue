@@ -59,7 +59,7 @@ export default {
   },
   components: {MyButton},
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       this.courseDialogStatus = newVal;
       if (this.courseDialogStatus) {
         this.courseForm.expire = 12; //有效期默认12月
@@ -68,17 +68,17 @@ export default {
         this.courseForm.is_order = this.courseMode == 1 ? 0 : 1;
       }
     },
-    type (newVal, oldVal) {
+    type (newVal) {
       console.log(newVal);
       this.courseType = newVal;
     },
-    editDetail (newVal, oldVal) {
+    editDetail (newVal) {
       console.log(newVal);
       if (!Object.keys(newVal).length) {
         return 0;
       }
       for (let key in this.courseForm) {
-        if (key == 'order_teacher_ids') {
+        if (key === 'order_teacher_ids') {
           this.courseForm[key] = newVal[key].substring(1, newVal[key].length - 1).split(',').map(v => {
             return +v;
           });

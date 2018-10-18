@@ -676,6 +676,7 @@ export default {
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
+      this.getAllTableLists();
     },
     //任课老师、辅助老师不能重复验证
     teacherValidator (type) {

@@ -6,16 +6,12 @@
                 <MyButton @click.native="addUser">添加员工</MyButton>
             </TableHeader>
             <div class="d-f f-a-c tab-box p-r">
-                <!-- <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
-                    <el-tab-pane label="全部" name="all"></el-tab-pane>
-                    <el-tab-pane v-for="(item, index) in $store.state.roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
-                </el-tabs> -->
                 <ul class="d-f tab-toolbar">
                   <li v-for="(list, index) in roleLists" :key="index" :class="{'ml-20': index, 'active': list.departmentId === staffType.departmentId}">
                     <el-dropdown trigger="click" v-if="list.role.length && list.enName !== 'master'" placement="bottom" @command="tabClick" class="role-popver-box">
                       <span class="el-dropdown-link title cursor-pointer">{{list.cnName}}<i class="el-icon-arrow-down el-icon--right"></i></span>
                       <el-dropdown-menu slot="dropdown" class="role-popver-box">
-                        <el-dropdown-item v-for="(item, num) in list.role" :key="num" :command="item" class="drop-item" :class="{'active': item.id === staffType.roleId}">{{item.cnName}}</el-dropdown-item>
+                        <el-dropdown-item v-for="(item, num) in list.role" :key="num" :command="item" class="drop-item" :class="{'active': item.id === staffType.roleId && list.departmentId === staffType.departmentId}">{{item.cnName}}</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                     <span v-else class="title cursor-pointer" @click="tabClick(list)" :class="{'active': list.departmentId === staffType.departmentId}">{{list.cnName}}</span>
@@ -80,7 +76,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
+        <AddStaffDialog v-model="dialogStatus" :editDetail="editDetail" :type="type"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </div>
@@ -127,9 +123,9 @@ export default {
   methods: {
     addUser () {
       this.type = 'add';
-      for (let key in this.form) {
-        this.form[key] = '';
-      }
+      // for (let key in this.form) {
+      //   this.form[key] = '';
+      // }
       this.dialogStatus = true;
     },
     CB_dialogStatus () {
@@ -278,17 +274,11 @@ export default {
       this.$message.success('已删除');
     },
     // 角色列表
-    async getRoleLists () {
-      let result = await this.$$request.post('/permission/roleLists');
+    getRoleLists () {
+      let result = JSON.parse(JSON.stringify(this.$store.state.roleLists));
 
       console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      result.lists.forEach(v => {
-        // v.active = false;
-        // v.rotate = false;
+      result.forEach(v => {
         if (v.enName !== 'master') {
           v.role.unshift({
             cnName: '全部',
@@ -296,20 +286,15 @@ export default {
             id: 'all',
             parent_id: v.departmentId
           });
-          // v.role.forEach(k => {
-          //   k.active = false;
-          // });
         }
       });
-      result.lists.unshift({
+      result.unshift({
         cnName: '全部',
         enName: 'all',
         departmentId: 'all',
         role: []
       });
-      this.roleLists = result.lists;
-
-      return true;
+      this.roleLists = result;
     },
     //用户列表
     async getUserLists (currentPage) {
@@ -369,12 +354,13 @@ export default {
     }
   },
   async created () {
-    // let datas = await this.getUserLists();
-    let [a, b] = await Promise.all([this.getUserLists(), this.getRoleLists()]);
+    this.$store.dispatch('getRoleLists');
+    let datas = await this.getUserLists();
 
-    if (a && b) {
+    if (datas) {
       this.state = 'loaded';
     }
+    this.getRoleLists();
   },
   components: {TableHeader, MyButton, AddStaffDialog}
 };

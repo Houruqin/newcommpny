@@ -112,7 +112,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus.detail" :editDetail="editDetail" :type="userType" origin="detail"
+        <AddStaffDialog v-model="dialogStatus.detail" :editDetail="editDetail" :type="userType"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
 
@@ -159,7 +159,6 @@ export default {
       if (type == 'staff') {
         this.userType = '';
         this.editDetail = {};
-        this.dialogStatus.detail = false;
 
         return 0;
       }

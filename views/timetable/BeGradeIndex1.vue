@@ -350,7 +350,7 @@ export default {
     CB_popverClose () {
       this.addTableType = '';
       this.timetableDetail = {};
-      this.timetableWeekList = [];
+      // this.timetableWeekList = [];
     },
     CB_startTimeChange (val) {
       this.getWeekList(val, 'timetable');
@@ -389,33 +389,40 @@ export default {
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
+      this.getAllTableLists();
     },
     //上一周翻页
     lastWeekLists () {
-      if (this.tableType == 'week') {
+      if (this.tableType === 'week') {
         let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
 
+        if (this.isSameWeek(last)) {
+          last = new Date().getTime();
+        }
         this.calendarTime = last / 1000;
-        this.getWeekList(last, 'default');
+        this.getWeekList(last, 'all');
       } else {
         this.calendarTime = this.calendarTime - ONE_DAY_LONG / 1000;
         this.setNewDate();
-        this.getWeekList(this.calendarTime, 'default');
+        this.getWeekList(this.calendarTime, 'all');
       }
 
       this.getAllTableLists();
     },
     //下一周翻页
     nextWeekLists () {
-      if (this.tableType == 'week') {
+      if (this.tableType === 'week') {
         let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
 
+        if (this.isSameWeek(next)) {
+          next = new Date().getTime();
+        }
         this.calendarTime = next / 1000;
-        this.getWeekList(next, 'default');
+        this.getWeekList(next, 'all');
       } else {
         this.calendarTime = this.calendarTime + ONE_DAY_LONG / 1000;
         this.setNewDate();
-        this.getWeekList(this.calendarTime, 'default');
+        this.getWeekList(this.calendarTime, 'all');
       }
 
       this.getAllTableLists();
@@ -528,7 +535,7 @@ export default {
     },
     //批量排课
     multipleAddTimetable () {
-      // this.getWeekList(null, 'timetable');
+      this.getWeekList(null, 'timetable');
       this.addTableType = 'multiple';
       this.dialogStatus.timetable = true;
     },
@@ -583,7 +590,6 @@ export default {
       this.loading = true;
       let result = await this.$$request.post('/timetable/lists', {select_time: Math.round(this.calendarTime), type: this.tableType});
 
-      console.log(result);
       if (!result) {
         return 0;
       }
@@ -801,6 +807,8 @@ export default {
         };
       });
 
+      console.log(weekLists);
+
       if (type === 'all') {
         this.defaultWeekList = weekLists;
         this.timetableWeekList = weekLists;
@@ -845,7 +853,7 @@ export default {
           return 0;
         }
         this.calendarTime = date.getTime() / 1000;
-        this.getWeekList(date.getTime(), 'default');
+        this.getWeekList(date.getTime(), 'all');
         this.getAllTableLists();
 
         this.$refs.calendarPopover.showPopper = false;
