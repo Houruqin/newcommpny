@@ -767,6 +767,7 @@ export default {
       this.showModal();
     }
 
+    this.$store.dispatch('getRoleLists');
     this.$store.dispatch('getAdvisor');
     this.$store.dispatch('getFollowupStatus');
     this.$store.dispatch('getCourse');

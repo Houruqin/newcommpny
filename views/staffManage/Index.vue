@@ -6,7 +6,7 @@
                 <MyButton @click.native="addUser">添加员工</MyButton>
             </TableHeader>
             <div class="d-f f-a-c tab-box p-r">
-                <ul class="d-f tab-toolbar">
+                <!-- <ul class="d-f tab-toolbar">
                   <li v-for="(list, index) in roleLists" :key="index" :class="{'ml-20': index, 'active': list.departmentId === staffType.departmentId}">
                     <el-dropdown trigger="click" v-if="list.role.length && list.enName !== 'master'" placement="bottom" @command="tabClick" class="role-popver-box">
                       <span class="el-dropdown-link title cursor-pointer">{{list.cnName}}<i class="el-icon-arrow-down el-icon--right"></i></span>
@@ -16,7 +16,11 @@
                     </el-dropdown>
                     <span v-else class="title cursor-pointer" @click="tabClick(list)" :class="{'active': list.departmentId === staffType.departmentId}">{{list.cnName}}</span>
                   </li>
-                </ul>
+                </ul> -->
+                <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
+                    <el-tab-pane label="全部" name="all"></el-tab-pane>
+                    <el-tab-pane v-for="(item, index) in $store.state.roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
+                </el-tabs>
                 <el-select v-model="filterVal" placeholder="请选择" class="ml-50 filter-box" @change="filterChange" size="small">
                     <el-option label="全部任职状态" value=""></el-option>
                     <el-option label="在职" :value="1"></el-option>
@@ -92,10 +96,11 @@ export default {
   data () {
     return {
       state: 'loading',
-      staffType: {
-        departmentId: 'all',
-        roleId: ''
-      },
+      // staffType: {
+      //   departmentId: 'all',
+      //   roleId: ''
+      // },
+      staffType: 'all',
       staffListInfo: {},
       filterVal: '',
       dialogStatus: false,
@@ -123,9 +128,6 @@ export default {
   methods: {
     addUser () {
       this.type = 'add';
-      // for (let key in this.form) {
-      //   this.form[key] = '';
-      // }
       this.dialogStatus = true;
     },
     CB_dialogStatus () {
@@ -140,25 +142,17 @@ export default {
     filterChange () {
       this.getUserLists();
     },
-    //新增，选择角色
-    roleChange (val) {
-      this.$store.state.roleLists.forEach(v => {
-        if (v.name === val) {
-          this.form.role_id = v.id;
-        }
-      });
-    },
-    tabClick (tab) {
-      if (tab.departmentId === 'all') {
-        this.staffType.departmentId = tab.departmentId;
-        this.staffType.roleId = '';
-      } else if (tab.enName === 'master') {
-        this.staffType.departmentId = tab.departmentId;
-        this.staffType.roleId = 'master';
-      } else {
-        this.staffType.departmentId = tab.parent_id;
-        this.staffType.roleId = tab.id;
-      }
+    tabClick () {
+      // if (tab.departmentId === 'all') {
+      //   this.staffType.departmentId = tab.departmentId;
+      //   this.staffType.roleId = '';
+      // } else if (tab.enName === 'master') {
+      //   this.staffType.departmentId = tab.departmentId;
+      //   this.staffType.roleId = 'master';
+      // } else {
+      //   this.staffType.departmentId = tab.parent_id;
+      //   this.staffType.roleId = tab.id;
+      // }
       this.getUserLists();
     },
     titleClick (list) {
@@ -274,51 +268,53 @@ export default {
       this.$message.success('已删除');
     },
     // 角色列表
-    getRoleLists () {
-      let result = JSON.parse(JSON.stringify(this.$store.state.roleLists));
+    // getRoleLists () {
+    //   let result = JSON.parse(JSON.stringify(this.$store.state.roleLists));
 
-      console.log(result);
-      result.forEach(v => {
-        if (v.enName !== 'master') {
-          v.role.unshift({
-            cnName: '全部',
-            enName: 'all',
-            id: 'all',
-            parent_id: v.departmentId
-          });
-        }
-      });
-      result.unshift({
-        cnName: '全部',
-        enName: 'all',
-        departmentId: 'all',
-        role: []
-      });
-      this.roleLists = result;
-    },
+    //   console.log(result);
+    //   result.forEach(v => {
+    //     if (v.enName !== 'master') {
+    //       v.role.unshift({
+    //         cnName: '全部',
+    //         enName: 'all',
+    //         id: 'all',
+    //         parent_id: v.departmentId
+    //       });
+    //     }
+    //   });
+    //   result.unshift({
+    //     cnName: '全部',
+    //     enName: 'all',
+    //     departmentId: 'all',
+    //     role: []
+    //   });
+    //   this.roleLists = result;
+    // },
     //用户列表
     async getUserLists (currentPage) {
       this.loading = true;
-      let params = {roleList: ''};
+      // let params = {roleList: ''};
 
-      console.log(this.staffType)
+      // console.log(this.staffType)
 
-      if (this.staffType.departmentId === 'all') {
-        params.roleList = 'all';
-      } else if (this.staffType.roleId === 'all') {
-        this.roleLists.forEach(v => {
-          if (v.departmentId === this.staffType.departmentId) {
-            params.roleList = v.role.map(k => {
-              return k.id;
-            });
-            params.roleList.shift();
-          }
-        });
-      } else if (this.staffType.roleId === 'master') {
-        params.roleList = [this.staffType.departmentId];
-      } else {
-        params.roleList = [this.staffType.roleId];
-      }
+      // if (this.staffType.departmentId === 'all') {
+      //   params.roleList = 'all';
+      // } else if (this.staffType.roleId === 'all') {
+      //   this.roleLists.forEach(v => {
+      //     if (v.departmentId === this.staffType.departmentId) {
+      //       params.roleList = v.role.map(k => {
+      //         return k.id;
+      //       });
+      //       params.roleList.shift();
+      //     }
+      //   });
+      // } else if (this.staffType.roleId === 'master') {
+      //   params.roleList = [this.staffType.departmentId];
+      // } else {
+      //   params.roleList = [this.staffType.roleId];
+      // }
+
+      let params = {type: this.staffType};
 
       if (currentPage) {
         params.page = currentPage;
@@ -354,13 +350,13 @@ export default {
     }
   },
   async created () {
-    this.$store.dispatch('getRoleLists');
+    // this.$store.dispatch('getRoleLists');
     let datas = await this.getUserLists();
 
     if (datas) {
       this.state = 'loaded';
     }
-    this.getRoleLists();
+    // this.getRoleLists();
   },
   components: {TableHeader, MyButton, AddStaffDialog}
 };
@@ -371,42 +367,59 @@ export default {
         color: #c0c4cc
     }
     .tab-box {
+        // width: 100%;
+        // border-bottom: 2px #e4e7ed solid;
+        // .tab-toolbar {
+        //   li {
+        //     position: relative;
+        //     padding: 15px 0;
+        //     &.active {
+        //       &::before {
+        //         content: '';
+        //         display: block;
+        //         width: 100%;
+        //         height: 2px;
+        //         background-color: #45DAD5;
+        //         position: absolute;
+        //         left: 0;
+        //         bottom: -2px;
+        //       }
+        //       .title {
+        //         color: #45DAD5;
+        //       }
+        //     }
+        //     .title {
+        //       padding: 0 20px;
+        //       outline: none;
+        //       .el-icon-arrow-down {
+        //         -webkit-transition: transform 300ms;
+        //         transition: transform 300ms;
+        //       }
+        //       &.dropshow {
+        //         .el-icon-arrow-down {
+        //           -webkit-transform :rotate(180deg);
+        //           transform: rotate(180deg);
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
         width: 100%;
-        border-bottom: 2px #e4e7ed solid;
         .tab-toolbar {
-          li {
-            position: relative;
-            padding: 15px 0;
-            &.active {
-              &::before {
-                content: '';
-                display: block;
-                width: 100%;
-                height: 2px;
-                background-color: #45DAD5;
-                position: absolute;
-                left: 0;
-                bottom: -2px;
-              }
-              .title {
-                color: #45DAD5;
-              }
+            /deep/ .el-tabs__header {
+                margin: 0;
             }
-            .title {
-              padding: 0 20px;
-              outline: none;
-              .el-icon-arrow-down {
-                -webkit-transition: transform 300ms;
-                transition: transform 300ms;
-              }
-              &.dropshow {
-                .el-icon-arrow-down {
-                  -webkit-transform :rotate(180deg);
-                  transform: rotate(180deg);
-                }
-              }
-            }
-          }
+            /deep/ .el-tabs__nav-wrap::after {content: none}
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 100%;
+            height: 2px;
+            background-color: #e4e7ed;
+            z-index: 1;
         }
     }
     .role-popver-box {

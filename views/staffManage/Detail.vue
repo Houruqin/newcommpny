@@ -78,7 +78,7 @@
                     </el-table-column>
                     <el-table-column label="班级名称" align="center">
                         <template slot-scope="scope">
-                            {{scope.row.course.class_pattern == 1 ? scope.row.name : '无'}}
+                            <span v-if="scope.row.course">{{scope.row.course.class_pattern == 1 ? scope.row.name : '无'}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="课程性质" align="center">

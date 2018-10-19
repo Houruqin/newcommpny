@@ -22,29 +22,31 @@
             </el-date-picker>
           </div>
 
-          <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-              <ul class="bgc-m audition-lists">
-                  <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
-                      <p class="fs-16 fc-2">{{list.course.name}}</p>
-                      <p class="two-p mt-5 d-f f-a-c">
-                          <span class="d-f f-a-c">
-                              <i class="time-icon"></i>
-                              <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                          </span>
-                          <span class="ml-30 d-f f-a-c">
-                              <i class="teacher-icon"></i>
-                              <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                          </span>
-                          <span class="ml-30 d-f f-a-c">
-                              <i class="address-icon"></i>
-                              <i class="pl-5">{{list.class_room.name}}</i>
-                          </span>
-                      </p>
-                      <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                  </li>
-              </ul>
+          <div class="mt-30" v-loading="loading">
+            <div v-if="listenCourseLists.length" class="listen-course-box">
+                <ul class="bgc-m audition-lists">
+                    <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
+                        <p class="fs-16 fc-2">{{list.course.name}}</p>
+                        <p class="two-p mt-5 d-f f-a-c">
+                            <span class="d-f f-a-c">
+                                <i class="time-icon"></i>
+                                <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
+                            </span>
+                            <span class="ml-30 d-f f-a-c">
+                                <i class="teacher-icon"></i>
+                                <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
+                            </span>
+                            <span class="ml-30 d-f f-a-c">
+                                <i class="address-icon"></i>
+                                <i class="pl-5">{{list.class_room.name}}</i>
+                            </span>
+                        </p>
+                        <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
+                    </li>
+                </ul>
+            </div>
+            <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
           </div>
-          <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
 
           <div class="d-f f-j-c mt-50"><MyButton @click.native="auditionDoneClick" :loading="submitLoading">确定</MyButton></div>
       </div>
@@ -72,6 +74,7 @@ export default {
   data () {
     return {
       submitLoading: false,
+      loading: false,
       dialogStatus: this.value,
       checkListen: [],
       teacherLists: [],
@@ -122,6 +125,7 @@ export default {
     },
     //获取试听课程列表
     async getListenCourseLists () {
+      this.loading = true;
       let select_time = this.auditionData.time / 1000;
       let current_time = new Date().getTime() / 1000;
       let old_time = select_time < current_time ? current_time : select_time;
@@ -138,6 +142,7 @@ export default {
         return 0;
       }
       this.listenCourseLists = result.lists;
+      this.loading = false;
     },
     //试听课程列表点击
     listenCourseClick (list) {
