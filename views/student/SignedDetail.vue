@@ -249,9 +249,9 @@
                 </div>
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
-                    <div class="followup-lists-box p-r bgc-m" v-loading="loading">
+                    <div class="followup-lists-box p-r pl-2" v-loading="loading">
                         <div class="followup-lists">
-                          <div class="d-f"><MyButton class="ml-160" @click.native="addFollowUp">添加跟进</MyButton></div>
+                          <div class="d-f"><MyButton class="ml-156" @click.native="addFollowUp">添加跟进</MyButton></div>
                           <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                         </div>
                     </div>

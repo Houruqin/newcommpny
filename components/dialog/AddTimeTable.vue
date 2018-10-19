@@ -253,12 +253,11 @@ export default {
       }
       this.courseType = detail.course_type;
       this.formAddDate.splice(0, this.formAddDate.length, {begin_time: detail.time_quantum.begin_time, end_time: '', week: detail.time_quantum.week});
-
       this.editStudentGrades = detail.student_grades;
       this.timetableForm.timetable_id = detail.id;
       this.timetableForm.grade_info = [detail.course_id, detail.grade_id];
       this.timetableForm.lesson_num = detail.lesson_num;
-      this.timetableForm.lesson_time = detail.lesson_time;
+      this.timetableForm.lesson_time = Math.round((detail.end_time - detail.begin_time) / 60);
       this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : ''; //任课老师
       this.timetableForm.counselor_ids = detail.counselor.length ? detail.counselor[0].id : ''; //辅助老师
       this.timetableForm.room_id = detail.room_id;

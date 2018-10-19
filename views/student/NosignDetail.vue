@@ -16,14 +16,7 @@
               <div class="right flex1 pl-20 pt-20" v-if="detail.parent_info">
                 <p><span>性　　别：</span>{{detail.sex ? '男' : '女'}}</p>
                 <p><span>出生日期：</span>{{detail.birthday > 0 ? $$tools.format(detail.birthday) : ''}}</p>
-                <p>
-                  <span>家长信息：</span>
-                  <span v-if="detail.parent_info.name && detail.parent_info.relation">
-                    <i>{{detail.parent_info.name}}</i>
-                    <i>({{getRelations(detail.parent_info.relation)}})</i>
-                  </span>
-                  <span v-else>暂无</span>
-                </p>
+                <p><span>家长信息：</span><i>{{detail.parent_info.name}}</i><i>({{getRelations(detail.parent_info.relation)}})</i></p>
                 <p><span>联系电话：</span>{{detail.parent_info.mobile}}</p>
                 <p><span>家庭住址：</span>{{detail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(detail.registerInfo.created_at)}}</p>
@@ -47,24 +40,14 @@
             </div>
         </el-card>
 
-        <el-card class="detail-bottom mt-20 bgc-m" shadow="hover">
-            <div class="bgc-f pl-20 header fs-16">跟进记录</div>
-            <div class="followup-lists-box" v-loading="loading">
-                <div class="d-f"><MyButton class="ml-190 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
+        <el-card class="mt-20" shadow="hover">
+            <TableHeader title="跟进记录"></TableHeader>
+            <div class="followup-lists-box pl-80" v-loading="loading">
+                <div class="d-f"><MyButton class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
                 <div class="followup-lists" v-if="followUpLists.total">
                     <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
-                    <!-- <el-pagination v-if="followUpLists.total"
-                        class="d-f f-j-c mt-50 mb-20"
-                        :page-size="followUpLists.per_page"
-                        background layout="total, prev, pager, next"
-                        :total="followUpLists.total"
-                        :current-page="followUpLists.current_page"
-                        @current-change="paginationClick"
-                        @next-click="nextClick"
-                        @prev-click="prevClick">
-                    </el-pagination> -->
                 </div>
-                <div v-else class="d-f f-a-c f-j-c fc-5 nothing"><span>暂无数据</span></div>
+                <div v-else class="d-f f-a-c f-j-c fc-7 nothing"><span>暂无数据</span></div>
             </div>
         </el-card>
 
