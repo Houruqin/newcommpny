@@ -1385,23 +1385,25 @@ export default {
     },
     //提交跟进
     async submitFollowUpInfo () {
-      for (let key in this.followUpForm) {
-        if (key == 'invited_at' || key == 'next_at') {
-          this.followUpForm[key] = this.followUpForm[key] / 1000;
-        }
-      }
-
       if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
-
       if (this.submitLoading.followUp) {
         return 0;
       }
+
       this.submitLoading.followUp = true;
 
-      let params = {...this.followUpForm, type_id: 6, student_id: this.studentId}; //type_id默认售前跟进5
+      let params = {type_id: 6, student_id: this.studentId};
+
+      if (this.checkListenCourse.timetable_id) {
+        params.timetable_id = this.checkListenCourse.timetable_id;
+      }
+
+      Object.keys(this.followUpForm).forEach(key => {
+        params[key] = key === 'invited_at' || key === 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
+      });
 
       console.log(params);
 
@@ -1413,13 +1415,8 @@ export default {
         return 0;
       }
       this.$message.success('添加成功');
-
       this.maskFollowUp = false;
-
       this.listenCourseInit();
-      for (let key in this.followUpForm) {
-        this.followUpForm[key] = '';
-      }
       this.getBottomTabLists();
     },
     //获取学员详情
