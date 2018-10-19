@@ -227,31 +227,27 @@
         <!-- 办理试听 -->
         <el-dialog title="办理试听" width="720px" center :visible.sync="dialogStatus.listen" :close-on-click-modal="false" @close="dialogClose('listen')">
             <div class="form-box" v-loading="loading">
-               <el-row type="flex" justify="center">
-                    <el-col :span="10">
-                        <el-date-picker size="small"
-                            v-model="auditionData.time" type="date"
-                            value-format="timestamp" :clearable="false"
-                            :editable="false" placeholder="选择日期"
-                            @change="listenDateChange"
-                            :picker-options="pickListenDisable">
-                        </el-date-picker>
-                    </el-col>
-                </el-row>
-                <el-row type="flex" justify="center" class="mt-30">
-                   <el-col :span="8">
-                       <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部老师" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                   <el-col :span="8" :offset="1">
-                       <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                </el-row>
+                <div class="input-box">
+                  <div class="d-f f-j-b">
+                    <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
+                        <el-option label="全部老师" value=""></el-option>
+                        <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+
+                    <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
+                        <el-option label="全部课程" value=""></el-option>
+                        <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                  </div>
+                  <el-date-picker size="small" class="mt-10"
+                      v-model="auditionData.time" type="date"
+                      value-format="timestamp" :clearable="false"
+                      :editable="false" placeholder="选择日期"
+                      @change="listenDateChange"
+                      :picker-options="pickListenDisable">
+                  </el-date-picker>
+                </div>
+
                 <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
                     <ul class="bgc-m audition-lists">
                         <li class="fc-7 cursor-pointer p-r" v-for="(list, index) in listenCourseLists" :key="index">
@@ -1093,14 +1089,12 @@ export default {
     }
     .form-box {
         padding: 0 20px;
-        .el-select, .el-date-editor {
-            width: 100%;
+        .input-box {
+          width: 400px;
+          margin: 0 auto;
         }
-        h3 {
-            font-weight: normal;
-            font-size: 14px;
-            padding-left: 38px;
-            margin-bottom: 15px;
+        /deep/ .el-input {
+          width: 180px;
         }
         .audition-lists {
             li {

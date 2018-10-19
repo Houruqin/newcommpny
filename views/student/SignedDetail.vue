@@ -403,62 +403,6 @@
             </div>
         </el-dialog>
 
-        <!-- 邀约试听弹窗 -->
-        <el-dialog title="试听" width="720px" center :visible.sync="maskAudition" :close-on-click-modal="false" @close="dialogClose('listen')">
-            <div class="form-box">
-               <el-row type="flex" justify="center">
-                    <el-col :span="10">
-                        <el-date-picker size="small"
-                            v-model="auditionData.time" type="date"
-                            value-format="timestamp" :clearable="false"
-                            :editable="false" placeholder="选择日期"
-                            @change="getListenLists"
-                            :picker-options="pickListenDisable">
-                        </el-date-picker>
-                    </el-col>
-                </el-row>
-                <el-row type="flex" justify="center" class="mt-30">
-                   <el-col :span="8">
-                       <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部老师" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                   <el-col :span="8" :offset="1">
-                       <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                </el-row>
-                <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-                    <ul class="bgc-m audition-lists">
-                        <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
-                            <p class="fs-16 fc-2">{{list.course.name}}</p>
-                            <p class="two-p mt-5 d-f f-a-c">
-                                <span class="d-f f-a-c">
-                                    <i class="time-icon"></i>
-                                    <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="teacher-icon"></i>
-                                    <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="address-icon"></i>
-                                    <i class="pl-5">{{list.class_room.name}}</i>
-                                </span>
-                            </p>
-                            <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                        </li>
-                    </ul>
-                </div>
-                <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-7">暂无数据</span></div>
-
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle" :loading="submitLoading.followUp">确定</MyButton></div>
-            </div>
-        </el-dialog>
-
         <!-- 添加跟进弹窗 -->
         <el-dialog title="添加跟进" width="600px" center :visible.sync="maskFollowUp" :close-on-click-modal="false" @close="dialogClose('followUpForm')">
             <el-form :model="followUpForm" label-width="125px" size="small" :rules="followUpRules" ref="followUpForm">
@@ -471,7 +415,7 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                          <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10"></el-option>
                         </el-select>
                     </el-form-item>
 
@@ -643,6 +587,9 @@
         </el-dialog>
 
         <RefundDialog :routerAble="false" :dialogStatus="dialogStatus.quitPrice" :refundData="quitPriceDetail" @CB-dialogStatus="CB_dialogStatus"></RefundDialog>
+
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
     </div>
 </template>
 
@@ -656,8 +603,10 @@ import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
 import Bus from '../../script/bus';
 
 import ContractDialog from '../../components/dialog/Contract';
+import AddAudition from '../../components/dialog/AddAudition';
 
 export default {
+  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition},
   data () {
     return {
       submitLoading: {
@@ -665,7 +614,8 @@ export default {
       },
 
       state: 'loading',
-      dialogStatus: {student: false, editTeacher: false, quitPrice: false},
+      dialogStatus: {student: false, editTeacher: false, quitPrice: false, audition: false},
+      auditionType: 'audition',
 
       studentId: '', //学员id
       studentDetail: {},
@@ -674,7 +624,6 @@ export default {
 
       editTeacherLists: [],
       teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
-
       loading: false,
 
       quitCourseLists: {}, //退费课程列表
@@ -683,12 +632,7 @@ export default {
       courseCommentLists: {}, //课评列表
       followUpLists: {}, //跟进列表
 
-      listenType: '', //试听类型，直接试听、跟进邀约试听
-      listenCourseLists: [], //试听课程列表
       checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
-      checkListen: [],
-
-      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
 
       gradeDivideLists: {
         lists: [],
@@ -717,10 +661,8 @@ export default {
       quitCourseMaskStatus: false, //退费弹窗
       maskFollowUp: false, //添加跟进弹窗
       studentMaskStatus: false, //  修改基本信息弹窗
-      maskAudition: false, //邀约试听弹窗
       followupStatus: '', //跟进结果
       paymentMethod: StudentStatic.paymentMethod, //付款方式
-      resultArr: StudentStatic.followUp.status,
       wayIdArr: StudentStatic.followUp.wayId,
       relationArr: StudentStatic.relation,
       timeTableStatic: timeTableStatic.status, //上课状态
@@ -730,7 +672,7 @@ export default {
       //学员课表批量操作
       timetableMultiple: {
         isShowCheckbox: false,
-        selectedIds: [],
+        selectedIds: []
       },
 
       tabLists: [
@@ -867,22 +809,14 @@ export default {
 
       return text;
     },
+    CB_audition (data) {
+      this.checkListenCourse = data;
+    },
     editTeahcerDiaClose () {
       this.$refs.teacherForm.resetFields();
     },
     dialogClose (form) {
-      if (form === 'listen') {
-        this.checkListen = [];
-        this.listenCourseLists = [];
-        this.auditionData = {
-          time: new Date().getTime(),
-          teacher_lists: [],
-          course_lists: [],
-          teacher_id: '',
-          course_id: ''
-        };
-        // 48213449
-      } else if (form === 'followUpForm') {
+      if (form === 'followUpForm') {
         this.listenCourseInit();
         this.$refs[form].resetFields();
       } else if (form === 'divideGrade') {
@@ -1188,49 +1122,25 @@ export default {
         this.followUpForm[v] = '';
       });
       this.followupStatus = '';
-      this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
       this.maskFollowUp = true;
     },
     //跟进结果选择
     followUpStatusChange (value) {
       this.followupStatus = value;
       if (value === 4) {
-        this.getListenLists();
-        this.maskAudition = true;
+        this.auditionType = 'followup_audition';
+        this.dialogStatus.audition = true;
       } else {
         this.listenCourseInit();
       }
     },
     //添加试听
     addListenHandle () {
-      this.listenType = 'default';
-      this.getListenLists();
-      this.maskAudition = true;
-    },
-    //试听课程列表点击
-    listenCourseClick (list) {
-      let index = this.checkListen.indexOf(list.id);
-
-      if (index === -1) {
-        if (this.checkListen.length) {
-          return this.$message.warning('最多选择一个');
-        }
-        this.checkListen.push(list.id);
-      } else {
-        this.checkListen.splice(index, 1);
-      }
+      this.auditionType = 'audition';
+      this.dialogStatus.audition = true;
     },
     //试听跟进弹窗关闭，数据重置
     listenCourseInit () {
-      this.auditionData = {
-        time: new Date().getTime(),
-        teacher_lists: [],
-        course_lists: [],
-        teacher_id: '',
-        course_id: ''
-      };
-      this.checkListen = [];
-      this.listenCourseLists = [];
       Object.keys(this.checkListenCourse).forEach(v => {
         this.checkListenCourse[v] = '';
       });
@@ -1374,31 +1284,6 @@ export default {
 
       this.quitCourseMaskStatus = true;
     },
-    //试听确定
-    listenDoneHandle () {
-      if (!this.checkListen.length) {
-        return this.$message.warning('试听课程不能为空!');
-      }
-
-      if (this.listenType == 'default') {
-        this.followUpForm.way_id = 5;
-        this.followUpForm.status = 4;
-        this.followUpForm.content = '无跟进内容记录';
-
-        this.submitFollowUpInfo();
-      } else {
-        this.listenCourseLists.forEach(v => {
-          if (v.id === this.checkListen[0]) {
-            this.checkListenCourse.timetable_id = v.id;
-            this.checkListenCourse.course_name = v.course.name;
-            this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
-          }
-        });
-      }
-
-      this.listenCourseLists = []; //试听课程列表重置
-      this.maskAudition = false;
-    },
     //表单确定
     doneHandle (type) {
       this.$refs[type].validate(valid => {
@@ -1518,12 +1403,6 @@ export default {
 
       let params = {...this.followUpForm, type_id: 6, student_id: this.studentId}; //type_id默认售前跟进5
 
-      if (this.listenType == 'default' && this.checkListen.length) {
-        params.timetable_id = this.checkListen[0];
-      } else if (this.checkListenCourse.timetable_id) {
-        params.timetable_id = this.checkListenCourse.timetable_id;
-      }
-
       console.log(params);
 
       let result = await this.$$request.post('/followUp/add', params); //type_id默认售后跟进6
@@ -1536,7 +1415,6 @@ export default {
       this.$message.success('添加成功');
 
       this.maskFollowUp = false;
-      this.maskAudition = false;
 
       this.listenCourseInit();
       for (let key in this.followUpForm) {
@@ -1625,37 +1503,6 @@ export default {
 
       return true;
     },
-    //获取试听填充列表
-    async getListenLists () {
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.auditionData.teacher_lists = result.teacher;
-      this.auditionData.course_lists = result.course;
-      this.getListenCourseLists();
-    },
-    //获取试听课程列表
-    async getListenCourseLists () {
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let params = {
-        time: old_time,
-        teacher_id: this.auditionData.teacher_id,
-        course_id: this.auditionData.course_id
-      };
-
-      let result = await this.$$request.post('/listenCourse/lists', {data: params});
-
-      if (!result) {
-        return 0;
-      }
-      this.listenCourseLists = result.lists;
-    },
     async pageInit () {
       let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
 
@@ -1674,8 +1521,7 @@ export default {
       this.studentId = val.query.id;
       this.pageInit();
     }
-  },
-  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList}
+  }
 };
 </script>
 

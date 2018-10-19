@@ -140,8 +140,6 @@ import AddStudentDialog from '../../components/dialog/AddStudent';
 import AddAudition from '../../components/dialog/AddAudition';
 import PayDeposit from '../../components/dialog/PayDeposit';
 import Bus from '../../script/bus';
-
-import {StudentStatic} from '../../script/static';
 import qs from 'qs';
 import config from 'config';
 

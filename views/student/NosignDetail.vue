@@ -51,62 +51,6 @@
             </div>
         </el-card>
 
-        <!-- 邀约试听弹窗 -->
-        <el-dialog title="试听" width="720px" center :visible.sync="maskAudition" :close-on-click-modal="false" @close="dialogClose('listen')">
-            <div class="form-box">
-               <el-row type="flex" justify="center">
-                    <el-col :span="10">
-                        <el-date-picker size="small"
-                            v-model="auditionData.time" type="date"
-                            value-format="timestamp" :clearable="false"
-                            :editable="false" placeholder="选择日期"
-                            @change="getListenLists"
-                            :picker-options="pickListenDisable">
-                        </el-date-picker>
-                    </el-col>
-                </el-row>
-                <el-row type="flex" justify="center" class="mt-30">
-                   <el-col :span="8">
-                       <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部老师" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                   <el-col :span="8" :offset="1">
-                       <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                </el-row>
-                <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-                    <ul class="bgc-m audition-lists">
-                        <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
-                            <p class="fs-16 fc-2">{{list.course.name}}</p>
-                            <p class="two-p mt-5 d-f f-a-c">
-                                <span class="d-f f-a-c">
-                                    <i class="time-icon"></i>
-                                    <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="teacher-icon"></i>
-                                    <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="address-icon"></i>
-                                    <i class="pl-5">{{list.class_room.name}}</i>
-                                </span>
-                            </p>
-                            <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                        </li>
-                    </ul>
-                </div>
-                <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
-
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle" :loading="submitLoading">确定</MyButton></div>
-            </div>
-        </el-dialog>
-
         <!-- 添加跟进弹窗 -->
         <el-dialog title="添加跟进" width="600px" center :visible.sync="maskFollowUp" :close-on-click-modal="false" @close="dialogClose('followUpForm')">
             <el-form :model="followUpForm" label-width="125px" size="small" :rules="followUpRules" ref="followUpForm">
@@ -144,6 +88,9 @@
             </el-form>
         </el-dialog>
 
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
+
         <!-- 登记学员弹窗 -->
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
             @CB-dialogStatus="CB_dialogStatus" @CB-addStudent="CB_addStudent">
@@ -159,30 +106,28 @@ import FollowUpList from '../../components/common/FollowUp';
 import {StudentStatic} from '../../script/static';
 
 import AddStudentDialog from '../../components/dialog/AddStudent';
+import AddAudition from '../../components/dialog/AddAudition';
 
 export default {
+  components: {TableHeader, MyButton, AddStudentDialog, FollowUpList, AddAudition},
   data () {
     return {
       submitLoading: false,
-
       state: 'loading',
 
       detail: {},
       studentId: '',
       loading: true,
 
-      listenType: '', //试听类型，直接试听、跟进邀约试听
-      listenCourseLists: [], //试听课程列表
-      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
-      checkListen: [],
+      auditionType: 'audition',
 
+      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
       currPage: false,
 
       auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
-      maskAudition: false, //试听弹窗
       maskFollowUp: false, //跟进弹窗
 
-      dialogStatus: {student: false, course: false, contract: false},
+      dialogStatus: {student: false, course: false, contract: false, audition: false},
       editDetail: {},
 
       studentType: '',
@@ -245,20 +190,7 @@ export default {
       return text;
     },
     dialogClose (form) {
-      if (form === 'listen') {
-        this.checkListen = [];
-        this.listenCourseLists = [];
-        this.auditionData = {
-          time: new Date().getTime(),
-          teacher_lists: [],
-          course_lists: [],
-          teacher_id: '',
-          course_id: ''
-        };
-      } else {
-        this.listenCourseInit();
-        this.$refs[form].resetFields();
-      }
+      this.$refs[form].resetFields();
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
@@ -272,56 +204,35 @@ export default {
       this.getStudentDetail();
       this.dialogStatus.student = false;
     },
+    // 跟进 选择试听关闭回调
+    CB_audition (data) {
+      this.checkListenCourse = data;
+    },
     //添加跟进
     addFollowUp () {
       Object.keys(this.followUpForm).forEach(v => {
         this.followUpForm[v] = '';
       });
       this.followupStatus = '';
-      this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
       this.maskFollowUp = true;
     },
     //跟进结果选择
     followUpStatusChange (value) {
       this.followupStatus = value;
       if (value === 4) {
-        this.getListenLists();
-        this.maskAudition = true;
+        this.auditionType = 'followup_audition';
+        this.dialogStatus.audition = true;
       } else {
         this.listenCourseInit();
       }
     },
     //添加试听
     addListenHandle () {
-      this.listenType = 'default';
-      this.getListenLists();
-      this.maskAudition = true;
-    },
-    //试听课程列表点击
-    listenCourseClick (list) {
-      console.log(list);
-      let index = this.checkListen.indexOf(list.id);
-
-      if (index === -1) {
-        if (this.checkListen.length) {
-          return this.$message.warning('最多选择一个');
-        }
-        this.checkListen.push(list.id);
-      } else {
-        this.checkListen.splice(index, 1);
-      }
+      this.auditionType = 'audition';
+      this.dialogStatus.audition = true;
     },
     //试听跟进弹窗关闭，数据重置
     listenCourseInit () {
-      this.auditionData = {
-        time: new Date().getTime(),
-        teacher_lists: [],
-        course_lists: [],
-        teacher_id: '',
-        course_id: ''
-      };
-      this.checkListen = [];
-      this.listenCourseLists = [];
       Object.keys(this.checkListenCourse).forEach(v => {
         this.checkListenCourse[v] = '';
       });
@@ -338,33 +249,8 @@ export default {
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
-    //试听确定
-    listenDoneHandle () {
-      if (!this.checkListen.length) {
-        return this.$message.warning('试听课程不能为空!');
-      }
-
-      if (this.listenType == 'default') {
-        this.followUpForm.way_id = 5;
-        this.followUpForm.status = 4;
-        this.followUpForm.content = '无跟进内容记录';
-
-        this.submitFollowUpInfo();
-      } else {
-        this.listenCourseLists.forEach(v => {
-          if (v.id === this.checkListen[0]) {
-            this.checkListenCourse.timetable_id = v.id;
-            this.checkListenCourse.course_name = v.course.name;
-            this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
-          }
-        });
-      }
-
-      this.listenCourseLists = []; //试听课程列表重置
-      this.maskAudition = false;
-    },
     //表单确定
-    followUpDoneHandle (type) {
+    followUpDoneHandle () {
       this.$refs.followUpForm.validate(valid => {
         if (valid) {
           this.submitFollowUpInfo();
@@ -394,44 +280,38 @@ export default {
     },
     //提交跟进
     async submitFollowUpInfo () {
-      if (this.submitLoading) {
-        return 0;
-      }
-      this.submitLoading = true;
-
-      let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
-
-      for (let key in this.followUpForm) {
-        params[key] = key == 'invited_at' || key == 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
-      }
-
       if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
-        this.submitLoading = false;
-
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
-      if (this.listenType == 'default' && this.checkListen.length) {
-        params.timetable_id = this.checkListen[0];
-      } else if (this.checkListenCourse.timetable_id) {
+      if (this.submitLoading) {
+        return 0;
+      }
+
+      this.submitLoading = true;
+      let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
+
+      if (this.checkListenCourse.timetable_id) {
         params.timetable_id = this.checkListenCourse.timetable_id;
       }
 
+      Object.keys(this.followUpForm).forEach(key => {
+        params[key] = key === 'invited_at' || key === 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
+      });
+
       console.log(params);
 
-      // let result = await this.$$request.post('/followUp/add', params);
+      let result = await this.$$request.post('/followUp/add', params);
 
-      // this.submitLoading = false;
-      // console.log(result);
-      // if (!result) {
-      //   return 0;
-      // }
-      // this.$message.success('添加成功');
-
-      // this.maskFollowUp = false;
-      // this.maskAudition = false;
-      // this.listenCourseInit();
-      // this.getFollowUpLists();
+      this.submitLoading = false;
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
+      this.$message.success('添加成功');
+      this.maskFollowUp = false;
+      this.listenCourseInit();
+      this.getFollowUpLists();
     },
     //获取跟进列表
     async getFollowUpLists (currentPage) {
@@ -463,41 +343,6 @@ export default {
       this.$set(this, 'detail', result.detail);
 
       return true;
-    },
-    //获取试听填充列表
-    async getListenLists () {
-      this.checkListen.splice(0, this.checkListen.length);
-
-      let select_time = this.auditionData.time / 1000;
-      let current_time = new Date().getTime() / 1000;
-      let old_time = select_time < current_time ? current_time : select_time;
-      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-
-      if (!result) {
-        return 0;
-      }
-      this.auditionData.teacher_lists = result.teacher;
-      this.auditionData.course_lists = result.course;
-      this.getListenCourseLists();
-    },
-    //获取试听课程列表
-    async getListenCourseLists () {
-      let select_time = this.auditionData.time / 1000;
-      let current_time = new Date().getTime() / 1000;
-      let old_time = select_time < current_time ? current_time : select_time;
-
-      let params = {
-        time: old_time,
-        teacher_id: this.auditionData.teacher_id,
-        course_id: this.auditionData.course_id
-      };
-
-      let result = await this.$$request.post('/listenCourse/lists', {data: params});
-
-      if (!result) {
-        return 0;
-      }
-      this.listenCourseLists = result.lists;
     },
     async pageInit () {
       let [a, b] = await Promise.all([this.getStudentDetail(), this.getFollowUpLists()]);
@@ -531,8 +376,7 @@ export default {
       this.studentId = val.query.student_id;
       this.pageInit();
     }
-  },
-  components: {TableHeader, MyButton, AddStudentDialog, FollowUpList}
+  }
 };
 </script>
 
