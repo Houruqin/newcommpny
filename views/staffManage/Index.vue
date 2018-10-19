@@ -39,6 +39,9 @@
                   <el-table-column label="手机号码" align="center">
                       <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
                   </el-table-column>
+                  <el-table-column label="性别" align="center">
+                      <template slot-scope="scope">{{scope.row.sex ? '男' : '女'}}</template>
+                  </el-table-column>
                   <el-table-column label="任职岗位" align="center">
                       <template slot-scope="scope">
                           <span v-for="(type,index) in scope.row.type_all" :key="index" :class="{'list-item-gray': !scope.row.status}"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span>

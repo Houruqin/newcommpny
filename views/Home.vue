@@ -63,7 +63,10 @@
                             </el-dropdown-menu>
                         </el-dropdown>
 
-                        <a class="avatar-box ml-50"><img :src="memberInfo.type ? role[memberInfo.type] : role.master" alt=""></a>
+                        <a class="avatar-box ml-50">
+                          <img v-if="memberInfo.type === 'institution'" :src="roleIcon.adminICon" alt="">
+                          <img v-else :src="memberInfo.sex ? roleIcon.manICon : roleIcon.womanICon" alt="">
+                        </a>
 
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
@@ -309,9 +312,13 @@
 <script>
 
 import Menu from '../components/Menus';
-import bossIcon from '../images/common/boss-icon.png';
-import masterIcon from '../images/common/master-icon.png';
-import registerIcon from '../images/common/register-icon.png';
+// import bossIcon from '../images/common/boss-icon.png';
+// import masterIcon from '../images/common/master-icon.png';
+// import registerIcon from '../images/common/register-icon.png';
+import adminICon from '../images/staff/admin.png';
+import manICon from '../images/staff/user-man.png';
+import womanICon from '../images/staff/user-woman.png';
+
 import Bus from '../script/bus';
 import MyButton from '../components/common/MyButton';
 
@@ -328,6 +335,12 @@ export default {
       loading: false,
       errorLoading,
       apiUrl: config.api,
+
+      roleIcon: {
+        adminICon: adminICon,
+        manICon: manICon,
+        womanICon: womanICon
+      },
       search_student_info: '', //搜索学员信息
       search_result: [], //搜索结果
       settingShow: false,
@@ -352,7 +365,6 @@ export default {
       checkListenStudent: [], //选中的试听学员
       listenTimetableId: '', //选中的试听课程
 
-      role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon, academic: registerIcon},
       memberInfo: {},
 
       modalObj: null, //遮罩层modal
