@@ -44,10 +44,10 @@
             <TableHeader title="跟进记录"></TableHeader>
             <div class="followup-lists-box pl-80" v-loading="loading">
                 <div class="d-f"><MyButton class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
-                <div class="followup-lists" v-if="followUpLists.total">
+                <div v-if="followUpLists.total">
                     <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                 </div>
-                <div v-else class="d-f f-a-c f-j-c fc-7 nothing"><span>暂无数据</span></div>
+                <div v-else class="d-f f-a-c f-j-c fc-9 nothing"><span>暂无数据</span></div>
             </div>
         </el-card>
 
@@ -415,21 +415,11 @@ export default {
         }
       }
     }
-    .detail-bottom {
-      /deep/ .el-card__body {
-        padding: 0;
+
+    .followup-lists-box {
+      .nothing {
+          height: 200px;
       }
-      .header {
-        line-height: 50px;
-      }
-      .followup-lists-box {
-        .nothing {
-            height: 200px;
-        }
-        .followup-lists {
-            padding: 10px 30px 20px;
-        }
-    }
     }
     .form-box {
         padding: 0 20px;

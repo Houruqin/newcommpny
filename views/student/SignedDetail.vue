@@ -245,15 +245,16 @@
                             </li>
                         </ul>
                     </div>
-                    <div v-else class="d-f f-a-c f-j-c fc-7 nothing"><span>暂无数据</span></div>
+                    <div v-else class="d-f f-a-c f-j-c fc-9 nothing"><span>暂无数据</span></div>
                 </div>
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
-                    <div class="followup-lists-box p-r pl-2" v-loading="loading">
-                        <div class="followup-lists">
-                          <div class="d-f"><MyButton class="ml-156" @click.native="addFollowUp">添加跟进</MyButton></div>
-                          <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
+                    <div class="followup-lists-box p-r pl-80" v-loading="loading">
+                        <div class="d-f"><MyButton class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
+                        <div v-if="followUpLists.total">
+                            <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                         </div>
+                        <div v-else class="d-f f-a-c f-j-c fc-9 nothing"><span>暂无数据</span></div>
                     </div>
                 </div>
             </div>
@@ -1571,13 +1572,8 @@ export default {
     .followup-lists-box {
         // overflow-y: scroll;
         // max-height: 450px;
-
-        .followup-lists {
-            padding: 20px 30px;
-        }
-        .add-followup {
-            top: 0;
-            right: 0;
+        .nothing {
+            height: 200px;
         }
     }
     .course-comment {
@@ -1673,39 +1669,6 @@ export default {
                 span {
                     position: relative;
                 }
-            }
-        }
-    }
-    .detail {
-        .detail-left {
-            width: 400px;
-        }
-        .detail-top {
-            padding: 0 60px;
-            ul li {
-                margin-top: 20px;
-                color: #999999;
-                span {
-                    color: #222222;
-                }
-            }
-        }
-        .detail-bottom {
-            border-top: 1px #e3e3e3 dotted;
-            ul li {
-                margin-top: 20px;
-            }
-            .timetable-edit {
-                border: 1px #45DAD5 solid;
-                text-align: center;
-                width: 60px;
-                line-height: 30px;
-                height: 30px;
-                box-sizing: border-box;
-                right: 10px;
-                top: -40px;
-                color: #45DAD5;
-                border-radius: 5px;
             }
         }
     }
