@@ -16,7 +16,31 @@
               <div class="right flex1 pl-20 pt-20" v-if="detail.parent_info">
                 <p><span>性　　别：</span>{{detail.sex ? '男' : '女'}}</p>
                 <p><span>出生日期：</span>{{detail.birthday > 0 ? $$tools.format(detail.birthday) : ''}}</p>
-                <p><span>家长信息：</span><i>{{detail.parent_info.name}}</i><i>({{getRelations(detail.parent_info.relation)}})</i></p>
+                <div class="d-f parent-info">
+                  <div class="fc-9">家长信息：</div>
+                  <div class="flex1 fc-2">
+                    <p v-if="!detail.parent_info.name && detail.parent_info.pivot.relation === 7">
+                      <span>暂无</span>
+                      <span class="pl-20">{{detail.parent_info.mobile}}</span>
+                    </p>
+                    <p v-if="detail.parent_info.name">
+                      <span>{{detail.parent_info.name}}({{getRelations(detail.parent_info.relation)}})</span>
+                      <span class="pl-20">{{detail.parent_info.mobile}}</span>
+                    </p>
+                    <div v-if="detail.deputyParentInfo.length">
+                      <div v-for="(item, num) in detail.deputyParentInfo" :key="num">
+                        <p v-if="!item.name">
+                          <span>暂无</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                        <p v-if="item.name">
+                          <span>{{item.name}}({{getRelations(item.pivot.relation)}})</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <p><span>联系电话：</span>{{detail.parent_info.mobile}}</p>
                 <p><span>家庭住址：</span>{{detail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(detail.registerInfo.created_at)}}</p>
@@ -356,18 +380,6 @@ export default {
     if (this.$route.query.student_id) {
       this.studentId = this.$route.query.student_id;
     }
-
-    // if (this.$$cache.getMemberInfo().class_pattern === 2) {
-    //   this.resultArr.splice(0, this.resultArr.length);
-    //   StudentStatic.followUp.status.forEach(v => {
-    //     if (v.id != 4) {
-    //       this.resultArr.push(v);
-    //     }
-    //   });
-    // } else {
-    //   this.resultArr = StudentStatic.followUp.status;
-    // }
-
     this.pageInit();
   },
   watch: {
@@ -412,6 +424,11 @@ export default {
         }
         span {
           color: #999;
+        }
+      }
+      .parent-info {
+        span {
+          color: #303133;
         }
       }
     }

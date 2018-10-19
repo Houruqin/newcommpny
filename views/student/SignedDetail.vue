@@ -16,7 +16,31 @@
               <div class="right flex1 pl-20 pt-20" v-if="studentDetail.parent_info">
                 <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
                 <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
-                <p><span>家长信息：</span><i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></p>
+                <div class="d-f parent-info">
+                  <div class="fc-9">家长信息：</div>
+                  <div class="flex1 fc-2">
+                    <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.pivot.relation === 7">
+                      <span>暂无</span>
+                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                    </p>
+                    <p v-if="studentDetail.parent_info.name">
+                      <span>{{studentDetail.parent_info.name}}({{getRelations(studentDetail.parent_info.relation)}})</span>
+                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                    </p>
+                    <div v-if="studentDetail.deputyParentInfo.length">
+                      <div v-for="(item, num) in studentDetail.deputyParentInfo" :key="num">
+                        <p v-if="!item.name">
+                          <span>暂无</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                        <p v-if="item.name">
+                          <span>{{item.name}}({{getRelations(item.pivot.relation)}})</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <p><span>联系电话：</span>{{studentDetail.parent_info.mobile}}</p>
                 <p><span>家庭住址：</span>{{studentDetail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
@@ -1540,6 +1564,11 @@ export default {
         }
         span {
           color: #999;
+        }
+      }
+      .parent-info {
+        span {
+          color: #303133;
         }
       }
     }
