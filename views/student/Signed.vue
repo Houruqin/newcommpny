@@ -677,7 +677,7 @@ export default {
       }
     },
     handleSelectionChange (x) {
-      this.selectedIds = x.map(v => v.id);
+      this.selectedIds = x.map(v => v.student_id);
     },
     handleCommand (d) {
       console.log(d);

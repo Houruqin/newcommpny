@@ -141,7 +141,7 @@
                         </li>
                     </ul> -->
                 </div>
-                <div class="sell-right flex1 pt-100 ml-150">
+                <div class="sell-right flex1 d-f f-d-c f-j-c f-a-c">
                     <div class="item p-r">
                         <span class="fs-15 fc-5">成交率（已成交/全部咨询）</span>
                         <div class="schedule-box mt-10">
@@ -835,9 +835,9 @@ export default {
                 .ratio {
                     display: block;
                     text-align: left;
-                    width: 100px;
+                    width: 80px;
                     position: absolute;
-                    right: -120px;
+                    right: -100px;
                     top: 50%;
                     transform: translateY(-50%);
                 }
