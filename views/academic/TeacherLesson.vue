@@ -40,7 +40,7 @@
         <el-table-column label="课程名称" prop="courseName" align="center"></el-table-column>
         <el-table-column label="课程类型" align="center">
           <template slot-scope="scope">
-            {{scope.row.courseType == 1 ? '普通' : '一对一'}}
+            {{scope.row.courseType == 1 ? '一对多' : '一对一'}}
           </template>
         </el-table-column>
         <el-table-column v-if="$$cache.getMemberInfo().class_pattern != 2" label="班级名称" align="center">

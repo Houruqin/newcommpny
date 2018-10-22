@@ -63,7 +63,7 @@
                     <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
                     <el-table-column label="购买课程" align="center" prop="course_name"></el-table-column>
                     <el-table-column label="购买日期" align="center">
-                        <template slot-scope="scope"><span>{{scope.row.created_at}}</span></template>
+                        <template slot-scope="scope"><span>{{$$tools.format(scope.row.created_at)}}</span></template>
                     </el-table-column>
                     <el-table-column label="签约人" align="center" prop="user_name"></el-table-column>
                     <el-table-column label="操作" align="center">
@@ -82,7 +82,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column label="课程性质" align="center">
-                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '普通课程' : '一对一课程'}}</span></template>
+                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '一对多' : '一对一'}}</span></template>
                     </el-table-column>
                     <el-table-column label="学员人数" align="center" prop="student_num"></el-table-column>
                     <el-table-column label="状态" align="center">
@@ -161,13 +161,13 @@ export default {
       this.dialogStatus.detail = true;
     },
     CB_dialogStatus (type) {
-      if (type == 'staff') {
+      if (type === 'staff') {
         this.userType = '';
         this.editDetail = {};
 
         return 0;
       }
-      if (type == 'contract') {
+      if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
 

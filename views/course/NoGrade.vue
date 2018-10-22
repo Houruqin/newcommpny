@@ -17,7 +17,6 @@
                               <i class="fc-5">{{course.name}}</i>
                               <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                           </span>
-                          <!-- <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span> -->
                           <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                       </div>
                       <div class="d-f f-a-c">
@@ -415,7 +414,7 @@ export default {
       this.timetableForm.student_name = grade_info.student.name;
       this.timetableForm.teacher_id = grade_info.teacher.id;
       this.timetableForm.teacher_name = grade_info.teacher.name;
-      this.timetableForm.lesson_time = grade_info.lesson_time;
+      this.timetableForm.lesson_time = course_info.lesson_time;
 
       this.dialogStatus.timetable = true;
     },
@@ -447,12 +446,6 @@ export default {
       params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
 
       this.getConflictLists(params);
-      // let result = await this.$$request.post('/timetable/order', params);
-      // console.log(result);
-
-      // if(!result) return 0;
-      // this.$message.success('快速排课成功!');
-      // this.dialogStatus.timetable = false;
     },
     //冲突页面确定修改
     doneModify () {

@@ -29,8 +29,8 @@
                         </el-form-item>
                         <el-form-item label="课程性质：" prop="type">
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
-                                <el-option label="普通课程" :value="1"></el-option>
-                                <el-option label="一对一课程" :value="2"></el-option>
+                                <el-option label="一对多" :value="1"></el-option>
+                                <el-option label="一对一" :value="2"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>

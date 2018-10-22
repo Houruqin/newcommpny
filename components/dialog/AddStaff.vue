@@ -185,7 +185,7 @@ export default {
 
       // this.roleTypeForm.splice(0, this.roleTypeForm.length);
       this.$emit('input', false);
-      this.$emit('CB-dialogStatus');
+      this.$emit('CB-dialogStatus', 'staff');
     },
     pageShowInit () {
       this.roleTypeForm.push({department_id: '', role_id: ''});

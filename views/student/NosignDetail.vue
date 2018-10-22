@@ -41,7 +41,7 @@
                     </div>
                   </div>
                 </div>
-                <p><span>联系电话：</span>{{detail.parent_info.mobile}}</p>
+                <!-- <p><span>联系电话：</span>{{detail.parent_info.mobile}}</p> -->
                 <p><span>家庭住址：</span>{{detail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(detail.registerInfo.created_at)}}</p>
                 <p><span>登记人员：</span>{{detail.registerInfo.operator.name}}</p>

@@ -32,9 +32,9 @@
           </li>
           <li class="ml-20">
             <el-select size="small" placeholder="选择课程类型" v-model="search_info.course_type_id" @change="search">
-              <el-option label="全部课程类型" :value="0"></el-option>
-              <el-option label="普通课程" :value="1"></el-option>
-              <el-option label="一对一课程" :value="2"></el-option>
+              <el-option label="全部" :value="0"></el-option>
+              <el-option label="一对多" :value="1"></el-option>
+              <el-option label="一对一" :value="2"></el-option>
             </el-select>
           </li>
           <li class="name ml-20 mr-20">

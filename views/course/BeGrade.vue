@@ -17,7 +17,6 @@
                               <i class="fc-5">{{course.name}}</i>
                               <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
                           </span>
-                          <!-- <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span> -->
                           <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                       </div>
                       <div class="d-f f-a-c">
@@ -237,6 +236,9 @@ export default {
         return 0;
       }
       this.oldTab = item.name;
+      this.courseLists.forEach((v, num) => {
+        this.$refs[`grade-table-content_${num}`][0].style.height = 0;
+      });
       this.getCourseLists();
     },
     //课程大纲 点击
@@ -251,7 +253,7 @@ export default {
       this.dialogStatus.syllabus = true;
     },
     listHeaderClick (course, index) {
-      let dom = this.$refs[`grade-table-content_${ index}`][0];
+      let dom = this.$refs[`grade-table-content_${index}`][0];
       let child = dom.firstChild;
 
       if (!course.collapse) {
@@ -468,11 +470,11 @@ export default {
     },
     //获取课程列表
     async getCourseLists (course_id) {
+      console.log(course_id)
       this.loading = true;
       let active = '';
       let result = await this.$$request.post('/course/lists', {type: this.activeTab});
 
-      console.log(result);
       if (!result) {
         return 0;
       }
@@ -492,7 +494,7 @@ export default {
       this.loading = false;
       this.$nextTick(() => {
         if (active !== '') {
-          let dom = this.$refs[`grade-table-content_${ active}`][0];
+          let dom = this.$refs[`grade-table-content_${active}`][0];
           let child = dom.firstChild;
 
           dom.style.height = `${child.offsetHeight}px`;

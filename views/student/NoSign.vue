@@ -67,8 +67,8 @@
                 </el-table-column>
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
-                        <span class="follow-status fc-5" :class="{'red': scope.row.follow_status === 1 || scope.row.follow_status === 8,
-                          'green': scope.row.follow_status === 9 || scope.row.follow_status === 10, 'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7}">
+                        <span class="follow-status fc-5" :class="{'green': scope.row.follow_status === 9 || scope.row.follow_status === 10,
+                          'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7 || scope.row.follow_status === 1 || scope.row.follow_status === 8}">
                           {{scope.row.follow_cn}}
                         </span>
                     </template>
