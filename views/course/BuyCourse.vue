@@ -122,7 +122,7 @@
                         {{courseForm.textbook_price}}
                     </el-form-item> -->
                 </div>
-                <div v-if="courseForm.deposit_money >= 0">
+                <div v-if="Number(courseForm.deposit_money) >= 0">
                   <p class="head-info">定金信息</p>
                   <div class="mt-10">
                     <el-form-item label="已交定金：">{{courseForm.deposit_money}}元</el-form-item>
@@ -146,8 +146,11 @@
 
                 <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
 
-                <div class="pl-28 mt-30"><span>总金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
-                <div class="fs-13 pl-30">注：总金额=（课程费用-课程优惠）+（教材费用-教材优惠）</div>
+                <!-- <div class="pl-28 mt-30"><span>总金额：</span><span>￥{{buyTotalMoney}}</span></div> -->
+                <div class="pl-28 mt-10"><span>应交金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
+                <div class="fs-13 pl-30 mt-20">
+                  <span>注：</span>应交金额=（课程费用-课程优惠）+（教材费用-教材优惠）<span v-if="Number(courseForm.deposit_money) >= 0">-已交定金</span>
+                </div>
 
                 <div class="d-f f-j-c mt-30">
                     <MyButton @click.native="doneHandle" :loading="submitLoading">提交生成合约</MyButton>
@@ -278,6 +281,10 @@ export default {
     buyTotalMoney () {
       let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_class_price);
       let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
+
+      if (Number(this.courseForm.deposit_money) >= 0) {
+        money = money - Number(this.courseForm.deposit_money);
+      }
       let b;
 
       b = money.toFixed(2);

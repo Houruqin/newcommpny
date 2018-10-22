@@ -799,7 +799,7 @@ export default {
       this.timetableForm.timetable_id = detail.id;
       this.timetableForm.course_id = detail.course_id;
       this.timetableForm.lesson_num = detail.lesson_num;
-      this.timetableForm.lesson_time = detail.lesson_time;
+      this.timetableForm.lesson_time = Math.round((detail.end_time - detail.begin_time) / 60);
       this.timetableForm.teacher_ids = detail.teacher.length ? +detail.teacher[0].id : ''; //任课老师
       this.timetableForm.room_id = detail.room_id;
       this.timetableForm.course_name = detail.course_name;

@@ -55,6 +55,7 @@ export default {
         remark: ''
       },
       rules: {
+        remark: [{ max: 100, message: '长度不能超过100个字符' }],
         money: [
           {required: true, message: '请输入定金金额'},
           {validator: this.moneyValidate()},
