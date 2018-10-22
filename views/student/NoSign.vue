@@ -68,7 +68,7 @@
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
                         <span class="follow-status fc-5" :class="{'red': scope.row.follow_status === 1 || scope.row.follow_status === 8,
-                          'green': scope.row.follow_status === 9 || scope.row.follow_status === 10, 'blue': scope.row.follow_status === 4 || scope.row.follow_status === 7}">
+                          'green': scope.row.follow_status === 9 || scope.row.follow_status === 10, 'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7}">
                           {{scope.row.follow_cn}}
                         </span>
                     </template>
@@ -149,7 +149,7 @@ export default {
       state: 'loading',
       activeTab: 'unsign',
       isShowCheckbox: false,
-      selectedIds: [],    //批量删除学员列表
+      selectedIds: [], //批量删除学员列表
       loading: true,
       tabLists: [],
 
@@ -261,14 +261,7 @@ export default {
       this.selectedIds = x.map(v => v.id);
     },
     tabClick (tab) {
-      // if (tab.type === 'following' && this.followUp.length == 5) {
-      //   this.followUp.splice(0, 1);
-      // } else if (tab.type === 'unsign' && this.followUp.length == 4) {
-      //   this.followUp.unshift({id: 0, name: '未跟进'});
-      // }
-
       this.searchKeyWord = '';
-
       if (tab.type != this.activeTab) {
         this.loading = true;
         for (let key in this.searchFilter) {

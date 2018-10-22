@@ -21,7 +21,7 @@ const VALIDATE_RULE = {
 const Tools = {
   //表单验证
   formValidate (type) {
-    return (rule, value, callback, event, e, d) => {
+    return (rule, value, callback) => {
       if (!VALIDATE_RULE[type].reg.test(value)) {
         return callback(new Error(VALIDATE_RULE[type].message));
       }
@@ -32,9 +32,9 @@ const Tools = {
 
   //表单非正则验证
   formOtherValidate (type, num) {
-    return (rule, value, callback, event, e, d) => {
+    return (rule, value, callback) => {
       //小数验证
-      if (type == 'decimals') {
+      if (type === 'decimals') {
         if (isNaN(value)) {
           return callback(new Error('请输入数字'));
         } else if (value < 0) {
@@ -47,7 +47,7 @@ const Tools = {
       }
 
       //整数验证
-      if (type == 'int') {
+      if (type === 'int') {
         if (isNaN(value)) {
           return callback(new Error('请输入数字'));
         } else if (value < 0) {
@@ -60,7 +60,7 @@ const Tools = {
       }
 
       //数值验证
-      if (type == 'total') {
+      if (type === 'total') {
         if (value > num) {
           return callback(new Error(`数值不能大于${num}`));
         }

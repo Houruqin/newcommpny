@@ -4,17 +4,6 @@
 
 const StudentStatic = {
   followUp: {
-    // status: [
-    //   // {id: -2, name: '已签约'},
-    //   {id: -1, name: '无效'},
-    //   // {id: 0, name: '未跟进'},
-    //   {id: 1, name: '已沟通'},
-    //   {id: 2, name: '邀约到访'},
-    //   // {id: 3, name: '已到访'},
-    //   {id: 4, name: '邀约试听'},
-    //   // {id: 5, name: '已试听'},
-    //   {id: 6, name: '未接通'}
-    // ],
     wayId: [
       {id: 1, name: '面谈'},
       {id: 2, name: '微信'},

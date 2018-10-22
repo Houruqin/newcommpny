@@ -117,8 +117,18 @@
 
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
-                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
+                            <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
+                            <span class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                              <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                              <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
+                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -164,7 +174,6 @@
                         <template slot-scope="scope">
                             <div class="d-f f-a-c f-j-c">
                                 <span class="grant-gift t-a-c" :class="{'active': !scope.row.gift_status}" @click="grantGift(scope.row)">发放礼品</span>
-                                <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
                             </div>
                         </template>
                     </el-table-column>
@@ -218,8 +227,18 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
-                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
+                            <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
+                            <span class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                              <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                              <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
+                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -280,8 +299,18 @@
                     </el-table-column>
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <span class="cursor-pointer fc-m" @click="editStudent(scope.row.course_lists[0])">编辑</span>
-                            <span v-if="isDelete" class="cursor-pointer fc-subm ml-20" @click="deleteStudent(scope.row.student_id)">删除</span>
+                            <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
+                            <span class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                              <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                              <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
+                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -331,10 +360,30 @@
                             </ul>
                         </template>
                     </el-table-column>
+
+
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <a v-if="activeTab === 'over'" class="cursor-pointer fc-subm" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</a>
-                            <span v-if="isDelete" class="cursor-pointer fc-subm" @click="deleteStudent(scope.row.student_id)">删除</span>
+                            <span v-if="activeTab === 'invalid'">
+                              <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
+                              <span class="fc-m cursor-pointer ml-10" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</span>
+                            </span>
+
+                            <span v-else>
+                              <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
+                              <span class="fc-m cursor-pointer ml-10" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'"
+                              @click="deleteStudent(scope.row.student_id)">删除</span>
+                            </span>
+
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                              <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                              <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                                  v-if="operation.type === 'audition' || operation.type === 'edit'
+                                  || (activeTab === 'invalid' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -361,7 +410,7 @@
         </el-card>
 
         <!-- 修改学员信息弹窗 -->
-        <el-dialog title="编辑学员资料" width="800px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
+        <el-dialog title="编辑学员资料" width="800px" center :visible.sync="dialogStatus.student" :close-on-click-modal="false" @close="dialogClose('addStudent')">
             <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
                 <div class="form-box">
                     <el-row>
@@ -420,21 +469,37 @@
         </el-dialog>
 
         <!-- 分班弹窗 -->
-        <el-dialog title="分班" width="500px" center :visible.sync="classMaskStatus" :close-on-click-modal="false">
-            <div class="form-box">
-                <div class="fc-m fs-16">{{classRoomInfo.course_name}}</div>
-                <el-radio-group v-model="divideClassRadio">
-                    <ul>
-                        <li v-for="(list, index) in classRoomInfo.courseLists" :key="index" class="mt-20">
-                            <el-radio :label="list.id">
-                                <span>{{list.name}}</span><span class="ml-20">{{list.join_num}}/{{list.limit_num}}</span>
-                            </el-radio>
-                        </li>
-                    </ul>
-                </el-radio-group>
-                <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('divideClass')" :loading="submitLoading.divideClass">确认</MyButton></div>
+        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
+            <div class="form-box divide-grade-dialog">
+                <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
+                    <div class="fc-m fs-16">{{course.name}}</div>
+                    <div v-if="course.grade.length">
+                        <el-radio-group v-model="divideClassRadio">
+                            <ul class="d-f f-w-w">
+                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
+                                    <el-radio :label="list.id">
+                                        <span>{{list.name}}</span>
+                                        <span class="ml-20">
+                                          <i class="iconfont" :class="course.type == 1 ? 'fs-13 icon-renshu' : 'icon-renyuan'"></i>
+                                          <i>{{list.join_num}}</i>
+                                          <i v-if="course.type == 1">/{{list.limit_num}}</i>
+                                        </span>
+                                    </el-radio>
+                                </li>
+                            </ul>
+                        </el-radio-group>
+                    </div>
+                    <div v-else class="fc-7 mt-20">暂无班级</div>
+                </div>
+            </div>
+
+            <div class="d-f f-j-c mt-30">
+                <MyButton :type="gradeDivideLists.disabled ? 'gray': 'main'" @click.native="divideClassDone(gradeDivideLists.disabled)" :loading="submitLoading.gradeDivide">确认</MyButton>
             </div>
         </el-dialog>
+
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
     </div>
 </template>
 
@@ -442,12 +507,13 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
-import {StudentStatic} from '../../script/static';
+import AddAudition from '../../components/dialog/AddAudition';
 import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
 
 export default {
+  components: {TableHeader, Classify, MyButton, AddAudition},
   data () {
     return {
       state: 'loading',
@@ -457,7 +523,9 @@ export default {
       activePage: 1,
       isDelete: false,
       isShowCheckbox: false,
-      selectedIds: [],    //批量删除学员列表
+      selectedIds: [], //批量删除学员列表
+
+      dialogStatus: {audition: false, divideGrade: false, student: false},
 
       hasContact: true,
       contactDot: 0,
@@ -466,19 +534,29 @@ export default {
         student: false, divideClass: false
       },
 
+      gradeDivideLists: {
+        lists: [],
+        disabled: false
+      },
+
       listStudentId: '',
+      operationLists: [
+        {type: 'audition', text: '试听'},
+        {type: 'divideGrade', text: '分班'},
+        {type: 'edit', text: '编辑'},
+        {type: 'delete', text: '删除'}
+      ],
 
       monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
 
       svg_src: null,
       searchKeyWord: '',
-      classRoomInfo: {course_name: '', sc_id: '', classLists: []}, //分班，班级列表
+
       divideClassRadio: '',
+
       tabLists: [],
       loading: true,
       studentTable: {}, //学员table列表
-      studentMaskStatus: false, //编辑学员信息弹窗
-      classMaskStatus: false, //分班弹窗
       searchFilter: { //学员搜索筛选条件
         course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
       },
@@ -530,59 +608,9 @@ export default {
 
       return 30;
     },
-    //tab标签切换筛选列表
-    tabClick (tab) {
-      this.searchKeyWord = '';
-
-      if (tab.type != this.activeTab) {
-        this.loading = true;
-        for (let key in this.searchFilter) {
-          if (key != 'month') {
-            this.searchFilter[key] = '';
-          }
-        }
-        this.activeTab = tab.type;
-        this.getStudentLists();
-      }
-    },
-    handleSelectionChange (x) {
-      this.selectedIds = x.map(v => v.id);
-    },
     //搜索
     searchHandle () {
       this.getStudentLists();
-    },
-    //table列表合并单元格
-    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
-      if (this.activeTab === 'absent') {
-        return 0;
-      }
-      if (!this.now_col_row_num[column.property]) {
-        this.now_col_row_num[column.property] = Object.assign([], this.column_row_offset[column.property]);
-        let a = this.now_col_row_num[column.property].shift();
-
-        this.now_col_offset[column.property] = a;
-
-        return {
-          rowspan: a,
-          colspan: 1
-        };
-      } else if (rowIndex >= this.now_col_offset[column.property]) {
-        let a = this.now_col_row_num[column.property].shift();
-
-        this.now_col_offset[column.property] += a;
-
-        return {
-          rowspan: a,
-          colspan: 1
-        };
-      }
-
-      return {
-        rowspan: 0,
-        colspan: 0
-      };
-
     },
     //导出学员
     async exportStudent () {
@@ -624,10 +652,71 @@ export default {
     },
     //关闭弹窗
     dialogClose (form) {
-      this.$refs[form].resetFields();
-      Object.keys(this.studentForm).forEach(v => {
-        this.studentForm[v] = '';
-      });
+      if (form === 'divideGrade') {
+        this.divideClassRadio = '';
+      } else {
+        this.$refs[form].resetFields();
+        Object.keys(this.studentForm).forEach(v => {
+          this.studentForm[v] = '';
+        });
+      }
+    },
+    //tab标签切换筛选列表
+    tabClick (tab) {
+      this.searchKeyWord = '';
+
+      if (tab.type != this.activeTab) {
+        this.loading = true;
+        for (let key in this.searchFilter) {
+          if (key != 'month') {
+            this.searchFilter[key] = '';
+          }
+        }
+        this.activeTab = tab.type;
+        this.getStudentLists();
+      }
+    },
+    handleSelectionChange (x) {
+      this.selectedIds = x.map(v => v.id);
+    },
+    handleCommand (d) {
+      console.log(d);
+      switch (d.type) {
+        case 'buyCourse':
+          this.buyCourse(d.data.course_lists[0]);
+          break;
+        case 'divideGrade':
+          this.divideGradeHandle(d.data.course_lists[0]);
+          break;
+        case 'audition':
+          this.addAudition(d.data.student_id);
+          break;
+        case 'edit':
+          this.editStudent(d.data.course_lists[0]);
+          break;
+        case 'delete':
+          this.deleteStudent(d.data.student_id);
+          break;
+        default:
+          break;
+      }
+    },
+    // 试听
+    addAudition (id) {
+      this.listStudentId = id;
+      this.dialogStatus.audition = true;
+    },
+    // 购课 isFirst 是否首次购课
+    buyCourse (data) {
+      let params = {
+        student_id: data.student_id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor_id ? {id: data.advisor_id, name: data.advisor_name} : null,
+        parent_id: data.parent_id,
+        deposit_money: -1
+      };
+
+      this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //生日筛选点击
     birthdayChange () {
@@ -677,14 +766,12 @@ export default {
         }
       });
 
-      this.studentMaskStatus = true;
+      this.dialogStatus.student = true;
     },
     //分班按钮点击
-    divideClass (data) {
-      this.classRoomInfo.course_name = data.course_name; //课程名称
-      this.classRoomInfo.sc_id = data.id; //购课id
-      this.classRoomInfo.student_id = data.student_id;
-      this.getStudentGradeLists(data.course_id);
+    divideGradeHandle (data) {
+      this.listStudentId = data.student_id;
+      this.getStudentGradeLists();
     },
     //分配顾问点击
     advisorClick (data) {
@@ -703,9 +790,6 @@ export default {
     },
     //表单确定
     doneHandle (type) {
-      if (type === 'divideClass') {
-        return this.submitDivideClass();
-      } //分班不做不做表单验证
       this.$refs[type].validate(valid => {
         if (valid) {
           this.submitStudentInfo();
@@ -810,9 +894,38 @@ export default {
         return 0;
       }
 
-      this.studentMaskStatus = false;
+      this.dialogStatus.student = false;
       this.$message.success('修改成功');
       this.getAllLists(true);
+    },
+    //分班确定按钮
+    divideClassDone (disabled) {
+      if (disabled) {
+        return 0;
+      }
+      if (!this.divideClassRadio) {
+        return this.$message.warning('请选择班级');
+      }
+
+      this.gradeDivideLists.lists.forEach(v => {
+        v.grade.forEach(d => {
+          if (d.id == this.divideClassRadio) {
+            if (d.join_num >= d.limit_num && v.type === 1) {
+              this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.submitDivideClass();
+              }).catch(() => {
+                return 0;
+              });
+            } else {
+              this.submitDivideClass();
+            }
+          }
+        });
+      });
     },
     //提交分班信息
     async submitDivideClass () {
@@ -821,23 +934,20 @@ export default {
       }
       this.submitLoading.divideClass = true;
 
-      let params = {
-        sc_id: this.classRoomInfo.sc_id,
+      let result = await this.$$request.post('/studentGrade/add', {
         grade_id: this.divideClassRadio,
-        student_id: this.classRoomInfo.student_id
-      };
-      let result = await this.$$request.post('/studentGrade/add', params);
+        student_id: this.listStudentId
+      });
 
       this.submitLoading.divideClass = false;
       if (!result) {
         return 0;
       }
       this.$message.success('分班成功');
-      this.classMaskStatus = false;
+      this.dialogStatus.divideGrade = false;
     },
     async getAllLists (isCurrPage) {
       let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
-
 
       return a && b;
     },
@@ -856,7 +966,7 @@ export default {
 
       if (this.$$cache.getMemberInfo().class_pattern == 2) {
         this.tabLists.forEach((v, n) => {
-          if (v.type == 'noGrade') {
+          if (v.type === 'noGrade') {
             this.tabLists.splice(n, 1);
           }
         });
@@ -865,16 +975,23 @@ export default {
       return true;
     },
     //课程列表，点击分班，获取班级列表
-    async getStudentGradeLists (id) {
-      let result = await this.$$request.post('/sign/gradeLists', {id: id});
+    async getStudentGradeLists () {
+      let result = await this.$$request.post('/sign/courseLists', {student_id: this.listStudentId});
 
       console.log(result);
       if (!result) {
         return 0;
       }
-      this.classRoomInfo.courseLists = result.lists;
-      this.divideClassRadio = result.lists[0].id;
-      this.classMaskStatus = true;
+
+      if (!result.lists.length) {
+        return this.$message.warning('没有可分班的课程!');
+      }
+      this.gradeDivideLists.lists = result.lists;
+      this.gradeDivideLists.disabled = result.lists.every(k => {
+        return k.grade.length ? false : true;
+      });
+
+      this.dialogStatus.divideGrade = true;
     },
     //获取学员列表
     async getStudentLists (currentPage) {
@@ -1003,8 +1120,7 @@ export default {
   },
   beforeDestroy () {
     Bus.$off('refreshSignedStudentLists');
-  },
-  components: {TableHeader, Classify, MyButton}
+  }
 };
 </script>
 
@@ -1046,6 +1162,11 @@ export default {
                 position: relative;
                 top: 3px;
             }
+        }
+        &.divide-grade-dialog {
+            height: 250px;
+            overflow: hidden;
+            overflow-y: auto;
         }
     }
     .student-table {

@@ -440,7 +440,8 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                          <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10"></el-option>
+                          <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code"
+                          v-if="item.code !== 10 && item.code !== -2 && item.code !== 0 && item.code !== 9"></el-option>
                         </el-select>
                     </el-form-item>
 
@@ -893,7 +894,7 @@ export default {
       this.timetableMultiple.selectedIds = val.map(v => v.student_timetable_id);
     },
     checkboxIsDisabled (row) {
-      return row.timetable.lesson_end_time === 0;
+      return row.begin_time > new Date().getTime() / 1000 && !row.timetable.lesson_end_time;
     },
     //退费  课时退费和教材退费单独验证
     quitPriceValidate (type) {

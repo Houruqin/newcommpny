@@ -87,15 +87,21 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10"></el-option>
+                            <el-option v-for="(item, index) in $store.state.followupStatus"
+                            :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10 && item.code !== -2 && item.code !== 0 "></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
+
+                    <el-form-item v-if="followUpForm.status === 4 && checkListenCourse.timetable_id">
                         <span>试听课程：{{checkListenCourse.course_name}}</span>
                         <span class="ml-10">上课时间: {{checkListenCourse.begin_time}}</span>
                     </el-form-item>
 
-                    <el-form-item v-if="followupStatus === 2" label="邀约到访时间：" prop="invited_at" class="mt-30">
+                    <el-form-item label="定金金额：" prop="money" v-if="followUpForm.status === 9" key="depositMoney">
+                      <el-input type="number" v-model.number="followUpForm.money" placeholder="请输入定金金额"></el-input>
+                    </el-form-item>
+
+                    <el-form-item v-if="followUpForm.status === 2" label="邀约到访时间：" prop="invited_at" class="mt-30">
                         <el-date-picker type="datetime" :editable="false" v-model="followUpForm.invited_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
@@ -155,8 +161,6 @@ export default {
       editDetail: {},
 
       studentType: '',
-
-      followupStatus: '', //跟进结果
       wayIdArr: StudentStatic.followUp.wayId,
 
       followUpLists: [], //跟进列表
@@ -165,7 +169,8 @@ export default {
         status: '', //跟进结果
         invited_at: '', //邀约时间
         content: '', //跟进内容
-        next_at: ''
+        next_at: '',
+        money: '' //定金金额  如果选择跟进为已交定金
       },
       followUpRules: {
         way_id: [
@@ -180,6 +185,12 @@ export default {
         content: [
           {required: true, message: '请填写跟进内容'},
           {max: 150, message: '长度不能超过150个字符'}
+        ],
+        money: [
+          {required: true, message: '请输入定金金额'},
+          {validator: this.moneyValidate()},
+          {validator: this.$$tools.formOtherValidate('decimals', 2)},
+          {validator: this.$$tools.formOtherValidate('total', 9999)}
         ],
         next_at: []
       },
@@ -216,6 +227,15 @@ export default {
     dialogClose (form) {
       this.$refs[form].resetFields();
     },
+    moneyValidate () {
+      return (rule, value, callback) => {
+        if (value <= 0) {
+          return callback(new Error('金额必须大于0'));
+        }
+
+        return callback();
+      };
+    },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
       if (type === 'student') {
@@ -237,16 +257,15 @@ export default {
       Object.keys(this.followUpForm).forEach(v => {
         this.followUpForm[v] = '';
       });
-      this.followupStatus = '';
       this.maskFollowUp = true;
     },
     //跟进结果选择
     followUpStatusChange (value) {
-      this.followupStatus = value;
       if (value === 4) {
         this.auditionType = 'followup_audition';
         this.dialogStatus.audition = true;
       } else {
+        this.followUpForm.money = '';
         this.listenCourseInit();
       }
     },
@@ -304,7 +323,7 @@ export default {
     },
     //提交跟进
     async submitFollowUpInfo () {
-      if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
+      if (this.followUpForm.status === 4 && !this.checkListenCourse.timetable_id) {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
@@ -313,16 +332,23 @@ export default {
       }
 
       this.submitLoading = true;
-      let params = {type_id: 5, student_id: this.detail.id}; //type_id默认售前跟进5
+      let params = {
+        type_id: 5, //type_id默认售前跟进5
+        student_id: this.detail.id,
+        invited_at: this.followUpForm.invited_at / 1000,
+        next_at: this.followUpForm.next_at / 1000,
+        way_id: this.followUpForm.way_id,
+        content: this.followUpForm.content,
+        status: this.followUpForm.status
+      };
 
       if (this.checkListenCourse.timetable_id) {
         params.timetable_id = this.checkListenCourse.timetable_id;
       }
 
-      Object.keys(this.followUpForm).forEach(key => {
-        params[key] = key === 'invited_at' || key === 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
-      });
-
+      if (this.followUpForm.status === 9) {
+        params.depositMoney = this.followUpForm.money;
+      }
       console.log(params);
 
       let result = await this.$$request.post('/followUp/add', params);
