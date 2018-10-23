@@ -450,10 +450,10 @@ export default {
     },
     //提交购买课程
     async submitBuyCourse () {
-      // if (this.submitLoading) {
-      //   return 0;
-      // }
-      // this.submitLoading = true;
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
 
       let params = {};
 
