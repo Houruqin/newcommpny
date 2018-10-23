@@ -557,7 +557,6 @@ export default {
     },
     //获取试听填充列表
     async getListenLists () {
-      this.loading = true;
       let old_time = Math.round(this.auditionData.time / 1000);
 
       let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
@@ -572,6 +571,7 @@ export default {
     },
     //获取试听课程列表
     async getListenCourseLists () {
+      this.loading = true;
       let old_time = Math.round(this.auditionData.time / 1000);
 
       let params = {
@@ -1108,6 +1108,11 @@ export default {
         }
         /deep/ .el-input {
           width: 180px;
+        }
+        .listen-course-box {
+          max-height: 350px;
+          overflow: hidden;
+          overflow-y: auto;
         }
         .audition-lists {
             li {

@@ -33,14 +33,6 @@
                         <td>教材实际退费</td>
                     </tr>
                     <tr>
-                        <!-- <td>{{refundDataInfo.quitCourseDetail.course.name}}</td>
-                        <td>{{refundDataInfo.quitCourseDetail.lesson_num}}</td>
-                        <td>{{refundDataInfo.quitCourseDetail.remain_num}}</td>
-                        <td>{{refundDataInfo.quitCourseDetail.remain_lesson_price}}</td>
-                        <td>{{refundDataInfo.quitCourseDetail.remain_textbook_price}}</td>
-                        <td>{{refundDataInfo.quitCourseDetail.rel_remain}}</td> -->
-
-
                         <td>{{refundDataInfo.quitCourseDetail.course.name}}</td>
                         <td>{{refundDataInfo.quitCourseDetail.lesson_num}}</td>
                         <td>{{refundDataInfo.quitCourseDetail.remain_num}}</td>
@@ -97,7 +89,7 @@ export default {
     },
     //打印合同
     printCompact () {
-      this.$router.push({name: 'RefundPrint', params: {refundDataInfo: this.refundDataInfo}});
+      this.$router.push({path: '/refundPrint', query: {refundDataInfo: JSON.stringify(this.refundDataInfo)}});
     }
   },
   created () {

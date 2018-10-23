@@ -364,7 +364,7 @@
 
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <span v-if="activeTab === 'invalid'">
+                            <span v-if="activeTab === 'over'">
                               <span class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
                               <span class="fc-m cursor-pointer ml-10" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</span>
                             </span>
@@ -380,7 +380,7 @@
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
                                   v-if="operation.type === 'audition' || operation.type === 'edit'
-                                  || (activeTab === 'invalid' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                  || (activeTab === 'over' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
                             </el-dropdown>
@@ -634,7 +634,7 @@ export default {
     buyCourse (data) {
       let params = {
         student_id: data.student_id,
-        advisor_id: data.advisor_id,
+        advisor_id: data.advisor_id ? data.advisor_id : 0,
         advisor: data.advisor_id ? {id: data.advisor_id, name: data.advisor_name} : null,
         parent_id: data.parent_id,
         deposit_money: -1

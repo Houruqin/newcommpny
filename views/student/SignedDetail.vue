@@ -1203,7 +1203,8 @@ export default {
         address: this.studentDetail.parent_info.address,
         sex: this.studentDetail.sex,
         school_name: this.studentDetail.school_name,
-        advisor_id: this.studentDetail.advisor_id
+        advisor_id: this.studentDetail.advisor_id,
+        remark: this.studentDetail.remark
       };
 
       this.dialogStatus.student = true;
