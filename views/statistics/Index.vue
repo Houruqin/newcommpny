@@ -143,7 +143,7 @@
                 </div>
                 <div class="sell-right flex1 d-f f-d-c f-j-c f-a-c">
                     <div class="item p-r">
-                        <span class="fs-15 fc-5">成交率（全额/毛单）</span>
+                        <span class="fs-15 fc-5">成交率（全额/全部）</span>
                         <div class="schedule-box mt-10">
                             <a :style="{width: sell.sell_lists.deal_ratio_display}" :class="{'all': sell.sell_lists.deal_ratio == 1}"></a>
                             <span class="fs-20 ratio">{{sell.sell_lists.deal_ratio_display}}</span>
@@ -151,7 +151,7 @@
                     </div>
 
                     <div class="item mt-40 p-r">
-                        <span class="fs-15 fc-5">失效率（无效/毛单）</span>
+                        <span class="fs-15 fc-5">失效率（无效/全部）</span>
                         <div class="schedule-box mt-10">
                             <a :style="{width: sell.sell_lists.fail_ratio_display}" :class="{'all': sell.sell_lists.fail_ratio == 1}"></a>
                             <span class="fs-20 ratio">{{sell.sell_lists.fail_ratio_display}}</span>

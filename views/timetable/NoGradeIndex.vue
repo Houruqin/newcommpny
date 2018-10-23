@@ -830,7 +830,7 @@ export default {
         if (this.checkStudentForm.indexOf(m.student_id) != -1) {
           m.disabled = false;
         } else {
-          m.disabled = !m.scheduled;
+          m.disabled = m.scheduled <= 0;
         }
       });
 
@@ -938,7 +938,7 @@ export default {
       });
 
       this.allStudentLists.forEach(m => {
-        m.disabled = !m.scheduled;
+        m.disabled = m.scheduled <= 0;
       });
 
       console.log(this.allStudentLists);

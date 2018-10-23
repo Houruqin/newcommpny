@@ -514,7 +514,7 @@ export default {
         if (this.checkStudentForm.indexOf(m.student_id) != -1) {
           m.disabled = false;
         } else {
-          m.disabled = !(m.buy_lesson_num - m.scheduled);
+          m.disabled = m.buy_lesson_num - m.scheduled <= 0;
         }
       });
 
@@ -539,7 +539,7 @@ export default {
       this.allStudentLists = result.lists.student_course.concat(result.lists.student_grade);
 
       this.allStudentLists.forEach(m => {
-        m.disabled = !(m.buy_lesson_num - m.scheduled);
+        m.disabled = m.buy_lesson_num - m.scheduled <= 0;
       });
 
       if (result.lists.course.type === 1) {
@@ -648,7 +648,7 @@ export default {
 
       this.allStudentLists = gradeInfo.student_course.concat(gradeInfo.student_grade);
       this.allStudentLists.forEach(m => {
-        m.disabled = !(m.buy_lesson_num - m.scheduled);
+        m.disabled = m.buy_lesson_num - m.scheduled <= 0;
       }); //手动判断学员是否还能排课
 
       if (this.courseType === 1) {
