@@ -602,9 +602,9 @@ export default {
     },
     handleSelectionChange (x) {
       this.selectedIds = x.map(v => v.student_id);
+      console.log(this.selectedIds)
     },
     handleCommand (d) {
-      console.log(d);
       switch (d.type) {
         case 'buyCourse':
           this.buyCourse(d.data.course_lists[0]);
@@ -755,12 +755,12 @@ export default {
         this.dialogStatus.errorAlert = true;
       } else {
         this.$message.success('已删除');
-        this.getAllLists(true);
         if (id === 'all') {
           this.isShowCheckbox = false;
           this.selectedIds.splice(0, this.selectedIds.length);
         }
       }
+      this.getAllLists(true);
     },
     // 取消批量删除
     cancelMultipleDel () {

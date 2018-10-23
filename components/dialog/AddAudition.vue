@@ -106,6 +106,9 @@ export default {
       this.teacherLists = [];
       this.courseLists = [];
       this.listenCourseLists = [];
+      this.auditionData.time = new Date().getTime();
+      this.auditionData.teacher_id = '';
+      this.auditionData.course_id = '';
     },
     async getListenLists () {
       this.checkListen.splice(0, this.checkListen.length);
