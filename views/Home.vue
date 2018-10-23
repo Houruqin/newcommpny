@@ -328,6 +328,8 @@ import AddCourseDialog from '../components/dialog/AddCourse';
 import errorLoading from '!url-loader!../images/state-500.png';
 
 import config from 'config';
+// import Jquery from 'jquery';
+// import '../../plugins/drag';
 
 export default {
   data () {
@@ -883,7 +885,7 @@ export default {
       height: auto;;
     }
     .page-error-box {
-      z-index: 100000;
+      z-index: 800;
       display: flex;
       align-items: center;
       justify-content: center;

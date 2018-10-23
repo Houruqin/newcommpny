@@ -602,7 +602,6 @@ export default {
     },
     handleSelectionChange (x) {
       this.selectedIds = x.map(v => v.student_id);
-      console.log(this.selectedIds)
     },
     handleCommand (d) {
       switch (d.type) {

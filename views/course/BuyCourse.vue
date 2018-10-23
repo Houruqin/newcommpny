@@ -185,6 +185,7 @@ export default {
       gradeLists: [],
       paymentMethod: StudentStatic.paymentMethod, //付款方式
       courseForm: {
+        deposit_money: '',
         student_id: '', //学员id
         parent_id: '', //家长id
         advisor_id: '', //顾问id
@@ -449,10 +450,10 @@ export default {
     },
     //提交购买课程
     async submitBuyCourse () {
-      if (this.submitLoading) {
-        return 0;
-      }
-      this.submitLoading = true;
+      // if (this.submitLoading) {
+      //   return 0;
+      // }
+      // this.submitLoading = true;
 
       let params = {};
 
