@@ -122,12 +122,7 @@
                         {{courseForm.textbook_price}}
                     </el-form-item> -->
                 </div>
-                <div v-if="Number(courseForm.deposit_money) >= 0">
-                  <p class="head-info">定金信息</p>
-                  <div class="mt-10">
-                    <el-form-item label="已交定金：">{{courseForm.deposit_money}}元</el-form-item>
-                  </div>
-                </div>
+
                 <p class="head-info">付费信息</p>
                 <div class="mt-20">
                     <el-form-item label="付款方式：" prop="pay_way">
@@ -147,8 +142,14 @@
                 <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
 
                 <!-- <div class="pl-28 mt-30"><span>总金额：</span><span>￥{{buyTotalMoney}}</span></div> -->
-                <div class="pl-28 mt-10"><span>应交金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
-                <div class="fs-13 pl-30 mt-20">
+                <div v-if="Number(courseForm.deposit_money) >= 0">
+                  <p class="head-info">定金信息</p>
+                  <div class="mt-10">
+                    <el-form-item label="已交定金：">{{courseForm.deposit_money}}元</el-form-item>
+                  </div>
+                </div>
+                <div class="pl-12 mt-10"><span>应交金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
+                <div class="fs-12 pl-12 mt-10">
                   <span>注：</span>应交金额=（课程费用-课程优惠）+（教材费用-教材优惠）<span v-if="Number(courseForm.deposit_money) >= 0">-已交定金</span>
                 </div>
 

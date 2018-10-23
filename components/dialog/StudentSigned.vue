@@ -89,6 +89,8 @@ export default {
             this.studentForm[v] = data.birthday > 0 ? data.birthday * 1000 : '';
           } else if (v === 'advisor_id') {
             this.studentForm[v] = data[v] == 0 ? '' : data[v];
+          } else if (v === 'relation') {
+            this.studentForm[v] = data[v] == 7 ? '' : data[v];
           } else {
             this.studentForm[v] = data[v];
           }

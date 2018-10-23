@@ -122,15 +122,15 @@ export default {
   },
   components: {MyButton},
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       // newVal == true && this.$refs.addStudent && this.$refs.addStudent.resetFields();
       // newVal == true && this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
       this.studentDialogStatus = newVal;
     },
-    type (newVal, oldVal) {
+    type (newVal) {
       this.studentType = newVal;
     },
-    editDetail (newVal, oldVal) {
+    editDetail (newVal) {
       if (!Object.keys(newVal).length) {
         return 0;
       }
@@ -142,7 +142,7 @@ export default {
         } else if (key == 'parent_info') {
           this.studentForm.mobile = newVal[key].mobile;
           this.studentForm.parent_name = newVal[key].name;
-          this.studentForm.relation = newVal[key].relation;
+          this.studentForm.relation = newVal[key].relation === 7 ? '' : newVal[key].relation;
         } else if (key == 'name') {
           this.studentForm.student_name = newVal[key];
         } else if (key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {
