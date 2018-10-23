@@ -19,7 +19,7 @@
                 <div class="d-f parent-info">
                   <div class="fc-9">家长信息：</div>
                   <div class="flex1 fc-2">
-                    <p v-if="!detail.parent_info.name && detail.parent_info.pivot.relation === 7">
+                    <p v-if="!detail.parent_info.name && detail.parent_info.relation === 7">
                       <span>暂无</span>
                       <span class="pl-20">{{detail.parent_info.mobile}}</span>
                     </p>
@@ -54,7 +54,7 @@
                           </div>
                       </el-popover>
                   </template>
-                  <span v-else>{{detail.remark}}</span>
+                  <a v-else>{{detail.remark}}</a>
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">

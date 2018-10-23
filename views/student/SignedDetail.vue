@@ -19,7 +19,7 @@
                 <div class="d-f parent-info">
                   <div class="fc-9">家长信息：</div>
                   <div class="flex1 fc-2">
-                    <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.pivot.relation === 7">
+                    <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.relation === 7">
                       <span>暂无</span>
                       <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
                     </p>
@@ -54,7 +54,7 @@
                           </div>
                       </el-popover>
                   </template>
-                  <span v-else>{{studentDetail.remark}}</span>
+                  <a v-else>{{studentDetail.remark}}</a>
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
@@ -282,81 +282,12 @@
             </div>
         </el-card>
 
-        <!-- 学员修改弹窗 -->
-        <el-dialog title="编辑学员资料" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
-            <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" class="form-box" :rules="detailRules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="学员姓名：" prop="student_name">
-                                <el-input v-model.trim="studentForm.student_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="联系电话：" prop="mobile">
-                                <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="就读学校：" prop="school_name">
-                                <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长姓名：" prop="parent_name">
-                                <el-input v-model.trim="studentForm.parent_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="分配顾问：">
-                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option label="暂不分配" value=""></el-option>
-                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-
-                        <el-col :span="11" class="ml-30">
-                            <el-form-item label="性别：" prop="sex" >
-                                <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="出生日期：">
-                                <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-
-                            <el-form-item label="家庭住址：" prop="address">
-                                <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长关系：" prop="relation">
-                                <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <div class="d-f f-j-c mt-50">
-                        <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton>
-                    </div>
-                </div>
-            </el-form>
-        </el-dialog>
-
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <!-- <div class="d-f">
-                    <div class="list-item">
-                        <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
-                    </div>
-                    <div class="list-item">
-                        <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
-                    </div>
-                </div> -->
                 <p class="pl-35 fs-17">上课学员：<span>{{studentDetail.name}}</span></p>
                 <div class="d-f mt-20">
                     <div class="list-item">
@@ -614,6 +545,9 @@
 
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
+
+        <!-- 学员基础信息 -->
+        <EditStudent v-model="dialogStatus.student" :editDetail="studentEditDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
     </div>
 </template>
 
@@ -628,9 +562,10 @@ import Bus from '../../script/bus';
 
 import ContractDialog from '../../components/dialog/Contract';
 import AddAudition from '../../components/dialog/AddAudition';
+import EditStudent from '../../components/dialog/StudentSigned';
 
 export default {
-  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition},
+  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition, EditStudent},
   data () {
     return {
       submitLoading: {
@@ -643,6 +578,7 @@ export default {
 
       studentId: '', //学员id
       studentDetail: {},
+      studentEditDetail: {},
       contractData: {}, //合约详情
       quitPriceDetail: {}, //退费详情
 
@@ -684,7 +620,6 @@ export default {
       classMaskStatus: false, //分班弹窗
       quitCourseMaskStatus: false, //退费弹窗
       maskFollowUp: false, //添加跟进弹窗
-      studentMaskStatus: false, //  修改基本信息弹窗
       followupStatus: '', //跟进结果
       paymentMethod: StudentStatic.paymentMethod, //付款方式
       wayIdArr: StudentStatic.followUp.wayId,
@@ -733,7 +668,6 @@ export default {
           {required: true, message: '请选择老师', trigger: 'change'}
         ]
       },
-      studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
       removeTimetableForm: {
         course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
       },
@@ -766,32 +700,6 @@ export default {
         teacher_name: [],
         time: [
           {required: true, message: '请选择时间', trigger: 'change'}
-        ]
-      },
-      detailRules: {
-        parent_name: [
-          // {required: true, message: '请输入家长姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        relation: [
-          // {required: true, message: '请选择关系', trigger: 'change'}
-        ],
-        mobile: [
-          {required: true, message: '请输入家长电话'},
-          {validator: this.$$tools.formValidate('phone')}
-        ],
-        address: [
-          {max: 50, message: '长度不能超过50个字符'}
-        ],
-        school_name: [
-          {max: 20, message: '长度不能超过20个字符'}
-        ],
-        student_name: [
-          {required: true, message: '请输入学员姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        sex: [
-          {required: true, message: '请选择性别', trigger: 'change'}
         ]
       },
       followUpRules: {
@@ -836,6 +744,13 @@ export default {
     CB_audition (data) {
       this.checkListenCourse = data;
     },
+    CB_dialogStatus () {
+      this.studentEditDetail = {};
+    },
+    CB_success () {
+      this.getStudentDetail();
+      Bus.$emit('refreshSignedStudentLists');
+    },
     editTeahcerDiaClose () {
       this.$refs.teacherForm.resetFields();
     },
@@ -845,11 +760,6 @@ export default {
         this.$refs[form].resetFields();
       } else if (form === 'divideGrade') {
         this.divideClassRadio = '';
-      } else if (form === 'addStudent') {
-        this.$refs[form].resetFields();
-        Object.keys(this.studentForm).forEach(v => {
-          this.studentForm[v] = '';
-        });
       } else {
         this.$refs[form].resetFields();
       }
@@ -1283,18 +1193,20 @@ export default {
     },
     //编辑
     editDetail () {
-      this.studentForm.id = this.studentDetail.id;
-      this.studentForm.student_name = this.studentDetail.name;
-      this.studentForm.birthday = this.studentDetail.birthday > 0 ? this.studentDetail.birthday * 1000 : '';
-      this.studentForm.mobile = this.studentDetail.parent_info.mobile;
-      this.studentForm.parent_name = this.studentDetail.parent_info.name;
-      this.studentForm.relation = this.studentDetail.parent_info.relation;
-      this.studentForm.address = this.studentDetail.parent_info.address;
-      this.studentForm.sex = this.studentDetail.sex;
-      this.studentForm.school_name = this.studentDetail.school_name;
-      this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
+      this.studentEditDetail = {
+        student_id: this.studentDetail.id,
+        birthday: this.studentDetail.birthday,
+        student_name: this.studentDetail.name,
+        mobile: this.studentDetail.parent_info.mobile,
+        parent_name: this.studentDetail.parent_info.name,
+        relation: this.studentDetail.parent_info.relation,
+        address: this.studentDetail.parent_info.address,
+        sex: this.studentDetail.sex,
+        school_name: this.studentDetail.school_name,
+        advisor_id: this.studentDetail.advisor_id
+      };
 
-      this.studentMaskStatus = true;
+      this.dialogStatus.student = true;
     },
     //退费按钮点击
     quitCourse (data) {
@@ -1314,8 +1226,6 @@ export default {
         if (valid) {
           if (type === 'followUpForm') {
             this.submitFollowUpInfo();
-          } else if (type === 'addStudent') {
-            this.submitStudentInfo();
           } else if (type === 'quitCourseForm') {
             this.submitQuitCourse();
           }
@@ -1361,32 +1271,6 @@ export default {
       this.$message.success('退费成功');
       this.getBottomTabLists();
       this.quitCourseMaskStatus = false;
-    },
-    //提交学员信息
-    async submitStudentInfo () {
-      if (this.submitLoading.student) {
-        return 0;
-      }
-      this.submitLoading.student = true;
-
-      let params = {};
-
-      Object.keys(this.studentForm).forEach(v => {
-        params[v] = v === 'birthday' ? this.studentForm[v] / 1000 : this.studentForm[v];
-      });
-
-      let result = await this.$$request.post('/sign/edit', params);
-
-      this.submitLoading.student = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.$message.success('修改成功');
-      this.studentMaskStatus = false;
-      this.getStudentDetail(this.studentForm.id);
-      Bus.$emit('refreshSignedStudentLists');
     },
     //提交分班信息
     async submitDivideClass (url, params) {

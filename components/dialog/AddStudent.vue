@@ -34,7 +34,7 @@
                 <el-row>
                     <el-col :span="11">
                       <el-form-item label="家长姓名：" prop="parent_name">
-                            <el-input v-model.trim="studentForm.parent_name"></el-input>
+                            <el-input v-model.trim="studentForm.parent_name" @input="parentNameInput"></el-input>
                         </el-form-item>
 
                         <el-form-item label="家长工作：" prop="parent_job">
@@ -237,11 +237,16 @@ export default {
       this.sourceForm.name = '';
       this.sourceDialogStatus = true;
     },
+    parentNameInput () {
+      if (!this.studentForm.parent_name) {
+        this.studentForm.relation = '';
+      }
+    },
     //表单确定
     doneHandle (type) {
       this.$refs[type].validate(valid => {
         if (valid) {
-          type == 'addStudent' ? this.submitStudentInfo() : this.submitSourceInfo();
+          type === 'addStudent' ? this.submitStudentInfo() : this.submitSourceInfo();
         }
       });
     },

@@ -409,65 +409,6 @@
             </el-pagination>
         </el-card>
 
-        <!-- 修改学员信息弹窗 -->
-        <el-dialog title="编辑学员资料" width="800px" center :visible.sync="dialogStatus.student" :close-on-click-modal="false" @close="dialogClose('addStudent')">
-            <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" :rules="rules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="学员姓名：" prop="student_name">
-                                <el-input v-model.trim="studentForm.student_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="联系电话：" prop="mobile">
-                                <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="就读学校：" prop="school_name">
-                                <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长姓名：" prop="parent_name">
-                                <el-input v-model.trim="studentForm.parent_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="分配顾问：">
-                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option label="暂不分配" value=""></el-option>
-                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-
-                        <el-col :span="11" class="ml-30">
-                            <el-form-item label="性别：" prop="sex" >
-                                <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="出生日期：">
-                                <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-
-                            <el-form-item label="家庭住址：" prop="address">
-                                <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长关系：" prop="relation">
-                                <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <div class="d-f f-j-c mt-30"><MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton></div>
-                </div>
-            </el-form>
-        </el-dialog>
-
         <!-- 分班弹窗 -->
         <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
             <div class="form-box divide-grade-dialog">
@@ -501,6 +442,9 @@
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
 
+        <!-- 学员基础信息 -->
+        <EditStudent v-model="dialogStatus.student" :editDetail="studentDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
+
         <el-dialog title="错误提示" width="500px" center :visible.sync="dialogStatus.errorAlert" :close-on-click-modal="false" @close="dialogClose('errorAlert')">
             <p>以下学员课程已开课，无法进行删除操作：</p>
             <p class="mt-20"><span :class="{'pl-10': index}" v-for="(item, index) in deleteErrorStudents" :key="index">{{item}}</span></p>
@@ -514,12 +458,14 @@ import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 import AddAudition from '../../components/dialog/AddAudition';
+import EditStudent from '../../components/dialog/StudentSigned';
+
 import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
 
 export default {
-  components: {TableHeader, Classify, MyButton, AddAudition},
+  components: {TableHeader, Classify, MyButton, AddAudition, EditStudent},
   data () {
     return {
       state: 'loading',
@@ -534,13 +480,13 @@ export default {
 
       dialogStatus: {audition: false, divideGrade: false, student: false, errorAlert: false},
 
-      hasContact: true,
-      contactDot: 0,
+      studentDetail: {},
 
       submitLoading: {
         student: false, divideClass: false
       },
 
+      // 分班数据
       gradeDivideLists: {
         lists: [],
         disabled: false
@@ -566,38 +512,6 @@ export default {
       studentTable: {}, //学员table列表
       searchFilter: { //学员搜索筛选条件
         course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
-      },
-      studentForm: {id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
-      rules: {
-        parent_name: [
-          // {required: true, message: '请输入家长姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        relation: [
-          // {required: true, message: '请选择关系', trigger: 'change'}
-        ],
-        mobile: [
-          {required: true, message: '请输入家长电话'},
-          {validator: this.$$tools.formValidate('phone')}
-        ],
-        address: [
-          {max: 50, message: '长度不能超过50个字符'}
-        ],
-        school_name: [
-          {max: 20, message: '长度不能超过20个字符'}
-        ],
-        student_name: [
-          {required: true, message: '请输入学员姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        sex: [
-          {required: true, message: '请选择性别', trigger: 'change'}
-        ]
-      },
-      pickerBeginDateAfter: {
-        disabledDate: (time) => {
-          return time.getTime() > new Date().getTime();
-        }
       }
     };
   },
@@ -663,12 +577,13 @@ export default {
         this.divideClassRadio = '';
       } else if (form === 'errorAlert') {
         this.deleteErrorStudents = [];
-      } else {
-        this.$refs[form].resetFields();
-        Object.keys(this.studentForm).forEach(v => {
-          this.studentForm[v] = '';
-        });
       }
+    },
+    CB_dialogStatus () {
+      this.studentDetail = {};
+    },
+    CB_success () {
+      this.getAllLists(true);
     },
     //tab标签切换筛选列表
     tabClick (tab) {
@@ -764,17 +679,7 @@ export default {
     //修改学员信息
     editStudent (data) {
       console.log(data);
-
-      Object.keys(this.studentForm).forEach(v => {
-        if (v == 'id') {
-          this.studentForm[v] = data.student_id;
-        } else if (v == 'birthday') {
-          this.studentForm[v] = data.birthday > 0 ? data.birthday * 1000 : '';
-        } else {
-          this.studentForm[v] = data[v];
-        }
-      });
-
+      this.studentDetail = data;
       this.dialogStatus.student = true;
     },
     //分班按钮点击
@@ -796,14 +701,6 @@ export default {
         return 0;
       }
       this.getAllLists(true);
-    },
-    //表单确定
-    doneHandle (type) {
-      this.$refs[type].validate(valid => {
-        if (valid) {
-          this.submitStudentInfo();
-        }
-      });
     },
     //流失学员
     lossStudent (id) {
@@ -885,33 +782,6 @@ export default {
         this.getStudentLists(currentPage);
       }
       this.currPage = false;
-    },
-    //提交学员信息
-    async submitStudentInfo () {
-      if (this.submitLoading.student) {
-        return 0;
-      }
-      this.submitLoading.student = true;
-
-      let params = {};
-
-      for (let key in this.studentForm) {
-        params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
-      }
-
-      let result = await this.$$request.post('/sign/edit', params);
-
-      setTimeout(d => {
-        this.submitLoading.student = false;
-      }, 500);
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.dialogStatus.student = false;
-      this.$message.success('修改成功');
-      this.getAllLists(true);
     },
     //分班确定按钮
     divideClassDone (disabled) {
