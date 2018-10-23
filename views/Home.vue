@@ -495,6 +495,7 @@ export default {
       } else if (type === 'listen_student') {
         this.checkListenStudent = [];
         this.listenTimetableId = '';
+        this.studentKeyword = '';
       }
     },
     listenDateChange (val) {
