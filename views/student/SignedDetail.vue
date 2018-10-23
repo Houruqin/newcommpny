@@ -214,12 +214,12 @@
                   <el-table :data="timetableLists.data" stripe v-loading="loading" @selection-change="handleSelectionChange" ref="timetable">
                     <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableMultiple.isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
-                    <el-table-column label="课程名称" prop="timetable.course.name" align="center"></el-table-column>
+                    <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
                     <el-table-column label="上课日期" align="center">
-                      <template slot-scope="item">{{$$tools.courseTime(item.row.timetable.begin_time, item.row.timetable.end_time)}}</template>
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
                     </el-table-column>
                     <el-table-column label="上课时间" align="center">
-                      <template slot-scope="item">{{$$tools.courseTime(item.row.timetable.begin_time, item.row.timetable.end_time, 'time')}}</template>
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
                     </el-table-column>
                     <el-table-column label="上课老师" align="center">
                       <template slot-scope="item">
@@ -228,14 +228,12 @@
                           </span>
                       </template>
                     </el-table-column>
-                    <el-table-column label="上课教室" prop="timetable.class_room.name" align="center"></el-table-column>
+                    <el-table-column label="上课教室" prop="class_room_name" align="center"></el-table-column>
                     <el-table-column label="扣除课时" prop="lesson_num" align="center"></el-table-column>
                     <el-table-column label="课程状态" align="center">
-                      <template slot-scope="item">{{item.row.timetable.lesson_end_time ? '已结课' : '未结课'}}</template>
+                      <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
                     </el-table-column>
-                    <el-table-column label="学员状态" prop="status.define" align="center">
-                      <!-- <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template> -->
-                    </el-table-column>
+                    <el-table-column label="学员状态" prop="status.define" align="center"></el-table-column>
                   </el-table>
                   <el-pagination v-if="timetableLists.total"
                         class="d-f f-j-c mt-50 mb-20"
@@ -894,7 +892,7 @@ export default {
       this.timetableMultiple.selectedIds = val.map(v => v.student_timetable_id);
     },
     checkboxIsDisabled (row) {
-      return row.begin_time > new Date().getTime() / 1000 && !row.timetable.lesson_end_time;
+      return row.begin_time > new Date().getTime() / 1000 && !row.lesson_end_time;
     },
     //退费  课时退费和教材退费单独验证
     quitPriceValidate (type) {

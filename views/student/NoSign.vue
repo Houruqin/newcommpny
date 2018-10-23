@@ -244,7 +244,7 @@ export default {
         return 0;
       }
 
-      this.getAllLists();
+      this.getAllLists(true);
       this.$message.success('已删除');
       if (id === 'all') {
         this.isShowCheckbox = false;

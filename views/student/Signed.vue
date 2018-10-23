@@ -500,6 +500,12 @@
 
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
+
+        <el-dialog title="错误提示" width="500px" center :visible.sync="dialogStatus.errorAlert" :close-on-click-modal="false" @close="dialogClose('errorAlert')">
+            <p>以下学员课程已开课，无法进行删除操作：</p>
+            <p class="mt-20"><span :class="{'pl-10': index}" v-for="(item, index) in deleteErrorStudents" :key="index">{{item}}</span></p>
+            <div class="d-f f-j-c mt-30"><MyButton @click.native="dialogStatus.errorAlert = false">返回</MyButton></div>
+        </el-dialog>
     </div>
 </template>
 
@@ -524,8 +530,9 @@ export default {
       isDelete: false,
       isShowCheckbox: false,
       selectedIds: [], //批量删除学员列表
+      deleteErrorStudents: [],
 
-      dialogStatus: {audition: false, divideGrade: false, student: false},
+      dialogStatus: {audition: false, divideGrade: false, student: false, errorAlert: false},
 
       hasContact: true,
       contactDot: 0,
@@ -654,6 +661,8 @@ export default {
     dialogClose (form) {
       if (form === 'divideGrade') {
         this.divideClassRadio = '';
+      } else if (form === 'errorAlert') {
+        this.deleteErrorStudents = [];
       } else {
         this.$refs[form].resetFields();
         Object.keys(this.studentForm).forEach(v => {
@@ -817,7 +826,7 @@ export default {
         return 0;
       }
       this.$message.success('已改为流失学员');
-      this.getAllLists();
+      this.getAllLists(true);
     },
     //删除学员
     deleteStudent (id) {
@@ -838,17 +847,23 @@ export default {
     async deleteHandle (id) {
       let result = await this.$$request.post('/sign/delete', {student_id: id === 'all' ? this.selectedIds : [id]});
 
+      console.log(result);
+
       if (!result) {
         return 0;
       }
 
-      if (id === 'all') {
-        this.isShowCheckbox = false;
-        this.selectedIds.splice(0, this.selectedIds.length);
+      if (result.can_not_delete_names.length) {
+        this.deleteErrorStudents = result.can_not_delete_names;
+        this.dialogStatus.errorAlert = true;
+      } else {
+        this.$message.success('已删除');
+        this.getAllLists(true);
+        if (id === 'all') {
+          this.isShowCheckbox = false;
+          this.selectedIds.splice(0, this.selectedIds.length);
+        }
       }
-
-      this.$message.success('已删除');
-      this.getAllLists();
     },
     // 取消批量删除
     cancelMultipleDel () {
@@ -952,7 +967,7 @@ export default {
       return a && b;
     },
     //获取tab列表
-    async getTabLists (isCurrPage) {
+    async getTabLists () {
       let result = await this.$$request.post('/sign/tab');
 
       console.log(result);
