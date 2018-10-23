@@ -125,6 +125,7 @@ export default {
     },
     //获取试听课程列表
     async getListenCourseLists () {
+      this.checkListen = [];
       this.loading = true;
       let select_time = this.auditionData.time / 1000;
       let current_time = new Date().getTime() / 1000;
