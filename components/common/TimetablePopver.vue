@@ -4,7 +4,7 @@
             <div class="d-f f-j-b">
                 <span class="fs-17 fc-m">{{item.grade_name}}</span>
                 <div class="d-f btn" v-if="!pastdue && item.begin_time > new Date().getTime() / 1000">
-                    <a class="cursor-pointer" @click="detailEdit(item)">编辑</a>
+                    <a class="cursor-pointer" @click="detailEdit(item)" v-if="item.student_grades.length">编辑</a>
                     <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
                 </div>
                 <div class="btn" v-else-if="!item.lesson_end_time && $$cache.getMemberInfo().lesson_end && item.end_time < new Date().getTime() / 1000">
