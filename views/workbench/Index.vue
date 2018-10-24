@@ -242,7 +242,7 @@
           <el-tabs v-model="follow_up_activeName" @tab-click="chage_follow_tab">
 
             <!-- 预约到访 -->
-            <el-tab-pane label="邀约到访" name="visit">
+            <!-- <el-tab-pane label="邀约到访" name="visit">
               <el-table class="student-table" :data="visit_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
@@ -266,7 +266,7 @@
                   </template>
                 </el-table-column>
               </el-table>
-            </el-tab-pane>
+            </el-tab-pane> -->
 
             <!-- 邀约试听 -->
             <el-tab-pane label="邀约试听" name="audition" v-if="user_info.class_pattern !== 2">
@@ -291,7 +291,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
-                <el-table-column label="状态" prop="operate" align="center">
+                <el-table-column label="试听状态" prop="operate" align="center">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status === 4" class="fc-subm">待试听</span>
                     <span v-if="scope.row.status === 5" class="fc-9">已试听</span>
@@ -319,7 +319,7 @@
                     <span>{{scope.row.created_at | date('yyyy-MM-dd hh:mm')}}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="预计跟进时间" align="center">
+                <el-table-column label="下次跟进时间" align="center">
                   <template slot-scope="scope">
                     <span>{{scope.row.next_at | date('yyyy-MM-dd hh:mm')}}</span>
                   </template>
@@ -1494,6 +1494,13 @@ export default {
 
     //查看通知
     async notice_detail (notice) {
+      this.notice_info = {
+        show_dialog: false,
+        title: null,
+        content: null,
+        sender: null,
+        time: null
+      };
       switch (this.notice_activeName) {
         case 'receive':
           const params = {

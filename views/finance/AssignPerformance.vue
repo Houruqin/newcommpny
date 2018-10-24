@@ -61,7 +61,7 @@
         <el-table-column label="签约日期" align="center">
           <template slot-scope="scope">
             <div>
-              <div>{{scope.row.created_at | date('yyyy-MM-dd')}}</div>
+              <div>{{scope.row.student_course.pay_at | date('yyyy-MM-dd')}}</div>
             </div>
           </template>
         </el-table-column>
