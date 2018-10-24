@@ -146,7 +146,7 @@
                     </el-table-column>
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" size="small" key="conflict_room">
+                            <el-select v-model="conflict_room" size="small" v-if="scope.row.conflict_data.reason == 2" key="conflict_room">
                                 <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
@@ -198,6 +198,8 @@ export default {
       activeTab: '1',
       oldTab: '1',
       loading: false,
+
+      conflict_room: '',
 
       syllabusParams: {},
       courseInfo: {
@@ -449,7 +451,6 @@ export default {
     },
     //冲突页面确定修改
     doneModify () {
-      console.log(this.conflict_room);
       let lists = this.conflictLists.map(v => {
         let item = {};
 
@@ -460,7 +461,6 @@ export default {
             } else if (key === 'end_time') {
               item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
             } else if (key === 'room_id') {
-              console.log(this.conflict_room);
               item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
             } else {
               item[key] = v[key];
@@ -474,10 +474,7 @@ export default {
       console.log(lists);
 
       lists = lists.concat(this.other_lists);
-
-      let params = {lists: lists};
-
-      this.getConflictLists(params);
+      this.getConflictLists({lists: lists});
     },
     //提交排课数据，验证冲突
     async getConflictLists (params) {

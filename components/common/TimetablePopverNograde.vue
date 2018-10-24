@@ -35,7 +35,7 @@
                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
             </div>
 
-            <div class="leave-status p-a fs-13" :class="{'gray': item.lesson_end_time}" v-if="item.course_type === 2 && item.student_grades[0].status === -1">已请假</div>
+            <div class="leave-status p-a fs-13" :class="{'gray': item.lesson_end_time}" v-if="item.student_grades.length && item.course_type === 2 && item.student_grades[0].status === -1">已请假</div>
 
             <p class="t-a-l">{{item.course_name}}</p>
 
@@ -47,7 +47,7 @@
 
                 <span class="ml-20 fs-12">
                     <i class="iconfont fs-13" :class="item.course_type === 2 ? 'icon-renyuan' : 'icon-renshu'"></i>
-                    <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
+                    <span v-if="item.course_type === 2"><i v-if="item.student_grades.length > 0">{{item.student_grades[0].student_name}}</i></span>
                     <span v-else class="ml-5">{{item.student_grades.length}}</span>
                 </span>
             </p>
