@@ -42,7 +42,7 @@
               </div>
 
               <div class="flex1">
-                  <el-form-item label="课程类型："><span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span></el-form-item>
+                  <el-form-item label="课程类型："><span>{{courseType === 1 ? '一对多' : '一对一'}}</span></el-form-item>
                   <el-form-item label="班级课时：" prop="lesson_num" v-if="courseType === 1">
                       <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
                   </el-form-item>
@@ -104,7 +104,7 @@
         </el-dialog>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="userDialogStatus" :type="userType" :role="userRole" :appendBody="true"
+        <AddStaffDialog v-model="userDialogStatus" :type="userType" :role="userRole" :appendBody="true"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </el-dialog>
@@ -255,9 +255,8 @@ export default {
         this.$emit('CB-dialogStatus', 'grade');
       }
     },
-    CB_dialogStatus (type) {
+    CB_dialogStatus () {
       this.userRole = false;
-      this.userDialogStatus = false;
     },
     CB_addStaff (data) {
       this.getGradeFill();

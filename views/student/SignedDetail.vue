@@ -16,8 +16,32 @@
               <div class="right flex1 pl-20 pt-20" v-if="studentDetail.parent_info">
                 <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
                 <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
-                <p><span>家长信息：</span><i>{{studentDetail.parent_info.name}}</i><i>({{getRelations(studentDetail.parent_info.relation)}})</i></p>
-                <p><span>联系电话：</span>{{studentDetail.parent_info.mobile}}</p>
+                <div class="d-f parent-info">
+                  <div class="fc-9">家长信息：</div>
+                  <div class="flex1 fc-2">
+                    <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.relation === 7">
+                      <span>暂无</span>
+                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                    </p>
+                    <p v-if="studentDetail.parent_info.name">
+                      <span>{{studentDetail.parent_info.name}}({{getRelations(studentDetail.parent_info.relation)}})</span>
+                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                    </p>
+                    <div v-if="studentDetail.deputyParentInfo.length">
+                      <div v-for="(item, num) in studentDetail.deputyParentInfo" :key="num">
+                        <p v-if="!item.name">
+                          <span>暂无</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                        <p v-if="item.name">
+                          <span>{{item.name}}({{getRelations(item.pivot.relation)}})</span>
+                          <span class="pl-20">{{item.mobile}}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- <p><span>联系电话：</span>{{studentDetail.parent_info.mobile}}</p> -->
                 <p><span>家庭住址：</span>{{studentDetail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
                 <p><span>登记人员：</span>{{studentDetail.registerInfo.operator.name}}</p>
@@ -30,7 +54,7 @@
                           </div>
                       </el-popover>
                   </template>
-                  <span v-else>{{studentDetail.remark}}</span>
+                  <a v-else>{{studentDetail.remark}}</a>
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
@@ -42,9 +66,16 @@
         </el-card>
 
         <el-card class="mt-20" shadow="hover">
-            <el-tabs v-model="activeTab" @tab-click="tabClick" class="mt-10">
+            <div class="mt-10 p-r">
+              <el-tabs v-model="activeTab" @tab-click="tabClick">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
-            </el-tabs>
+              </el-tabs>
+              <div class="d-f f-a-c p-a timetable-multiple" v-if="activeTab === 'timetable'">
+                <MyButton v-if="!timetableMultiple.isShowCheckbox" @click.native="timetableMultiple.isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="timetableMultiple.isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': timetableMultiple.selectedIds.length}" @click="deleteTimeTable">批量删除</span>
+                <MyButton v-if="timetableMultiple.isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
+              </div>
+            </div>
             <div class="bottom-content-box">
                 <!-- 订单记录列表 -->
                 <div key="course_info" v-if="activeTab == 'course_info'">
@@ -156,8 +187,8 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
-                                        <span class="t_button cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
-                                        <span :class="[{'d_button' : scope.row.suspend_type === 0},'t_button']" v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                        <span class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
+                                        <span v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
                                     </div>
@@ -170,7 +201,6 @@
                             </template>
                         </el-table-column>
                     </el-table>
-
                     <el-pagination v-if="courseTimeTable.total"
                         class="d-f f-j-c mt-50 mb-20"
                         :page-size="courseTimeTable.per_page"
@@ -179,7 +209,40 @@
                         :current-page="courseTimeTable.current_page" @current-change="paginationClick">
                     </el-pagination>
                 </div>
-
+                <!-- 学员课表 -->
+                <div key="timetable" v-else-if="activeTab == 'timetable'">
+                  <el-table :data="timetableLists.data" stripe v-loading="loading" @selection-change="handleSelectionChange" ref="timetable">
+                    <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableMultiple.isShowCheckbox"></el-table-column>
+                    <el-table-column label="序号" type="index" align="center"></el-table-column>
+                    <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
+                    <el-table-column label="上课日期" align="center">
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time)}}</template>
+                    </el-table-column>
+                    <el-table-column label="上课时间" align="center">
+                      <template slot-scope="item">{{$$tools.courseTime(item.row.begin_time, item.row.end_time, 'time')}}</template>
+                    </el-table-column>
+                    <el-table-column label="上课老师" align="center">
+                      <template slot-scope="item">
+                          <span v-if="item.row.teachers.length">
+                              <i v-for="(teacher, index) in item.row.teachers" :key="index"><i v-if="index > 0">/</i>{{teacher.name}}</i>
+                          </span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="上课教室" prop="class_room_name" align="center"></el-table-column>
+                    <el-table-column label="扣除课时" prop="lesson_num" align="center"></el-table-column>
+                    <el-table-column label="课程状态" align="center">
+                      <template slot-scope="item">{{item.row.lesson_end_time ? '已结课' : '未结课'}}</template>
+                    </el-table-column>
+                    <el-table-column label="学员状态" prop="status.define" align="center"></el-table-column>
+                  </el-table>
+                  <el-pagination v-if="timetableLists.total"
+                        class="d-f f-j-c mt-50 mb-20"
+                        :page-size="timetableLists.per_page"
+                        background layout="total, prev, pager, next"
+                        :total="timetableLists.total"
+                        :current-page="timetableLists.current_page" @current-change="paginationClick">
+                    </el-pagination>
+                </div>
                 <!-- 课程评价列表 -->
                 <div v-else-if="activeTab == 'comment'" key="comment" class="course-comment">
                     <div v-if="courseCommentLists.length" v-loading="loading">
@@ -204,85 +267,20 @@
                             </li>
                         </ul>
                     </div>
-                    <div v-else class="d-f f-a-c f-j-c fc-7 nothing"><span>暂无数据</span></div>
+                    <div v-else class="d-f f-a-c f-j-c fc-9 nothing"><span>暂无数据</span></div>
                 </div>
                 <!-- 跟进列表 -->
                 <div v-else key="follow_up">
-                    <div class="followup-lists-box p-r bgc-m" v-loading="loading">
-                        <div class="followup-lists">
-                          <div class="d-f"><MyButton class="ml-160" @click.native="addFollowUp">添加跟进</MyButton></div>
-                          <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
+                    <div class="followup-lists-box p-r pl-80" v-loading="loading">
+                        <!-- <div class="d-f"><MyButton class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div> -->
+                        <div v-if="followUpLists.total">
+                            <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                         </div>
+                        <div v-else class="d-f f-a-c f-j-c fc-9 nothing"><span>暂无数据</span></div>
                     </div>
                 </div>
             </div>
         </el-card>
-
-        <!-- 学员修改弹窗 -->
-        <el-dialog title="编辑学员资料" width="790px" center :visible.sync="studentMaskStatus" :close-on-click-modal="false" @close="dialogClose('addStudent')">
-            <el-form :model="studentForm" label-width="120px" size="small" ref="addStudent" class="form-box" :rules="detailRules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="学员姓名：" prop="student_name">
-                                <el-input v-model.trim="studentForm.student_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="联系电话：" prop="mobile">
-                                <el-input v-model.trim="studentForm.mobile" ref="mobileObj"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="就读学校：" prop="school_name">
-                                <el-input v-model.trim="studentForm.school_name" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长姓名：" prop="parent_name">
-                                <el-input v-model.trim="studentForm.parent_name"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="分配顾问：">
-                                <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
-                                    <el-option label="暂不分配" value=""></el-option>
-                                    <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-
-                        <el-col :span="11" class="ml-30">
-                            <el-form-item label="性别：" prop="sex" >
-                                <el-select v-model="studentForm.sex" placeholder="选择性别">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="出生日期：">
-                                <el-date-picker v-model="studentForm.birthday" :picker-options="pickerBeginDateAfter" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-
-                            <el-form-item label="家庭住址：" prop="address">
-                                <el-input v-model.trim="studentForm.address" placeholder="选填"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="家长关系：" prop="relation">
-                                <el-select v-model="studentForm.relation" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $store.state.familyRelations" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-                    <div class="d-f f-j-c mt-50">
-                        <MyButton @click.native="doneHandle('addStudent')" :loading="submitLoading.student">确定</MyButton>
-                    </div>
-                </div>
-            </el-form>
-        </el-dialog>
-
-        <!-- 购买课程弹窗 -->
-        <!-- <BuyCourseDialog :dialogStatus="dialogStatus.course" :buyCourseData="buyCourseData"
-            @CB-contract="CB_contract" @CB-dialogStatus="CB_dialogStatus">
-        </BuyCourseDialog> -->
 
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
@@ -290,14 +288,6 @@
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
-                <!-- <div class="d-f">
-                    <div class="list-item">
-                        <el-form-item label="上课学员：">{{studentDetail.name}}</el-form-item>
-                    </div>
-                    <div class="list-item">
-                        <el-form-item label="课程名称：">{{quitCourseInfo.course_name}}</el-form-item>
-                    </div>
-                </div> -->
                 <p class="pl-35 fs-17">上课学员：<span>{{studentDetail.name}}</span></p>
                 <div class="d-f mt-20">
                     <div class="list-item">
@@ -367,62 +357,6 @@
             </div>
         </el-dialog>
 
-        <!-- 邀约试听弹窗 -->
-        <el-dialog title="试听" width="720px" center :visible.sync="maskAudition" :close-on-click-modal="false" @close="dialogClose('listen')">
-            <div class="form-box">
-               <el-row type="flex" justify="center">
-                    <el-col :span="10">
-                        <el-date-picker size="small"
-                            v-model="auditionData.time" type="date"
-                            value-format="timestamp" :clearable="false"
-                            :editable="false" placeholder="选择日期"
-                            @change="getListenLists"
-                            :picker-options="pickListenDisable">
-                        </el-date-picker>
-                    </el-col>
-                </el-row>
-                <el-row type="flex" justify="center" class="mt-30">
-                   <el-col :span="8">
-                       <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部老师" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                   <el-col :span="8" :offset="1">
-                       <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                </el-row>
-                <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-                    <ul class="bgc-m audition-lists">
-                        <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
-                            <p class="fs-16 fc-2">{{list.course.name}}</p>
-                            <p class="two-p mt-5 d-f f-a-c">
-                                <span class="d-f f-a-c">
-                                    <i class="time-icon"></i>
-                                    <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="teacher-icon"></i>
-                                    <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="address-icon"></i>
-                                    <i class="pl-5">{{list.class_room.name}}</i>
-                                </span>
-                            </p>
-                            <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                        </li>
-                    </ul>
-                </div>
-                <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-7">暂无数据</span></div>
-
-                <div class="d-f f-j-c mt-50"><MyButton @click.native="listenDoneHandle" :loading="submitLoading.followUp">确定</MyButton></div>
-            </div>
-        </el-dialog>
-
         <!-- 添加跟进弹窗 -->
         <el-dialog title="添加跟进" width="600px" center :visible.sync="maskFollowUp" :close-on-click-modal="false" @close="dialogClose('followUpForm')">
             <el-form :model="followUpForm" label-width="125px" size="small" :rules="followUpRules" ref="followUpForm">
@@ -435,7 +369,8 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in resultArr" :key="index" :label="item.name" :value="item.id"></el-option>
+                          <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code"
+                          v-if="item.code !== 10 && item.code !== -2 && item.code !== 0 && item.code !== 9"></el-option>
                         </el-select>
                     </el-form-item>
 
@@ -607,6 +542,12 @@
         </el-dialog>
 
         <RefundDialog :routerAble="false" :dialogStatus="dialogStatus.quitPrice" :refundData="quitPriceDetail" @CB-dialogStatus="CB_dialogStatus"></RefundDialog>
+
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
+
+        <!-- 学员基础信息 -->
+        <EditStudent v-model="dialogStatus.student" :editDetail="studentEditDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
     </div>
 </template>
 
@@ -619,10 +560,12 @@ import RefundDialog from '../../components/dialog/Refund';
 import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
 import Bus from '../../script/bus';
 
-import BuyCourseDialog from '../../components/dialog/BuyCourse';
 import ContractDialog from '../../components/dialog/Contract';
+import AddAudition from '../../components/dialog/AddAudition';
+import EditStudent from '../../components/dialog/StudentSigned';
 
 export default {
+  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition, EditStudent},
   data () {
     return {
       submitLoading: {
@@ -630,30 +573,26 @@ export default {
       },
 
       state: 'loading',
-      dialogStatus: {student: false, course: false, contract: false, editTeacher: false, quitPrice: false},
+      dialogStatus: {student: false, editTeacher: false, quitPrice: false, audition: false},
+      auditionType: 'audition',
 
       studentId: '', //学员id
       studentDetail: {},
+      studentEditDetail: {},
       contractData: {}, //合约详情
       quitPriceDetail: {}, //退费详情
 
       editTeacherLists: [],
       teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
-
       loading: false,
 
       quitCourseLists: {}, //退费课程列表
-      courseTimeTable: {}, //课程表
+      courseTimeTable: {}, //课程信息
+      timetableLists: {}, //学员课表
       courseCommentLists: {}, //课评列表
       followUpLists: {}, //跟进列表
 
-      listenType: '', //试听类型，直接试听、跟进邀约试听
-      listenCourseLists: [], //试听课程列表
       checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
-      checkListen: [],
-
-      buyCourseData: {},
-      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
 
       gradeDivideLists: {
         lists: [],
@@ -681,17 +620,27 @@ export default {
       classMaskStatus: false, //分班弹窗
       quitCourseMaskStatus: false, //退费弹窗
       maskFollowUp: false, //添加跟进弹窗
-      studentMaskStatus: false, //  修改基本信息弹窗
-      maskAudition: false, //邀约试听弹窗
       followupStatus: '', //跟进结果
       paymentMethod: StudentStatic.paymentMethod, //付款方式
-      resultArr: StudentStatic.followUp.status,
       wayIdArr: StudentStatic.followUp.wayId,
       relationArr: StudentStatic.relation,
       timeTableStatic: timeTableStatic.status, //上课状态
 
       quitCourseInfo: {}, //退费课程详细数据
-      tabLists: [{type: 'course_info', name: '订单记录'}, {type: 'grade', name: '课程信息'}, {type: 'comment', name: '课评信息'}, {type: 'follow_up', name: '跟进记录'}],
+
+      //学员课表批量操作
+      timetableMultiple: {
+        isShowCheckbox: false,
+        selectedIds: []
+      },
+
+      tabLists: [
+        {type: 'course_info', name: '订单记录'},
+        {type: 'grade', name: '课程信息'},
+        {type: 'timetable', name: '学员课表'},
+        {type: 'comment', name: '课评信息'},
+        {type: 'follow_up', name: '跟进记录'}
+      ],
 
       quitCourseForm: {
         rel_remain: '',
@@ -719,7 +668,6 @@ export default {
           {required: true, message: '请选择老师', trigger: 'change'}
         ]
       },
-      studentForm: { id: '', student_name: '', parent_name: '', relation: '', mobile: '', address: '', sex: '', birthday: '', school_name: '', advisor_id: ''},
       removeTimetableForm: {
         course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
       },
@@ -752,32 +700,6 @@ export default {
         teacher_name: [],
         time: [
           {required: true, message: '请选择时间', trigger: 'change'}
-        ]
-      },
-      detailRules: {
-        parent_name: [
-          // {required: true, message: '请输入家长姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        relation: [
-          // {required: true, message: '请选择关系', trigger: 'change'}
-        ],
-        mobile: [
-          {required: true, message: '请输入家长电话'},
-          {validator: this.$$tools.formValidate('phone')}
-        ],
-        address: [
-          {max: 50, message: '长度不能超过50个字符'}
-        ],
-        school_name: [
-          {max: 20, message: '长度不能超过20个字符'}
-        ],
-        student_name: [
-          {required: true, message: '请输入学员姓名'},
-          {max: 7, message: '长度不能超过7个字符'}
-        ],
-        sex: [
-          {required: true, message: '请选择性别', trigger: 'change'}
         ]
       },
       followUpRules: {
@@ -819,39 +741,73 @@ export default {
 
       return text;
     },
+    CB_audition (data) {
+      this.checkListenCourse = data;
+    },
+    CB_dialogStatus () {
+      this.studentEditDetail = {};
+    },
+    CB_success () {
+      this.getStudentDetail();
+      Bus.$emit('refreshSignedStudentLists');
+    },
     editTeahcerDiaClose () {
       this.$refs.teacherForm.resetFields();
     },
     dialogClose (form) {
-      if (form === 'listen') {
-        this.checkListen = [];
-        this.listenCourseLists = [];
-        this.auditionData = {
-          time: new Date().getTime(),
-          teacher_lists: [],
-          course_lists: [],
-          teacher_id: '',
-          course_id: ''
-        };
-        // 48213449
-      } else if (form === 'followUpForm') {
+      if (form === 'followUpForm') {
         this.listenCourseInit();
         this.$refs[form].resetFields();
       } else if (form === 'divideGrade') {
         this.divideClassRadio = '';
-      } else if (form === 'addStudent') {
-        this.$refs[form].resetFields();
-        Object.keys(this.studentForm).forEach(v => {
-          this.studentForm[v] = '';
-        });
       } else {
         this.$refs[form].resetFields();
       }
     },
+    // 批量删除课表
+    deleteTimeTable () {
+      if (this.timetableMultiple.selectedIds && this.timetableMultiple.selectedIds.length) {
+        this.$confirm('删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.multipleDelete();
+        }).catch(() => {
+          return 0;
+        });
+      } else {
+        this.$message.error('请至少选中一条数据');
+      }
+    },
+    async multipleDelete () {
+      let res = await this.$$request.post('/timetable/deleteStudentTiemtables', {
+        student_id: this.studentId,
+        student_timetable_ids: this.timetableMultiple.selectedIds
+      });
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      this.$message.success('删除成功');
+      this.getBottomTabLists();
+    },
+    cancelMultipleDel () {
+      this.timetableMultiple.isShowCheckbox = false;
+      this.timetableMultiple.selectedIds.splice(0, this.timetableMultiple.selectedIds.length);
+      this.$refs.timetable.clearSelection();
+    },
+    handleSelectionChange (val) {
+      this.timetableMultiple.selectedIds = val.map(v => v.student_timetable_id);
+    },
+    checkboxIsDisabled (row) {
+      return row.begin_time > new Date().getTime() / 1000 && !row.lesson_end_time;
+    },
     //退费  课时退费和教材退费单独验证
     quitPriceValidate (type) {
-      return (rule, value, callback, event, e, d) => {
-        if (type == 'lesson') {
+      return (rule, value, callback) => {
+        if (type === 'lesson') {
           if (value > Number(this.quitCourseInfo.real_price)) {
             return callback(new Error('课时退费金额不能超过剩余课时费'));
           }
@@ -957,6 +913,7 @@ export default {
       this.removeTimetableDialog = true;
 
     },
+    // 手动消课选择课程班级
     removeTimeTableChange (val) {
       this.gradeLists.forEach(v =>{
         if (v.id == val) {
@@ -975,7 +932,7 @@ export default {
     },
     //底部列表切换
     tabClick (item) {
-      if (this.oldActiveTab == this.activeTab) {
+      if (this.oldActiveTab === item.name) {
         return 0;
       }
       this.oldActiveTab = item.name;
@@ -1044,6 +1001,7 @@ export default {
         advisor_id: data.advisor_id,
         advisor: data.advisor,
         parent_id: data.parent_id,
+        deposit_money: -1,
         expire: data.expire,
         buy_type: 2,
         course_id: data.course_id,
@@ -1078,83 +1036,45 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      // if(type == 'course') {
-      //     this.buyCourseData = {};
-      //     this.dialogStatus.course = false;
-      //     return 0;
-      // };
-      if (type == 'contract') {
+      if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
 
         return 0;
       }
 
-      if (type == 'refund') {
+      if (type === 'refund') {
         this.quitPriceDetail = {};
         this.dialogStatus.quitPrice = false;
 
         return 0;
       }
     },
-    //购课成功，合约回调
-    CB_contract (data) {
-      this.contractData = data;
-      if (this.activeTab == 'course_info') {
-        this.getBottomTabLists();
-      }
-      this.dialogStatus.course = false;
-      this.dialogStatus.contract = true;
-    },
     //添加跟进
     addFollowUp () {
-      for (let key in this.followUpForm) {
-        this.followUpForm[key] = '';
-      }
+      Object.keys(this.followUpForm).forEach(v => {
+        this.followUpForm[v] = '';
+      });
       this.followupStatus = '';
-      this.listenType = 'followup'; //添加跟进，直接修改试听类型为跟进，即便不选择试听，也不影响
       this.maskFollowUp = true;
     },
     //跟进结果选择
     followUpStatusChange (value) {
       this.followupStatus = value;
       if (value === 4) {
-        this.getListenLists();
-        this.maskAudition = true;
+        this.auditionType = 'followup_audition';
+        this.dialogStatus.audition = true;
       } else {
         this.listenCourseInit();
       }
     },
     //添加试听
     addListenHandle () {
-      this.listenType = 'default';
-      this.getListenLists();
-      this.maskAudition = true;
-    },
-    //试听课程列表点击
-    listenCourseClick (list) {
-      let index = this.checkListen.indexOf(list.id);
-
-      if (index === -1) {
-        if (this.checkListen.length) {
-          return this.$message.warning('最多选择一个');
-        }
-        this.checkListen.push(list.id);
-      } else {
-        this.checkListen.splice(index, 1);
-      }
+      this.auditionType = 'audition';
+      this.dialogStatus.audition = true;
     },
     //试听跟进弹窗关闭，数据重置
     listenCourseInit () {
-      this.auditionData = {
-        time: new Date().getTime(),
-        teacher_lists: [],
-        course_lists: [],
-        teacher_id: '',
-        course_id: ''
-      };
-      this.checkListen = [];
-      this.listenCourseLists = [];
       Object.keys(this.checkListenCourse).forEach(v => {
         this.checkListenCourse[v] = '';
       });
@@ -1249,13 +1169,12 @@ export default {
     },
     //购课
     buyCourse () {
-      // this.buyCourseData = this.studentDetail;
-      // this.dialogStatus.course = true;
       let params = {
         student_id: this.studentDetail.id,
         advisor_id: this.studentDetail.advisor_id,
         advisor: this.studentDetail.advisor,
-        parent_id: this.studentDetail.parent_id
+        parent_id: this.studentDetail.parent_id,
+        deposit_money: -1
       };
 
       this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
@@ -1274,18 +1193,21 @@ export default {
     },
     //编辑
     editDetail () {
-      this.studentForm.id = this.studentDetail.id;
-      this.studentForm.student_name = this.studentDetail.name;
-      this.studentForm.birthday = this.studentDetail.birthday > 0 ? this.studentDetail.birthday * 1000 : '';
-      this.studentForm.mobile = this.studentDetail.parent_info.mobile;
-      this.studentForm.parent_name = this.studentDetail.parent_info.name;
-      this.studentForm.relation = this.studentDetail.parent_info.relation;
-      this.studentForm.address = this.studentDetail.parent_info.address;
-      this.studentForm.sex = this.studentDetail.sex;
-      this.studentForm.school_name = this.studentDetail.school_name;
-      this.studentForm.advisor_id = this.studentDetail.advisor_id == 0 ? '' : this.studentDetail.advisor_id;
+      this.studentEditDetail = {
+        student_id: this.studentDetail.id,
+        birthday: this.studentDetail.birthday,
+        student_name: this.studentDetail.name,
+        mobile: this.studentDetail.parent_info.mobile,
+        parent_name: this.studentDetail.parent_info.name,
+        relation: this.studentDetail.parent_info.relation,
+        address: this.studentDetail.parent_info.address,
+        sex: this.studentDetail.sex,
+        school_name: this.studentDetail.school_name,
+        advisor_id: this.studentDetail.advisor_id,
+        remark: this.studentDetail.remark
+      };
 
-      this.studentMaskStatus = true;
+      this.dialogStatus.student = true;
     },
     //退费按钮点击
     quitCourse (data) {
@@ -1299,39 +1221,12 @@ export default {
 
       this.quitCourseMaskStatus = true;
     },
-    //试听确定
-    listenDoneHandle () {
-      if (!this.checkListen.length) {
-        return this.$message.warning('试听课程不能为空!');
-      }
-
-      if (this.listenType == 'default') {
-        this.followUpForm.way_id = 5;
-        this.followUpForm.status = 4;
-        this.followUpForm.content = '无跟进内容记录';
-
-        this.submitFollowUpInfo();
-      } else {
-        this.listenCourseLists.forEach(v => {
-          if (v.id === this.checkListen[0]) {
-            this.checkListenCourse.timetable_id = v.id;
-            this.checkListenCourse.course_name = v.course.name;
-            this.checkListenCourse.begin_time = this.$$tools.formatTime(v.begin_time);
-          }
-        });
-      }
-
-      this.listenCourseLists = []; //试听课程列表重置
-      this.maskAudition = false;
-    },
     //表单确定
     doneHandle (type) {
       this.$refs[type].validate(valid => {
         if (valid) {
           if (type === 'followUpForm') {
             this.submitFollowUpInfo();
-          } else if (type === 'addStudent') {
-            this.submitStudentInfo();
           } else if (type === 'quitCourseForm') {
             this.submitQuitCourse();
           }
@@ -1378,32 +1273,6 @@ export default {
       this.getBottomTabLists();
       this.quitCourseMaskStatus = false;
     },
-    //提交学员信息
-    async submitStudentInfo () {
-      if (this.submitLoading.student) {
-        return 0;
-      }
-      this.submitLoading.student = true;
-
-      let params = {};
-
-      for (let key in this.studentForm) {
-        params[key] = key == 'birthday' ? this.studentForm[key] / 1000 : this.studentForm[key];
-      }
-
-      let result = await this.$$request.post('/sign/edit', params);
-
-      this.submitLoading.student = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.$message.success('修改成功');
-      this.studentMaskStatus = false;
-      this.getStudentDetail(this.studentForm.id);
-      Bus.$emit('refreshSignedStudentLists');
-    },
     //提交分班信息
     async submitDivideClass (url, params) {
       if (this.submitLoading.gradeDivide) {
@@ -1425,29 +1294,25 @@ export default {
     },
     //提交跟进
     async submitFollowUpInfo () {
-      for (let key in this.followUpForm) {
-        if (key == 'invited_at' || key == 'next_at') {
-          this.followUpForm[key] = this.followUpForm[key] / 1000;
-        }
-      }
-
       if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
-
       if (this.submitLoading.followUp) {
         return 0;
       }
+
       this.submitLoading.followUp = true;
 
-      let params = {...this.followUpForm, type_id: 6, student_id: this.studentId}; //type_id默认售前跟进5
+      let params = {type_id: 6, student_id: this.studentId};
 
-      if (this.listenType == 'default' && this.checkListen.length) {
-        params.timetable_id = this.checkListen[0];
-      } else if (this.checkListenCourse.timetable_id) {
+      if (this.checkListenCourse.timetable_id) {
         params.timetable_id = this.checkListenCourse.timetable_id;
       }
+
+      Object.keys(this.followUpForm).forEach(key => {
+        params[key] = key === 'invited_at' || key === 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
+      });
 
       console.log(params);
 
@@ -1459,14 +1324,8 @@ export default {
         return 0;
       }
       this.$message.success('添加成功');
-
       this.maskFollowUp = false;
-      this.maskAudition = false;
-
       this.listenCourseInit();
-      for (let key in this.followUpForm) {
-        this.followUpForm[key] = '';
-      }
       this.getBottomTabLists();
     },
     //获取学员详情
@@ -1507,13 +1366,15 @@ export default {
 
       this.classMaskStatus = true;
     },
-    //获取4个列表方法
+    //获取5个列表方法
     async getBottomTabLists (currentPage) {
+      this.timetableMultiple.isShowCheckbox = false;
       this.loading = true;
 
       let requestUrl = {
         course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
         grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
+        timetable: {url: '/timetable/studentList', list: 'timetableLists'},
         comment: {url: '/sign/comment', list: 'courseCommentLists'},
         follow_up: {url: '/followUp/lists', list: 'followUpLists'}
       };
@@ -1524,8 +1385,13 @@ export default {
         params.page = currentPage;
       }
 
-      let result = await this.$$request.post(url, params);
+      let result = null;
 
+      if (this.activeTab === 'timetable') {
+        result = await this.$$request.get(url, params);
+      } else {
+        result = await this.$$request.post(url, params);
+      }
       console.log(result);
       if (!result) {
         return 0;
@@ -1539,41 +1405,9 @@ export default {
       }
 
       this[dataLists] = result.lists;
-
       this.loading = false;
 
       return true;
-    },
-    //获取试听填充列表
-    async getListenLists () {
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.auditionData.teacher_lists = result.teacher;
-      this.auditionData.course_lists = result.course;
-      this.getListenCourseLists();
-    },
-    //获取试听课程列表
-    async getListenCourseLists () {
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let params = {
-        time: old_time,
-        teacher_id: this.auditionData.teacher_id,
-        course_id: this.auditionData.course_id
-      };
-
-      let result = await this.$$request.post('/listenCourse/lists', {data: params});
-
-      if (!result) {
-        return 0;
-      }
-      this.listenCourseLists = result.lists;
     },
     async pageInit () {
       let [a, b] = await Promise.all([this.getStudentDetail(), this.getBottomTabLists()]);
@@ -1593,8 +1427,7 @@ export default {
       this.studentId = val.query.id;
       this.pageInit();
     }
-  },
-  components: {TableHeader, MyButton, BuyCourseDialog, ContractDialog, RefundDialog, FollowUpList}
+  }
 };
 </script>
 
@@ -1615,6 +1448,11 @@ export default {
         }
         span {
           color: #999;
+        }
+      }
+      .parent-info {
+        span {
+          color: #303133;
         }
       }
     }
@@ -1647,13 +1485,8 @@ export default {
     .followup-lists-box {
         // overflow-y: scroll;
         // max-height: 450px;
-
-        .followup-lists {
-            padding: 20px 30px;
-        }
-        .add-followup {
-            top: 0;
-            right: 0;
+        .nothing {
+            height: 200px;
         }
     }
     .course-comment {
@@ -1752,53 +1585,13 @@ export default {
             }
         }
     }
-    .detail {
-        .detail-left {
-            width: 400px;
-        }
-        .detail-top {
-            padding: 0 60px;
-            ul li {
-                margin-top: 20px;
-                color: #999999;
-                span {
-                    color: #222222;
-                }
-            }
-        }
-        .detail-bottom {
-            border-top: 1px #e3e3e3 dotted;
-            ul li {
-                margin-top: 20px;
-            }
-            .timetable-edit {
-                border: 1px #45DAD5 solid;
-                text-align: center;
-                width: 60px;
-                line-height: 30px;
-                height: 30px;
-                box-sizing: border-box;
-                right: 10px;
-                top: -40px;
-                color: #45DAD5;
-                border-radius: 5px;
-            }
-        }
-    }
     .time_select /deep/ .el-input--suffix .el-input__inner{
         padding-right: 10px;
     }
-    // .t_button{
-    //     display: inline-block;
-    //     padding: 4px 10px;
-    //     border: 1px solid #45DAD5;
-    //     border-radius: 4px;
-    //     color: #45DAD5;
-    // }
-    // .d_button{
-    //     border: 1px solid #999999;
-    //     color: #999999;
-    // }
+    .timetable-multiple {
+      top: 0;
+      right: 0;
+    }
 </style>
 
 

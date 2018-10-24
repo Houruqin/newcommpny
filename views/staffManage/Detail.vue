@@ -2,31 +2,28 @@
     <div class="flex1">
         <PageState :state="state" />
         <el-card shadow="hover">
-            <div class="d-f ml-20 mt-40 mb-20 p-r mr-20">
-                <div class="mr-40">
-                    <a class="t-a-c"><img src="../../images/staff/teacher.png" alt=""></a>
-                    <div class="d-f f-a-c f-j-c cursor-pointer">
-                        <span class="mr-10">{{userDetail.name}}</span>
-                        <i v-if="userDetail.is_enable == 1" class="iconfont icon-bianji" @click="editHandle"></i>
+            <div class="d-f detail-header f-a-c">
+                <div class="pl-20 pr-36 left">
+                    <a>
+                      <img v-if="userDetail.sex === 1" :src="manICon" alt="">
+                      <img v-if="userDetail.sex === 0" :src="womanICon" alt="">
+                    </a>
+                    <div class="mt-5 t-a-c">
+                        <span class="fs-16">{{userDetail.name}}</span>
+                        <span v-if="userDetail.is_enable == 1" class="iconfont icon-bianji cursor-pointer" @click="editHandle"></span>
                     </div>
                 </div>
-                <div class="fc-7">
-                    <p class="mt-3">职位：<span v-for="(type,index) in userDetail.type_all" :key="index"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span></p>
-                    <p class="mt-10">联系电话：<span>{{userDetail.mobile}}</span></p>
-                    <p class="mt-10">入职时间：<span>{{$$tools.format(userDetail.created_at)}}</span></p>
-                </div>
-
-                <div class="p-a dimission-btn">
-                    <!-- <MyButton v-if="$$cache.getMemberInfo().type === 'master' && $$cache.getMemberInfo().id != userId && userDetail.status == 1" @click.native="dimissionClick">离职</MyButton> -->
-                    <MyButton v-if="userDetail.status == 1 && userDetail.leaveEnable" @click.native="dimissionClick">离职</MyButton>
-                    <MyButton v-else-if="userDetail.status != 1" @click.native="deleteUserInfo" type="subm">删除</MyButton>
+                <div class="right ml-36">
+                    <p><i>职　　位：</i><span v-for="(type,index) in userDetail.type_all" :key="index"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span></p>
+                    <p class="mt-10"><i>联系电话：</i><span>{{userDetail.mobile}}</span></p>
+                    <p class="mt-10"><i>入职时间：</i><span>{{$$tools.format(userDetail.created_at)}}</span></p>
                 </div>
             </div>
         </el-card>
 
         <el-card class="mt-20" shadow="hover">
-            <TableHeader title="员工数据"></TableHeader>
-            <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
+            <!-- <TableHeader title="员工数据"></TableHeader> -->
+            <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar mt-10">
                 <el-tab-pane label="跟进名单" name="followUp"></el-tab-pane>
                 <el-tab-pane label="签约学员" name="student"></el-tab-pane>
                 <el-tab-pane label="任课班级" name="grade"></el-tab-pane>
@@ -66,7 +63,7 @@
                     <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
                     <el-table-column label="购买课程" align="center" prop="course_name"></el-table-column>
                     <el-table-column label="购买日期" align="center">
-                        <template slot-scope="scope"><span>{{scope.row.created_at}}</span></template>
+                        <template slot-scope="scope"><span>{{$$tools.format(scope.row.created_at)}}</span></template>
                     </el-table-column>
                     <el-table-column label="签约人" align="center" prop="user_name"></el-table-column>
                     <el-table-column label="操作" align="center">
@@ -81,11 +78,11 @@
                     </el-table-column>
                     <el-table-column label="班级名称" align="center">
                         <template slot-scope="scope">
-                            {{scope.row.course.class_pattern == 1 ? scope.row.name : '无'}}
+                            <span v-if="scope.row.course">{{scope.row.course.class_pattern == 1 ? scope.row.name : '无'}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="课程性质" align="center">
-                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '普通课程' : '一对一课程'}}</span></template>
+                        <template slot-scope="scope"><span v-if="scope.row.course">{{scope.row.course.type === 1 ? '一对多' : '一对一'}}</span></template>
                     </el-table-column>
                     <el-table-column label="学员人数" align="center" prop="student_num"></el-table-column>
                     <el-table-column label="状态" align="center">
@@ -112,7 +109,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus.detail" :editDetail="editDetail" :type="userType" origin="detail"
+        <AddStaffDialog v-model="dialogStatus.detail" :editDetail="editDetail" :type="userType"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
 
@@ -129,10 +126,18 @@ import MyButton from '../../components/common/MyButton';
 import AddStaffDialog from '../../components/dialog/AddStaff';
 import ContractDialog from '../../components/dialog/Contract';
 
+import adminICon from '../../images/staff/admin.png';
+import manICon from '../../images/staff/user-man.png';
+import womanICon from '../../images/staff/user-woman.png';
+
 export default {
   components: {TableHeader, MyButton, AddStaffDialog, ContractDialog},
   data () {
     return {
+      adminICon: adminICon,
+      manICon: manICon,
+      womanICon: womanICon,
+
       state: 'loading',
       loading: false,
       userType: '',
@@ -156,14 +161,13 @@ export default {
       this.dialogStatus.detail = true;
     },
     CB_dialogStatus (type) {
-      if (type == 'staff') {
+      if (type === 'staff') {
         this.userType = '';
         this.editDetail = {};
-        this.dialogStatus.detail = false;
 
         return 0;
       }
-      if (type == 'contract') {
+      if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
 
@@ -231,52 +235,6 @@ export default {
       this.getBottomLists();
 
       return true;
-    },
-    //离职
-    async dimissionClick () {
-      this.$confirm('员工离职后，数据将无法恢复，您确定要办理离职吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.dimissionHandle();
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async dimissionHandle () {
-      let result = await this.$$request.post('/user/changeStatus', {id: this.userId});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.$store.dispatch('getAdvisor'); //更新员工顾问信息
-      // this.getDetail();
-      // this.$message.success('已修改为离职状态');
-      this.$router.go(-1);
-    },
-    //删除用户
-    deleteUserInfo () {
-      this.$confirm('确定删除该员工吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteHandle();
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async deleteHandle (scope) {
-      let result = await this.$$request.post('/user/delete', {id: this.userId});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.$router.go(-1);
     },
     //课程信息列表查看合约
     async showContract (data) {
@@ -349,6 +307,15 @@ export default {
     .dimission-btn {
         right: 0;
         top: 0;
+    }
+    .detail-header {
+      margin: 40px 20px 20px;
+      .left {
+        border-right: 1px #e3e3e3 solid;
+      }
+      i {
+        color: #999;
+      }
     }
 </style>
 

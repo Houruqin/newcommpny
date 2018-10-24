@@ -4,17 +4,6 @@
 
 const StudentStatic = {
   followUp: {
-    status: [
-      // {id: -2, name: '已签约'},
-      {id: -1, name: '无效'},
-      // {id: 0, name: '未跟进'},
-      {id: 1, name: '已沟通'},
-      {id: 2, name: '邀约到访'},
-      // {id: 3, name: '已到访'},
-      {id: 4, name: '邀约试听'},
-      // {id: 5, name: '已试听'},
-      {id: 6, name: '未接通'}
-    ],
     wayId: [
       {id: 1, name: '面谈'},
       {id: 2, name: '微信'},
@@ -45,7 +34,8 @@ const StudentStatic = {
     {id: 1, name: '现金付款', icon: 'icon-xianjin', font_color: '#FFB349'},
     {id: 2, name: '支付宝付款', icon: 'icon-zhifubao', font_color: '#1AACEB'},
     {id: 3, name: '微信付款', icon: 'icon-weixinhover', font_color: '#08BB08'},
-    {id: 4, name: '银行卡付款', icon: 'icon-icon-yinhangqia2', font_color: '#1FAED4'}
+    {id: 4, name: '银行卡付款', icon: 'icon-icon-yinhangqia2', font_color: '#1FAED4'},
+    {id: 5, name: '其他', icon: 'icon-qianbaozhifumaijia', font_color: '#999'}
   ]
 };
 
@@ -192,8 +182,8 @@ const explainLists = {
   'explain_d': { title: '在校学员', text: '剩余课时不为0的签约学员' },
   'explain_e': { title: '结业学员', text: '剩余课时为0的签约学员' },
   'explain_f': { title: '流失学员', text: '剩余课时耗完以后，且明确表示不续费的结业学员' },
-  'explain_g': { title: '有班课程', text: '以班级为中心，有固定班级的课程，分为普通课程（一对多）和一对一课程两种类型' },
-  'explain_h': { title: '无班课程', text: '以学员为中心，无固定班级的课程，分为普通课程（一对多）和一对一课程两种类型，无班课程支持学员预约上课' },
+  'explain_g': { title: '有班课程', text: '以班级为中心，有固定班级的课程，分为一对多课程和一对一课程两种类型' },
+  'explain_h': { title: '无班课程', text: '以学员为中心，无固定班级的课程，分为一对多课程和一对一课程两种类型，无班课程支持学员预约上课' },
   'explain_i': { title: '签约前扣课时', text: '办理购课流程时，学员已产生课消数据（如购课时已经产生课消，则需要扣除相关课时）' },
   'explain_j': { title: '系统', text: '学员请假后老师未及时处理，上课后系统判定为“请假通过”' },
   'explain_k': { title: '已过期', text: '成功邀约试听但未试听的状态' },

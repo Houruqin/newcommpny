@@ -12,7 +12,7 @@
             </div>
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
-                    <li v-if="activeTab != 'no_advisor'">
+                    <li v-if="activeTab !== 'no_advisor'">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -24,10 +24,12 @@
                             <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li v-if="activeTab != 'no_advisor' && activeTab != 'invalid'">
+                    <li v-if="activeTab !== 'no_advisor' && activeTab !== 'invalid'">
                         <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
                             <el-option label="全部跟进" value=""></el-option>
-                            <el-option v-for="(item, index) in followUp" :key="index" :label="item.name" :value="item.id" v-if="item.id != -1"></el-option>
+                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index"
+                              :label="item.comment" :value="item.code" v-if="(activeTab !== 'following' && item.code !== -1 && item.code !== -2) || (activeTab === 'following' && item.code !== 0 && item.code !== -1 && item.code !== -2)">
+                            </el-option>
                         </el-select>
                     </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
@@ -65,12 +67,10 @@
                 </el-table-column>
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
-                        <div class="d-f f-a-c f-j-c">
-                            <span class="follow-status fs-12" :class="{'green': scope.row.follow_status === 2 || scope.row.follow_status === 3 || scope.row.follow_status === 4 || scope.row.follow_status === 5,
-                            'red': scope.row.follow_status === 1 || scope.row.follow_status === 6, 'gray': scope.row.follow_status === 0 || scope.row.follow_status === -1}">
-                                {{scope.row.follow_cn}}
-                            </span>
-                        </div>
+                        <span class="follow-status fc-5" :class="{'green': scope.row.follow_status === 9 || scope.row.follow_status === 10,
+                          'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7 || scope.row.follow_status === 1 || scope.row.follow_status === 8}">
+                          {{scope.row.follow_cn}}
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="定金金额（元）" align="center">
@@ -140,8 +140,6 @@ import AddStudentDialog from '../../components/dialog/AddStudent';
 import AddAudition from '../../components/dialog/AddAudition';
 import PayDeposit from '../../components/dialog/PayDeposit';
 import Bus from '../../script/bus';
-
-import {StudentStatic} from '../../script/static';
 import qs from 'qs';
 import config from 'config';
 
@@ -151,7 +149,7 @@ export default {
       state: 'loading',
       activeTab: 'unsign',
       isShowCheckbox: false,
-      selectedIds: [],    //批量删除学员列表
+      selectedIds: [], //批量删除学员列表
       loading: true,
       tabLists: [],
 
@@ -173,8 +171,6 @@ export default {
       searchKeyWord: '',
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
-      followUp: JSON.parse(JSON.stringify(StudentStatic.followUp.status)),
-
       dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false},
       studentType: '',
 
@@ -248,7 +244,7 @@ export default {
         return 0;
       }
 
-      this.getAllLists();
+      this.getAllLists(true);
       this.$message.success('已删除');
       if (id === 'all') {
         this.isShowCheckbox = false;
@@ -265,14 +261,7 @@ export default {
       this.selectedIds = x.map(v => v.id);
     },
     tabClick (tab) {
-      if (tab.type === 'following' && this.followUp.length == 5) {
-        this.followUp.splice(0, 1);
-      } else if (tab.type === 'unsign' && this.followUp.length == 4) {
-        this.followUp.unshift({id: 0, name: '未跟进'});
-      }
-
       this.searchKeyWord = '';
-
       if (tab.type != this.activeTab) {
         this.loading = true;
         for (let key in this.searchFilter) {
@@ -293,7 +282,7 @@ export default {
       console.log(d);
       switch (d.type) {
         case 'buyCourse':
-          this.buyCourse();
+          this.buyCourse(d.data);
           break;
         case 'audition':
           this.listStudentId = d.data.id;
@@ -328,12 +317,13 @@ export default {
       }
     },
     //购课
-    buyCourse () {
+    buyCourse (data) {
       let params = {
-        student_id: this.detail.id,
-        advisor_id: this.detail.advisor_id,
-        advisor: this.detail.advisor,
-        parent_id: this.detail.parent_id
+        student_id: data.id,
+        advisor_id: data.advisor_id,
+        advisor: data.advisor_info,
+        parent_id: data.parent_id,
+        deposit_money: data.deposit_money
       };
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
@@ -528,22 +518,14 @@ export default {
     .student-table {
         border-top: 1px #e3e3e3 solid;
         .follow-status {
-            width: 65px;
-            text-align: center;
-            height: 24px;
-            line-height: 24px;
-            border-radius: 5px;
             &.red {
-                background-color: #FFF0EA;
-                color: #aa4e2a;
+                color: #ff853c;
             }
             &.green {
-                background-color: #E4F3E8;
-                color: #347924;
+                color: #4bc584;
             }
-            &.gray {
-                background-color: #EDEDED;
-                color: #555555;
+            &.blue {
+                color: #4bb1ff;
             }
         }
         .allocation-advisor-btn {

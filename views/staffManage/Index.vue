@@ -6,6 +6,17 @@
                 <MyButton @click.native="addUser">添加员工</MyButton>
             </TableHeader>
             <div class="d-f f-a-c tab-box p-r">
+                <!-- <ul class="d-f tab-toolbar">
+                  <li v-for="(list, index) in roleLists" :key="index" :class="{'ml-20': index, 'active': list.departmentId === staffType.departmentId}">
+                    <el-dropdown trigger="click" v-if="list.role.length && list.enName !== 'master'" placement="bottom" @command="tabClick" class="role-popver-box">
+                      <span class="el-dropdown-link title cursor-pointer">{{list.cnName}}<i class="el-icon-arrow-down el-icon--right"></i></span>
+                      <el-dropdown-menu slot="dropdown" class="role-popver-box">
+                        <el-dropdown-item v-for="(item, num) in list.role" :key="num" :command="item" class="drop-item" :class="{'active': item.id === staffType.roleId && list.departmentId === staffType.departmentId}">{{item.cnName}}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                    <span v-else class="title cursor-pointer" @click="tabClick(list)" :class="{'active': list.departmentId === staffType.departmentId}">{{list.cnName}}</span>
+                  </li>
+                </ul> -->
                 <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
                     <el-tab-pane label="全部" name="all"></el-tab-pane>
                     <el-tab-pane v-for="(item, index) in $store.state.roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
@@ -16,58 +27,63 @@
                     <el-option label="离职" :value="0"></el-option>
                 </el-select>
             </div>
-            <el-table :data="staffListInfo.data" stripe v-loading="loading">
-                <el-table-column label="序号" type="index" align="center"></el-table-column>
-                <el-table-column label="员工姓名" align="center">
-                    <template slot-scope="scope">
-                        <router-link v-if="scope.row.status" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
-                        <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="手机号码" align="center">
-                    <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
-                </el-table-column>
-                <el-table-column label="任职岗位" align="center">
-                    <template slot-scope="scope">
-                        <span v-for="(type,index) in scope.row.type_all" :key="index" :class="{'list-item-gray': !scope.row.status}"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="职位性质" align="center">
-                    <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
-                </el-table-column>
-                <el-table-column label="任职状态" align="center">
-                    <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.status == 1 ? '在职' : '离职'}}</span></template>
-                </el-table-column>
-                <el-table-column label="账号状态" align="center">
-                    <template slot-scope="scope"><span>{{!scope.row.status ? '--' : scope.row.is_enable == 1 ? '正常' : '禁用'}}</span></template>
-                </el-table-column>
-                <el-table-column label="操作" align="center">
-                    <template slot-scope="scope">
-                      <div class="operable-btn-box">
-                        <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
-                        <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable" @click="modifyHandle(scope.row)">编辑</span>
-                        <span class="cursor-pointer fc-m" v-if="scope.row.operable" @click="forbidClick(scope.row)">
-                            {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
-                        </span>
-                        <span class="cursor-pointer fc-m" v-if="scope.row.leaveEnable && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
-                      </div>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination v-if="staffListInfo.total"
-                class="d-f f-j-c mt-50 mb-50"
-                :page-size="staffListInfo.per_page"
-                background layout="total, prev, pager, next"
-                :total="staffListInfo.total"
-                :current-page="parseInt(staffListInfo.current_page)"
-                @current-change="paginationClick"
-                @next-click="nextClick"
-                @prev-click="prevClick">
-            </el-pagination>
+            <div v-loading="loading">
+              <el-table :data="staffListInfo.data" stripe class="mt-20">
+                  <el-table-column label="序号" type="index" align="center"></el-table-column>
+                  <el-table-column label="员工姓名" align="center">
+                      <template slot-scope="scope">
+                          <router-link v-if="scope.row.status" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
+                          <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
+                      </template>
+                  </el-table-column>
+                  <el-table-column label="手机号码" align="center">
+                      <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
+                  </el-table-column>
+                  <el-table-column label="性别" align="center">
+                      <template slot-scope="scope">{{scope.row.sex ? '男' : '女'}}</template>
+                  </el-table-column>
+                  <el-table-column label="任职岗位" align="center">
+                      <template slot-scope="scope">
+                          <span v-for="(type,index) in scope.row.type_all" :key="index" :class="{'list-item-gray': !scope.row.status}"><span v-if="index !== 0"> | </span>{{type.type_cn}}</span>
+                      </template>
+                  </el-table-column>
+                  <el-table-column label="职位性质" align="center">
+                      <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.kind == 1 ? '全职 ' : '兼职'}}</span></template>
+                  </el-table-column>
+                  <el-table-column label="任职状态" align="center">
+                      <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.status == 1 ? '在职' : '离职'}}</span></template>
+                  </el-table-column>
+                  <el-table-column label="账号状态" align="center">
+                      <template slot-scope="scope"><span>{{!scope.row.status ? '--' : scope.row.is_enable == 1 ? '正常' : '禁用'}}</span></template>
+                  </el-table-column>
+                  <el-table-column label="操作" align="center">
+                      <template slot-scope="scope">
+                        <div class="operable-btn-box">
+                          <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
+                          <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable" @click="modifyHandle(scope.row)">编辑</span>
+                          <span class="cursor-pointer fc-m" v-if="scope.row.operable" @click="forbidClick(scope.row)">
+                              {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
+                          </span>
+                          <span class="cursor-pointer fc-m" v-if="scope.row.leaveEnable && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
+                        </div>
+                      </template>
+                  </el-table-column>
+              </el-table>
+              <el-pagination v-if="staffListInfo.total"
+                  class="d-f f-j-c mt-50 mb-50"
+                  :page-size="staffListInfo.per_page"
+                  background layout="total, prev, pager, next"
+                  :total="staffListInfo.total"
+                  :current-page="parseInt(staffListInfo.current_page)"
+                  @current-change="paginationClick"
+                  @next-click="nextClick"
+                  @prev-click="prevClick">
+              </el-pagination>
+            </div>
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog :dialogStatus="dialogStatus" :editDetail="editDetail" :type="type"
+        <AddStaffDialog v-model="dialogStatus" :editDetail="editDetail" :type="type"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </div>
@@ -83,6 +99,10 @@ export default {
   data () {
     return {
       state: 'loading',
+      // staffType: {
+      //   departmentId: 'all',
+      //   roleId: ''
+      // },
       staffType: 'all',
       staffListInfo: {},
       filterVal: '',
@@ -93,6 +113,7 @@ export default {
       currPage: false,
 
       activePage: 1,
+      roleLists: [],
 
       //所有权限列表
       authorityAllLists: [
@@ -110,9 +131,6 @@ export default {
   methods: {
     addUser () {
       this.type = 'add';
-      for (let key in this.form) {
-        this.form[key] = '';
-      }
       this.dialogStatus = true;
     },
     CB_dialogStatus () {
@@ -127,16 +145,27 @@ export default {
     filterChange () {
       this.getUserLists();
     },
-    //新增，选择角色
-    roleChange (val) {
-      this.$store.state.roleLists.forEach(v => {
-        if (v.name === val) {
-          this.form.role_id = v.id;
+    tabClick () {
+      // if (tab.departmentId === 'all') {
+      //   this.staffType.departmentId = tab.departmentId;
+      //   this.staffType.roleId = '';
+      // } else if (tab.enName === 'master') {
+      //   this.staffType.departmentId = tab.departmentId;
+      //   this.staffType.roleId = 'master';
+      // } else {
+      //   this.staffType.departmentId = tab.parent_id;
+      //   this.staffType.roleId = tab.id;
+      // }
+      this.getUserLists();
+    },
+    titleClick (list) {
+      this.roleLists.forEach(v => {
+        if (list.departmentId === v.departmentId) {
+          v.rotate = !v.rotate;
+        } else {
+          v.rotate = false;
         }
       });
-    },
-    tabClick (tab, event) {
-      this.getUserLists();
     },
     nextClick (currentPage) {
       this.currPage = true;
@@ -241,9 +270,53 @@ export default {
       this.getUserLists();
       this.$message.success('已删除');
     },
+    // 角色列表
+    // getRoleLists () {
+    //   let result = JSON.parse(JSON.stringify(this.$store.state.roleLists));
+
+    //   console.log(result);
+    //   result.forEach(v => {
+    //     if (v.enName !== 'master') {
+    //       v.role.unshift({
+    //         cnName: '全部',
+    //         enName: 'all',
+    //         id: 'all',
+    //         parent_id: v.departmentId
+    //       });
+    //     }
+    //   });
+    //   result.unshift({
+    //     cnName: '全部',
+    //     enName: 'all',
+    //     departmentId: 'all',
+    //     role: []
+    //   });
+    //   this.roleLists = result;
+    // },
     //用户列表
     async getUserLists (currentPage) {
       this.loading = true;
+      // let params = {roleList: ''};
+
+      // console.log(this.staffType)
+
+      // if (this.staffType.departmentId === 'all') {
+      //   params.roleList = 'all';
+      // } else if (this.staffType.roleId === 'all') {
+      //   this.roleLists.forEach(v => {
+      //     if (v.departmentId === this.staffType.departmentId) {
+      //       params.roleList = v.role.map(k => {
+      //         return k.id;
+      //       });
+      //       params.roleList.shift();
+      //     }
+      //   });
+      // } else if (this.staffType.roleId === 'master') {
+      //   params.roleList = [this.staffType.departmentId];
+      // } else {
+      //   params.roleList = [this.staffType.roleId];
+      // }
+
       let params = {type: this.staffType};
 
       if (currentPage) {
@@ -280,11 +353,13 @@ export default {
     }
   },
   async created () {
+    // this.$store.dispatch('getRoleLists');
     let datas = await this.getUserLists();
 
     if (datas) {
       this.state = 'loaded';
     }
+    // this.getRoleLists();
   },
   components: {TableHeader, MyButton, AddStaffDialog}
 };
@@ -295,6 +370,43 @@ export default {
         color: #c0c4cc
     }
     .tab-box {
+        // width: 100%;
+        // border-bottom: 2px #e4e7ed solid;
+        // .tab-toolbar {
+        //   li {
+        //     position: relative;
+        //     padding: 15px 0;
+        //     &.active {
+        //       &::before {
+        //         content: '';
+        //         display: block;
+        //         width: 100%;
+        //         height: 2px;
+        //         background-color: #45DAD5;
+        //         position: absolute;
+        //         left: 0;
+        //         bottom: -2px;
+        //       }
+        //       .title {
+        //         color: #45DAD5;
+        //       }
+        //     }
+        //     .title {
+        //       padding: 0 20px;
+        //       outline: none;
+        //       .el-icon-arrow-down {
+        //         -webkit-transition: transform 300ms;
+        //         transition: transform 300ms;
+        //       }
+        //       &.dropshow {
+        //         .el-icon-arrow-down {
+        //           -webkit-transform :rotate(180deg);
+        //           transform: rotate(180deg);
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
         width: 100%;
         .tab-toolbar {
             /deep/ .el-tabs__header {
@@ -312,6 +424,14 @@ export default {
             background-color: #e4e7ed;
             z-index: 1;
         }
+    }
+    .role-popver-box {
+      .drop-item {
+        padding: 0 40px 0 20px;
+        &.active {
+          color: #45DAD5;
+        }
+      }
     }
     .filter-box {
         width: 125px;

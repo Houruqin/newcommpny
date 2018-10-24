@@ -29,8 +29,8 @@
                         </el-form-item>
                         <el-form-item label="课程性质：" prop="type">
                             <el-select :disabled="courseType == 'edit'" v-model="courseForm.type" placeholder="请选择">
-                                <el-option label="普通课程" :value="1"></el-option>
-                                <el-option label="一对一课程" :value="2"></el-option>
+                                <el-option label="一对多" :value="1"></el-option>
+                                <el-option label="一对一" :value="2"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -59,7 +59,7 @@ export default {
   },
   components: {MyButton},
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       this.courseDialogStatus = newVal;
       if (this.courseDialogStatus) {
         this.courseForm.expire = 12; //有效期默认12月
@@ -68,17 +68,17 @@ export default {
         this.courseForm.is_order = this.courseMode == 1 ? 0 : 1;
       }
     },
-    type (newVal, oldVal) {
+    type (newVal) {
       console.log(newVal);
       this.courseType = newVal;
     },
-    editDetail (newVal, oldVal) {
+    editDetail (newVal) {
       console.log(newVal);
       if (!Object.keys(newVal).length) {
         return 0;
       }
       for (let key in this.courseForm) {
-        if (key == 'order_teacher_ids') {
+        if (key === 'order_teacher_ids') {
           this.courseForm[key] = newVal[key].substring(1, newVal[key].length - 1).split(',').map(v => {
             return +v;
           });

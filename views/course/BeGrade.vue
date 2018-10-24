@@ -5,130 +5,132 @@
             <TableHeader title="有班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
-            <div class="course-list-box mt-20" v-for="(course, index) in courseLists" :key="index">
-                <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
-                    <div class="d-f f-a-c">
-                        <span class="fc-7 fs-16 d-f f-a-c">
-                            <i class="fc-5">{{course.name}}</i>
-                            <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
-                        </span>
-                        <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
-                        <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
-                    </div>
-                    <div class="d-f f-a-c">
-                        <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
-                            <img src="../../images/common/add.png" alt="">
-                            <i class="pl-10">添加班级</i>
-                        </span>
+            <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
+                <el-tab-pane label="一对多" name="1"></el-tab-pane>
+                <el-tab-pane label="一对一" name="2"></el-tab-pane>
+            </el-tabs>
+            <div v-loading="loading">
+              <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
+                  <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
+                      <div class="d-f f-a-c">
+                          <span class="fc-7 fs-16 d-f f-a-c">
+                              <i class="fc-5">{{course.name}}</i>
+                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
+                          </span>
+                          <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
+                      </div>
+                      <div class="d-f f-a-c">
+                          <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
+                              <img src="../../images/common/add.png" alt="">
+                              <i class="pl-10">添加班级</i>
+                          </span>
 
-                        <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
-                            <i class="iconfont icon-zhankai"></i>
-                        </span>
-                    </div>
-                </div>
+                          <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
+                              <i class="iconfont icon-zhankai"></i>
+                          </span>
+                      </div>
+                  </div>
 
-                <div class="grade-table-box" :ref="'grade-table-content_' + index">
-                    <div class="grade-table-content">
-                        <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" strip>
-                            <el-table-column label="序号" type="index" align="center"></el-table-column>
-                            <el-table-column label="班级" align="center">
-                                <template slot-scope="scope">
-                                    <router-link :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="开课日期" align="center">
-                                <template slot-scope="scope">
-                                    <span>{{scope.row.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? '' : $$tools.format(scope.row.start_time)}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="任课老师/辅助老师" align="center">
-                                <template slot-scope="scope">
-                                    <span>{{scope.row.teacher_lists.length ? scope.row.teacher_lists[0].name : ''}}<i v-if="scope.row.counselor_lists.length">/</i>{{scope.row.counselor_lists.length ? scope.row.counselor_lists[0].name : ''}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="上课学员" align="center">
-                                <template slot-scope="scope">
-                                    <div v-if="course.type === 2">{{scope.row.student.length}}</div>
-                                    <div v-else class="d-f f-a-c f-j-c">
-                                        <el-popover v-if="scope.row.student.length > scope.row.limit_num" popper-class="grade-student-popver" placement="right" width="325" trigger="hover" content="该班级人数已经超过最大上限，请给多余学员另外分班！">
-                                            <div slot="reference" class="cursor-pointer">
-                                              <span class="fc-r">{{scope.row.student.length}}/{{scope.row.limit_num}}</span>
-                                              <i class="iconfont icon-zhuyidapx fc-r"></i>
-                                            </div>
-                                        </el-popover>
-                                        <div v-else :class="scope.row.student.length < scope.row.limit_num ? 'fc-5' : 'fc-m'">{{scope.row.student.length}}/{{scope.row.limit_num}}</div>
-                                    </div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="剩余课时" align="center">
-                                <template slot-scope="scope">{{course.type === 1 ? scope.row.lesson_num_remain : '--'}}</template>
-                            </el-table-column>
-                            <el-table-column label="上课状态" align="center">
-                                <template slot-scope="scope">
-                                    <div class="fc-f fs-12 course-status">
-                                        <div class="d-f f-a-c f-j-c">
-                                            <span :class="{'green': scope.row.gradeStatus.id === 'yes', 'red': scope.row.gradeStatus.id === 'no', 'gray': scope.row.gradeStatus.id === 'stop'}">
-                                                {{scope.row.gradeStatus.name}}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="操作" align="center">
-                                <template slot-scope="scope">
-                                    <span class="cursor-pointer" :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
-                                    <span class="fc-m ml-10 cursor-pointer" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
-                                    <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
-                                        <!-- <a class="unfold-icon cursor-pointer el-dropdown-link">
-                                            <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
-                                        </a> -->
-                                        <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
-                                        <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                            <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
-                                                <!--未开课-->
-                                                <template v-if="scope.row.begin_status == 0">
-                                                    <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'">
-                                                        <i class="iconfont" :class="item.icon"></i>
-                                                        <span>{{item.text}}</span>
-                                                    </div>
-                                                </template>
-                                                <!--已开课-->
-                                                <template v-else>
-                                                    <!--停课-->
-                                                    <template v-if="scope.row.status == -3">
-                                                        <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'edit' || item.type == 'delete'">
-                                                            <i class="iconfont" :class="item.icon"></i>
-                                                            <span>{{item.text}}</span>
-                                                        </div>
-                                                    </template>
+                  <div class="grade-table-box" :ref="'grade-table-content_' + index">
+                      <div class="grade-table-content">
+                          <el-table :data="course.class_lists" v-if="course.class_lists.length" cell-class-name="class-list-cell" strip>
+                              <el-table-column label="序号" type="index" align="center"></el-table-column>
+                              <el-table-column label="班级" align="center">
+                                  <template slot-scope="scope">
+                                      <router-link :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                                  </template>
+                              </el-table-column>
+                              <el-table-column label="开课日期" align="center">
+                                  <template slot-scope="scope">
+                                      <span>{{scope.row.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? '' : $$tools.format(scope.row.start_time)}}</span>
+                                  </template>
+                              </el-table-column>
+                              <el-table-column label="任课老师/辅助老师" align="center">
+                                  <template slot-scope="scope">
+                                      <span>{{scope.row.teacher_lists.length ? scope.row.teacher_lists[0].name : ''}}<i v-if="scope.row.counselor_lists.length">/</i>{{scope.row.counselor_lists.length ? scope.row.counselor_lists[0].name : ''}}</span>
+                                  </template>
+                              </el-table-column>
+                              <el-table-column label="上课学员" align="center">
+                                  <template slot-scope="scope">
+                                      <div v-if="course.type === 2">{{scope.row.student.length}}</div>
+                                      <div v-else class="d-f f-a-c f-j-c">
+                                          <el-popover v-if="scope.row.student.length > scope.row.limit_num" popper-class="grade-student-popver" placement="right" width="325" trigger="hover" content="该班级人数已经超过最大上限，请给多余学员另外分班！">
+                                              <div slot="reference" class="cursor-pointer">
+                                                <span class="fc-r">{{scope.row.student.length}}/{{scope.row.limit_num}}</span>
+                                                <i class="iconfont icon-zhuyidapx fc-r"></i>
+                                              </div>
+                                          </el-popover>
+                                          <div v-else :class="scope.row.student.length < scope.row.limit_num ? 'fc-5' : 'fc-m'">{{scope.row.student.length}}/{{scope.row.limit_num}}</div>
+                                      </div>
+                                  </template>
+                              </el-table-column>
+                              <el-table-column label="剩余课时" align="center">
+                                  <template slot-scope="scope">{{course.type === 1 ? scope.row.lesson_num_remain : '--'}}</template>
+                              </el-table-column>
+                              <el-table-column label="上课状态" align="center">
+                                  <template slot-scope="scope">
+                                      <div class="fc-f fs-12 course-status">
+                                          <div class="d-f f-a-c f-j-c">
+                                              <span :class="{'green': scope.row.gradeStatus.id === 'yes', 'red': scope.row.gradeStatus.id === 'no', 'gray': scope.row.gradeStatus.id === 'stop'}">
+                                                  {{scope.row.gradeStatus.name}}
+                                              </span>
+                                          </div>
+                                      </div>
+                                  </template>
+                              </el-table-column>
+                              <el-table-column label="操作" align="center">
+                                  <template slot-scope="scope">
+                                      <span class="cursor-pointer" :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
+                                      <span class="fc-m ml-10 cursor-pointer" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
+                                      <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                                          <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                                          <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                              <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
+                                                  <!--未开课-->
+                                                  <template v-if="scope.row.begin_status == 0">
+                                                      <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'">
+                                                          <i class="iconfont" :class="item.icon"></i>
+                                                          <span>{{item.text}}</span>
+                                                      </div>
+                                                  </template>
+                                                  <!--已开课-->
+                                                  <template v-else>
+                                                      <!--停课-->
+                                                      <template v-if="scope.row.status == -3">
+                                                          <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'edit' || item.type == 'delete'">
+                                                              <i class="iconfont" :class="item.icon"></i>
+                                                              <span>{{item.text}}</span>
+                                                          </div>
+                                                      </template>
 
-                                                    <!--结课-->
-                                                    <template v-else-if="scope.row.status == -2">
-                                                        <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'"
-                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                            <i class="iconfont" :class="item.icon"></i>
-                                                            <span>{{item.text}}</span>
-                                                        </div>
-                                                    </template>
+                                                      <!--结课-->
+                                                      <template v-else-if="scope.row.status == -2">
+                                                          <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'"
+                                                              :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
+                                                              <i class="iconfont" :class="item.icon"></i>
+                                                              <span>{{item.text}}</span>
+                                                          </div>
+                                                      </template>
 
-                                                    <!--正常开课-->
-                                                    <template v-else>
-                                                        <div class="d-f f-j-b" v-if="item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
-                                                            :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                            <i class="iconfont" :class="item.icon"></i>
-                                                            <span>{{item.text}}</span>
-                                                        </div>
-                                                    </template>
-                                                </template>
-                                            </el-dropdown-item>
-                                        </el-dropdown-menu>
-                                    </el-dropdown>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </div>
-                <div v-if="!courseLists.length" class="d-f f-a-c f-j-c fc-7 course-lits-nothing"><span>暂无数据</span></div>
+                                                      <!--正常开课-->
+                                                      <template v-else>
+                                                          <div class="d-f f-j-b" v-if="item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
+                                                              :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
+                                                              <i class="iconfont" :class="item.icon"></i>
+                                                              <span>{{item.text}}</span>
+                                                          </div>
+                                                      </template>
+                                                  </template>
+                                              </el-dropdown-item>
+                                          </el-dropdown-menu>
+                                      </el-dropdown>
+                                  </template>
+                              </el-table-column>
+                          </el-table>
+                      </div>
+                  </div>
+                  <div v-if="!courseLists.length" class="d-f f-a-c f-j-c fc-7 course-lits-nothing"><span>暂无数据</span></div>
+              </div>
             </div>
         </el-card>
         <!-- 添加、修改课程弹窗 -->
@@ -139,202 +141,12 @@
         <!-- 添加/修改班级弹窗 -->
         <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" @CB-addGrade="CB_addGrade" :editDetail="editGradeDetail" :type="gradeType"></AddGradeDialog>
 
-        <!-- 排课弹窗 -->
-        <el-dialog title="批量排课" width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
-            <el-form label-width="120px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="排课班级：" >{{timetableForm.class_name}}</el-form-item>
-
-                            <el-form-item label="开课日期：" prop="start_time">
-                                <el-date-picker v-model="timetableForm.start_time" @change="startTimeChange" type="date" :editable="false" :picker-options="pickerBeginDateAfter" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                            </el-form-item>
-
-                            <el-form-item label="上课老师：" prop="teacher_ids">
-                                <el-select placeholder="请选择" v-model="timetableForm.teacher_ids" @change="$refs.addTimeTable.validateField('counselor_ids')">
-                                    <el-option v-for="(item, index) in classSelectInfo.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="上课教室：" prop="room_id">
-                                <el-select placeholder="请选择"  v-model="timetableForm.room_id" multiple>
-                                    <el-option v-for="(item, index) in classSelectInfo.room" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="重复规则：" prop="loop" v-if="courseType !== 1" key="loop2">
-                                <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
-                                    <el-option label="无" value="no"></el-option>
-                                    <el-option label="按周循环" value="yes"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="课程属性：">
-                                <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
-                                <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
-                                <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
-                            </el-form-item>
-
-                            <el-form-item label="扣课时数：" prop="lesson_num">
-                                <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-
-                            <el-form-item label="辅助老师：" prop="counselor_ids">
-                                <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
-                                    <el-option v-for="(item, index) in classSelectInfo.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="重复规则：" prop="loop" v-if="courseType === 1" key="loop1">
-                                <el-select placeholder="请选择" v-model="timetableForm.loop" @change="timetableForm.loop_time = 1">
-                                    <el-option label="无" value="no"></el-option>
-                                    <el-option label="按周循环" value="yes"></el-option>
-                                </el-select>
-                            </el-form-item>
-
-                            <el-form-item label="上课学员：" class="addtimetable-student" v-if="courseType !== 1" key="students">
-                                <div class="d-f">
-                                    <div class="d-f">
-                                        <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
-                                            {{addStudentBtnChange()}}
-                                        </MyButton>
-                                    </div>
-                                    <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== ''">学员未排课时：{{timetableForm.no_timetable}}</span>
-                                </div>
-                            </el-form-item>
-
-                            <el-form-item label="排课次数：" prop="loop_time" v-if="courseType !== 1" key="loop_time">
-                                <el-input-number :disabled="timetableForm.loop == 'no'" v-model="timetableForm.loop_time" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">次</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
-
-                    <el-row>
-                        <el-col :span="12">
-                            <el-row class="add-date-box d-f">
-                                <el-col class="title p-r is-required">上课时间：</el-col>
-                                <el-col class="flex1">
-                                    <div class="list">
-                                        <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
-                                            <el-row class="p-r">
-                                                <el-col :span="8">
-                                                    <el-form-item label-width="0" prop="week">
-                                                        <el-select placeholder="某天" v-model="addDate.week" @change="formWeekChange">
-                                                            <el-option v-for="(item, index) in weekList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                                        </el-select>
-                                                    </el-form-item>
-                                                </el-col>
-
-                                                <el-col :span="12" class="p-r" :offset="1">
-                                                    <el-form-item  label-width="0" prop="begin_time" class="p-r">
-                                                        <el-time-select
-                                                            :editable="false"
-                                                            v-model="addDate.begin_time"
-                                                            :picker-options="timePicker"
-                                                            placeholder="时间">
-                                                        </el-time-select>
-                                                    </el-form-item>
-                                                </el-col>
-
-                                                <el-col :span="2" v-if="formAddDate.length > 1" class="p-r delete-time ml-5" @click.native="deleteDateHandle(num)"><i class="el-tag__close el-icon-close"></i></el-col>
-                                            </el-row>
-                                        </el-form>
-                                    </div>
-                                    <div class="d-f mt-10"><MyButton type="border" fontColor="fc-m"  @click.native="addDateHandle">添加时间</MyButton></div>
-                                </el-col>
-                            </el-row>
-                        </el-col>
-
-                        <el-col :span="11" class="d-f f-a-s addtimetable-student" v-if="courseType === 1">
-                            <div class="label"><span>上课学员：</span></div>
-                            <div class="flex1">
-                                <ul v-if="courseType === 1 && checkStudentForm.length" class="d-f f-w-w">
-                                    <li v-for="(item, index) in checkStudentForm" :key="index" class="mb-10 ml-10">
-                                        <span>{{getStudentName(item)}}</span>
-                                    </li>
-                                </ul>
-                                <div class="d-f mb-5" :class="{'mt-5': checkStudentForm.length}">
-                                    <MyButton type="border" fontColor="fc-m" @click.native="addStudentClick">
-                                        {{addStudentBtnChange()}}
-                                    </MyButton>
-                                </div>
-                            </div>
-                        </el-col>
-                    </el-row>
-                </div>
-
-                <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="addTimeTableDone" :loading="submitLoading.timetable">确定</MyButton>
-                </div>
-            </el-form>
-
-            <el-dialog :title="courseType === 1 ? '选择普通上课学员' : '选择一对一上课学员'" width="670px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
-                <div class="form-box">
-                    <template v-if="courseType === 1">
-                        <el-checkbox v-model="timetable_studentCheckAll" @change="timetable_studentCheckAllChange" class="pl-20">全选</el-checkbox>
-                        <el-checkbox-group v-model="timetable_studentLists" @change="timetable_studentCheckChange" v-if="allStudentLists.length" class="time-table-student-check pl-20 pr-20 mt-10">
-                            <el-checkbox v-for="(item, index) in allStudentLists" :label="item.student_id" :key="index" :disabled="item.disabled">{{item.student_name}}</el-checkbox>
-                        </el-checkbox-group>
-                    </template>
-                    <el-radio-group v-model="studentRadio" class="time-table-student-check pl-20 pr-20" v-else>
-                        <el-radio v-for="(item, index) in allStudentLists" :disabled="item.disabled" :key="index" :label="item.student_id">{{item.student_name}}</el-radio>
-                    </el-radio-group>
-
-                    <div class="d-f f-j-c mt-30"><MyButton @click.native="checkStudentDone">确定</MyButton></div>
-                </div>
-            </el-dialog>
-        </el-dialog>
-
-        <!-- 冲突弹窗 -->
-        <el-dialog width="1020px" center :visible.sync="dialogStatus.conflict" :close-on-click-modal="false">
-            <div class="conflict-box">
-                <h3>排课冲突提醒</h3>
-                <p class="mb-20">班级：{{timetableForm.class_name}}</p>
-
-                <el-table class="student-table" border :data="conflictLists" height="400" header-row-class-name="row-header">
-                    <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
-                    <el-table-column label="上课日期">
-                        <template slot-scope="scope">
-                            <el-date-picker type="date" :editable="false" :clearable="false" value-format="timestamp" v-model="scope.row.begin_time"></el-date-picker>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="开始时间">
-                        <template slot-scope="scope">
-                            <el-time-select :picker-options="timePicker" :editable="false" :clearable="false" v-model="scope.row.begin_hours"></el-time-select>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="冲突教室">
-                        <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" multiple>
-                                <el-option v-for="(item, index) in classSelectInfo.room" :key="index" :label="item.name" :value="item.id" ></el-option>
-                            </el-select>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="冲突学员">
-                        <template slot-scope="scope">
-                            <span v-if="scope.row.conflict_data.reason == 3">
-                                <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
-                            </span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="解决建议">
-                        <template slot-scope="scope">{{conflictType[`reason${scope.row.conflict_data.reason}`]}}</template>
-                    </el-table-column>
-                </el-table>
-
-                <div class="d-f f-j-c mt-30">
-                    <MyButton type="gray" @click.native="dialogStatus.conflict = false">返回编辑</MyButton>
-                    <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
-                </div>
-            </div>
-        </el-dialog>
-
         <!-- 课程大纲 -->
         <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams"/>
+
+        <!-- 添加排课 -->
+        <AddTimeTable :tableType="addTableType" v-model="dialogStatus.timetable" @CB-popverClose="CB_popverClose" :parentData="timetableDetail"
+        @CB-timetableSuccess="CB_timetableSuccess" parentPage="course"></AddTimeTable>
     </div>
 </template>
 
@@ -342,35 +154,33 @@
 
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
-import {courseStatic, timePicker} from '../../script/static';
+import {courseStatic} from '../../script/static';
 import AddCourseDialog from '../../components/dialog/AddCourse';
 import AddGradeDialog from '../../components/dialog/AddGrade';
 import CourseSyllabus from '../../components/dialog/CourseSyllabus';
-import Bus from '../../script/bus';
-import Vue from 'vue';
-import jquery from 'jquery';
-
+import AddTimeTable from '../../components/dialog/AddTimeTable';
 
 export default {
+  components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus, AddTimeTable},
   data () {
     return {
       state: 'loading',
+      loading: false,
       submitLoading: {
         grade: false, timetable: false
       },
+      oldTab: '1',
+      activeTab: '1',
       conflictType: {
         reason1: '老师冲突 请修改时间',
         reason2: '教室冲突 请修改时间或教室',
         reason3: '学员冲突 请修改时间'
       },
       courseLists: [],
+      addTableType: '',
+      timetableDetail: {},
 
       syllabusParams: {},
-
-      conflictLists: [], //冲突列表
-      conflict_room: [],
-
-      other_lists: [], //正常排课列表
 
       dialogStatus: {timetable: false, conflict: false, course: false, grade: false, syllabusDetail: false, syllabus: false},
       addStudentDialog: false,
@@ -378,51 +188,9 @@ export default {
       gradeType: '',
       editCourseDetail: {},
       editGradeDetail: {},
-
-      classSelectInfo: {},
       classEdit: false,
       courseOperate: '', //添加课程/编辑课程
-
-      courseType: 1, //课程类型  普通课程、一对一课程
-
-      allStudentLists: [], //所有学员列表    编辑是，等于班级学员+未分班学员
-      studentCheckAll: false, //添加班级，学员全选状态
-
-
-      timetable_studentCheckAll: false, //添加排课，学员全选状态
-
-      studentLists: [], //添加班级，选择的学员列表
-
-      checkStudentForm: [], //批量排课,需要在form展示的值
-      radioStudentForm: '', //一对一排课选中的学员,需要在form展示的值
-
-      studentRadio: '', //一对一排课,选择学员弹窗，radio暂时选中的值
-      timetable_studentLists: [], //添加排课，选择学员弹窗checkbox暂时选中的值
-
       operationLists: courseStatic.classRoomStatus,
-      timePicker: timePicker,
-      weekList: [
-        {id: 1, name: '周一', day: {}},
-        {id: 2, name: '周二', day: {}},
-        {id: 3, name: '周三', day: {}},
-        {id: 4, name: '周四', day: {}},
-        {id: 5, name: '周五', day: {}}, {id: 6, name: '周六', day: {}}, {id: 0, name: '周日', day: {}}
-      ],
-      timetableForm: {
-        no_timetable: '', //未排课时
-        course_id: '',
-        grade_id: '',
-        class_name: '',
-        start_time: '',
-        lesson_time: '',
-        lesson_num: '',
-        teacher_ids: '',
-        counselor_ids: '',
-        room_id: [],
-        loop: 'no',
-        loop_time: ''
-      },
-      formAddDate: [],
       timeRules: {
         begin_time: [
           {required: true, message: '请选择起始时间', trigger: 'change'}
@@ -448,34 +216,6 @@ export default {
         lesson_time: [
           {required: true, message: '请输入课节时长'}
         ]
-      },
-      timetableRules: {
-        room_id: [
-          {required: true, message: '请选择教室', trigger: 'change'}
-        ],
-        teacher_ids: [
-          {required: true, message: '请选择任课老师', trigger: 'change'},
-          {validator: this.teacherValidator('teacher')}
-        ],
-        counselor_ids: [
-          {validator: this.teacherValidator('counselor')}
-        ],
-        lesson_num: [
-          {required: true, message: '请输入课时数'}
-        ],
-        loop: [],
-        loop_time: [
-          {required: true, message: '请输入排课次数'}
-        ],
-        start_time: [
-          {required: true, message: '请输入开课时间', trigger: 'change'}
-        ]
-      },
-      disableStartTime: new Date().setHours(0, 0, 0, 0),
-      pickerBeginDateAfter: {
-        disabledDate: (time) => {
-          return time.getTime() < this.disableStartTime;
-        }
       }
     };
   },
@@ -483,26 +223,23 @@ export default {
     //弹出框关闭事件
     dialogClose (type) {
       this.$refs[type].resetFields();
-      Object.keys(this.timetableForm).forEach(v => {
-        if (v == 'room_id') {
-          this.timetableForm[v] = [];
-        } else if (v == 'loop') {
-          this.timetableForm[v] = 'no';
-        } else {
-          this.timetableForm[v] = '';
-        }
+    },
+    CB_popverClose () {
+      this.addTableType = '';
+      this.timetableDetail = {};
+    },
+    CB_timetableSuccess () {
+      this.getCourseLists();
+    },
+    tabClick (item) {
+      if (this.oldTab === item.name) {
+        return 0;
+      }
+      this.oldTab = item.name;
+      this.courseLists.forEach((v, num) => {
+        this.$refs[`grade-table-content_${num}`][0].style.height = 0;
       });
-
-      this.formAddDate.splice(0, this.formAddDate.length);
-      this.timetable_studentCheckAll = false;
-
-      this.studentRadio = '';
-      this.timetable_studentLists = [];
-
-      this.checkStudentForm = [];
-      this.radioStudentForm = '';
-
-      this.allStudentLists = [];
+      this.getCourseLists();
     },
     //课程大纲 点击
     async syllabusClick (id) {
@@ -516,7 +253,7 @@ export default {
       this.dialogStatus.syllabus = true;
     },
     listHeaderClick (course, index) {
-      let dom = this.$refs[`grade-table-content_${ index}`][0];
+      let dom = this.$refs[`grade-table-content_${index}`][0];
       let child = dom.firstChild;
 
       if (!course.collapse) {
@@ -540,29 +277,16 @@ export default {
 
       return result;
     },
-    //任课老师、辅助老师不能重复验证
-    teacherValidator (type) {
-      return (rule, value, callback) => {
-        if (type === 'teacher' && value == this.timetableForm.counselor_ids) {
-          return callback(new Error('任课老师不能和辅助老师相同'));
-        } else if(type === 'counselor' && value == this.timetableForm.teacher_ids) {
-          return callback(new Error('辅助老师不能和任课老师相同'));
-        }
-
-        return callback();
-      };
-    },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'add_course') {
+      if (type === 'add_course') {
         this.editCourseDetail = {};
         this.dialogStatus.course = false;
         this.courseOperate = '';
 
         return 0;
       }
-
-      if (type == 'grade') {
+      if (type === 'grade') {
         this.editGradeDetail = {};
         this.dialogStatus.grade = false;
 
@@ -576,94 +300,6 @@ export default {
     CB_addCourse (course_id) {
       this.getCourseLists(course_id);
       this.dialogStatus.course = false;
-    },
-    //创建班级学员checkbox，全选
-    studentCheckAllChange (val) {
-      this.studentLists = val ? this.allStudentLists : [];
-    },
-    //排课学员checkbox，全选
-    timetable_studentCheckAllChange (val) {
-      this.timetable_studentLists.splice(0, this.timetable_studentLists.length);
-      if (val) {
-        this.allStudentLists.forEach(v => {if (!v.disabled) this.timetable_studentLists.push(v.student_id)});
-      }
-    },
-    //学员checkbox，多选
-    studentCheckChange (val) {
-      let checkedCount = val.length;
-
-      this.studentCheckAll = checkedCount === this.allStudentLists.length;
-    },
-    timetable_studentCheckChange (val) {
-      let checkedCount = val.length;
-
-      this.timetable_studentCheckAll = checkedCount === this.allStudentLists.filter(f => {return !f.disabled}).length;
-    },
-
-    //排课弹窗通过选中的student_id获取student_name
-    getStudentName (student_id) {
-      let name = '';
-
-      this.allStudentLists.forEach(v => {
-        if (student_id == v.student_id) {
-          name = v.student_name;
-        }
-      });
-
-      return name;
-    },
-    //排课选择学员按钮点击
-    addStudentClick () {
-      if (!this.allStudentLists.length) {
-        return this.$message.warning('暂无可选择学员');
-      }
-      this.addStudentDialog = true;
-
-      if (this.courseType === 1) {
-        this.timetable_studentLists = this.checkStudentForm;
-        // this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.length;
-        this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.filter(f => {return (f.buy_lesson_num - f.scheduled)}).length;
-      } else {
-        this.studentRadio = this.radioStudentForm;
-      }
-    },
-    //选学员按钮判断变化
-    addStudentBtnChange () {
-      let text = '';
-
-      if (this.courseType === 1) {
-        text = this.checkStudentForm.length ? '重新选择' : '选择学员';
-      } else {
-        text = this.radioStudentForm ? this.getStudentName(this.radioStudentForm) : '选择学员';
-      }
-
-      return text;
-    },
-    //排课选择学员弹窗，确定按钮点击
-    checkStudentDone () {
-      if (this.courseType === 1) {
-        this.checkStudentForm = this.timetable_studentLists;
-      } else {
-        this.radioStudentForm = this.studentRadio;
-        this.allStudentLists.forEach(v =>{
-          if (v.student_id == this.studentRadio) {
-            this.timetableForm.no_timetable = v.buy_lesson_num - v.scheduled;
-          }
-        });
-      }
-      this.addStudentDialog = false;
-
-    },
-    //排课，开课日期改变
-    startTimeChange (val) {
-      this.getWeek(val);
-    },
-    //批量排课，新增多个时间段
-    addDateHandle () {
-      this.formAddDate.push({begin_time: '', end_time: '', week: ''});
-    },
-    deleteDateHandle (index) {
-      this.formAddDate.splice(index, 1);
     },
     //新增课程
     addCourse () {
@@ -717,247 +353,26 @@ export default {
     //新增排课  type: single / multiple
     addTimetable (option) {
       console.log(option);
-      this.courseType = option.course_info.type;
-
-      if (option.course_info.type === 1 && !option.grade_info.unscheduled) {
-        return this.$message.warning('该班级排课已满，不能添加排课，可选择编辑班级添加学员或班级信息，或到排课管理，修改指定排课!');
-      }
-
-      this.formAddDate.splice(0, this.formAddDate.length, {begin_time: '', end_time: '', week: ''});
-
-      if (this.courseType == 1) {
-        this.timetableForm.no_timetable = option.grade_info.unscheduled;
-      }
-      this.getGradeFill(option.grade_info.course_id, option.grade_info.id);
-
-      this.timetableForm.loop_time = 1;
-      this.timetableForm.class_name = `${option.course_info.name}/${option.grade_info.name}`;
-      this.timetableForm.lesson_time = option.course_info.lesson_time;
-      this.timetableForm.teacher_ids = option.grade_info.teacher_lists.length ? option.grade_info.teacher_lists[0].id : ''; //任课老师
-      this.timetableForm.counselor_ids = option.grade_info.counselor_lists.length ? option.grade_info.counselor_lists[0].id : ''; //辅助老师
-      this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, option.grade_info.room_id); //上课教室
-      this.timetableForm.course_id = option.grade_info.course_id;
-      this.timetableForm.grade_id = option.grade_info.id;
-
-      if (option.grade_info.start_time * 1000 > new Date().setHours(0, 0, 0, 0)) {
-        //若开课时间大于五年 则显示当前日期
-        this.timetableForm.start_time = option.grade_info.start_time * 1000 - new Date().getTime() > 5 * 360 * 24 * 60 * 60 * 1000 ? new Date().setHours(0, 0, 0, 0) : option.grade_info.start_time * 1000;
-
-        this.getWeek(this.timetableForm.start_time);
-        this.disableStartTime = this.timetableForm.start_time;
-      } else {
-        this.timetableForm.start_time = new Date().setHours(0, 0, 0, 0);
-      }
-
+      this.timetableDetail = {
+        course_info: {
+          type: option.course_info.type,
+          name: option.course_info.name,
+          lesson_time: option.course_info.lesson_time
+        },
+        grade_info: option.grade_info
+      };
+      this.addTableType = 'multiple';
       this.dialogStatus.timetable = true;
     },
-    //排课弹窗，选择一周某一天
-    formWeekChange (val) {
-      this.timePicker.minTime = 0;
-    },
-    //新增排课确定
-    addTimeTableDone () {
-      let a, b;
-
-      this.$refs.addTimeTable.validate(valid => {
-        a = valid ? true : false;
-      });
-      for (let i = 0, len = this.$refs.addDateForm.length; i < len; i++) {
-        this.$refs.addDateForm[i].validate(valid => {
-          b = valid ? true : false;
-        });
-      }
-      if (a && b) {
-        this.addTimeTableParams();
-      }
-    },
-    //排课参数整理
-    addTimeTableParams () {
-      if (this.courseType !== 1 && !this.radioStudentForm) {
-        return this.$message.warning('请选择学员！');
-      }
-
-      let params = {
-        commit_type: 'multiple',
-        loop: this.timetableForm.loop,
-        room_id: this.timetableForm.room_id,
-        course_id: this.timetableForm.course_id,
-        grade_id: this.timetableForm.grade_id,
-        lesson_num: this.timetableForm.lesson_num,
-        teacher_ids: `,${this.timetableForm.teacher_ids},`,
-        counselor_ids: `,${this.timetableForm.counselor_ids},`,
-        loop_time: this.timetableForm.loop_time,
-        student_lists: this.courseType === 1 ? this.checkStudentForm.map(v => {
-          return {student_id: v};
-        }) : [{student_id: this.radioStudentForm}]
-      };
-
-      let time_lists = this.formAddDate.map(d => {
-        let begin_time, end_time;
-
-        this.weekList.forEach(v => {
-          let default_begin_time = new Date(`${v.day.newFullDay} ${d.begin_time}`).getTime() / 1000;
-          let default_end_time = default_begin_time + this.timetableForm.lesson_time * 60;
-          let later_begin_time = default_begin_time + 604800;
-          let later_end_time = default_end_time + 604800;
-
-          if (d.week == v.id) {
-            if (new Date().getTime() / 1000 > default_begin_time) {
-              begin_time = later_begin_time;
-              end_time = later_end_time;
-            } else if (new Date(this.timetableForm.start_time).getDay() == 0) { //周日
-              begin_time = d.week != 0 ? later_begin_time : default_begin_time;
-              end_time = d.week != 0 ? later_end_time : default_end_time;
-            } else if (d.week == 0) {
-              begin_time = default_begin_time;
-              end_time = default_end_time;
-            } else {
-              begin_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_begin_time : default_begin_time;
-              end_time = d.week < new Date(this.timetableForm.start_time).getDay() ? later_end_time : default_end_time;
-            }
-          }
-        });
-
-        return {begin_time: begin_time, end_time: end_time};
-      });
-
-      params.time_lists = time_lists;
-
-      console.log(params);
-      this.getConflictLists(params);
-    },
-    //判断当前开课日期是不是本周
-    isSameWeek (old) {
-      let oneDayTime = 1000 * 60 * 60 * 24;
-      let old_count = parseInt(old / oneDayTime);
-      let now_other = parseInt(new Date().getTime() / oneDayTime);
-
-
-      return parseInt((old_count + 4) / 7) == parseInt((now_other + 4) / 7);
-    },
     //批量排课，根据开课日期，重新循环获取周数据
-    getNewWeekLists (nowTime, num) {
-      let day = new Date(nowTime).getDay();
-      let oneDayLong = 24 * 60 * 60 * 1000;
-      let newTime = num == 0 ? nowTime + (7 - day) * oneDayLong : nowTime - (day - num) * oneDayLong;
+    // getNewWeekLists (nowTime, num) {
+    //   let day = new Date(nowTime).getDay();
+    //   let oneDayLong = 24 * 60 * 60 * 1000;
+    //   let newTime = num == 0 ? nowTime + (7 - day) * oneDayLong : nowTime - (day - num) * oneDayLong;
+    //   let newFullDay = this.$$tools.format(newTime / 1000).replace(/\-/g, '/');
 
-      let newFullDay = this.$$tools.format(newTime / 1000).replace(/\-/g, '/');
-
-
-      return newFullDay || 0;
-    },
-    //冲突页面确定修改
-    doneModify () {
-      let lists = this.conflictLists.map(v => {
-        let item = {};
-
-        for (let key in v) {
-          if (key != 'begin_hours' && key != 'conflict_data') {
-            if (key == 'begin_time') {
-              item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, '/')} ${v.begin_hours}`).getTime() / 1000;
-            } else if (key == 'end_time') {
-              item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
-            } else if (key == 'room_id') {
-              item[key] = this.conflict_room.length ? this.conflict_room : this.timetableForm.room_id;
-            } else {
-              item[key] = v[key];
-            }
-          }
-        }
-
-        return item;
-      });
-
-      lists = lists.concat(this.other_lists);
-
-      let params = {lists: lists, commit_type: 'conflict'};
-
-      console.log(params);
-      this.getConflictLists(params);
-    },
-    //检测是否有冲突，获取冲突数据列表
-    async getConflictLists (params) {
-      if (this.submitLoading.timetable) {
-        return 0;
-      }
-      this.submitLoading.timetable = true;
-
-      let result = await this.$$request.post('/timetable/conflictLists', params);
-
-      this.submitLoading.timetable = false;
-      console.log(result);
-
-      if (!result || result.status === 0) {
-        return 0;
-      }
-
-      if (result.status === 1) {
-        this.getCourseLists();
-        this.$message.success('添加排课成功');
-        this.dialogStatus.timetable = false;
-        this.dialogStatus.conflict = false;
-        this.conflict_room = [];
-      } else if (result.status === -1) {
-        result.conflict_lists.forEach(v => {
-          v.begin_time = v.begin_time * 1000;
-          let nowtime = new Date(v.begin_time);
-
-          v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-          if (v.conflict_data.reason == 2) {
-            this.conflict_room = v.conflict_data.data.map(k => {
-              return k.id;
-            });
-          }
-        });
-
-        this.conflictLists = result.conflict_lists; //冲突列表
-        this.other_lists = result.lists; //正常列表
-        this.dialogStatus.conflict = true;
-      }
-    },
-    //获取老师列表、上课教室等附加信息
-    async getGradeFill (course_id, grade_id) {
-      let params = {course_id: course_id};
-
-      if (grade_id) {
-        params.grade_id = grade_id;
-      }
-
-      let result = await this.$$request.post('/grade/fill', params);
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.classSelectInfo = result.lists;
-
-      this.allStudentLists = result.lists.student_course.concat(result.lists.student_grade);
-
-      this.allStudentLists.forEach(m => {
-        m.disabled = !(m.buy_lesson_num - m.scheduled);
-      });
-
-      if (result.lists.course.type === 1) {
-        this.timetable_studentLists.splice(0, this.timetable_studentLists.length);
-        result.lists.student_grade.forEach(k => {
-          if (k.buy_lesson_num - k.scheduled > 0) {
-            this.timetable_studentLists.push(k.student_id);
-          }
-        });
-
-        this.checkStudentForm = this.timetable_studentLists;
-        // this.timetable_studentCheckAll = this.timetable_studentLists.length === this.allStudentLists.filter(f => {return !f.disabled}).length;
-      }
-
-      // this.timetable_studentLists = result.lists.student_grade.map(v => {
-      //   return v.student_id;
-      // });
-
-      // this.checkStudentForm = this.timetable_studentLists;
-      // if (!result.lists.student_course.length && result.lists.student_grade.length) {
-      //   this.timetable_studentCheckAll = true;
-      // }
-    },
+    //   return newFullDay || 0;
+    // },
     //班级课程结课、停课、开课
     classCourseState (option) {
       let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
@@ -1055,16 +470,15 @@ export default {
     },
     //获取课程列表
     async getCourseLists (course_id) {
+      console.log(course_id)
+      this.loading = true;
       let active = '';
+      let result = await this.$$request.post('/course/lists', {type: this.activeTab});
 
-      let result = await this.$$request.post('/course/lists');
-
-      console.log(result);
       if (!result) {
         return 0;
       }
       result.lists.forEach((d, num) => {
-        // d.collapse = (course_id && course_id == d.id);
         if (course_id && course_id == d.id) {
           d.collapse = true;
           active = num;
@@ -1073,14 +487,14 @@ export default {
         }
 
         d.class_lists.forEach(v => {
-          // v.operationStatus = false;
           v.gradeStatus = this.gradeStatus(v);
         });
       });
       this.courseLists = result.lists;
-      this.$nextTick(v => {
+      this.loading = false;
+      this.$nextTick(() => {
         if (active !== '') {
-          let dom = this.$refs[`grade-table-content_${ active}`][0];
+          let dom = this.$refs[`grade-table-content_${active}`][0];
           let child = dom.firstChild;
 
           dom.style.height = `${child.offsetHeight}px`;
@@ -1088,49 +502,16 @@ export default {
       });
 
       return true;
-    },
-    //周数据做处理
-    getWeek (time) {
-      let now = new Date(), nowTime, day;
-
-      if (time) {
-        nowTime = time;
-        day = new Date(nowTime).getDay();
-      } else {
-        nowTime = now.getTime();
-        day = now.getDay();
-      }
-
-      let oneDayLong = 24 * 60 * 60 * 1000;
-
-      this.weekList.forEach(d => {
-        let num = d.id, newTime;
-
-        let day_a = day == 0 ? 7 : day;
-
-        newTime = num == 0 ? nowTime + (7 - day_a) * oneDayLong : nowTime - (day_a - num) * oneDayLong;
-
-        let newDay = this.$$tools.formatTime(newTime / 1000, 'day');
-
-        let newFullDay = this.$$tools.format(newTime / 1000);
-
-        d.day = {
-          date: newDay.replace(/\-/g, '/') || 0,
-          newFullDay: newFullDay.replace(/\-/g, '/') || 0
-        };
-      });
     }
   },
   async created () {
-    this.getWeek();
     this.$store.dispatch('getSynstemSetLists');
     let datas = await this.getCourseLists();
 
     if (datas) {
       this.state = 'loaded';
     }
-  },
-  components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus}
+  }
 };
 </script>
 

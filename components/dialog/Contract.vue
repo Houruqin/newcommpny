@@ -45,6 +45,7 @@
                     </tr>
                 </table>
                 <p class="mt-10">合同金额：{{contractData.real_price}}</p>
+                <p class="mt-10" v-if="contractData.deposit_money >= 0">已交定金：{{contractData.deposit_money}}</p>
                 <p class="mt-10">课程有效期：<i>{{contractData.expired_at * 1000 | date}}</i></p>
                 <p class="mt-10">购买说明：<i>{{contractData.explain}}</i></p>
                 <p class="mt-10">
@@ -98,7 +99,7 @@ export default {
     },
     //打印合同
     printCompact () {
-      this.$router.push({name: 'contractView', params: {contractData: this.contractData, replace_path: 'student/signed'}});
+      this.$router.push({path: '/contract', query: {contractData: JSON.stringify(this.contractData), replace_path: 'student/signed'}});
     }
   }
 };

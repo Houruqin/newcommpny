@@ -141,8 +141,17 @@
 
                 <div class="pl-100">业绩归属：<span>{{courseForm.advisor_name}}</span></div>
 
-                <div class="pl-28 mt-30"><span>总金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
-                <div class="fs-13 pl-30">注：总金额=（课程费用-课程优惠）+（教材费用-教材优惠）</div>
+                <!-- <div class="pl-28 mt-30"><span>总金额：</span><span>￥{{buyTotalMoney}}</span></div> -->
+                <div v-if="Number(courseForm.deposit_money) >= 0">
+                  <p class="head-info">定金信息</p>
+                  <div class="mt-10">
+                    <el-form-item label="已交定金：">{{courseForm.deposit_money}}元</el-form-item>
+                  </div>
+                </div>
+                <div class="pl-12 mt-10"><span>应交金额：</span><span class="fc-m fs-30">￥{{buyTotalMoney}}</span></div>
+                <div class="fs-12 pl-12 mt-10">
+                  <span>注：</span>应交金额=（课程费用-课程优惠）+（教材费用-教材优惠）<span v-if="Number(courseForm.deposit_money) >= 0">-已交定金</span>
+                </div>
 
                 <div class="d-f f-j-c mt-30">
                     <MyButton @click.native="doneHandle" :loading="submitLoading">提交生成合约</MyButton>
@@ -177,6 +186,7 @@ export default {
       gradeLists: [],
       paymentMethod: StudentStatic.paymentMethod, //付款方式
       courseForm: {
+        deposit_money: '',
         student_id: '', //学员id
         parent_id: '', //家长id
         advisor_id: '', //顾问id
@@ -213,15 +223,6 @@ export default {
         ],
         given_num: [
           {validator: this.$$tools.formOtherValidate('int')},
-          {validator: this.$$tools.formOtherValidate('total', 200)}
-        ],
-        expire: [
-          {required: true, message: '请输入课程有效期'},
-          {validator: this.$$tools.formOtherValidate('int')},
-          {validator: this.$$tools.formOtherValidate('total', 120)}
-        ],
-        pay_at: [
-          {required: true, message: '请选择购课日期', trigger: 'change'},
           {validator: this.$$tools.formOtherValidate('total', 200)}
         ],
         expire: [
@@ -282,6 +283,10 @@ export default {
     buyTotalMoney () {
       let coursePrice = Number(this.courseForm.unit_price) * Number(this.courseForm.lesson_num) - Number(this.courseForm.preferential_class_price);
       let money = coursePrice + this.courseForm.textbook_price - Number(this.courseForm.preferential_textbook_price);
+
+      if (Number(this.courseForm.deposit_money) >= 0) {
+        money = money - Number(this.courseForm.deposit_money);
+      }
       let b;
 
       b = money.toFixed(2);
@@ -485,11 +490,9 @@ export default {
     async getTextBookLists () {
       let result = await this.$$request.get('/goods/textbookList');
 
-      console.log(result); 2;
       if (!result) {
         return 0;
       }
-
       this.textbookList = result.lists;
 
       return true;
@@ -515,8 +518,10 @@ export default {
       let queryData = JSON.parse(this.$route.query.buyCourseData);
 
       this.getCourseLists(queryData.student_id);
+
       this.courseForm.student_id = queryData.student_id;
       this.courseForm.advisor_id = queryData.advisor_id;
+      this.courseForm.deposit_money = queryData.deposit_money;
       this.courseForm.advisor_name = queryData.advisor ? queryData.advisor.name : '';
       this.courseForm.parent_id = queryData.parent_id;
       this.courseForm.expire = queryData.expire || 12;

@@ -4,19 +4,26 @@
         <!-- 年龄及性别统计 -->
         <el-card shadow="hover">
             <TableHeader title="校区统计"></TableHeader>
+            <h4>年龄及性别统计</h4>
             <div class="d-f f-a-c">
-                <h4>年龄及性别统计</h4>
-                <el-select v-model="sex.student_type" placeholder="请选择" size="small" class="ml-20" @change="sexStudentTypeChange">
-                    <el-option label="已签约学员" value="sign"></el-option>
-                    <el-option label="未签约学员" value="unsign"></el-option>
-                </el-select>
-            </div>
-            <p>
-                <span>时间颗粒度：</span>
+              <el-select v-model="sex.student_type" placeholder="请选择" size="small" @change="sexStudentTypeChange" class="my-input">
+                  <el-option label="已签约学员" value="sign"></el-option>
+                  <el-option label="未签约学员" value="unsign"></el-option>
+              </el-select>
+              <!-- <el-dropdown trigger="click" @command="sexStudentTypeChange" placement="bottom">
+                <span class="cursor-pointer">{{sex.student_type === 'sign' ? '已签约学员' : '未签约学员'}}<i class="el-icon-arrow-down el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="sign">已签约学员</el-dropdown-item>
+                  <el-dropdown-item command="unsign">未签约学员</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown> -->
+              <div class="ml-20">
+                <span>时间：</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                 <span>-</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            </p>
+              </div>
+            </div>
             <el-row :gutter="20" class="sex-chart-box echart-box mt-20">
                 <el-col :span="7" class="p-r">
                     <div class="left-chart" ref="sexChart"></div>
@@ -33,8 +40,10 @@
         <!-- 签约学员统计 -->
         <el-card class="mt-20" shadow="hover">
             <h4>签约学员统计</h4>
-            <span>年份：</span>
-            <el-date-picker v-model="student.year" size="small" type="year" @change="studentDateChange" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <div class="my-input">
+              <span>年份：</span>
+              <el-date-picker v-model="student.year" size="small" type="year" @change="studentDateChange" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            </div>
             <el-row :gutter="20" class="student-chart-box echart-box mt-20">
                 <el-col :span="7" class="p-r">
                     <div class="left-chart" ref="studentLeft"></div>
@@ -51,8 +60,10 @@
         <!-- 课程及考勤统计 -->
         <el-card class="mt-20" shadow="hover">
             <h4>课程及考勤统计</h4>
-            <span>年份：</span>
-            <el-date-picker v-model="course.year" size="small" @change="courseDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <div class="my-input">
+              <span>年份：</span>
+              <el-date-picker v-model="course.year" size="small" @change="courseDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            </div>
             <div class="echart-box mt-20">
                 <div class="right-chart" ref="courseChart"></div>
             </div>
@@ -62,13 +73,15 @@
         <el-card class="mt-20" shadow="hover">
             <div class="d-f f-a-c">
                 <h4>渠道统计</h4>
-                <el-select v-model="source.student_type" placeholder="请选择" size="small" class="ml-20" @change="sourceStudentTypeChange">
+                <el-select class="my-input ml-20" v-model="source.student_type" placeholder="请选择" size="small" @change="sourceStudentTypeChange">
                     <el-option label="已签约学员" value="sign"></el-option>
                     <el-option label="未签约学员" value="unsign"></el-option>
                 </el-select>
             </div>
-            <span>年份：</span>
-            <el-date-picker v-model="source.what_time" size="small" @change="sourceDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            <div class="my-input">
+              <span>年份：</span>
+              <el-date-picker v-model="source.what_time" size="small" @change="sourceDateChange" type="year" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+            </div>
             <el-row :gutter="20" class="echart-box mt-20">
                 <el-col :span="9" class="p-r">
                     <div class="left-chart" ref="sourceLeft"></div>
@@ -97,20 +110,22 @@
 
         <!-- 销售统计 -->
         <el-card class="mt-20" shadow="hover">
+            <h4>销售统计</h4>
             <div class="d-f f-a-c">
-                <h4>销售统计</h4>
-                <el-select v-model="sell.advisor_id" placeholder="请选择" size="small" class="ml-20" @change="sellAdvisorChange">
+                <el-select class="my-input" v-model="sell.advisor_id" placeholder="请选择" size="small" @change="sellAdvisorChange">
                     <el-option label="全部顾问" value=""></el-option>
                     <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
                 </el-select>
+                <div class="ml-20">
+                  <span>时间：</span>
+                  <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                  <span>-</span>
+                  <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                </div>
             </div>
-            <span>时间颗粒度：</span>
-            <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <span>-</span>
-            <el-date-picker size="small" class="date-select" @change="sellDateChange" v-model="sell.end_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-            <div class="echart-box sell-box d-f pb-40 f-j-b mt-50" v-if="Object.keys(sell.sell_lists).length">
-                <div class="funnel-chart flex1 pl-50 d-f">
-                    <div class="model-box p-r">
+            <div class="sell-box d-f pb-20 f-j-b" v-if="Object.keys(sell.sell_lists).length">
+                <div class="funnel-chart flex1 d-f" ref="sellLeft">
+                    <!-- <div class="model-box p-r">
                         <ul>
                             <li v-for="(item, index) in sell.sell_lists.data" :key="index" :style="{backgroundColor: item.color}" :class="{'mt-5': index > 0}"></li>
                         </ul>
@@ -124,11 +139,11 @@
                                 <span class="fc-7 fs-12 ml-10">{{item.name}}：{{item.c}}</span>
                             </div>
                         </li>
-                    </ul>
+                    </ul> -->
                 </div>
-                <div class="sell-right flex1 pt-40">
+                <div class="sell-right flex1 d-f f-d-c f-j-c f-a-c">
                     <div class="item p-r">
-                        <span class="fs-15 fc-5">成交率（已成交/全部咨询）</span>
+                        <span class="fs-15 fc-5">成交率（全额/全部）</span>
                         <div class="schedule-box mt-10">
                             <a :style="{width: sell.sell_lists.deal_ratio_display}" :class="{'all': sell.sell_lists.deal_ratio == 1}"></a>
                             <span class="fs-20 ratio">{{sell.sell_lists.deal_ratio_display}}</span>
@@ -136,7 +151,7 @@
                     </div>
 
                     <div class="item mt-40 p-r">
-                        <span class="fs-15 fc-5">失效率（已失效/全部咨询）</span>
+                        <span class="fs-15 fc-5">失效率（无效/全部）</span>
                         <div class="schedule-box mt-10">
                             <a :style="{width: sell.sell_lists.fail_ratio_display}" :class="{'all': sell.sell_lists.fail_ratio == 1}"></a>
                             <span class="fs-20 ratio">{{sell.sell_lists.fail_ratio_display}}</span>
@@ -144,7 +159,7 @@
                     </div>
                 </div>
             </div>
-            <p class="fc-7">注：已沟通（包括已沟通和未接通学员）</p>
+            <!-- <p class="fc-7">注：已沟通（包括已沟通和未接通学员）</p> -->
         </el-card>
     </div>
 </template>
@@ -156,7 +171,7 @@ import Echart from 'echarts';
 import boyIcon from '../../images/common/boy.png';
 import girlIcon from '../../images/common/girl.png';
 
-let sexChartObj = null, ageChartObj = null, studentLeftObj = null, studentRightObj = null, courseChartObj = null, sourceLeftObj = null, sourceRightObj = null;
+let sexChartObj = null, ageChartObj = null, studentLeftObj = null, studentRightObj = null, courseChartObj = null, sourceLeftObj = null, sourceRightObj = null, sellLeftObj = null;
 
 export default {
   data () {
@@ -238,22 +253,26 @@ export default {
       console.log(val);
     },
     //性别时间change
-    sexDateChange (val) {
+    sexDateChange () {
       if (this.sex.end_time < this.sex.start_time) {
         return this.$message.warning('结束时间不能小于开始时间，请从新选择');
       }
       this.getSexLists(true);
     },
     //性别学员类型
-    sexStudentTypeChange () {
+    sexStudentTypeChange (val) {
+      // if (this.sex.student_type === val) {
+      //   return 0;
+      // }
+      // this.sex.student_type = val;
       this.getSexLists(true);
     },
     //学员
-    studentDateChange (val) {
+    studentDateChange () {
       this.getStudentLists(true);
     },
     //课程
-    courseDateChange (val) {
+    courseDateChange () {
       this.getCourseLists(true);
     },
     //渠道
@@ -269,11 +288,11 @@ export default {
       if (this.sell.end_time < this.sell.start_time) {
         return this.$message.warning('结束时间不能小于开始时间，请从新选择');
       }
-      this.getSellLists();
+      this.getSellLists(true);
     },
     //销售顾问change
     sellAdvisorChange () {
-      this.getSellLists();
+      this.getSellLists(true);
     },
     //sourceFilter自定义筛选
     sourceFilterClick (item) {
@@ -521,6 +540,33 @@ export default {
 
       sourceRightObj.setOption(options, true);
     },
+    // 销售统计左侧柱状图
+    sellLeftChartInit () {
+      let options = {
+        tooltip: {trigger: 'axis'},
+        grid: {left: '20', right: '50', top: '50', bottom: '20', containLabel: true},
+        color: ['#45DAD5'],
+        xAxis: {type: 'value', boundaryGap: [0, 0.01]},
+        yAxis: {
+          type: 'category',
+          data: this.sell.sell_lists.data.map(v => {
+            return v.status;
+          })
+        },
+        series: [
+          {type: 'bar', label: {
+            normal: {
+              show: true,
+              position: 'inside'
+            }
+          }, data: this.sell.sell_lists.data.map(v => {
+            return v.c;
+          })}
+        ]
+      };
+
+      sellLeftObj.setOption(options, true);
+    },
     //获取性别、年龄学员列表
     async getSexLists (refresh) {
       let result = await this.$$request.post('/collect/sexLists', {start: this.sex.start_time / 1000, end: this.sex.end_time / 1000, type: this.sex.student_type});
@@ -582,7 +628,7 @@ export default {
       return true;
     },
     //销售统计列表
-    async getSellLists () {
+    async getSellLists (refresh) {
       let result = await this.$$request.post('/collect/sellLists', {start: this.sell.start_time / 1000, end: this.sell.end_time / 1000, advisor_id: this.sell.advisor_id});
 
       console.log(result);
@@ -590,7 +636,13 @@ export default {
         return 0;
       }
 
+      result.lists.data.reverse();
+
       this.sell.sell_lists = result.lists;
+
+      if (refresh) {
+        this.sellLeftChartInit();
+      }
 
       return true;
     },
@@ -641,11 +693,11 @@ export default {
 
       sourceLeftObj = Echart.init(this.$refs.sourceLeft);
       sourceRightObj = Echart.init(this.$refs.sourceRight);
+
+      sellLeftObj = Echart.init(this.$refs.sellLeft);
     }
   },
   async created () {
-    let arr = [];
-
     for (let i = 1; i <= 12; i++) {
       this.monthArr.push(`${i}月`);
     }
@@ -669,6 +721,8 @@ export default {
 
       this.sourceChartInit();
       this.sourceRightInit();
+
+      this.sellLeftChartInit();
     });
   },
   components: {TableHeader, MyButton}
@@ -702,57 +756,59 @@ export default {
 
     .sell-box {
         .funnel-chart {
-            .model-box {
-                overflow: hidden;
-                width: 214px;
-                height: 240px;
-                ul {
-                    li {
-                        width: 215px;
-                        height: 30px;
-                    }
-                }
-                &::before {
-                    content: '';
-                    display: block;
-                    position: absolute;
-                    width: 0;
-                    height: 0;
-                    top: 0;
-                    left: 0;
-                    border-width: 180px 80px 180px 80px;
-                    border-style: solid;
-                    border-color: transparent transparent #fff #fff;
-                }
-                &::after {
-                    content: '';
-                    display: block;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 0;
-                    height: 0;
-                    border-width: 175px 80px 175px 80px;
-                    border-style: solid;
-                    border-color: transparent transparent #fff #fff;
-                    transform: scaleX(-1);
-                }
-            }
-            .detail-box {
-                li {
-                    height: 30px;
-                    .line {
-                        width: 70px;
-                        border: 0.5px #e3e3e3 dashed;
-                    }
-                    .detail {
-                        .type {
-                            width: 10px;
-                            height: 10px;
-                        }
-                    }
-                }
-            }
+          height: 400px;
+            // .model-box {
+            //     overflow: hidden;
+            //     width: 214px;
+            //     height: 240px;
+            //     ul {
+            //         li {
+            //             width: 215px;
+            //             height: 30px;
+            //         }
+            //     }
+            //     &::before {
+            //         content: '';
+            //         display: block;
+            //         position: absolute;
+            //         width: 0;
+            //         height: 0;
+            //         top: 0;
+            //         left: 0;
+            //         border-width: 180px 80px 180px 80px;
+            //         border-style: solid;
+            //         border-color: transparent transparent #fff #fff;
+            //     }
+            //     &::after {
+            //         content: '';
+            //         display: block;
+            //         position: absolute;
+            //         top: 0;
+            //         right: 0;
+            //         width: 0;
+            //         height: 0;
+            //         border-width: 175px 80px 175px 80px;
+            //         border-style: solid;
+            //         border-color: transparent transparent #fff #fff;
+            //         transform: scaleX(-1);
+            //     }
+            // }
+            // .detail-box {
+            //     li {
+            //         height: 30px;
+            //         .line {
+            //             width: 70px;
+            //             border: 0.5px #e3e3e3 dashed;
+            //         }
+            //         .detail {
+            //             .type {
+            //                 width: 10px;
+            //                 height: 10px;
+            //             }
+            //         }
+            //     }
+            // }
+
         }
         .sell-right {
             .item {
@@ -781,9 +837,9 @@ export default {
                 .ratio {
                     display: block;
                     text-align: left;
-                    width: 100px;
+                    width: 80px;
                     position: absolute;
-                    right: -120px;
+                    right: -100px;
                     top: 50%;
                     transform: translateY(-50%);
                 }
@@ -822,6 +878,9 @@ export default {
         top: 0;
         right: 40px;
     }
+    .my-input /deep/ .el-input {
+        width: 150px;
+      }
 </style>
 
 

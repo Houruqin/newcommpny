@@ -308,7 +308,7 @@
 
                             <div class="flex1">
                                 <el-form-item label="课程属性：">
-                                    <span>{{courseType === 1 ? '普通课程' : '一对一课程'}}</span>
+                                    <span>{{courseType === 1 ? '一对多课程' : '一对一课程'}}</span>
                                     <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span>
                                     <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
                                 </el-form-item>
@@ -421,7 +421,7 @@
                     </div>
                 </el-form>
 
-                <el-dialog :title="courseType === 1 ? '选择普通上课学员' : '选择一对一上课学员'" width="670px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
+                <el-dialog :title="courseType === 1 ? '选择一对多上课学员' : '选择一对一上课学员'" width="670px" center :visible.sync="addStudentDialog" :close-on-click-modal="false" append-to-body>
                     <div class="form-box">
                         <template v-if="courseType === 1">
                             <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange" class="pl-20">全选</el-checkbox>
@@ -676,6 +676,7 @@ export default {
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
+      this.getAllTableLists();
     },
     //任课老师、辅助老师不能重复验证
     teacherValidator (type) {

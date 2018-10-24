@@ -5,56 +5,56 @@
             <TableHeader title="无班课程">
                 <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
             </TableHeader>
-
-            <div class="course-list-box mt-20" v-for="(course, index) in courseLists" :key="index">
-                <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
-                    <div class="d-f f-a-c">
-                        <span class="fc-7 fs-16 d-f f-a-c">
-                            <i class="fc-5">{{course.name}}</i>
-                            <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
-                        </span>
-                        <span class="fc-9 course_type ml-20 fs-12">{{course.type === 1 ? '普通' : '一对一'}}</span>
-                        <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
-                    </div>
-                    <div class="d-f f-a-c">
-                        <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
-                            <i class="iconfont icon-zhankai"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="grade-table-box" :ref="'grade-table-content_' + index">
-                    <el-table :data="course.student_course" v-if="course.student_course.length" strip>
-                        <el-table-column label="序号" type="index" align="center"></el-table-column>
-                        <el-table-column label="学员姓名" align="center">
-                            <template slot-scope="scope">
-                                <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>
-                        <el-table-column label="课程总课时" prop="total_num" align="center"></el-table-column>
-                        <el-table-column label="未排课时" prop="no_rank_num" align="center"></el-table-column>
-                        <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
-                        <el-table-column label="操作" align="center">
-                            <template slot-scope="scope">
-                                <el-dropdown trigger="click" @command="handleCommand" placement="bottom" @visible-change="scope.row.operationStatus = !scope.row.operationStatus">
-                                    <a class="unfold-icon cursor-pointer el-dropdown-link">
-                                        <i class="iconfont icon-zhankai1 fs-20" :class="{'rotate': scope.row.operationStatus}"></i>
-                                    </a>
-                                    <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                        <el-dropdown-item :command="{type:'edit', grade_info: scope.row, course_info: course}">
-                                            <i class="iconfont icon-xueyuanguanli"></i>
-                                            <span>分配老师</span>
-                                        </el-dropdown-item>
-                                        <el-dropdown-item :command="{type:'plan', grade_info: scope.row, course_info: course}">
-                                            <i class="iconfont icon-paike1"></i>
-                                            <span>排课</span>
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </el-dropdown>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </div>
+            <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
+                <el-tab-pane label="一对多" name="1"></el-tab-pane>
+                <el-tab-pane label="一对一" name="2"></el-tab-pane>
+            </el-tabs>
+            <div v-loading="loading">
+              <div class="course-list-box" :class="{'mt-20': index}" v-for="(course, index) in courseLists" :key="index">
+                  <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b pl-20 pr-20" @click.stop.self.prevent="listHeaderClick(course, index)">
+                      <div class="d-f f-a-c">
+                          <span class="fc-7 fs-16 d-f f-a-c">
+                              <i class="fc-5">{{course.name}}</i>
+                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
+                          </span>
+                          <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
+                      </div>
+                      <div class="d-f f-a-c">
+                          <span class="fc-9 ml-20 zhankai-icon" :class="{'rotate': course.collapse}" @click="listHeaderClick(course, index)">
+                              <i class="iconfont icon-zhankai"></i>
+                          </span>
+                      </div>
+                  </div>
+                  <div class="grade-table-box" :ref="'grade-table-content_' + index" v-if="course.student_lists && course.student_lists.data">
+                      <el-table :data="course.student_lists.data" v-if="course.student_lists.data.length" strip>
+                          <el-table-column label="序号" type="index" align="center"></el-table-column>
+                          <el-table-column label="学员姓名" align="center">
+                              <template slot-scope="scope">
+                                  <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+                              </template>
+                          </el-table-column>
+                          <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>
+                          <el-table-column label="课程总课时" prop="total_num" align="center"></el-table-column>
+                          <el-table-column label="未排课时" prop="no_rank_num" align="center"></el-table-column>
+                          <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
+                          <el-table-column label="操作" align="center">
+                              <template slot-scope="scope">
+                                <span class="fc-m cursor-pointer" @click="editTeacher(course, scope.row)">分配老师</span>
+                                <span class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</span>
+                              </template>
+                          </el-table-column>
+                      </el-table>
+                      <el-pagination v-if="course.student_lists.total > 10" small
+                        class="d-f f-j-e pt-20 student-pagination"
+                        :page-size="course.student_lists.per_page"
+                        layout="total, prev, pager, next"
+                        :total="course.student_lists.total"
+                        :current-page="course.student_lists.current_page"
+                        @click.native="paginationClick(course, index)"
+                        @current-change="paginationChange">
+                      </el-pagination>
+                  </div>
+              </div>
             </div>
         </el-card>
 
@@ -146,7 +146,7 @@
                     </el-table-column>
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" size="small">
+                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" size="small" key="conflict_room">
                                 <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
@@ -195,8 +195,14 @@ export default {
       },
       courseOperate: '',
       courseLists: [],
+      activeTab: '1',
+      oldTab: '1',
+      loading: false,
 
       syllabusParams: {},
+      courseInfo: {
+        course: {}, index: ''
+      },
 
       editDetail: {},
       editTeacherLists: [],
@@ -246,9 +252,16 @@ export default {
     dialogClose (type) {
       this.$refs[type].resetFields();
     },
+    tabClick (val) {
+      if (this.oldTab === val) {
+        return 0;
+      }
+      this.oldTab = val;
+      this.getCourseLists();
+    },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
-      if (type == 'add_course') {
+      if (type === 'add_course') {
         this.editDetail = {};
         this.dialogStatus.course = false;
         this.courseOperate = '';
@@ -280,28 +293,101 @@ export default {
       this.syllabusParams = {course_id: id, course_syllabus: result.courseOutline};
       this.dialogStatus.syllabus = true;
     },
-    //获取课程列表
-    async getCourseLists (course_id) {
-      let active = '';
+    // 课程header点击
+    async listHeaderClick (course, index) {
+      this.courseInfo.course = course;
+      this.courseInfo.index = index;
 
-      let result = await this.$$request.post('/course/orderLists');
+      if (Object.keys(course.student_lists).length) {
+        this.courseCollapse();
+      } else {
+        let datas = await this.getOrderStudentLists();
+
+        if (datas) {
+          this.courseCollapse(true);
+        }
+      }
+    },
+    paginationClick (course, index) {
+      this.courseInfo.course = course;
+      this.courseInfo.index = index;
+    },
+    // 学员列表分页
+    paginationChange (current_page) {
+      setTimeout(() => {
+        this.paginationMethods(current_page);
+      }, 100);
+    },
+    async paginationMethods (current_page) {
+      let datas = await this.getOrderStudentLists(current_page);
+
+      if (datas) {
+        this.courseCollapse(true);
+      }
+    },
+    // 学员列表展开处理
+    courseCollapse (collapse) {
+      let {course, index} = this.courseInfo;
+      let dom = this.$refs[`grade-table-content_${index}`][0];
+      let height = 0;
+
+      for (let i = 0; i < dom.children.length; i++) {
+        height += dom.children[i].offsetHeight;
+      }
+
+      if (!course.collapse || collapse) {
+        dom.style.height = `${height}px`;
+        course.collapse = true;
+      } else {
+        dom.style.height = 0;
+        course.collapse = false;
+      }
+    },
+    // 获取课程 班级学员列表
+    async getOrderStudentLists (page) {
+      this.loading = true;
+      let params = {
+        course_id: this.courseInfo.course.id,
+        per_page: 10
+      };
+
+      if (page) {
+        params.page = page;
+      }
+      let res = await this.$$request.get('/course/orderStudentLists', params);
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      this.courseLists.forEach(v => {
+        if (v.id === this.courseInfo.course.id) {
+          v.student_lists = res;
+        }
+      });
+      this.loading = false;
+
+      return true;
+    },
+    //获取课程列表
+    async getCourseLists () {
+      this.loading = true;
+      let active = '';
+      let result = await this.$$request.post('/course/orderLists', {type: this.activeTab});
 
       console.log(result);
       if (!result) {
         return 0;
       }
 
-      result.lists.forEach((d, num) => {
+      result.lists.forEach((d) => {
         d.collapse = false;
-
-        d.student_course.forEach(v => {
-          v.operationStatus = false;
-        });
+        d.student_lists = {};
       });
 
       this.courseLists = result.lists;
-      console.log(active);
-      this.$nextTick(v => {
+      this.loading = false;
+      this.$nextTick(() => {
         if (active !== '') {
           let dom = this.$refs[`grade-table-content_${ active}`][0];
           let child = dom.firstChild;
@@ -320,40 +406,15 @@ export default {
         this.timePicker.minTime = 0;
       }
     },
-    listHeaderClick (course, index) {
-      let dom = this.$refs[`grade-table-content_${ index}`][0];
-      let child = dom.firstChild;
-
-      if (!course.collapse) {
-        dom.style.height = `${child.offsetHeight}px`;
-        course.collapse = true;
-      } else {
-        dom.style.height = 0;
-        course.collapse = false;
-      }
-    },
-    //班级操作列表点击回调
-    handleCommand (option) {
-      console.log(option);
-      switch (option.type) {
-        case 'plan':
-          this.planTimeTable(option.course_info, option.grade_info);
-          break;
-        case 'edit':
-          this.editTeacher(option.course_info, option.grade_info);
-          break;
-      }
-    },
     //排课 click
-    planTimeTable (course, data) {
-      console.log(data);
-      this.timetableForm.course_id = course.id;
-      this.timetableForm.course_name = course.name;
-      this.timetableForm.student_id = data.student.id;
-      this.timetableForm.student_name = data.student.name;
-      this.timetableForm.teacher_id = data.teacher.id;
-      this.timetableForm.teacher_name = data.teacher.name;
-      this.timetableForm.lesson_time = course.lesson_time;
+    planTimeTable (course_info, grade_info) {
+      this.timetableForm.course_id = course_info.id;
+      this.timetableForm.course_name = course_info.name;
+      this.timetableForm.student_id = grade_info.student.id;
+      this.timetableForm.student_name = grade_info.student.name;
+      this.timetableForm.teacher_id = grade_info.teacher.id;
+      this.timetableForm.teacher_name = grade_info.teacher.name;
+      this.timetableForm.lesson_time = course_info.lesson_time;
 
       this.dialogStatus.timetable = true;
     },
@@ -385,12 +446,6 @@ export default {
       params.end_time = params.begin_time + this.timetableForm.lesson_time * 60;
 
       this.getConflictLists(params);
-      // let result = await this.$$request.post('/timetable/order', params);
-      // console.log(result);
-
-      // if(!result) return 0;
-      // this.$message.success('快速排课成功!');
-      // this.dialogStatus.timetable = false;
     },
     //冲突页面确定修改
     doneModify () {
@@ -399,12 +454,12 @@ export default {
         let item = {};
 
         for (let key in v) {
-          if (key != 'begin_hours' && key != 'conflict_data') {
-            if (key == 'begin_time') {
+          if (key !== 'begin_hours' && key !== 'conflict_data') {
+            if (key === 'begin_time') {
               item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, '/')} ${v.begin_hours}`).getTime() / 1000;
-            } else if (key == 'end_time') {
+            } else if (key === 'end_time') {
               item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
-            } else if (key == 'room_id') {
+            } else if (key === 'room_id') {
               console.log(this.conflict_room);
               item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
             } else {
@@ -466,13 +521,12 @@ export default {
       }
     },
     //编辑修改老师信息 click
-    editTeacher (course, data) {
-      this.teacherForm.old_teacher_id = data.teacher.id;
-      this.teacherForm.techer_id = data.teacher.id;
-      this.teacherForm.course_id = course.id;
-      this.teacherForm.student_id = data.student.id;
-      console.log(data);
-      this.getEditTeacherLists(course.id);
+    editTeacher (course_info, grade_info) {
+      this.teacherForm.old_teacher_id = grade_info.teacher.id;
+      this.teacherForm.techer_id = grade_info.teacher.id;
+      this.teacherForm.course_id = course_info.id;
+      this.teacherForm.student_id = grade_info.student.id;
+      this.getEditTeacherLists(course_info.id);
     },
     //获取编辑老师列表
     async getEditTeacherLists (id) {
@@ -556,22 +610,37 @@ export default {
             overflow: hidden;
             -webkit-transition:  height 300ms;
             transition:  height 300ms;
+            .student-pagination {
+              /deep/ .el-pager li {
+                &:hover {
+                  color: #45DAD5;
+                }
+                &.active {
+                  color: #45DAD5;
+                }
+              }
+              /deep/ button {
+                &:hover {
+                  color: #45DAD5;
+                }
+              }
+            }
         }
         .el-table {
             border-left: 1px #eeeeee solid;
             border-right: 1px #eeeeee solid;
         }
-        .unfold-icon {
-            .iconfont {
-                -webkit-transition: transform 300ms;
-                transition: transform 300ms;
-                display: block;
-                &.rotate {
-                    -webkit-transform :rotate(180deg);
-                    transform: rotate(180deg);
-                }
-            }
-        }
+        // .unfold-icon {
+        //     .iconfont {
+        //         -webkit-transition: transform 300ms;
+        //         transition: transform 300ms;
+        //         display: block;
+        //         &.rotate {
+        //             -webkit-transform :rotate(180deg);
+        //             transform: rotate(180deg);
+        //         }
+        //     }
+        // }
         .course_type{
             display: inline-block;
             border: 1px solid #a9a9a9;

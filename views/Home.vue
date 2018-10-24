@@ -63,7 +63,10 @@
                             </el-dropdown-menu>
                         </el-dropdown>
 
-                        <a class="avatar-box ml-50"><img :src="memberInfo.type ? role[memberInfo.type] : role.master" alt=""></a>
+                        <a class="avatar-box ml-50">
+                          <img v-if="memberInfo.type === 'institution'" :src="roleIcon.adminICon" alt="">
+                          <img v-else :src="memberInfo.sex ? roleIcon.manICon : roleIcon.womanICon" alt="">
+                        </a>
 
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
@@ -227,31 +230,27 @@
         <!-- 办理试听 -->
         <el-dialog title="办理试听" width="720px" center :visible.sync="dialogStatus.listen" :close-on-click-modal="false" @close="dialogClose('listen')">
             <div class="form-box" v-loading="loading">
-               <el-row type="flex" justify="center">
-                    <el-col :span="10">
-                        <el-date-picker size="small"
-                            v-model="auditionData.time" type="date"
-                            value-format="timestamp" :clearable="false"
-                            :editable="false" placeholder="选择日期"
-                            @change="listenDateChange"
-                            :picker-options="pickListenDisable">
-                        </el-date-picker>
-                    </el-col>
-                </el-row>
-                <el-row type="flex" justify="center" class="mt-30">
-                   <el-col :span="8">
-                       <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部老师" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                   <el-col :span="8" :offset="1">
-                       <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                   </el-col>
-                </el-row>
+                <div class="input-box">
+                  <div class="d-f f-j-b">
+                    <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
+                        <el-option label="全部老师" value=""></el-option>
+                        <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+
+                    <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
+                        <el-option label="全部课程" value=""></el-option>
+                        <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                  </div>
+                  <el-date-picker size="small" class="mt-10"
+                      v-model="auditionData.time" type="date"
+                      value-format="timestamp" :clearable="false"
+                      :editable="false" placeholder="选择日期"
+                      @change="listenDateChange"
+                      :picker-options="pickListenDisable">
+                  </el-date-picker>
+                </div>
+
                 <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
                     <ul class="bgc-m audition-lists">
                         <li class="fc-7 cursor-pointer p-r" v-for="(list, index) in listenCourseLists" :key="index">
@@ -313,9 +312,13 @@
 <script>
 
 import Menu from '../components/Menus';
-import bossIcon from '../images/common/boss-icon.png';
-import masterIcon from '../images/common/master-icon.png';
-import registerIcon from '../images/common/register-icon.png';
+// import bossIcon from '../images/common/boss-icon.png';
+// import masterIcon from '../images/common/master-icon.png';
+// import registerIcon from '../images/common/register-icon.png';
+import adminICon from '../images/staff/admin.png';
+import manICon from '../images/staff/user-man.png';
+import womanICon from '../images/staff/user-woman.png';
+
 import Bus from '../script/bus';
 import MyButton from '../components/common/MyButton';
 
@@ -325,6 +328,8 @@ import AddCourseDialog from '../components/dialog/AddCourse';
 import errorLoading from '!url-loader!../images/state-500.png';
 
 import config from 'config';
+// import Jquery from 'jquery';
+// import '../../plugins/drag';
 
 export default {
   data () {
@@ -332,6 +337,12 @@ export default {
       loading: false,
       errorLoading,
       apiUrl: config.api,
+
+      roleIcon: {
+        adminICon: adminICon,
+        manICon: manICon,
+        womanICon: womanICon
+      },
       search_student_info: '', //搜索学员信息
       search_result: [], //搜索结果
       settingShow: false,
@@ -356,7 +367,6 @@ export default {
       checkListenStudent: [], //选中的试听学员
       listenTimetableId: '', //选中的试听课程
 
-      role: {master: masterIcon, register: registerIcon, institution: bossIcon, seller: registerIcon, director: registerIcon, dean: registerIcon, academic: registerIcon},
       memberInfo: {},
 
       modalObj: null, //遮罩层modal
@@ -461,7 +471,8 @@ export default {
         student_id: data.id,
         advisor_id: data.advisor_id,
         advisor: data.advisor,
-        parent_id: data.parent_id
+        parent_id: data.parent_id,
+        deposit_money: data.deposit_money
       };
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});
@@ -484,6 +495,7 @@ export default {
       } else if (type === 'listen_student') {
         this.checkListenStudent = [];
         this.listenTimetableId = '';
+        this.studentKeyword = '';
       }
     },
     listenDateChange (val) {
@@ -548,7 +560,6 @@ export default {
     },
     //获取试听填充列表
     async getListenLists () {
-      this.loading = true;
       let old_time = Math.round(this.auditionData.time / 1000);
 
       let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
@@ -563,6 +574,7 @@ export default {
     },
     //获取试听课程列表
     async getListenCourseLists () {
+      this.loading = true;
       let old_time = Math.round(this.auditionData.time / 1000);
 
       let params = {
@@ -770,14 +782,15 @@ export default {
       this.showModal();
     }
 
+    this.$store.dispatch('getRoleLists');
     this.$store.dispatch('getAdvisor');
+    this.$store.dispatch('getFollowupStatus');
     this.$store.dispatch('getCourse');
     this.$store.dispatch('getSource');
     this.$store.dispatch('getClassRoom');
     this.$store.dispatch('getGrade');
     this.$store.dispatch('getRelation');
     this.$store.dispatch('getTeacher');
-    this.$store.dispatch('getRoleLists');
   },
   created () {
     this.pageInit();
@@ -873,7 +886,7 @@ export default {
       height: auto;;
     }
     .page-error-box {
-      z-index: 100000;
+      z-index: 800;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1092,14 +1105,17 @@ export default {
     }
     .form-box {
         padding: 0 20px;
-        .el-select, .el-date-editor {
-            width: 100%;
+        .input-box {
+          width: 400px;
+          margin: 0 auto;
         }
-        h3 {
-            font-weight: normal;
-            font-size: 14px;
-            padding-left: 38px;
-            margin-bottom: 15px;
+        /deep/ .el-input {
+          width: 180px;
+        }
+        .listen-course-box {
+          max-height: 350px;
+          overflow: hidden;
+          overflow-y: auto;
         }
         .audition-lists {
             li {

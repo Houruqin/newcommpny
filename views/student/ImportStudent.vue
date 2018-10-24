@@ -372,34 +372,34 @@ export default {
         elem('span', text)
       ]);
     },
-    nameHeader (h, {column, $index}) {
+    nameHeader (h) {
       return this.requestTableHeader(h, '学员姓名');
     },
-    mobileHeader (h, {column, $index}) {
+    mobileHeader (h) {
       return this.requestTableHeader(h, '联系电话');
     },
-    courseNameHeader (h, {column, $index}) {
+    courseNameHeader (h) {
       return this.requestTableHeader(h, '课程名称');
     },
-    courseTeacherHeader () {
+    // courseTeacherHeader () {
 
-    },
-    buyCourseHeader (h, {column, $index}) {
+    // },
+    buyCourseHeader (h) {
       return this.requestTableHeader(h, '购买课时');
     },
-    surplusLessonNumHeader (h, {column, $index}) {
+    surplusLessonNumHeader (h) {
       return this.requestTableHeader(h, '剩余课时');
     },
-    totalPriceHeader (h, {column, $index}) {
+    totalPriceHeader (h) {
       return this.requestTableHeader(h, '购课总额');
     },
-    expireHeader (h, {column, $index}) {
+    expireHeader (h) {
       return this.requestTableHeader(h, '购课日期');
     },
-    payWayHeader (h, {column, $index}) {
+    payWayHeader (h) {
       return this.requestTableHeader(h, '支付方式');
     },
-    sexHeader (h, {column, $index}) {
+    sexHeader (h) {
       return this.requestTableHeader(h, '学员性别');
     },
     //选择文件

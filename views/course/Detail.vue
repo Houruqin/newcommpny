@@ -164,7 +164,7 @@ export default {
       this.getTimeTableLists(curr);
     },
     checkboxIsDisabled (row) {
-      return row.begin_time > new Date().getTime() / 1000;
+      return row.begin_time > new Date().getTime() / 1000 && !row.timetable.lesson_end_time;
     },
     handleSelectionChange (val) {
       this.selectedIds = val.map(v => v.id);

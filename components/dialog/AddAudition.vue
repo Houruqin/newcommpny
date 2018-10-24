@@ -22,31 +22,33 @@
             </el-date-picker>
           </div>
 
-          <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-              <ul class="bgc-m audition-lists">
-                  <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
-                      <p class="fs-16 fc-2">{{list.course.name}}</p>
-                      <p class="two-p mt-5 d-f f-a-c">
-                          <span class="d-f f-a-c">
-                              <i class="time-icon"></i>
-                              <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                          </span>
-                          <span class="ml-30 d-f f-a-c">
-                              <i class="teacher-icon"></i>
-                              <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                          </span>
-                          <span class="ml-30 d-f f-a-c">
-                              <i class="address-icon"></i>
-                              <i class="pl-5">{{list.class_room.name}}</i>
-                          </span>
-                      </p>
-                      <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                  </li>
-              </ul>
+          <div class="mt-30" v-loading="loading">
+            <div v-if="listenCourseLists.length" class="listen-course-box">
+                <ul class="bgc-m audition-lists">
+                    <li class="fc-7 cursor-pointer p-r" :class="{active: checkListen[0] === list.id}" v-for="(list, index) in listenCourseLists" :key="index" @click="listenCourseClick(list)">
+                        <p class="fs-16 fc-2">{{list.course.name}}</p>
+                        <p class="two-p mt-5 d-f f-a-c">
+                            <span class="d-f f-a-c">
+                                <i class="time-icon"></i>
+                                <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
+                            </span>
+                            <span class="ml-30 d-f f-a-c">
+                                <i class="teacher-icon"></i>
+                                <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
+                            </span>
+                            <span class="ml-30 d-f f-a-c">
+                                <i class="address-icon"></i>
+                                <i class="pl-5">{{list.class_room.name}}</i>
+                            </span>
+                        </p>
+                        <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
+                    </li>
+                </ul>
+            </div>
+            <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
           </div>
-          <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-5">暂无数据</span></div>
 
-          <div class="d-f f-j-c mt-50"><MyButton @click.native="submitFollowUpInfo" :loading="submitLoading">确定</MyButton></div>
+          <div class="d-f f-j-c mt-50"><MyButton @click.native="auditionDoneClick" :loading="submitLoading">确定</MyButton></div>
       </div>
   </el-dialog>
 </template>
@@ -57,7 +59,8 @@ import MyButton from '../../components/common/MyButton';
 export default {
   props: {
     value: {default: false},
-    studentId: {default: ''}
+    studentId: {default: ''},
+    auditionType: {default: 'audition'}
   },
   components: {MyButton},
   watch: {
@@ -71,6 +74,7 @@ export default {
   data () {
     return {
       submitLoading: false,
+      loading: false,
       dialogStatus: this.value,
       checkListen: [],
       teacherLists: [],
@@ -94,7 +98,17 @@ export default {
   methods: {
     dialogClose () {
       this.dialogStatus = false;
+      this.listenCourseInit();
       this.$emit('input', this.dialogStatus);
+    },
+    listenCourseInit () {
+      this.checkListen = [];
+      this.teacherLists = [];
+      this.courseLists = [];
+      this.listenCourseLists = [];
+      this.auditionData.time = new Date().getTime();
+      this.auditionData.teacher_id = '';
+      this.auditionData.course_id = '';
     },
     async getListenLists () {
       this.checkListen.splice(0, this.checkListen.length);
@@ -114,6 +128,8 @@ export default {
     },
     //获取试听课程列表
     async getListenCourseLists () {
+      this.checkListen = [];
+      this.loading = true;
       let select_time = this.auditionData.time / 1000;
       let current_time = new Date().getTime() / 1000;
       let old_time = select_time < current_time ? current_time : select_time;
@@ -130,6 +146,7 @@ export default {
         return 0;
       }
       this.listenCourseLists = result.lists;
+      this.loading = false;
     },
     //试听课程列表点击
     listenCourseClick (list) {
@@ -144,22 +161,41 @@ export default {
         this.checkListen.splice(index, 1);
       }
     },
-    //提交试听
-    async submitFollowUpInfo () {
+    // 试听确定点击
+    auditionDoneClick () {
+      console.log(this.auditionType);
       if (!this.checkListen.length) {
         return this.$message.warning('试听课程不能为空!');
       }
 
+      if (this.auditionType === 'audition') {
+        this.submitAuditionData();
+      } else {
+        let req = {};
+
+        this.listenCourseLists.forEach(v => {
+          if (v.id === this.checkListen[0]) {
+            req.timetable_id = v.id;
+            req.course_name = v.course.name;
+            req.begin_time = this.$$tools.formatTime(v.begin_time);
+          }
+        });
+
+        this.dialogStatus = false;
+        this.$emit('CB-audition', req);
+      }
+    },
+    //提交试听
+    async submitAuditionData () {
       if (this.submitLoading) {
         return 0;
       }
 
       this.submitLoading = true;
-
       let params = {
         way_id: 5,
         status: 4,
-        type_id: 5,   //type_id默认售前跟进5
+        type_id: 5, //type_id默认售前跟进5
         student_id: this.studentId,
         invited_at: 0,
         next_at: 0,
@@ -177,10 +213,7 @@ export default {
         return 0;
       }
       this.$message.success('添加成功');
-      this.listenCourseLists = []; //试听课程列表重置
       this.dialogStatus = false;
-
-      this.$emit('CB-audition');
     }
   }
 };

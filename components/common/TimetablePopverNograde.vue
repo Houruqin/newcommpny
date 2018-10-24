@@ -35,6 +35,8 @@
                 <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
             </div>
 
+            <div class="leave-status p-a fs-13" :class="{'gray': item.lesson_end_time}" v-if="item.course_type === 2 && item.student_grades[0].status === -1">已请假</div>
+
             <p class="t-a-l">{{item.course_name}}</p>
 
             <p class="pt-5 d-f f-a-s">
@@ -194,6 +196,19 @@ export default {
           width: 60px;
           line-height: 24px;
           text-align: center;
+        }
+        .leave-status {
+          width: 54px;
+          line-height: 20px;
+          background-color: #FBBF3F;
+          color: #fff;
+          right: 5px;
+          top: 5px;
+          border-radius: 2px;
+          &.gray {
+            background-color: #f5f5f5;
+            color: #999;
+          }
         }
     }
     .course-popver {

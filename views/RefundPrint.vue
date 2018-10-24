@@ -61,26 +61,16 @@ export default {
   data () {
     return {
       refundDataInfo: {}
-      // replace_path: '',
-      // query: null
     };
   },
   created () {
-    if (this.$route.params.refundDataInfo) {
-      this.refundDataInfo = this.$route.params.refundDataInfo;
-      // this.replace_path = this.$route.params.replace_path;
-      // this.query = this.$route.params.path_query ? this.$route.params.path_query : null
+    if (this.$route.query.refundDataInfo) {
+      this.refundDataInfo = JSON.parse(this.$route.query.refundDataInfo);
     }
   },
   mounted () {
     window.print();
-
     this.$router.go(-1);
-    // if(this.query) {
-    //     this.$router.replace({path: this.replace_path, query: this.query});    //详情购课，需要传参，回到学员详情
-    // }else {
-    //     this.$router.replace(this.replace_path);     //列表购课，直接跳转列表，不需要参数
-    // }
   }
 };
 </script>

@@ -1,3 +1,7 @@
+function padLeftZero (str) {
+  return `00${ str}`.substr(str.length);
+}
+
 export function $date (date, fmt) {
   if (typeof date === 'number' || typeof date === 'string') {
     if (String(date).length === 10 || String(date).length === 9) {
@@ -25,8 +29,4 @@ export function $date (date, fmt) {
   }
 
   return fmt;
-}
-
-function padLeftZero (str) {
-  return `00${ str}`.substr(str.length);
 }
