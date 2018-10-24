@@ -96,7 +96,7 @@ axios.interceptors.response.use(res => {
 
   if (store.state.pageState === 'loaded') {
     Message.warning(errorMsg);
-  } else {
+  } else if (error.response) {
     store.commit('stateChange', { state: 'error', errorMsg });
   }
 

@@ -142,7 +142,7 @@ export default {
         } else if (key == 'parent_info') {
           this.studentForm.mobile = newVal[key].mobile;
           this.studentForm.parent_name = newVal[key].name;
-          this.studentForm.relation = newVal[key].relation === 7 ? '' : newVal[key].relation;
+          this.studentForm.relation = newVal[key].relation === 0 ? '' : newVal[key].relation;
         } else if (key == 'name') {
           this.studentForm.student_name = newVal[key];
         } else if (key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {

@@ -40,7 +40,7 @@
                           <el-table-column label="操作" align="center">
                               <template slot-scope="scope">
                                 <span class="fc-m cursor-pointer" @click="editTeacher(course, scope.row)">分配老师</span>
-                                <span class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</span>
+                                <span class="ml-10 cursor-pointer" :class="scope.row.no_rank_num <= 0 ? 'fc-9' : 'fc-m'" @click="planTimeTable(course, scope.row)">排课</span>
                               </template>
                           </el-table-column>
                       </el-table>
@@ -410,6 +410,9 @@ export default {
     },
     //排课 click
     planTimeTable (course_info, grade_info) {
+      if (grade_info.no_rank_num <= 0) {
+        return this.$message.error('暂无可排课时');
+      }
       this.timetableForm.course_id = course_info.id;
       this.timetableForm.course_name = course_info.name;
       this.timetableForm.student_id = grade_info.student.id;
