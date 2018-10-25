@@ -101,7 +101,9 @@ router.beforeEach((to, from, next) => {
 
   window.scrollTo(0, 0); //跳转之后，页面到最顶部
 
-  Rquest.get('/operation/statistics');
+  if (to.path !== '/login') {
+    Rquest.get('/operation/statistics');
+  }
 
   next();
 });
