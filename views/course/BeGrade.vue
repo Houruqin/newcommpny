@@ -353,6 +353,9 @@ export default {
     //新增排课  type: single / multiple
     addTimetable (option) {
       console.log(option);
+      if (!option.grade_info.unscheduled && option.course_info.type === 1) {
+        return 0;
+      }
       this.timetableDetail = {
         course_info: {
           type: option.course_info.type,

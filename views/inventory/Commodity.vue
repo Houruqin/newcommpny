@@ -308,8 +308,7 @@ export default {
       addStorageForm: {name: '', goods_id: '', num: '', stock_price: ''}, //入库表单
       removeStorageForm: {
         name: '', goods_id: '', num: '', receive_people: '', remark: '', price: '',
-        total_num: '', student_course: '', student_total_num: '',
-        student_course: '', use_type: ''
+        total_num: '', student_course: '', student_total_num: '', use_type: ''
       }, //出库表单
       borrowForm: {
         name: '', goods_id: '', borrow_num: '', borrow_people: '', total_num: '', borrow_people_type: ''
@@ -389,9 +388,13 @@ export default {
   methods: {
     dialogClose (type) {
       this.$refs[type].resetFields();
-      if (type == 'removeStorage') {
+      if (type === 'removeStorage') {
         this.receivePeopleType = 1;
         this.studentCourseLists.splice(0, this.studentCourseLists.length);
+      } else if (type === 'addCommodity') {
+        Object.keys(this.addCommodityForm).forEach(v => {
+          this.addCommodityForm[v] = '';
+        });
       }
     },
     realRender (elem) {

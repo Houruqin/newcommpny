@@ -372,7 +372,8 @@ export default {
         student_id: data.id,
         advisor_id: data.advisor_id,
         advisor: data.advisor,
-        parent_id: data.parent_id
+        parent_id: data.parent_id,
+        deposit_money: data.deposit_money
       };
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});

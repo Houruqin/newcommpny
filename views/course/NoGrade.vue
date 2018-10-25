@@ -205,6 +205,7 @@ export default {
       courseInfo: {
         course: {}, index: ''
       },
+      activeCurrentPage: 1, //学员列表的分页页码
 
       editDetail: {},
       editTeacherLists: [],
@@ -321,6 +322,7 @@ export default {
       }, 100);
     },
     async paginationMethods (current_page) {
+      this.activeCurrentPage = current_page;
       let datas = await this.getOrderStudentLists(current_page);
 
       if (datas) {
@@ -374,7 +376,6 @@ export default {
     //获取课程列表
     async getCourseLists () {
       this.loading = true;
-      let active = '';
       let result = await this.$$request.post('/course/orderLists', {type: this.activeTab});
 
       console.log(result);
@@ -386,17 +387,8 @@ export default {
         d.collapse = false;
         d.student_lists = {};
       });
-
       this.courseLists = result.lists;
       this.loading = false;
-      this.$nextTick(() => {
-        if (active !== '') {
-          let dom = this.$refs[`grade-table-content_${ active}`][0];
-          let child = dom.firstChild;
-
-          dom.style.height = `${child.offsetHeight}px`;
-        }
-      });
 
       return true;
     },
@@ -498,6 +490,7 @@ export default {
         this.$message.success('快速排课成功!');
         this.dialogStatus.timetable = false;
         this.dialogStatus.conflictMask = false;
+        this.getOrderStudentLists(this.activeCurrentPage);
       } else if (result.status === -1) {
         result.conflict_lists.forEach(v => {
           v.begin_time = v.begin_time * 1000;
@@ -549,8 +542,6 @@ export default {
     },
     //提交修改老师数据
     async submitEditTeacher () {
-      console.log(this.teacherForm);
-
       if (this.submitLoading.edit) {
         return 0;
       }
@@ -571,7 +562,7 @@ export default {
 
       this.$message.success('修改老师成功');
       this.dialogStatus.edit = false;
-      this.getCourseLists();
+      this.getOrderStudentLists(this.activeCurrentPage);
     }
   },
   async created () {
