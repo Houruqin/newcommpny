@@ -124,7 +124,7 @@
         </AddStudentDialog>
 
         <!-- 试听弹窗 -->
-        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
+        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId" @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
 
         <!-- 缴纳定金/退回定金 -->
         <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
@@ -277,6 +277,9 @@ export default {
     CB_payment () {
       this.paymentDetail = {};
       this.getAllLists(true);
+    },
+    CB_auditionSuccess () {
+      this.getStudentLists(this.activePage);
     },
     handleCommand (d) {
       console.log(d);
