@@ -603,7 +603,7 @@ export default {
     return {
       state: 'loading',
       activeName: 'leave',
-      follow_up_activeName: 'visit',
+      follow_up_activeName: 'audition',
       notice_activeName: 'receive',
 
       user_info: '',
