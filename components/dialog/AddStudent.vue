@@ -123,8 +123,6 @@ export default {
   components: {MyButton},
   watch: {
     dialogStatus (newVal) {
-      // newVal == true && this.$refs.addStudent && this.$refs.addStudent.resetFields();
-      // newVal == true && this.$refs.sourseForm && this.$refs.sourseForm.resetFields();
       this.studentDialogStatus = newVal;
     },
     type (newVal) {
@@ -142,7 +140,7 @@ export default {
         } else if (key == 'parent_info') {
           this.studentForm.mobile = newVal[key].mobile;
           this.studentForm.parent_name = newVal[key].name;
-          this.studentForm.relation = newVal[key].relation === 7 ? '' : newVal[key].relation;
+          this.studentForm.relation = newVal[key].relation === 0 ? '' : newVal[key].relation;
         } else if (key == 'name') {
           this.studentForm.student_name = newVal[key];
         } else if (key == 'advisor_id' || key == 'like_course' || key == 'like_grade') {
@@ -260,14 +258,14 @@ export default {
       let params = {}, url = '/student/add';
 
       for (let key in this.studentForm) {
-        if (key == 'birthday') {
+        if (key === 'birthday') {
           params[key] = this.studentForm[key] / 1000;
-        } else if (key != 'id') {
+        } else if (key !== 'id') {
           params[key] = this.studentForm[key];
         }
       }
 
-      if (this.studentType == 'edit') {
+      if (this.studentType === 'edit') {
         params.id = this.studentForm.id;
         url = '/student/edit';
       }
@@ -281,7 +279,7 @@ export default {
         return this.submitLoading.student = false;
       }
 
-      if (this.studentType == 'edit') {
+      if (this.studentType === 'edit') {
         this.submitLoading.student = false;
         if (result.status) {
           this.$message.success('修改成功');

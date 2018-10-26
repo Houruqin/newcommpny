@@ -585,6 +585,9 @@ export default {
     CB_success () {
       this.getAllLists(true);
     },
+    // CB_auditionSuccess () {
+    //   this.getStudentLists(this.activePage);
+    // },
     //tab标签切换筛选列表
     tabClick (tab) {
       this.searchKeyWord = '';

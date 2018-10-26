@@ -467,6 +467,7 @@ export default {
     },
     //登记成功，购课回调
     CB_buyCourse (data) {
+      console.log(data);
       let params = {
         student_id: data.id,
         advisor_id: data.advisor_id,

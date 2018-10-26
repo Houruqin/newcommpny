@@ -19,6 +19,7 @@ const router = new Router({
       { path: '/setting', component: () => import(/* webpackChunkName: 'page-setting-index' */ '@/views/BasicSetting/Index'), meta: {needlogin: true, menu: '/setting'} },
       { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting/wechat'} },
       { path: '/setting/system', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/System'), meta: {needlogin: true, menu: '/setting/system'} },
+      { path: '/setting/authority', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/Authority'), meta: {needlogin: true, menu: '/setting/authority'} },
 
       { path: '/student/signed', component: () => import(/* webpackChunkName: 'page-student-signed' */ '@/views/student/Signed'), meta: { needlogin: true, menu: '/student/signed' } },
       { path: '/student/nosign', component: () => import(/* webpackChunkName: 'page-student-nosign' */ '@/views/student/NoSign'), meta: { needlogin: true, menu: '/student/nosign' } },
@@ -100,7 +101,9 @@ router.beforeEach((to, from, next) => {
 
   window.scrollTo(0, 0); //跳转之后，页面到最顶部
 
-  Rquest.get('/operation/statistics');
+  if (to.path !== '/login') {
+    Rquest.get('/operation/statistics');
+  }
 
   next();
 });

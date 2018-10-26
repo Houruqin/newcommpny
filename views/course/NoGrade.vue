@@ -40,7 +40,7 @@
                           <el-table-column label="操作" align="center">
                               <template slot-scope="scope">
                                 <span class="fc-m cursor-pointer" @click="editTeacher(course, scope.row)">分配老师</span>
-                                <span class="fc-m ml-10 cursor-pointer" @click="planTimeTable(course, scope.row)">排课</span>
+                                <span class="ml-10 cursor-pointer" :class="scope.row.no_rank_num <= 0 ? 'fc-9' : 'fc-m'" @click="planTimeTable(course, scope.row)">排课</span>
                               </template>
                           </el-table-column>
                       </el-table>
@@ -146,7 +146,7 @@
                     </el-table-column>
                     <el-table-column label="冲突教室">
                         <template slot-scope="scope">
-                            <el-select v-if="scope.row.conflict_data.reason == 2" v-model="conflict_room" size="small" key="conflict_room">
+                            <el-select v-model="conflict_room" size="small" v-if="scope.row.conflict_data.reason == 2" key="conflict_room">
                                 <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                             </el-select>
                         </template>
@@ -199,10 +199,13 @@ export default {
       oldTab: '1',
       loading: false,
 
+      conflict_room: '',
+
       syllabusParams: {},
       courseInfo: {
         course: {}, index: ''
       },
+      activeCurrentPage: 1, //学员列表的分页页码
 
       editDetail: {},
       editTeacherLists: [],
@@ -319,6 +322,7 @@ export default {
       }, 100);
     },
     async paginationMethods (current_page) {
+      this.activeCurrentPage = current_page;
       let datas = await this.getOrderStudentLists(current_page);
 
       if (datas) {
@@ -372,7 +376,6 @@ export default {
     //获取课程列表
     async getCourseLists () {
       this.loading = true;
-      let active = '';
       let result = await this.$$request.post('/course/orderLists', {type: this.activeTab});
 
       console.log(result);
@@ -384,17 +387,8 @@ export default {
         d.collapse = false;
         d.student_lists = {};
       });
-
       this.courseLists = result.lists;
       this.loading = false;
-      this.$nextTick(() => {
-        if (active !== '') {
-          let dom = this.$refs[`grade-table-content_${ active}`][0];
-          let child = dom.firstChild;
-
-          dom.style.height = `${child.offsetHeight}px`;
-        }
-      });
 
       return true;
     },
@@ -408,6 +402,9 @@ export default {
     },
     //排课 click
     planTimeTable (course_info, grade_info) {
+      if (grade_info.no_rank_num <= 0) {
+        return this.$message.error('暂无可排课时');
+      }
       this.timetableForm.course_id = course_info.id;
       this.timetableForm.course_name = course_info.name;
       this.timetableForm.student_id = grade_info.student.id;
@@ -449,7 +446,6 @@ export default {
     },
     //冲突页面确定修改
     doneModify () {
-      console.log(this.conflict_room);
       let lists = this.conflictLists.map(v => {
         let item = {};
 
@@ -460,7 +456,6 @@ export default {
             } else if (key === 'end_time') {
               item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
             } else if (key === 'room_id') {
-              console.log(this.conflict_room);
               item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
             } else {
               item[key] = v[key];
@@ -474,10 +469,7 @@ export default {
       console.log(lists);
 
       lists = lists.concat(this.other_lists);
-
-      let params = {lists: lists};
-
-      this.getConflictLists(params);
+      this.getConflictLists({lists: lists});
     },
     //提交排课数据，验证冲突
     async getConflictLists (params) {
@@ -498,6 +490,7 @@ export default {
         this.$message.success('快速排课成功!');
         this.dialogStatus.timetable = false;
         this.dialogStatus.conflictMask = false;
+        this.getOrderStudentLists(this.activeCurrentPage);
       } else if (result.status === -1) {
         result.conflict_lists.forEach(v => {
           v.begin_time = v.begin_time * 1000;
@@ -549,8 +542,6 @@ export default {
     },
     //提交修改老师数据
     async submitEditTeacher () {
-      console.log(this.teacherForm);
-
       if (this.submitLoading.edit) {
         return 0;
       }
@@ -571,7 +562,7 @@ export default {
 
       this.$message.success('修改老师成功');
       this.dialogStatus.edit = false;
-      this.getCourseLists();
+      this.getOrderStudentLists(this.activeCurrentPage);
     }
   },
   async created () {

@@ -212,6 +212,7 @@ export default {
       if (!result) {
         return 0;
       }
+      this.$emit('CB-auditionSuccess');
       this.$message.success('添加成功');
       this.dialogStatus = false;
     }

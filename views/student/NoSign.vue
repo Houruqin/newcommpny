@@ -124,7 +124,7 @@
         </AddStudentDialog>
 
         <!-- 试听弹窗 -->
-        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
+        <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId" @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
 
         <!-- 缴纳定金/退回定金 -->
         <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
@@ -278,6 +278,9 @@ export default {
       this.paymentDetail = {};
       this.getAllLists(true);
     },
+    CB_auditionSuccess () {
+      this.getStudentLists(this.activePage);
+    },
     handleCommand (d) {
       console.log(d);
       switch (d.type) {
@@ -372,7 +375,8 @@ export default {
         student_id: data.id,
         advisor_id: data.advisor_id,
         advisor: data.advisor,
-        parent_id: data.parent_id
+        parent_id: data.parent_id,
+        deposit_money: data.deposit_money
       };
 
       this.$router.push({path: '/student/nosignbuycourse', query: {buyCourseData: JSON.stringify(params)}});

@@ -60,7 +60,7 @@ export default {
           ]
         },
         {id: '/staff', text: '员工管理', item: false, icon: 'icon-yuangongguanli'},
-        {id: '/inventory', text: '库存管理', item: false, icon: 'icon-kucunguanli', item: true,
+        {id: '/inventory', text: '库存管理', item: true, icon: 'icon-kucunguanli',
           itemList: [
             {id: '/inventory/commodity', text: '物品管理'},
             {id: '/inventory/storage', text: '出入库明细'},
