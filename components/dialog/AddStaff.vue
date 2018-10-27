@@ -10,13 +10,7 @@
                       <el-form-item label="电话：" prop="mobile">
                           <el-input v-model.trim="staffForm.mobile" placeholder="电话"></el-input>
                       </el-form-item>
-                      <el-form-item label="职位性质：" prop="kind">
-                          <el-select v-model="staffForm.kind" placeholder="选择职位性质">
-                              <el-option label="全职" :value="1"></el-option>
-                              <el-option label="兼职" :value="2"></el-option>
-                          </el-select>
-                      </el-form-item>
-                      <!-- <div class="role-type d-f">
+                      <div class="role-type d-f">
                         <span class="title is-required">职务：</span>
                         <div class="flex1">
                           <el-form :model="roleType" size="small" ref="roleTypeForm" :rules="roleTypeRules" v-for="(roleType, num) in roleTypeForm" :key="num">
@@ -36,7 +30,7 @@
                           </el-form>
                           <div class="d-f mt-10" v-if="roleTypeForm.length < $store.state.roleLists.length"><MyButton type="border" fontColor="fc-m" @click.native="addRoleType">添加职务</MyButton></div>
                         </div>
-                      </div> -->
+                      </div>
                     </div>
                     <div class="flex1 ml-40">
                       <el-form-item label="性别：" prop="sex" >
@@ -45,19 +39,19 @@
                               <el-option label="女" :value="0"></el-option>
                           </el-select>
                       </el-form-item>
-                      <!-- <el-form-item label="职位性质：" prop="kind">
+                      <el-form-item label="职位性质：" prop="kind">
                           <el-select v-model="staffForm.kind" placeholder="选择职位性质">
                               <el-option label="全职" :value="1"></el-option>
                               <el-option label="兼职" :value="2"></el-option>
                           </el-select>
-                      </el-form-item> -->
-                      <el-form-item label="职务：" prop="role_type">
+                      </el-form-item>
+                      <!-- <el-form-item label="职务：" prop="role_type">
                           <el-select v-if="!role" v-model="staffForm.role_type" multiple  placeholder="选择职务名称" @remove-tag="remove_tag">
                               <el-option v-if="staffForm.role_type.indexOf('master') !== -1" value="master" label="校长" :disabled="true"></el-option>
                               <el-option v-for="(item, index) in $store.state.roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
                           </el-select>
                           <span v-else>{{staffForm.role_name}}</span>
-                      </el-form-item>
+                      </el-form-item> -->
                       <el-form-item label="入职时间：" prop="entry_date">
                           <el-date-picker
                               v-model="staffForm.entry_date"
@@ -91,11 +85,8 @@ export default {
   },
   watch: {
     value (val) {
-      // if (val) {
-      //   this.pageShowInit();
-      // }
       if (val) {
-        this.staffDialogStatus = true;
+        this.pageShowInit();
       }
     },
     type (newVal) {
@@ -106,14 +97,16 @@ export default {
         return 0;
       }
 
+      this.roleTypeForm = newVal.type_all.map(v => {
+        return {
+          department_id: v.department.id,
+          role_id: v.id
+        };
+      });
+
       for (let key in this.staffForm) {
         if (key === 'entry_date') {
           this.staffForm[key] = newVal.entry_at * 1000;
-        } else if (key === 'role_type') {
-          this.staffForm[key] = [];
-          for (let type of newVal.type_all) {
-            this.staffForm[key].push(type.type_en);
-          }
         } else {
           this.staffForm[key] = newVal[key];
         }
@@ -136,7 +129,7 @@ export default {
         add: false, remove: false
       },
       staffDialogStatus: this.value,
-      staffForm: {name: '', mobile: '', role_type: [], entry_date: '', id: '', kind: '', sex: ''},
+      staffForm: {name: '', mobile: '', entry_date: '', id: '', kind: '', sex: ''},
       roleLists: [],
       staffType: 'add',
 
@@ -155,9 +148,9 @@ export default {
         sex: [
           {required: true, message: '请选择性别'}
         ],
-        role_type: [
-          {required: true, message: '请选择职务', trigger: 'change'}
-        ],
+        // role_type: [
+        //   {required: true, message: '请选择职务', trigger: 'change'}
+        // ],
         entry_date: [
           {required: true, message: '请选择入职时间', trigger: 'change'}
         ],
@@ -179,32 +172,29 @@ export default {
     formClose () {
       this.$refs.userForm.resetFields();
       Object.keys(this.staffForm).forEach(v => {
-        // this.staffForm[v] = '';
-        this.staffForm[v] = v === 'role_type' ? [] : '';
+        this.staffForm[v] = '';
       });
 
-      // this.roleTypeForm.splice(0, this.roleTypeForm.length);
+      this.roleTypeForm.splice(0, this.roleTypeForm.length);
       this.$emit('input', false);
       this.$emit('CB-dialogStatus', 'staff');
     },
     pageShowInit () {
-      this.roleTypeForm.push({department_id: '', role_id: ''});
       this.roleLists = JSON.parse(JSON.stringify(this.$store.state.roleLists));
-
       this.roleLists.forEach(v => {
         if (v.enName !== 'master') {
           this.roleSelectOptions[v.departmentId] = v.role;
         }
       });
 
-      console.log(this.roleSelectOptions);
+      if (this.staffType === 'add') {
+        this.roleTypeForm.push({department_id: '', role_id: ''});
+      }
+
       this.staffDialogStatus = true;
     },
     addRoleType () {
       this.roleTypeForm.push({department_id: '', role_id: ''});
-      // setTimeout(() => {
-      //   document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight);
-      // }, 10);
     },
     //删除时间段
     deleteRoleType (index) {
@@ -217,25 +207,19 @@ export default {
     },
     //确定
     doneHandle () {
-      // let a, b;
-
-      // this.$refs.userForm.validate(valid => {
-      //   a = valid ? true : false;
-      // });
-      // for (let i = 0, len = this.$refs.roleTypeForm.length; i < len; i++) {
-      //   this.$refs.roleTypeForm[i].validate(valid => {
-      //     b = valid ? true : false;
-      //   });
-      // }
-      // if (a && b) {
-      //   this.submitUserInfo();
-      // }
+      let a, b;
 
       this.$refs.userForm.validate(valid => {
-        if (valid) {
-          this.submitUserInfo();
-        }
+        a = valid ? true : false;
       });
+      for (let i = 0, len = this.$refs.roleTypeForm.length; i < len; i++) {
+        this.$refs.roleTypeForm[i].validate(valid => {
+          b = valid ? true : false;
+        });
+      }
+      if (a && b) {
+        this.submitUserInfo();
+      }
     },
     //提交新增、修改员工信息
     async submitUserInfo () {
@@ -250,8 +234,7 @@ export default {
         sex: this.staffForm.sex,
         name: this.staffForm.name,
         mobile: this.staffForm.mobile,
-        type: this.staffForm.role_type,
-        // role_ids: this.roleTypeForm.map(v => {return v.role_id}),
+        role_ids: this.roleTypeForm.map(v => {return v.role_id}),
         entry_at: this.staffForm.entry_date ? this.staffForm.entry_date / 1000 : '',
         kind: this.staffForm.kind
       };
@@ -259,6 +242,8 @@ export default {
       if (this.staffType === 'edit') {
         params.id = this.staffForm.id;
       }
+
+      console.log(this.staffType)
       console.log(params);
       let result = await this.$$request.post(url, params);
 

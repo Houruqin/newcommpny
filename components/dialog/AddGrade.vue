@@ -82,7 +82,7 @@
             <el-form-item label="班级学员：">
                 <el-checkbox v-model="studentCheckAll" @change="studentCheckAllChange">全选</el-checkbox>
                 <el-checkbox-group v-model="studentLists" @change="studentCheckChange" v-if="allStudentLists.length" class="grade-student-check">
-                    <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index">{{item.student_name}}</el-checkbox>
+                    <el-checkbox v-for="(item, index) in allStudentLists" :label="item" :key="index" :disabled="item.buy_lesson_num - item.scheduled <= 0">{{item.student_name}}</el-checkbox>
                 </el-checkbox-group>
             </el-form-item>
 
@@ -139,8 +139,6 @@ export default {
       this.gradeId = newVal.id;
 
       this.getGradeFill();
-
-      console.log(this.gradeType);
 
       if (this.gradeType === 'edit') {
         for (let key in this.classForm) {
@@ -337,7 +335,7 @@ export default {
           this.studentCheckAll = true;
         }
       }
-
+      console.log(this.allStudentLists);
       this.classForm.course_name = result.lists.course.name;
       this.classForm.course_id = result.lists.course.id;
     },

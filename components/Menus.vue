@@ -39,9 +39,6 @@ export default {
         {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
           text: '排课管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-paike',
           itemList: [
-            // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}`, text: '课程表'},
-            // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_teacher`, text: "老师课表" },
-            // { id: `/timetable/${Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'begrade'}_class`, text: "教室课表" }
             {id: '/timetable/begrade', text: '有班课表'},
             {id: '/timetable/nograde', text: '无班课表'}
           ]
@@ -83,12 +80,6 @@ export default {
           ]
         },
         {id: '/statistics', text: '校区统计', item: false, icon: 'icon-xuexiao'}
-        // {
-        //   id: '/statistics',
-        //   text: '更新日志',
-        //   item: false,
-        //   icon: 'icon-xiaoqutongji'
-        // }
       ]
     };
   }

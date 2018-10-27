@@ -7,7 +7,10 @@
                     <a class="cursor-pointer" @click="detailEdit(item)" v-if="item.course_type === 1 || (item.student_grades.length && item.course_type === 2)">编辑</a>
                     <a class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
                 </div>
-                <div class="btn" v-else-if="!item.lesson_end_time && $$cache.getMemberInfo().lesson_end && item.end_time < new Date().getTime() / 1000 && item.student_grades.length">
+                <div class="btn" v-else-if="!item.lesson_end_time
+                && $$cache.getMemberInfo().lesson_end
+                && item.end_time < new Date().getTime() / 1000
+                && item.course_type === 1 || (item.student_grades.length && item.course_type === 2)">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
             </div>
