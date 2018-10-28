@@ -9,11 +9,11 @@
       :router="true">
 
       <div v-for="(list, index) in menuLists" :key="index" class="menu-item" :class="'mymenu-' + index">
-        <el-submenu v-if="list.item" :index="list.id">
+        <el-submenu v-if="list.itemLists && list.itemLists.length" :index="list.id">
           <template slot="title" >
             <i class="iconfont" :class="list.icon"></i><span class="fs-16 pl-10">{{list.text}}</span>
           </template>
-          <el-menu-item v-for="(item, key) in list.itemList" :key="key" :index="item.id">{{item.text}}</el-menu-item>
+          <el-menu-item v-for="(item, key) in list.itemLists" :key="key" :index="item.id">{{item.text}}</el-menu-item>
         </el-submenu>
 
         <el-menu-item v-else :index="list.id">
@@ -25,63 +25,159 @@
 </template>
 
 <script>
-import Bus from '../script/bus';
 import Cache from '../script/cache';
 
 export default {
   data () {
     return {
-      menuLists: [
-        {id: '/', text: '工作台', item: false, icon: 'icon-zhuye-copy'},
-        {id: '/student/nosign', text: '学员管理', item: true, icon: 'icon-xueyuanguanli', itemList: [
-          { id: '/student/nosign', text: '未签约学员' }, { id: '/student/signed', text: '签约学员' }
+      // menuLists: [
+      //   {id: '/', text: '工作台', item: false, icon: 'icon-zhuye-copy'},
+      //   {id: '/student/nosign', text: '学员管理', item: true, icon: 'icon-xueyuanguanli', itemList: [
+      //     { id: '/student/nosign', text: '未签约学员' }, { id: '/student/signed', text: '签约学员' }
+      //   ]},
+      //   {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
+      //     text: '排课管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-paike',
+      //     itemList: [
+      //       {id: '/timetable/begrade', text: '有班课表'},
+      //       {id: '/timetable/nograde', text: '无班课表'}
+      //     ]
+      //   },
+      //   {id: '/academic/classElimination', text: '教务统计', item: true, icon: 'icon-jiaowuguanli', itemList: [
+      //     { id: '/academic/teacherLesson', text: '老师课时记录' },
+      //     { id: '/academic/classElimination', text: '学员消课记录' },
+      //     { id: '/academic/audition', text: '试听课记录' },
+      //     { id: '/academic/buy', text: '购课记录' }
+      //   ]},
+      //   {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
+      //     text: '课程管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-kecheng-',
+      //     itemList: [
+      //       {id: '/course/begrade', text: '有班课程'},
+      //       {id: '/course/nograde', text: '无班课程'}
+      //     ]
+      //   },
+      //   {id: '/staff', text: '员工管理', item: false, icon: 'icon-yuangongguanli'},
+      //   {id: '/inventory', text: '库存管理', item: true, icon: 'icon-kucunguanli',
+      //     itemList: [
+      //       {id: '/inventory/commodity', text: '物品管理'},
+      //       {id: '/inventory/storage', text: '出入库明细'},
+      //       {id: '/inventory/borrow', text: '借用记录'}
+      //     ]
+      //   },
+      //   {id: '/finance', text: '财务管理', item: true, icon: 'icon-finance',
+      //     itemList: [
+      //       {id: '/finance/income', text: '收款管理'},
+      //       {id: '/finance/outlay', text: '支出管理'},
+      //       {id: '/finance/refund', text: '退费管理'},
+      //       {id: '/finance/assign', text: '业绩分配'}
+      //     ]
+      //   },
+      //   {id: '/setting', text: '基础设置', item: true, icon: 'icon-shezhi1',
+      //     itemList: [
+      //       {id: '/setting', text: '教室渠道'},
+      //       {id: '/setting/wechat', text: '微信设置'},
+      //       {id: '/setting/system', text: '系统设置'},
+      //       {id: '/setting/authority', text: '权限设置'}
+      //     ]
+      //   },
+      //   {id: '/statistics', text: '校区统计', item: false, icon: 'icon-xuexiao'}
+      // ],
+
+      menuLists: [],
+      menuData: {
+        workBench: {id: '/', icon: 'icon-zhuye-copy'},
+        student: {id: '/student/nosign', icon: 'icon-xueyuanguanli', itemLists: [
+          {id: '/student/nosign', name: 'nosign', text: '未签约学员'},
+          {id: '/student/signed', name: 'signed', text: '签约学员'}
         ]},
-        {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
-          text: '排课管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-paike',
-          itemList: [
-            {id: '/timetable/begrade', text: '有班课表'},
-            {id: '/timetable/nograde', text: '无班课表'}
-          ]
-        },
-        {id: '/academic/classElimination', text: '教务统计', item: true, icon: 'icon-jiaowuguanli', itemList: [
-          { id: '/academic/teacherLesson', text: '老师课时记录' },
-          { id: '/academic/classElimination', text: '学员消课记录' },
-          { id: '/academic/audition', text: '试听课记录' },
-          { id: '/academic/buy', text: '购课记录' }
+        timetable: {id: '/timetable/begrade', icon: 'icon-paike', itemLists: [
+          {id: '/timetable/begrade', name: 'begrade', text: '有班课表'},
+          {id: '/timetable/nograde', name: 'nograde', text: '无班课程'}
         ]},
-        {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
-          text: '课程管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-kecheng-',
-          itemList: [
-            {id: '/course/begrade', text: '有班课程'},
-            {id: '/course/nograde', text: '无班课程'}
-          ]
-        },
-        {id: '/staff', text: '员工管理', item: false, icon: 'icon-yuangongguanli'},
-        {id: '/inventory', text: '库存管理', item: true, icon: 'icon-kucunguanli',
-          itemList: [
-            {id: '/inventory/commodity', text: '物品管理'},
-            {id: '/inventory/storage', text: '出入库明细'},
-            {id: '/inventory/borrow', text: '借用记录'}
-          ]
-        },
-        {id: '/finance', text: '财务管理', item: true, icon: 'icon-finance',
-          itemList: [
-            {id: '/finance/income', text: '收款管理'},
-            {id: '/finance/outlay', text: '支出管理'},
-            {id: '/finance/refund', text: '退费管理'},
-            {id: '/finance/assign', text: '业绩分配'}
-          ]
-        },
-        {id: '/setting', text: '基础设置', item: true, icon: 'icon-shezhi1',
-          itemList: [
-            {id: '/setting', text: '教室渠道'},
-            {id: '/setting/wechat', text: '微信设置'},
-            {id: '/setting/system', text: '系统设置'}
-          ]
-        },
-        {id: '/statistics', text: '校区统计', item: false, icon: 'icon-xuexiao'}
-      ]
+        academic: {id: '/academic/classElimination', icon: 'icon-jiaowuguanli', itemLists: [
+          {id: '/academic/teacherLesson', name: 'teacherLesson', text: '老师课时记录'},
+          {id: '/academic/classElimination', name: 'classElimination', text: '学员消课记录'},
+          {id: '/academic/audition', name: 'audition', text: '试听课记录'},
+          {id: '/academic/buy', name: 'buy', text: '购课记录'}
+        ]},
+        course: {id: '/course/begrade', icon: 'icon-kecheng-', itemLists: [
+          {id: '/course/begrade', name: 'begradeCourse', text: '有班课程'},
+          {id: '/course/nograde', name: 'nogradeCourse', text: '无班课程'}
+        ]},
+        staff: {id: '/staff', icon: 'icon-yuangongguanli'},
+        inventory: {id: '/inventory', icon: 'icon-kucunguanli', itemLists: [
+          {id: '/inventory/commodity', name: 'commodity', text: '物品管理'},
+          {id: '/inventory/storage', name: 'storage', text: '出入库明细'},
+          {id: '/inventory/borrow', name: 'borrow', text: '借用记录'}
+        ]},
+        finance: {id: '/finance', icon: 'icon-finance', itemLists: [
+          {id: '/finance/income', name: 'income', text: '收款管理'},
+          {id: '/finance/outlay', name: 'outlay', text: '支出管理'},
+          {id: '/finance/refund', name: 'refund', text: '退费管理'},
+          {id: '/finance/assign', name: 'assign', text: '业绩分配'}
+        ]},
+        setting: {id: '/setting', icon: 'icon-shezhi1', itemLists: [
+          {id: '/setting', name: 'classRoom', text: '教室渠道'},
+          {id: '/setting/wechat', name: 'wechat', text: '微信设置'},
+          {id: '/setting/system', name: 'system	', text: '系统设置'},
+          {id: '/setting/authority', name: 'authority', text: '权限设置'}
+        ]},
+        statistics: {id: '/statistics', icon: 'icon-xuexiao'}
+      }
     };
+  },
+  methods: {
+    // 获取所有角色 菜单
+    async getAllRoleMenus () {
+      let res = await this.$$request.get('/user/permission');
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      let arr = res.roleList.map(v => {return v.enName});
+
+      this.menuLists.splice(0, this.menuLists.length);
+      if (arr.includes('master') || arr.includes('institution')) {
+        this.menuLists = res.menu.map(v => {
+          return {
+            id: this.menuData[v.description].id,
+            text: v.name,
+            icon: this.menuData[v.description].icon,
+            itemLists: this.menuData[v.description].itemLists ? this.menuData[v.description].itemLists : []
+          };
+        });
+      } else {
+        res.menu.forEach(v => {
+          if (v.display_status) {
+            let childItem;
+
+            if (v.children) {
+              childItem = this.menuData[v.description].filter(k => {
+                v.children.forEach(m => {
+                  if (m.description === k.name) {
+                    return k;
+                  }
+                });
+              });
+            } else {
+              childItem = [];
+            }
+            console.log(childItem);
+            this.menuLists.push({
+              id: this.menuData[v.description].id,
+              text: v.name,
+              icon: this.menuData[v.description].icon,
+              itemLists: childItem
+            });
+          }
+        });
+      }
+
+      console.log(this.menuLists);
+    }
+  },
+  created () {
+    this.getAllRoleMenus();
   }
 };
 </script>
