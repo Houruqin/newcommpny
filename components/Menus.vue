@@ -66,7 +66,7 @@ export default {
         setting: {id: '/setting', icon: 'icon-shezhi1', itemLists: [
           {id: '/setting', name: 'classRoom', text: '教室渠道'},
           {id: '/setting/wechat', name: 'wechat', text: '微信设置'},
-          {id: '/setting/system', name: 'system	', text: '系统设置'},
+          {id: '/setting/system', name: 'system', text: '系统设置'},
           {id: '/setting/authority', name: 'authority', text: '权限设置'}
         ]},
         statistics: {id: '/statistics', icon: 'icon-xuexiao'}
@@ -76,22 +76,13 @@ export default {
   methods: {
     // 获取所有角色 菜单
     async getAllRoleMenus () {
-      let res = await this.$$request.get('/user/permission');
-
-      console.log(res);
-      if (!res) {
-        return 0;
-      }
-
-      let permission = res.permission.filter(v => {return v.type === 'permission'});
-
-      this.$store.commit('saveAuthority', permission);
-
-      let arr = res.roleList.map(v => {return v.enName});
+      let roleList = this.$store.state.allMenusData.roleList;
+      let menuData = this.$store.state.allMenusData.menu;
+      let arr = roleList.map(v => {return v.enName});
 
       this.menuLists.splice(0, this.menuLists.length);
       if (arr.includes('master') || arr.includes('institution')) {
-        this.menuLists = res.menu.map(v => {
+        this.menuLists = menuData.map(v => {
           return {
             id: this.menuData[v.description].id,
             text: v.name,
@@ -100,7 +91,7 @@ export default {
           };
         });
       } else {
-        res.menu.forEach(v => {
+        menuData.forEach(v => {
           if (v.display_status) {
             let childItem = [];
 
@@ -113,7 +104,6 @@ export default {
                 });
               });
             }
-
             this.menuLists.push({
               id: childItem.length > 1 || !childItem.length ? this.menuData[v.description].id : childItem[0].id,
               text: v.name,

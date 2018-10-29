@@ -1698,8 +1698,6 @@ export default {
     }
   },
   async created () {
-    this.$$tools.isAuthority();
-
     this.$store.dispatch('getSynstemSetLists');
 
     this.user_info = this.$$cache.getMemberInfo();
