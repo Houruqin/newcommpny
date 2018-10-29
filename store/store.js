@@ -26,7 +26,9 @@ const state = {
   roleLists: [], //所有用户角色列表
   systemSetting: {},
   followupStatus: [],
-  authorityLists: [] //权限列表(只包含操作权限)
+
+  allMenusData: {} // 初始化菜单数据，包含权限、菜单、角色
+  // authorityLists: [] //权限列表(只包含操作权限)
 };
 
 const mutations = {
@@ -168,7 +170,7 @@ const mutations = {
   },
   // 保存权限
   saveAuthority (state, data) {
-    state.authorityLists = data;
+    state.allMenusData = data;
   }
 };
 

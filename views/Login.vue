@@ -106,10 +106,21 @@ export default {
       if (!result.status) {
         this.$router.push({path: '/addschool'});
       } else {
-        this.$router.replace({path: '/'});
+        this.getAllRoleMenus();
       }
 
       this.$$cache.set('phone', this.phone.trim());
+    },
+    // 获取所有角色 菜单
+    async getAllRoleMenus () {
+      let res = await this.$$request.get('/user/permission');
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      this.$store.commit('saveAuthority', res);
+      this.$router.push({path: '/'});
     },
     footerClick (type) {
       if (type === 'www') {

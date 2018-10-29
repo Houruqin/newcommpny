@@ -24,9 +24,17 @@ const VALIDATE_RULE = {
 const Tools = {
   // 权限验证
   isAuthority (authority) {
-    let permission = store.state.authorityLists.map(v => {return v.description});
+    // let permission = store.state.allMenusData.permission.map(v => {return v.description});
 
-    console.log(permission);
+    // let permission = store.state.allMenusData.permission.filter(v => {return v.type === 'permission'});
+    // let authority = permission.map(v => {return v.description})
+    let permission = [];
+
+    store.state.allMenusData.permission.forEach(v => {
+      if (v.type === 'permission') {
+        permission.push(v.description);
+      }
+    });
 
     if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
       return true;

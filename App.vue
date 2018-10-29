@@ -30,12 +30,26 @@ export default {
     async isSchoolArea () {
       let result = await this.$$request.post('/school/exists');
 
-      this.loading = false;
       if (!result) {
+        this.loading = false;
         this.$router.replace({path: '/login'});
       } else if (result && result.status === 0) {
+        this.loading = false;
         this.$router.push({path: '/addschool'});
+      } else {
+        this.getAllRoleMenus();
       }
+    },
+    // 获取所有角色 菜单
+    async getAllRoleMenus () {
+      let res = await this.$$request.get('/user/permission');
+
+      console.log(res);
+      if (!res) {
+        return 0;
+      }
+      this.$store.commit('saveAuthority', res);
+      this.loading = false;
     }
   }
 };

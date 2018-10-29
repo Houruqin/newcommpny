@@ -108,7 +108,7 @@
         </el-container>
 
         <!-- 引导页 -->
-        <div class="guide-box" :class="{'guide-end': guideSetup > 5}" v-if="$store.state.guide">
+        <div class="guide-box" :class="{'guide-end': guideSetup > 5}" v-if="$store.state.guide && ($$cache.getMemberInfo.type === 'master' || $$cache.getMemberInfo.type === 'institution')">
             <div v-if="guideSetup == 5" class="guide-sex p-r">
                 <div class="guide-sex-content p-a fc-f d-f f-d-c f-a-c">
                     <p class="fs-26 d-f f-a-c f-j-c mt-40">新手第<span class="step fs-16 t-a-c btn-m">6</span>步</p>
@@ -782,7 +782,7 @@ export default {
     }
   },
   mounted () {
-    if (this.$store.state.guide) {
+    if (this.$store.state.guide && (this.$$cache.getMemberInfo.type === 'master' || this.$$cache.getMemberInfo.type === 'institution')) {
       this.showModal();
     }
 
