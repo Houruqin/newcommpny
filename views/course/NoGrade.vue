@@ -39,7 +39,7 @@
                           <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
                           <el-table-column label="操作" align="center">
                               <template slot-scope="scope">
-                                <span class="fc-m cursor-pointer" @click="editTeacher(course, scope.row)">分配老师</span>
+                                <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacher(course, scope.row)">分配老师</span>
                                 <span class="ml-10 cursor-pointer" :class="scope.row.no_rank_num <= 0 ? 'fc-9' : 'fc-m'" @click="planTimeTable(course, scope.row)">排课</span>
                               </template>
                           </el-table-column>

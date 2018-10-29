@@ -36,7 +36,7 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
+                <MyButton v-if="$$tools.isAuthority('exportUnsigned')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
             <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange" ref="studentTable">

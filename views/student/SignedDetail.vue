@@ -106,7 +106,7 @@
                         </el-table-column>
                         <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
-                                <span class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
+                                <span v-if="$$tools.isAuthority('purchaseCourse')" class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span v-if="$$tools.isAuthority('viewCourse')" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
                                 <span v-if="$$tools.isAuthority('refund') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$tools.isAuthority('viewRefund') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
@@ -194,7 +194,7 @@
                                     </div>
                                     <ul v-else class="table-item-list">
                                         <li v-for="(list, index) in scope.row.studentCourses" :key="index">
-                                            <span class="cursor-pointer fc-m" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
+                                            <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
                                         </li>
                                     </ul>
                                 </div>

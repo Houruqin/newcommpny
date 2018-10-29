@@ -167,7 +167,7 @@
                     <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
                         v-if="(item.id === 'addStudent' && $$tools.isAuthority('registerStudent'))
                          || (item.id === 'importStudent' && $$tools.isAuthority('importStudent'))
-                         || item.id != 'addListen' 
+                         || item.id != 'addListen'
                          || (item.id == 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
@@ -188,12 +188,12 @@
                 <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
                 <el-table-column label="学员姓名" align="center" width="160">
                   <template slot-scope="scope">
-                    <router-link v-if="scope.row.type === 'sign'" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                    <router-link v-if="scope.row.type === 'sign' && $$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon'>
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>
                     </router-link>
-                    <router-link v-else :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}">
+                    <router-link v-else-if="scope.row.type === 'unsign' && $$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}">
                       <span class='c_icon'>
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>

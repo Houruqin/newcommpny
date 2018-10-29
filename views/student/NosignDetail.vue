@@ -59,7 +59,7 @@
               </div>
               <div class="p-a d-f btn-toolbar">
                 <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2 && $$tools.isAuthority('handleAudition')" @click.native="addListenHandle">试听</MyButton>
-                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
+                <MyButton class="ml-20" v-if="$$tools.isAuthority('purchaseCourse')" @click.native="buyCourse">购课</MyButton>
               </div>
             </div>
         </el-card>

@@ -124,8 +124,9 @@
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
-                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
+                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
+                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -151,7 +152,7 @@
                             <div v-else class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant') || $$tools.isAuthority('assignTeacher')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -236,8 +237,9 @@
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
-                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
+                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
+                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -309,8 +311,9 @@
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type !== 'delete' && operation.type !== 'audition' ||
-                                  (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
+                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
+                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -376,15 +379,14 @@
 
                             <span v-else>
                               <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                              <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('deleteSigned')"
-                              @click="deleteStudent(scope.row.student_id)">删除</span>
+                              <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('deleteSigned')" @click="deleteStudent(scope.row.student_id)">删除</span>
                             </span>
 
                             <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type === 'audition' 
+                                  v-if="operation.type === 'audition'
                                   || (operation.type === 'edit' && $$tools.isAuthority('editSigned'))
                                   || (operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses'))
                                   || (activeTab === 'over' && $$tools.isAuthority('deleteSigned') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}

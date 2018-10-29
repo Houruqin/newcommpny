@@ -371,15 +371,15 @@
                   <template slot-scope="scope">
                     <!-- <a class="cursor-pointer fc-m" @click="assign_advisor(scope.row.id)">分配顾问</a> -->
                     <el-dropdown trigger="click" placement="left" @command="select_advisor">
-                                <span class="el-dropdown-link">
-                                    <div v-if="$$tools.isAuthority('assignConsultant') || $$tools.isAuthority('assignTeacher')" class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
-                                </span>
-                                <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
-                                    <el-scrollbar style="height: 100%;">
-                                        <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
-                                    </el-scrollbar>
-                                </el-dropdown-menu>
-                            </el-dropdown>
+                        <span class="el-dropdown-link">
+                            <div v-if="$$tools.isAuthority('assignConsultant')" class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
+                        </span>
+                        <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
+                            <el-scrollbar style="height: 100%;">
+                                <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                            </el-scrollbar>
+                        </el-dropdown-menu>
+                    </el-dropdown>
                   </template>
                 </el-table-column>
               </el-table>
