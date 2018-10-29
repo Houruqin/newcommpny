@@ -30,58 +30,6 @@ import Cache from '../script/cache';
 export default {
   data () {
     return {
-      // menuLists: [
-      //   {id: '/', text: '工作台', item: false, icon: 'icon-zhuye-copy'},
-      //   {id: '/student/nosign', text: '学员管理', item: true, icon: 'icon-xueyuanguanli', itemList: [
-      //     { id: '/student/nosign', text: '未签约学员' }, { id: '/student/signed', text: '签约学员' }
-      //   ]},
-      //   {id: `/timetable/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
-      //     text: '排课管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-paike',
-      //     itemList: [
-      //       {id: '/timetable/begrade', text: '有班课表'},
-      //       {id: '/timetable/nograde', text: '无班课表'}
-      //     ]
-      //   },
-      //   {id: '/academic/classElimination', text: '教务统计', item: true, icon: 'icon-jiaowuguanli', itemList: [
-      //     { id: '/academic/teacherLesson', text: '老师课时记录' },
-      //     { id: '/academic/classElimination', text: '学员消课记录' },
-      //     { id: '/academic/audition', text: '试听课记录' },
-      //     { id: '/academic/buy', text: '购课记录' }
-      //   ]},
-      //   {id: `/course/${Cache.getMemberInfo().class_pattern == 1 ? 'begrade' : Cache.getMemberInfo().class_pattern == 2 ? 'nograde' : 'index'}`,
-      //     text: '课程管理', item: !Cache.getMemberInfo().class_pattern, icon: 'icon-kecheng-',
-      //     itemList: [
-      //       {id: '/course/begrade', text: '有班课程'},
-      //       {id: '/course/nograde', text: '无班课程'}
-      //     ]
-      //   },
-      //   {id: '/staff', text: '员工管理', item: false, icon: 'icon-yuangongguanli'},
-      //   {id: '/inventory', text: '库存管理', item: true, icon: 'icon-kucunguanli',
-      //     itemList: [
-      //       {id: '/inventory/commodity', text: '物品管理'},
-      //       {id: '/inventory/storage', text: '出入库明细'},
-      //       {id: '/inventory/borrow', text: '借用记录'}
-      //     ]
-      //   },
-      //   {id: '/finance', text: '财务管理', item: true, icon: 'icon-finance',
-      //     itemList: [
-      //       {id: '/finance/income', text: '收款管理'},
-      //       {id: '/finance/outlay', text: '支出管理'},
-      //       {id: '/finance/refund', text: '退费管理'},
-      //       {id: '/finance/assign', text: '业绩分配'}
-      //     ]
-      //   },
-      //   {id: '/setting', text: '基础设置', item: true, icon: 'icon-shezhi1',
-      //     itemList: [
-      //       {id: '/setting', text: '教室渠道'},
-      //       {id: '/setting/wechat', text: '微信设置'},
-      //       {id: '/setting/system', text: '系统设置'},
-      //       {id: '/setting/authority', text: '权限设置'}
-      //     ]
-      //   },
-      //   {id: '/statistics', text: '校区统计', item: false, icon: 'icon-xuexiao'}
-      // ],
-
       menuLists: [],
       menuData: {
         workBench: {id: '/', icon: 'icon-zhuye-copy'},
@@ -149,20 +97,17 @@ export default {
       } else {
         res.menu.forEach(v => {
           if (v.display_status) {
-            let childItem;
+            let childItem = [];
 
             if (v.children) {
-              childItem = this.menuData[v.description].filter(k => {
+              this.menuData[v.description].itemLists.forEach(k => {
                 v.children.forEach(m => {
                   if (m.description === k.name) {
-                    return k;
+                    childItem.push(k);
                   }
                 });
               });
-            } else {
-              childItem = [];
             }
-            console.log(childItem);
             this.menuLists.push({
               id: this.menuData[v.description].id,
               text: v.name,

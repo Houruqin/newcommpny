@@ -9,10 +9,10 @@
       <div class="role-item-box mt-20">
         <div v-for="(item, index) in roleLists" :key="index" v-show="item.enName === activeId">
           <ul class="d-f">
-            <li v-for="(role, num) in item.role" :key="role.id" class="cursor-pointer" :class="{'active': role.id === activeRoleId, 'ml-20': num}"
-              @mouseover="role.hover = true" @mouseout="role.hover = false" @click="roleListsClick(role.id)">
+            <li v-for="(role, num) in item.role" :key="role.id" class="cursor-pointer p-r" :class="{'active': role.id === activeRoleId, 'ml-20': num, 'mr-20': role.level === 2 && activeRoleId === role.id}"
+              @click="roleListsClick(role.id)">
               <span>{{role.cnName}}</span>
-              <i class="iconfont icon-bianji fc-f ml-10" v-if="role.hover && role.level === 2 && activeRoleId === role.id" @click.stop="editRoleMethod(role)"></i>
+              <i class="iconfont icon-bianji fc-m ml-10 p-a edit-icon" v-if="role.level === 2 && activeRoleId === role.id" @click.stop="editRoleMethod(role)"></i>
             </li>
             <li class="add-btn ml-20 cursor-pointer" @click="addRoleMethod(item.departmentId)">
               <i class="iconfont icon-40 fc-subm"></i>
@@ -264,11 +264,11 @@ export default {
         return 0;
       }
 
-      result.lists.forEach(v => {
-        v.role.forEach(k => {
-          k.hover = false;
-        });
-      });
+      // result.lists.forEach(v => {
+      //   v.role.forEach(k => {
+      //     k.hover = false;
+      //   });
+      // });
 
       this.roleLists = result.lists;
       if (isRefresh) {
@@ -329,6 +329,11 @@ export default {
       background-color: #fff;
       border-radius: 3px;
       color: #45DAD5;
+      .edit-icon {
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
       &.active {
         background-color: #45DAD5;
         color: #fff;
