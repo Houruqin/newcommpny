@@ -120,7 +120,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due"
                                             :class="{'hover': scope.row.week_one.operate == true}"
                                             @click="addTimetable('single', scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
-                                            <div v-show="scope.row.week_one.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_one.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -135,7 +135,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due"
                                             :class="{'hover': scope.row.week_two.operate == true}"
                                             @click="addTimetable('single', scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
-                                            <div v-show="scope.row.week_two.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_two.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -150,7 +150,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due"
                                             :class="{'hover': scope.row.week_three.operate == true}"
                                             @click="addTimetable('single', scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
-                                            <div v-show="scope.row.week_three.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_three.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -165,7 +165,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due"
                                             :class="{'hover': scope.row.week_four.operate == true}"
                                             @click="addTimetable('single', scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
-                                            <div v-show="scope.row.week_four.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_four.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -179,7 +179,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due"
                                             :class="{'hover': scope.row.week_five.operate == true}"
                                             @click="addTimetable('single', scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
-                                            <div v-show="scope.row.week_five.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_five.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -193,7 +193,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due"
                                             :class="{'hover': scope.row.week_six.operate == true}"
                                             @click="addTimetable('single', scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
-                                            <div v-show="scope.row.week_six.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_six.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -207,7 +207,7 @@
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due"
                                             :class="{'hover': scope.row.week_seven.operate == true}"
                                             @click="addTimetable('single', scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
-                                            <div v-show="scope.row.week_seven.operate"><i class="iconfont icon-add"></i></div>
+                                            <div v-show="$$tools.isAuthority('noClassScheduling') && scope.row.week_seven.operate"><i class="iconfont icon-add"></i></div>
                                         </div>
                                     </div>
                                 </template>
@@ -256,8 +256,8 @@
                                                 </div>
 
                                                 <div class="d-f f-a-c mr-30 ml-30 edit-btn" v-if="item.operate && !row.past_due">
-                                                    <a @click="detailEdit(item)">编辑</a>
-                                                    <a class="ml-20" @click="detailDelete(item)">删除</a>
+                                                    <a v-if="$$tools.isAuthority('noClassScheduling')" @click="detailEdit(item)">编辑</a>
+                                                    <a v-if="$$tools.isAuthority('deleteTimetable')" class="ml-20" @click="detailDelete(item)">删除</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -784,6 +784,7 @@ export default {
     },
     //详情编辑
     detailEdit (detail) {
+      if(!this.$$tools.isAuthority('noClassScheduling')) return false;
       console.log(detail);
 
       this.addTableType = 'edit';
@@ -838,6 +839,7 @@ export default {
     },
     //详情删除
     detailDelete (detail) {
+        if(!this.$$tools.isAuthority('deleteTimetable')) return false;
       this.$confirm('确定删除排课吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -865,6 +867,7 @@ export default {
     },
     //新增排课  type: single / multiple
     addTimetable (type, time, full_day, week) {
+        if(!this.$$tools.isAuthority('noClassScheduling')) return false;
       if (!this.planCourseLists.length) {
         return this.$message.warning('没有可排课的课程，请新增课程!');
       }
