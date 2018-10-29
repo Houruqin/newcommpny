@@ -25,7 +25,8 @@ const state = {
   allUser: [], //所有用户列表
   roleLists: [], //所有用户角色列表
   systemSetting: {},
-  followupStatus: []
+  followupStatus: [],
+  authorityLists: [] //权限列表(只包含操作权限)
 };
 
 const mutations = {
@@ -156,7 +157,7 @@ const mutations = {
     console.log(result);
     state.teacherList = result.lists;
   },
-  async getFollowupStatusLists () {
+  async getFollowupStatusLists (state) {
     let result = await Request.get('/followUp/status');
 
     if (!result) {
@@ -164,6 +165,10 @@ const mutations = {
     }
     console.log(result);
     state.followupStatus = result.status;
+  },
+  // 保存权限
+  saveAuthority (state, data) {
+    state.authorityLists = data;
   }
 };
 

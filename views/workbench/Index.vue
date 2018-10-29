@@ -54,7 +54,7 @@
         <el-card shadow="hover">
           <TableHeader title="今日待办">
             <MyButton @click.native="register">登记学员</MyButton>
-            <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;">备忘录</div>
+            <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;" v-if="$$tools.isAuthority('addMemo')">备忘录</div>
           </TableHeader>
           <el-tabs v-model="activeName" @tab-click="change_tab">
 
@@ -1698,6 +1698,8 @@ export default {
     }
   },
   async created () {
+    this.$$tools.isAuthority();
+
     this.$store.dispatch('getSynstemSetLists');
 
     this.user_info = this.$$cache.getMemberInfo();

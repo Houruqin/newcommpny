@@ -16,12 +16,12 @@
                           <el-form :model="roleType" size="small" ref="roleTypeForm" :rules="roleTypeRules" v-for="(roleType, num) in roleTypeForm" :key="num">
                             <div class="d-f p-r">
                               <el-form-item label-width="0" prop="department_id" class="flex1">
-                                <el-select placeholder="选择部门" v-model="roleType.department_id" @change="roleType.role_id = ''">
+                                <el-select placeholder="选择部门" v-model="roleType.department_id" @change="roleType.role_id = ''" :disabled="Boolean(role)">
                                     <el-option v-for="(item, index) in $store.state.roleLists" v-if="item.enName !== 'master'" :disabled="departmentOptionIsDisabled(item.departmentId)" :key="index" :label="item.cnName" :value="item.departmentId"></el-option>
                                 </el-select>
                               </el-form-item>
                               <el-form-item label-width="0" prop="role_id" class="flex1 ml-10">
-                                  <el-select placeholder="选择职务" v-model="roleType.role_id">
+                                  <el-select placeholder="选择职务" v-model="roleType.role_id" :disabled="Boolean(role)">
                                       <el-option v-for="(item, index) in roleSelectOptions[roleType.department_id]" :key="index"  :label="item.cnName" :value="item.id"></el-option>
                                   </el-select>
                               </el-form-item>
@@ -45,13 +45,6 @@
                               <el-option label="兼职" :value="2"></el-option>
                           </el-select>
                       </el-form-item>
-                      <!-- <el-form-item label="职务：" prop="role_type">
-                          <el-select v-if="!role" v-model="staffForm.role_type" multiple  placeholder="选择职务名称" @remove-tag="remove_tag">
-                              <el-option v-if="staffForm.role_type.indexOf('master') !== -1" value="master" label="校长" :disabled="true"></el-option>
-                              <el-option v-for="(item, index) in $store.state.roleLists" v-if="item.name !== 'master'" :key="index" :label="item.display_name" :value="item.name"></el-option>
-                          </el-select>
-                          <span v-else>{{staffForm.role_name}}</span>
-                      </el-form-item> -->
                       <el-form-item label="入职时间：" prop="entry_date">
                           <el-date-picker
                               v-model="staffForm.entry_date"
@@ -115,10 +108,14 @@ export default {
     role (newVal) {
       if (newVal) {
         this.$store.state.roleLists.forEach(v => {
-          if (v.name === newVal) {
-            this.staffForm.role_type = [newVal];
-            this.staffForm.role_name = v.display_name;
-          }
+          v.role.forEach(k => {
+            if (k.enName === newVal) {
+              this.roleTypeForm.push({
+                department_id: k.parent_id,
+                role_id: k.id
+              });
+            }
+          });
         });
       }
     }
@@ -187,7 +184,7 @@ export default {
         }
       });
 
-      if (this.staffType === 'add') {
+      if (this.staffType === 'add' && !this.role) {
         this.roleTypeForm.push({department_id: '', role_id: ''});
       }
 

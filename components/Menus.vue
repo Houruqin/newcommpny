@@ -82,6 +82,11 @@ export default {
       if (!res) {
         return 0;
       }
+
+      let permission = res.permission.filter(v => {return v.type === 'permission'});
+
+      this.$store.commit('saveAuthority', permission);
+
       let arr = res.roleList.map(v => {return v.enName});
 
       this.menuLists.splice(0, this.menuLists.length);

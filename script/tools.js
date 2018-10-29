@@ -1,4 +1,7 @@
 import Vue from 'vue';
+import store from '../store/store';
+import cache from './cache';
+
 
 const VALIDATE_RULE = {
   number: {reg: /^[0-9]+.?[0-9]*$/, message: '请输入数字'}, //纯数字验证
@@ -19,6 +22,18 @@ const VALIDATE_RULE = {
 // };
 
 const Tools = {
+  // 权限验证
+  isAuthority (authority) {
+    let permission = store.state.authorityLists.map(v => {return v.description});
+
+    console.log(permission);
+
+    if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
+      return true;
+    }
+
+    return permission.includes(authority);
+  },
   //表单验证
   formValidate (type) {
     return (rule, value, callback) => {

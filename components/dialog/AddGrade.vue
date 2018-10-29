@@ -126,7 +126,6 @@ export default {
       this.gradeDialogStatus = newVal;
     },
     type (newVal) {
-      console.log(newVal);
       this.gradeType = newVal;
     },
     editDetail (newVal) {
@@ -166,7 +165,7 @@ export default {
 
       gradeType: 'add',
       userType: 'add',
-      userRole: '',
+      userRole: false,
 
       disabled: {
         teacher: false,
@@ -416,6 +415,22 @@ export default {
       this.$emit('CB-addGrade', params.course_id);
       this.$store.dispatch('getCourse');
       this.studentLists.splice(0, this.studentLists.length); //成功以后，studentLists选中的学员列表清空
+    },
+    // 获取角色列表
+    async getRoleLists () {
+      let result = await this.$$request.post('/permission/roleLists');
+
+      if (!result) {
+        return 0;
+      }
+      this.$store.commit('getRoleLists', result.lists);
+    }
+  },
+  created () {
+    let roleList = this.$store.state.roleLists;
+
+    if (!roleList.length) {
+      this.getRoleLists();
     }
   }
 };
