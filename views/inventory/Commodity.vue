@@ -3,8 +3,8 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="物品管理">
-                <MyButton @click.native="typeSetting" type="border" fontColor="fc-m">类型设置</MyButton>
-                <MyButton @click.native="addCommodity" class="ml-20">添加物品</MyButton>
+                <MyButton @click.native="typeSetting" type="border" fontColor="fc-m" v-if="$$tools.isAuthority('viewThingsType')">类型设置</MyButton>
+                <MyButton @click.native="addCommodity" class="ml-20" v-if="$$tools.isAuthority('addThings')">添加物品</MyButton>
             </TableHeader>
 
             <div class="fifter-toolbar mt-30">
@@ -62,13 +62,15 @@
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <span class="fc-m cursor-pointer" @click="addStorage(scope.row)">入库</span>
-                        <span class="fc-m ml-10 cursor-pointer" @click="removeStorage(scope.row)">出库</span>
+                        <span class="fc-m cursor-pointer" @click="addStorage(scope.row)" v-if="$$tools.isAuthority('inTreasury')">入库</span>
+                        <span class="fc-m ml-10 cursor-pointer" @click="removeStorage(scope.row)" v-if="$$tools.isAuthority('outTreasury')">出库</span>
                         <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                             <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                             <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                    v-if="operation.type !== 'borrow' || (operation.type == 'borrow' && scope.row.use_type != 2)"
+                                    v-if="(operation.type === 'delete' && $$tools.isAuthority('deleteThings'))
+                                        || (operation.type === 'borrow' && scope.row.use_type != 2 && $$tools.isAuthority('borrowThings'))
+                                        || (operation.type === 'edit' && $$tools.isAuthority('editThings'))"
                                     :command="{type: operation.type, data: scope.row}">{{operation.text}}
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -113,7 +115,7 @@
                             <el-select v-model="addCommodityForm.type" placeholder="请选择">
                                 <el-option v-for="(item, index) in commodityTypeLists" v-if="item.status != -2" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
-                            <div class="p-a add-commodity-type ver-c cursor-pointer" @click="addCommodityType"><img src="../../images/common/add.png" alt=""></div>
+                            <div v-if="$$tools.isAuthority('addThingsType')" class="p-a add-commodity-type ver-c cursor-pointer" @click="addCommodityType"><img src="../../images/common/add.png" alt=""></div>
                         </el-form-item>
 
                         <el-form-item label="物品单位：" prop="unit">
@@ -145,7 +147,7 @@
               <Explain title="explain_p"></Explain>
             </span>
 
-            <div class="d-f f-j-e"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
+            <div class="d-f f-j-e" v-if="$$tools.isAuthority('addThingsType')"><MyButton @click.native="addCommodityType">添加物品类型</MyButton></div>
 
             <el-table class="mt-20 bor-t" :data="commodityTypeLists" v-loading="loading" stripe height="400">
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
@@ -155,9 +157,9 @@
                 </el-table-column>
                 <el-table-column label="物品类型" align="center">
                     <template slot-scope="scope">
-                        <span class="fc-m cursor-pointer" @click="commodityTypeHandle('edit', scope.row)">修改</span>
-                        <span class="fc-m cursor-pointer ml-10" @click="commodityTypeHandle(scope.row.status, scope.row)">{{scope.row.status == 1 ? '禁用' : '启用'}}</span>
-                        <span class="fc-m cursor-pointer ml-10" @click="commodityTypeHandle('delete', scope.row)">删除</span>
+                        <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('modifyThingsType')" @click="commodityTypeHandle('edit', scope.row)">修改</span>
+                        <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('forbidEnableThings')" @click="commodityTypeHandle(scope.row.status, scope.row)">{{scope.row.status == 1 ? '禁用' : '启用'}}</span>
+                        <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('deleteThingsType')" @click="commodityTypeHandle('delete', scope.row)">删除</span>
                     </template>
                 </el-table-column>
             </el-table>

@@ -3,7 +3,7 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="无班课程">
-                <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
+                <MyButton @click.native="addCourse" class="ml-20" v-if="$$tools.isAuthority('addCourse')">添加课程</MyButton>
             </TableHeader>
             <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
                 <el-tab-pane label="一对多" name="1"></el-tab-pane>
@@ -15,7 +15,7 @@
                       <div class="d-f f-a-c">
                           <span class="fc-7 fs-16 d-f f-a-c">
                               <i class="fc-5">{{course.name}}</i>
-                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
+                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)" v-if="$$tools.isAuthority('editCourse')"></i>
                           </span>
                           <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                       </div>

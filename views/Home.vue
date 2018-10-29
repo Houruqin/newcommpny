@@ -703,16 +703,12 @@ export default {
       if (!result) {
         return 0;
       }
-      this.schoolId = school_id;
 
-      let memberInfo = this.$$cache.getMemberInfo();
-
-      memberInfo.school_id = school_id;
-      this.$$cache.setMemberInfo(memberInfo);
-
-      this.getSchoolName();
-
-      this.$router.push({path: '/refresh', query: {url: '/'}}); //刷新工作台路由
+      this.$store.commit('saveAuthority', d => {
+        if (d) {
+          this.$router.push({path: '/refresh', query: {url: '/'}}); //刷新工作台路由
+        }
+      });
     },
     //根据school_id获取校区名称
     getSchoolName () {

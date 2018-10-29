@@ -3,8 +3,8 @@
     <PageState :state="state" />
     <el-card shadow="hover">
       <TableHeader title="支出管理">
-        <MyButton @click.native="open_setting_dialog" type="border" fontColor="fc-m">类型设置</MyButton>
-        <MyButton @click.native="open_outlay_dialog" class="ml-20">添加支出</MyButton>
+        <MyButton @click.native="open_setting_dialog" type="border" fontColor="fc-m" v-if="$$tools.isAuthority('viewExpenditureType')">类型设置</MyButton>
+        <MyButton @click.native="open_outlay_dialog" class="ml-20" v-if="$$tools.isAuthority('addExpenditure')">添加支出</MyButton>
       </TableHeader>
 
       <div class="toolbar mt-20">
@@ -106,7 +106,7 @@
                 <el-select v-model="dialog.add.data.type_id" placeholder="请选择">
                   <el-option v-if="type.status === 1" @click.native="dialog.add.data.type = type.name" v-for="type of dialog.add.data.type_lists" :key="type.id" :label="type.name" :value="type.id"></el-option>
                 </el-select>
-                <div class="p-a add-commodity-type ver-c cursor-pointer" @click="open_outlay_type"><img src="../../images/common/add.png" alt=""></div>
+                <div v-if="$$tools.isAuthority('addExpenditureType')" class="p-a add-commodity-type ver-c cursor-pointer" @click="open_outlay_type"><img src="../../images/common/add.png" alt=""></div>
               </el-form-item>
             </el-col>
           </el-row>
@@ -149,7 +149,7 @@
       <!-- 类型设置弹窗 -->
       <el-dialog title="类型设置" width="700px" center :visible.sync="dialog.setting.show" :close-on-click-modal="false">
         <div class="d-f f-j-e">
-          <MyButton @click.native="open_outlay_type">添加支出类型</MyButton>
+          <MyButton @click.native="open_outlay_type" v-if="$$tools.isAuthority('addExpenditureType')">添加支出类型</MyButton>
         </div>
 
         <el-table class="mt-20 bor-t" :data="dialog.add.data.type_lists" v-loading="loading" stripe>
@@ -160,10 +160,10 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
-              <span class="fc-m cursor-pointer" @click="type_edit(scope.row.id,scope.row.name)">修改</span>
-              <span v-if="scope.row.status === 1" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,0)">禁用</span>
-              <span v-if="scope.row.status === 0" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,1)">启用</span>
-              <span class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,-1)">删除</span>
+              <span class="fc-m cursor-pointer" @click="type_edit(scope.row.id,scope.row.name)" v-if="$$tools.isAuthority('modifyExpenditureType')">修改</span>
+              <span v-if="scope.row.status === 1 && $$tools.isAuthority('forbidEnableExpenditure')" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,0)">禁用</span>
+              <span v-if="scope.row.status === 0 && $$tools.isAuthority('forbidEnableExpenditure')" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,1)">启用</span>
+              <span class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,-1)" v-if="$$tools.isAuthority('deleteExpenditureType')">删除</span>
             </template>
           </el-table-column>
         </el-table>

@@ -3,7 +3,7 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="有班课程">
-                <MyButton @click.native="addCourse" class="ml-20">添加课程</MyButton>
+                <MyButton @click.native="addCourse" class="ml-20" v-if="$$tools.isAuthority('addCourse')">添加课程</MyButton>
             </TableHeader>
             <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
                 <el-tab-pane label="一对多" name="1"></el-tab-pane>
@@ -15,7 +15,7 @@
                       <div class="d-f f-a-c">
                           <span class="fc-7 fs-16 d-f f-a-c">
                               <i class="fc-5">{{course.name}}</i>
-                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)"></i>
+                              <i class="iconfont icon-bianji ml-10" @click="editCourse(course)" v-if="$$tools.isAuthority('editCourse')"></i>
                           </span>
                           <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                       </div>
@@ -37,7 +37,8 @@
                               <el-table-column label="序号" type="index" align="center"></el-table-column>
                               <el-table-column label="班级" align="center">
                                   <template slot-scope="scope">
-                                      <router-link :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                                      <router-link v-if="$$tools.isAuthority('viewClass')" :to="{path: '/course/detail', query: {grade_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                                      <span v-else>{{scope.row.name}}</span>
                                   </template>
                               </el-table-column>
                               <el-table-column label="开课日期" align="center">
@@ -81,14 +82,15 @@
                               <el-table-column label="操作" align="center">
                                   <template slot-scope="scope">
                                       <span class="cursor-pointer" :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
-                                      <span class="fc-m ml-10 cursor-pointer" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
+                                      <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
                                       <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                                           <el-dropdown-menu slot="dropdown" class="operation-lists">
                                               <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
                                                   <!--未开课-->
                                                   <template v-if="scope.row.begin_status == 0">
-                                                      <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'">
+                                                      <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
+                                                          || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
                                                           <i class="iconfont" :class="item.icon"></i>
                                                           <span>{{item.text}}</span>
                                                       </div>
@@ -97,7 +99,9 @@
                                                   <template v-else>
                                                       <!--停课-->
                                                       <template v-if="scope.row.status == -3">
-                                                          <div class="d-f f-j-b" v-if="item.type == 'begin' || item.type == 'edit' || item.type == 'delete'">
+                                                          <div class="d-f f-j-b" v-if="(item.type == 'begin' && $$tools.isAuthority('stopClasses'))
+                                                              || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
+                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>
                                                           </div>
@@ -105,7 +109,8 @@
 
                                                       <!--结课-->
                                                       <template v-else-if="scope.row.status == -2">
-                                                          <div class="d-f f-j-b" v-if="item.type == 'edit' || item.type == 'delete'"
+                                                          <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
+                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
                                                               :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>
@@ -114,7 +119,9 @@
 
                                                       <!--正常开课-->
                                                       <template v-else>
-                                                          <div class="d-f f-j-b" v-if="item.type == 'stop' || item.type == 'edit' || item.type == 'delete'"
+                                                          <div class="d-f f-j-b" v-if="(item.type == 'stop' && $$tools.isAuthority('stopClasses'))
+                                                              || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
+                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
                                                               :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>

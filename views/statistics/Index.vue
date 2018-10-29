@@ -2,21 +2,14 @@
   <div class="flex1">
         <PageState :state="state"/>
         <!-- 年龄及性别统计 -->
-        <el-card shadow="hover">
-            <TableHeader title="校区统计"></TableHeader>
+        <el-card shadow="hover" v-show="$$tools.isAuthority('viewAgeSexChart')">
+            <!-- <TableHeader title="校区统计"></TableHeader> -->
             <h4>年龄及性别统计</h4>
             <div class="d-f f-a-c">
               <el-select v-model="sex.student_type" placeholder="请选择" size="small" @change="sexStudentTypeChange" class="my-input">
                   <el-option label="已签约学员" value="sign"></el-option>
                   <el-option label="未签约学员" value="unsign"></el-option>
               </el-select>
-              <!-- <el-dropdown trigger="click" @command="sexStudentTypeChange" placement="bottom">
-                <span class="cursor-pointer">{{sex.student_type === 'sign' ? '已签约学员' : '未签约学员'}}<i class="el-icon-arrow-down el-icon--right"></i></span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="sign">已签约学员</el-dropdown-item>
-                  <el-dropdown-item command="unsign">未签约学员</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown> -->
               <div class="ml-20">
                 <span>时间：</span>
                 <el-date-picker size="small" @change="sexDateChange" class="date-select" v-model="sex.start_time" :editable="false" :clearable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
@@ -38,7 +31,7 @@
         </el-card>
 
         <!-- 签约学员统计 -->
-        <el-card class="mt-20" shadow="hover">
+        <el-card class="mt-20" shadow="hover" v-show="$$tools.isAuthority('viewSignedChart')">
             <h4>签约学员统计</h4>
             <div class="my-input">
               <span>年份：</span>
@@ -58,7 +51,7 @@
         </el-card>
 
         <!-- 课程及考勤统计 -->
-        <el-card class="mt-20" shadow="hover">
+        <el-card class="mt-20" shadow="hover" v-show="$$tools.isAuthority('viewCourseChart')">
             <h4>课程及考勤统计</h4>
             <div class="my-input">
               <span>年份：</span>
@@ -70,7 +63,7 @@
         </el-card>
 
         <!-- 渠道统计 -->
-        <el-card class="mt-20" shadow="hover">
+        <el-card class="mt-20" shadow="hover" v-show="$$tools.isAuthority('viewChannelChart')">
             <div class="d-f f-a-c">
                 <h4>渠道统计</h4>
                 <el-select class="my-input ml-20" v-model="source.student_type" placeholder="请选择" size="small" @change="sourceStudentTypeChange">
@@ -109,7 +102,7 @@
         </el-card>
 
         <!-- 销售统计 -->
-        <el-card class="mt-20" shadow="hover">
+        <el-card class="mt-20" shadow="hover" v-show="$$tools.isAuthority('viewSalesChart')">
             <h4>销售统计</h4>
             <div class="d-f f-a-c">
                 <el-select class="my-input" v-model="sell.advisor_id" placeholder="请选择" size="small" @change="sellAdvisorChange">
@@ -124,23 +117,7 @@
                 </div>
             </div>
             <div class="sell-box d-f pb-20 f-j-b" v-if="Object.keys(sell.sell_lists).length">
-                <div class="funnel-chart flex1 d-f" ref="sellLeft">
-                    <!-- <div class="model-box p-r">
-                        <ul>
-                            <li v-for="(item, index) in sell.sell_lists.data" :key="index" :style="{backgroundColor: item.color}" :class="{'mt-5': index > 0}"></li>
-                        </ul>
-                    </div>
-
-                    <ul class="detail-box pl-20">
-                        <li v-for="(item, index) in sell.sell_lists.data" :key="index" class="p-r d-f f-a-c" :class="{'mt-5': index > 0}">
-                            <div class="line"></div>
-                            <div class="detail d-f f-a-c ml-5">
-                                <span class="type" :style="{backgroundColor: item.color}"></span>
-                                <span class="fc-7 fs-12 ml-10">{{item.name}}：{{item.c}}</span>
-                            </div>
-                        </li>
-                    </ul> -->
-                </div>
+                <div class="funnel-chart flex1 d-f" ref="sellLeft"></div>
                 <div class="sell-right flex1 d-f f-d-c f-j-c f-a-c">
                     <div class="item p-r">
                         <span class="fs-15 fc-5">成交率（全额/全部）</span>
