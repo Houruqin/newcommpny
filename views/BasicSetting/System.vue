@@ -9,22 +9,22 @@
 
           <!-- 课程大纲 -->
           <div v-if="list === 'outline'">
-            <el-switch v-model="setting[list].status" active-color="#45DAD5" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
+            <el-switch v-model="setting[list].status" active-color="#45DAD5" :disabled="!$$tools.isAuthority('editSystem')" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
           </div>
 
           <!-- 请假是否扣课时 -->
           <div v-else-if="list === 'LeaveTicketDeductLessonNum'">
-            <el-radio-group v-model="setting[list].num" @change="saveSetting(list)">
+            <el-radio-group v-model="setting[list].num" @change="saveSetting(list)" :disabled="!$$tools.isAuthority('editSystem')">
               <el-radio v-for="(option, k) in lessonNumOptions" :key="k" :label="option.id">{{option.name}}</el-radio>
             </el-radio-group>
           </div>
 
           <!-- 流失学员 -->
           <div v-else-if="list === 'longTimeNoByCourse'" class="d-f f-d-c f-a-e">
-            <el-switch v-model="setting[list].status" active-color="#45DAD5" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
+            <el-switch v-model="setting[list].status" active-color="#45DAD5" :disabled="!$$tools.isAuthority('editSystem')" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
             <div class="mt-20 fc-7 p-r">
               <span>在课程结束后</span>
-              <el-input type="number" class="ml-10 mr-10" v-model.trim="setting[list].num" size="small" :disabled="!setting[list].status"/>
+              <el-input type="number" class="ml-10 mr-10" v-model.trim="setting[list].num" size="small" :disabled="!setting[list].status || !$$tools.isAuthority('editSystem')"/>
               <span>天未续费，自动进入流失学员名单</span>
               <div v-if="setting[list].num != setting[list].oldVal" class="save-btn" @click="saveSetting(list)">保存</div>
             </div>
@@ -32,7 +32,7 @@
 
           <!-- 其他输入值 -->
           <div v-else class="p-r">
-            <el-input type="number" v-model.trim="setting[list].num" size="small"/>
+            <el-input type="number" v-model.trim="setting[list].num" size="small" :disabled="!$$tools.isAuthority('editSystem')"/>
             <span class="pl-10 fc-9 fs-12">{{setting[list].unit}}</span>
             <div v-if="setting[list].num != setting[list].oldVal" class="save-btn" @click="saveSetting(list)">保存</div>
           </div>

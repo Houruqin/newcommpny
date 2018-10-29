@@ -5,7 +5,7 @@
           <el-col :span="12">
             <el-card shadow="hover">
                 <TableHeader title="教室设置">
-                    <MyButton @click.native="buttonHandle('addClassroom')">添加教室</MyButton>
+                    <MyButton @click.native="buttonHandle('addClassroom')" v-if="$$tools.isAuthority('addClassroom')">添加教室</MyButton>
                 </TableHeader>
                 <el-table :data="$store.state.classRoom" stripe>
                     <el-table-column label="序号" type="index" width="80" align="center"></el-table-column>
@@ -13,8 +13,8 @@
                     <el-table-column label="操作" width="100" align="center">
                         <template slot-scope="scope">
                             <div class="d-f f-j-c">
-                                <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'class')">编辑</span>
-                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'class')">删除</span>
+                                <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'class')" v-if="$$tools.isAuthority('editClassroom')">编辑</span>
+                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'class')" v-if="$$tools.isAuthority('deleteClassroom')">删除</span>
                             </div>
                         </template>
                     </el-table-column>
@@ -24,7 +24,7 @@
           <el-col :span="12">
             <el-card class="card-box" shadow="hover">
                 <TableHeader title="渠道来源">
-                    <MyButton @click.native="buttonHandle('addSource')">添加渠道</MyButton>
+                    <MyButton @click.native="buttonHandle('addSource')" v-if="$$tools.isAuthority('addChannel')">添加渠道</MyButton>
                 </TableHeader>
                 <el-table :data="$store.state.source" stripe cell-class-name="cell-style">
                     <el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
@@ -32,8 +32,8 @@
                     <el-table-column label="操作" width="100" align="center">
                         <template slot-scope="scope">
                             <div class="d-f f-j-c">
-                                <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'source')">编辑</span>
-                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'source')">删除</span>
+                                <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'source')" v-if="$$tools.isAuthority('editChannel')">编辑</span>
+                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'source')" v-if="$$tools.isAuthority('deleteChannel')">删除</span>
                             </div>
                         </template>
                     </el-table-column>

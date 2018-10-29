@@ -71,11 +71,7 @@
         <el-table-column label="业绩金额" prop="achieve_price" align="center"></el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <div>
-              <div>
-                <span class="fc-m cursor-pointer" @click="open_setting(scope.row)">调整业绩</span>
-              </div>
-            </div>
+            <span class="fc-m cursor-pointer" @click="open_setting(scope.row)" v-if="$$tools.isAuthority('adjustAchievement')">调整业绩</span>
           </template>
         </el-table-column>
       </el-table>

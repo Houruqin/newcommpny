@@ -40,7 +40,7 @@
 
         <div class="d-f f-j-c mt-20">
             <MyButton @click.native="doneHandle('courseForm')" :loading="submitLoading">提交</MyButton>
-            <MyButton v-if="courseType == 'edit'" class="ml-20" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
+            <MyButton v-if="courseType == 'edit' && $$tools.isAuthority('deleteCourse')" class="ml-20" type="gray" @click.native="deleteCourse(courseForm.id)">删除</MyButton>
         </div>
     </el-dialog>
 </template>

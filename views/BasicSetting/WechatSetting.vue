@@ -16,10 +16,10 @@
           el-row(v-for="(name, index) in LEFT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
-              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
+              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)" :disabled="!$$tools.isAuthority('editWechat')")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" type="number")
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status || !$$tools.isAuthority('editWechat')" type="number")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num != setting[name].oldval" @click="buttonClickHandler(name)") 保存
 
         //- 右侧设置列表
@@ -33,10 +33,10 @@
           el-row(v-for="(name, index) in RIGHT_SETTING_SORT" :key="index" :class="{ input_row: 'num' in setting[name] }")
             el-col {{ setting[name].label }}
             el-col
-              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)")
+              el-switch(v-model="setting[name].status" @change="switchChangeHandler(name)" :disabled="!$$tools.isAuthority('editWechat')")
               div(v-if="'num' in setting[name]")
                 label.mr-10 {{ setting[name].prefix }}
-                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status" type="number")
+                el-input(v-model="setting[name].num" size="small" :disabled="!setting[name].status || !$$tools.isAuthority('editWechat')" type="number")
                 .button(:class="{ disabled: !setting[name].status }" v-if="setting[name].num != setting[name].oldval" @click="buttonClickHandler(name)") 保存
 </template>
 <script>

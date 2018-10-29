@@ -28,7 +28,6 @@ const state = {
   followupStatus: [],
 
   allMenusData: {} // 初始化菜单数据，包含权限、菜单、角色
-  // authorityLists: [] //权限列表(只包含操作权限)
 };
 
 const mutations = {
@@ -169,8 +168,17 @@ const mutations = {
     state.followupStatus = result.status;
   },
   // 保存权限
-  saveAuthority (state, data) {
-    state.allMenusData = data;
+  async saveAuthority (state, fn) {
+    let res = await Request.get('/user/permission');
+
+    console.log(res);
+    if (!res) {
+      return 0;
+    }
+    state.allMenusData = res;
+    if (fn && typeof fn === 'function') {
+      fn(true);
+    }
   }
 };
 

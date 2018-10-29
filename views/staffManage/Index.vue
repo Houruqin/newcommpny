@@ -3,7 +3,7 @@
         <PageState :state="state" />
         <el-card shadow="hover">
             <TableHeader title="员工管理">
-                <MyButton @click.native="addUser">添加员工</MyButton>
+                <MyButton @click.native="addUser" v-if="$$tools.isAuthority('addStaffs')">添加员工</MyButton>
             </TableHeader>
             <div class="d-f f-a-c tab-box p-r">
                 <ul class="d-f tab-toolbar">
@@ -32,7 +32,7 @@
                   <el-table-column label="序号" type="index" align="center"></el-table-column>
                   <el-table-column label="员工姓名" align="center">
                       <template slot-scope="scope">
-                          <router-link v-if="scope.row.status" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
+                          <router-link v-if="scope.row.status && $$tools.isAuthority('viewStaffs')" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
                           <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
                       </template>
                   </el-table-column>
@@ -60,11 +60,11 @@
                       <template slot-scope="scope">
                         <div class="operable-btn-box">
                           <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
-                          <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable" @click="modifyHandle(scope.row)">编辑</span>
+                          <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable && $$tools.isAuthority('editStaffs')" @click="modifyHandle(scope.row)">编辑</span>
                           <span class="cursor-pointer fc-m" v-if="scope.row.operable" @click="forbidClick(scope.row)">
                               {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
                           </span>
-                          <span class="cursor-pointer fc-m" v-if="scope.row.leaveEnable && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
+                          <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('quitStaffs') && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
                         </div>
                       </template>
                   </el-table-column>

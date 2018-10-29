@@ -37,7 +37,7 @@ export default {
           {id: '/student/nosign', name: 'nosign', text: '未签约学员'},
           {id: '/student/signed', name: 'signed', text: '签约学员'}
         ]},
-        timetable: {id: '/timetable/begrade', icon: 'icon-paike', itemLists: [
+        timetable: {id: `/timetable/${Cache.getMemberInfo().class_pattern === 2 ? 'nograde' : 'begrade'}`, icon: 'icon-paike', itemLists: [
           {id: '/timetable/begrade', name: 'begrade', text: '有班课表'},
           {id: '/timetable/nograde', name: 'nograde', text: '无班课程'}
         ]},
@@ -47,7 +47,7 @@ export default {
           {id: '/academic/audition', name: 'audition', text: '试听课记录'},
           {id: '/academic/buy', name: 'buy', text: '购课记录'}
         ]},
-        course: {id: '/course/begrade', icon: 'icon-kecheng-', itemLists: [
+        course: {id: `/course/${Cache.getMemberInfo().class_pattern === 2 ? 'nograde' : 'begrade'}`, icon: 'icon-kecheng-', itemLists: [
           {id: '/course/begrade', name: 'begradeCourse', text: '有班课程'},
           {id: '/course/nograde', name: 'nogradeCourse', text: '无班课程'}
         ]},
@@ -78,16 +78,28 @@ export default {
     async getAllRoleMenus () {
       let roleList = this.$store.state.allMenusData.roleList;
       let menuData = this.$store.state.allMenusData.menu;
-      let arr = roleList.map(v => {return v.enName});
+      let arr = roleList.map(v => {
+        return v.enName;
+      });
+
+      console.log(menuData);
 
       this.menuLists.splice(0, this.menuLists.length);
       if (arr.includes('master') || arr.includes('institution')) {
         this.menuLists = menuData.map(v => {
+          let itemLists = [];
+
+          if (v.description === 'timetable' || v.description === 'course') {
+            itemLists = this.$$cache.getMemberInfo().class_pattern === 0 ? this.menuData[v.description].itemLists : [];
+          } else {
+            itemLists = this.menuData[v.description].itemLists ? this.menuData[v.description].itemLists : [];
+          }
+
           return {
             id: this.menuData[v.description].id,
             text: v.name,
             icon: this.menuData[v.description].icon,
-            itemLists: this.menuData[v.description].itemLists ? this.menuData[v.description].itemLists : []
+            itemLists: itemLists
           };
         });
       } else {

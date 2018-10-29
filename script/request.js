@@ -47,9 +47,8 @@ axios.interceptors.response.use(res => {
       if (result.data.token) {
         if (cache.get('isRemember')) {
           cache.set('TOKEN', result.data.token);
-        } //是否记住密码，保存不同的位置
-        else {
-          cache.setSession('TOKEN', result.data.token);
+        } else {
+          cache.setSession('TOKEN', result.data.token); //是否记住密码，保存不同的位置
         }
         cache.setMemberInfo(result.data.user);
         Bus.$emit('refreshSchoolLists');

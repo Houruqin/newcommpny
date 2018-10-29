@@ -41,15 +41,12 @@ export default {
       }
     },
     // 获取所有角色 菜单
-    async getAllRoleMenus () {
-      let res = await this.$$request.get('/user/permission');
-
-      console.log(res);
-      if (!res) {
-        return 0;
-      }
-      this.$store.commit('saveAuthority', res);
-      this.loading = false;
+    getAllRoleMenus () {
+      this.$store.commit('saveAuthority', d => {
+        if (d) {
+          this.loading = false;
+        }
+      });
     }
   }
 };
