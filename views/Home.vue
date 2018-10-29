@@ -198,6 +198,9 @@
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon'>
+                        <span class='name'>{{scope.row.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
