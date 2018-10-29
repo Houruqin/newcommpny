@@ -71,7 +71,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
+                <span v-if="$$tools.isAuthority('viewRefund')" class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
               </div>
             </div>
           </template>

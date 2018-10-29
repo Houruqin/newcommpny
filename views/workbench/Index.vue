@@ -53,7 +53,7 @@
       <el-col :span="17">
         <el-card shadow="hover">
           <TableHeader title="今日待办">
-            <MyButton @click.native="register">登记学员</MyButton>
+            <MyButton v-if="$$tools.isAuthority('registerStudent')" @click.native="register">登记学员</MyButton>
             <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;" v-if="$$tools.isAuthority('addMemo')">备忘录</div>
           </TableHeader>
           <el-tabs v-model="activeName" @tab-click="change_tab">
@@ -63,11 +63,14 @@
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="请假课程" prop="course.name" align="center"></el-table-column>
@@ -77,7 +80,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="请假原因" prop="reason" align="center"></el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column v-if="$$tools.isAuthority('replayLeave')" label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a class="student_handle able_handle" @click="leave_handle(scope.row.id,2,scope.row)">同意</a>
                     <a class="student_handle able_sub_handle" @click="open_refuse_dialog(scope.row.id)">拒绝</a>
@@ -91,11 +94,14 @@
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
                 <el-table-column class-name="table_head" label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student_name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student_name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="待分班课程" prop="course_name" align="center"></el-table-column>
@@ -105,7 +111,7 @@
                     <span>{{scope.row.pay_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column v-if="$$tools.isAuthority('divideClasses')" label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a class="student_handle able_handle" @click="divide_class(scope.row)">分班</a>
                   </template>
@@ -118,11 +124,14 @@
               <el-table class="student-table" :data="renewal_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student_name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student_name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="需续约课程" prop="course_name" align="center"></el-table-column>
@@ -133,7 +142,7 @@
                     <span v-else>{{scope.row.may_expire_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column v-if="$$tools.isAuthority('purchaseCourse')" label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a class="student_handle able_handle" @click="renew(scope.row)">续约</a>
                   </template>
@@ -146,11 +155,14 @@
               <el-table class="student-table" :data="birth_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="出生日期" align="center">
@@ -163,7 +175,7 @@
                     {{scope.row.gift_send_status === 0 ? '未发放' : '已发放'}}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column v-if="$$tools.isAuthority('sendGift')" label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a v-if="scope.row.gift_send_status === 0" class="student_handle able_handle" @click='give_gift(scope.row.id,scope.row.name)'>发放礼品</a>
                     <span v-else class='student_handle disable_handle'>发放礼品</span>
@@ -273,11 +285,14 @@
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="试听课程" align="center">
@@ -306,11 +321,14 @@
               <el-table class="student-table" :data="follow_up_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
@@ -333,11 +351,14 @@
               <el-table class="student-table" :data="assign_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
+                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.name}}</span>
                       </span>
                     </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.name}}</span>
+                      </span>
                   </template>
                 </el-table-column>
                 <el-table-column label="登记时间" prop="created_at" align="center">
@@ -351,7 +372,7 @@
                     <!-- <a class="cursor-pointer fc-m" @click="assign_advisor(scope.row.id)">分配顾问</a> -->
                     <el-dropdown trigger="click" placement="left" @command="select_advisor">
                                 <span class="el-dropdown-link">
-                                    <div class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
+                                    <div v-if="$$tools.isAuthority('assignConsultant') || $$tools.isAuthority('assignTeacher')" class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
                                 </span>
                                 <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
@@ -373,7 +394,7 @@
       <el-col :span="7">
         <el-card shadow="hover" class="notice_list">
           <TableHeader title="员工通知">
-            <MyButton @click.native="edit_notice">发通知</MyButton>
+            <MyButton v-if="$$tools.isAuthority('sendCircular')" @click.native="edit_notice">发通知</MyButton>
           </TableHeader>
           <el-tabs v-model="notice_activeName" @tab-click="change_notice_tab">
 
@@ -453,7 +474,7 @@
         <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
         <el-button type="primary" v-if="!memo_info.readonly && memo_info.render" @click.once="add_memo();">提交</el-button>
         <el-button type="primary" v-if="memo_info.readonly" @click="memo_info.show = false;">确定</el-button>
-        <el-button v-if="memo_info.readonly" @click="delete_memo(memo_info.id)">删除</el-button>
+        <el-button v-if="memo_info.readonly && $$tools.isAuthority('deleteMemo')" @click="delete_memo(memo_info.id)">删除</el-button>
       </span>
     </el-dialog>
 
@@ -567,8 +588,8 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-              <span @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 !== 1 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
-              <span v-if="scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row)" :class="[scope.row.status2 === 5 && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
+              <span v-if="$$tools.isAuthority('signIn')" @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 !== 1 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
+              <span v-if="$$tools.isAuthority('leave') && scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row)" :class="[scope.row.status2 === 5 && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>
           </template>
         </el-table-column>
       </el-table>

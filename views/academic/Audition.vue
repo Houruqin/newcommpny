@@ -32,16 +32,17 @@
           </li>
         </ul>
 
-        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportAuditionRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
 
       <el-table stripe class="student-table mt-30" :data="audition_info.data" v-loading="loading" :show-header="true">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="试听学员" prop="stu_name" align="center">
           <template slot-scope="scope">
-            <div>
+            <div v-if="$$tools.isAuthority('studentDetail')">
               <NameRoute :type="scope.row.stu_type" :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
             </div>
+            <div v-else>{{scope.row.stu_name}}</div>
           </template>
         </el-table-column>
         <el-table-column label="试听班级" prop="grade_name" align="center"></el-table-column>

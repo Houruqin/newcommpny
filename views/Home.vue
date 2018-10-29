@@ -165,7 +165,10 @@
                 </div>
                 <el-dropdown-menu slot="dropdown" class="speedy-lists">
                     <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
-                        v-if="item.id != 'addListen' || (item.id == 'addListen' && $$cache.getMemberInfo().class_pattern != 2)">
+                        v-if="(item.id === 'addStudent' && $$tools.isAuthority('registerStudent'))
+                         || (item.id === 'importStudent' && $$tools.isAuthority('importStudent'))
+                         || item.id != 'addListen' 
+                         || (item.id == 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>

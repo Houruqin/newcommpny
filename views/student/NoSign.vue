@@ -3,8 +3,8 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="未签约学员">
-                <MyButton class="mr-20" @click.native="addStudent">登记学员</MyButton>
-                <router-link :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
+                <MyButton v-if="$$tools.isAuthority('registerStudent')" class="mr-20" @click.native="addStudent">登记学员</MyButton>
+                <router-link v-if="$$tools.isAuthority('importStudent')" :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
             </TableHeader>
 
             <div class="header-tab-box d-f f-j-b mt-50">
@@ -44,7 +44,8 @@
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="学员姓名" align="center">
                     <template slot-scope="scope">
-                        <router-link :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                        <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                        <span v-else>{{scope.row.name}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="联系电话" prop="parent_info.mobile" align="center"></el-table-column>
@@ -54,7 +55,7 @@
                         <div v-else-if="activeTab == 'unsign' || activeTab == 'no_advisor' || activeTab == 'following'" class="d-f f-a-c f-j-c">
                             <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                 <span class="el-dropdown-link">
-                                    <div class="allocation-advisor-btn" slot="reference" @click="listStudentId = scope.row.id">分配</div>
+                                    <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="listStudentId = scope.row.id">分配</div>
                                 </span>
                                 <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
@@ -80,16 +81,16 @@
                 <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <span class="cursor-pointer fc-m" @click="handleCommand({type: 'buyCourse', data: scope.row})">购课</span>
-                        <span class="cursor-pointer fc-m ml-10" @click="handleCommand({type: 'audition', data: scope.row})">试听</span>
+                        <span v-if="$$tools.isAuthority('purchaseCourse')" class="cursor-pointer fc-m" @click="handleCommand({type: 'buyCourse', data: scope.row})">购课</span>
+                        <span v-if="$$tools.isAuthority('handleAudition')" class="cursor-pointer fc-m ml-10" @click="handleCommand({type: 'audition', data: scope.row})">试听</span>
                         <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                           <el-dropdown-menu slot="dropdown" class="operation-lists">
                             <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                              v-if="operation.type === 'edit'
-                              || operation.type === 'down_payment' && scope.row.deposit_money <= 0
-                              || operation.type === 'back_payment' && scope.row.deposit_money > 0
-                              || (operation.type == 'delete' && ($$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'))"
+                              v-if="(operation.type === 'edit' && $$tools.isAuthority('editUnsigned'))
+                              || (operation.type === 'down_payment' && $$tools.isAuthority('payDeposit') && scope.row.deposit_money <= 0)
+                              || (operation.type === 'back_payment' && $$tools.isAuthority('returnDeposit') && scope.row.deposit_money > 0)
+                              || (operation.type == 'delete' && $$tools.isAuthority('delereUnsigned'))"
                               :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                             </el-dropdown-item>
                           </el-dropdown-menu>
@@ -100,8 +101,8 @@
 
             <div class="d-f p-r" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
-                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="isShowCheckbox && $$tools.isAuthority('delereUnsigned')" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <MyButton v-if="!isShowCheckbox && $$tools.isAuthority('delereUnsigned')" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </div>

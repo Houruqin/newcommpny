@@ -20,16 +20,17 @@
           </li>
         </ul>
 
-        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportPurchaseRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
 
       <el-table stripe class="student-table mt-30" :data="buy_info.data" v-loading="loading" :show-header="true">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="stu_name" align="center">
           <template slot-scope="scope">
-            <div>
+            <div v-if="$$tools.isAuthority('studentDetail')">
               <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
             </div>
+            <div v-else>{{scope.row.stu_name}}</div>
           </template>
         </el-table-column>
         <el-table-column label="购买课程" prop="cour_name" align="center"></el-table-column>
@@ -51,7 +52,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
+                <span v-if="$$tools.isAuthority('viewCourse')" class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
               </div>
             </div>
           </template>

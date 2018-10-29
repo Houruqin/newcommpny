@@ -38,7 +38,7 @@
           </li>
         </ul>
 
-        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportStudentRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
       <!-- 消课模块 -->
       <el-table key="elimination" v-if="active === 'elimination'" stripe class="student-table mt-30" :data="elimination_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true" :cell-style="cell_style">
@@ -51,9 +51,10 @@
         </el-table-column>
         <el-table-column label="姓名" align="center">
           <template slot-scope="scope">
-            <div>
+            <div v-if="$$tools.isAuthority('studentDetail')">
               <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
             </div>
+            <div v-else>{{scope.row.student_name}}</div>
           </template>
         </el-table-column>
         <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
@@ -88,9 +89,10 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" align="center">
           <template slot-scope="scope">
-            <div>
+            <div v-if="$$tools.isAuthority('studentDetail')">
               <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
             </div>
+            <div v-else>{{scope.row.student.name}}</div>
           </template>
         </el-table-column>
         <el-table-column label="请假课时" align="center" width="300">
@@ -126,9 +128,10 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="student_name" align="center">
           <template slot-scope="scope">
-            <div>
+            <div v-if="$$tools.isAuthority('studentDetail')">
               <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
             </div>
+            <div v-else>{{scope.row.student_name}}</div>
           </template>
         </el-table-column>
         <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
