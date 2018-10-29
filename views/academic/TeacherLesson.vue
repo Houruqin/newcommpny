@@ -31,7 +31,7 @@
           <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
         </ul>
 
-        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportTeacherRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
       </div>
 
       <el-table class="mt-20 bor-t" :data="lessonTable.data" v-loading="loading" stripe>

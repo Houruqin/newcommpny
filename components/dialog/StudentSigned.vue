@@ -20,7 +20,7 @@
                     <el-input v-model.trim="studentForm.parent_name" @input="parentNameInput"></el-input>
                 </el-form-item>
 
-                <el-form-item label="分配顾问：">
+                <el-form-item v-if="$$tools.isAuthority('assignConsultant')" label="分配顾问：">
                     <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
                         <el-option label="暂不分配" value=""></el-option>
                         <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>

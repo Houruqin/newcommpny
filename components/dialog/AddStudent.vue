@@ -77,7 +77,7 @@
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item label="分配顾问：">
+                        <el-form-item v-if="$$tools.isAuthority('assignConsultant')" label="分配顾问：">
                             <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
                                 <el-option label="暂不分配" value=""></el-option>
                                 <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -334,17 +334,19 @@ export default {
     },
     //登记学员成功，二次提醒是否购课
     studentSuccessMessage (data) {
-      this.$confirm('已成功登记学员，是否选择购课?', '提示', {
-        confirmButtonText: '购买课程',
-        cancelButtonText: '暂不办理',
-        type: 'success'
-      }).then(() => {
-        this.$emit('CB-buyCourse', data);
-      }).catch(() => {
-        return 0;
-      });
-
-      this.$emit('CB-addStudent');
+        if(this.$$tools.isAuthority('purchaseCourse')){
+          this.$confirm('已成功登记学员，是否选择购课?', '提示', {
+          confirmButtonText: '购买课程',
+          cancelButtonText: '暂不办理',
+          type: 'success'
+        }).then(() => {
+          this.$emit('CB-buyCourse', data);
+        }).catch(() => {
+          return 0;
+        });
+      }else{
+        this.$emit('CB-addStudent');
+      }
     }
   }
 };

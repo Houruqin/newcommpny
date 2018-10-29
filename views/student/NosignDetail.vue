@@ -8,7 +8,7 @@
                 <img v-else src="../../images/student/girl.png" alt="">
                 <p class="mt-5">
                   <span class="fs-16">{{detail.name}}</span>
-                  <i class="iconfont icon-bianji cursor-pointer" @click="editStudent"></i>
+                  <i v-if="$$tools.isAuthority('editUnsigned')" class="iconfont icon-bianji cursor-pointer" @click="editStudent"></i>
                 </p>
                 <p class="mt-10"><span class="fc-9">学员编号：</span>{{detail.id}}</p>
                 <p><span class="fc-9">课堂评分：</span>{{detail.score}}</p>
@@ -58,7 +58,7 @@
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
-                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
+                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2 && $$tools.isAuthority('handleAudition')" @click.native="addListenHandle">试听</MyButton>
                 <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
               </div>
             </div>
@@ -67,7 +67,7 @@
         <el-card class="mt-20" shadow="hover">
             <TableHeader title="跟进记录"></TableHeader>
             <div class="followup-lists-box pl-80" v-loading="loading">
-                <div class="d-f"><MyButton class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
+                <div class="d-f"><MyButton v-if="$$tools.isAuthority('addFollow')" class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
                 <div v-if="followUpLists.total">
                     <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                 </div>
@@ -88,7 +88,7 @@
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
                             <el-option v-for="(item, index) in $store.state.followupStatus"
-                            :key="index" :label="item.comment" :value="item.code" v-if="item.code !== 10 && item.code !== -2 && item.code !== 0 "></el-option>
+                            :key="index" :label="item.comment" :value="item.code" v-if="(item.code === 4 && $$tools.isAuthority('handleAudition')) || (item.code === 9 && $$tools.isAuthority('payDeposit')) || ![-2,0,4,9,10].includes(item.code) "></el-option>
                         </el-select>
                     </el-form-item>
 

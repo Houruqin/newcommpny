@@ -8,7 +8,7 @@
                 <img v-else src="../../images/student/girl.png" alt="">
                 <p class="mt-5">
                   <span class="fs-16">{{studentDetail.name}}</span>
-                  <i class="iconfont icon-bianji cursor-pointer" @click="editDetail"></i>
+                  <i v-if="$$tools.isAuthority('editSigned')" class="iconfont icon-bianji cursor-pointer" @click="editDetail"></i>
                 </p>
                 <p class="mt-10"><span class="fc-9">学员编号：</span>{{studentDetail.id}}</p>
                 <p><span class="fc-9">课堂评分：</span>{{studentDetail.score}}</p>
@@ -58,9 +58,9 @@
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
-                <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="gradeDivideClick('add')">分班</MyButton>
-                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
-                <MyButton class="ml-20" @click.native="buyCourse">购课</MyButton>
+                <MyButton type="subm" v-if="$$cache.getMemberInfo().class_pattern !== 2 && $$tools.isAuthority('divideClasses')" @click.native="gradeDivideClick('add')">分班</MyButton>
+                <MyButton class="ml-20" v-if="$$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern !== 2" @click.native="addListenHandle">试听</MyButton>
+                <MyButton v-if="$$tools.isAuthority('purchaseCourse')" class="ml-20" @click.native="buyCourse">购课</MyButton>
               </div>
             </div>
         </el-card>
@@ -107,10 +107,10 @@
                         <el-table-column label="操作" align="center" width="230">
                             <template slot-scope="scope">
                                 <span class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
-                                <span class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
-                                <span v-if="scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
-                                <span v-if="$$cache.getMemberInfo().remove && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
+                                <span v-if="$$tools.isAuthority('viewCourse')" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
+                                <span v-if="$$tools.isAuthority('refund') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
+                                <span v-if="$$tools.isAuthority('viewRefund') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
+                                <span v-if="$$tools.isAuthority('manualEliminate') && $$cache.getMemberInfo().remove && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -187,8 +187,8 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
-                                        <span class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
-                                        <span v-if="scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                        <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
+                                        <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
                                     </div>
