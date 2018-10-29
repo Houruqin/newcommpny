@@ -271,11 +271,21 @@ export default {
       this.$message.success('已删除');
     },
     // 角色列表
-    getRoleLists () {
-      let result = JSON.parse(JSON.stringify(this.$store.state.roleLists));
+    async getRoleLists () {
+      let result = await this.$$request.post('/permission/roleLists');
 
       console.log(result);
-      result.forEach(v => {
+      if (!result) {
+        return 0;
+      }
+
+      console.log(result);
+
+      this.$store.commit('getRoleLists', result.lists);
+
+      let newResult = JSON.parse(JSON.stringify(result.lists));
+
+      newResult.forEach(v => {
         if (v.enName !== 'master') {
           v.role.unshift({
             cnName: '全部',
@@ -285,13 +295,15 @@ export default {
           });
         }
       });
-      result.unshift({
+      newResult.unshift({
         cnName: '全部',
         enName: 'all',
         departmentId: 'all',
         role: []
       });
-      this.roleLists = result;
+      this.roleLists = newResult;
+
+      return true;
     },
     //用户列表
     async getUserLists (currentPage) {
@@ -353,13 +365,11 @@ export default {
     }
   },
   async created () {
-    this.$store.dispatch('getRoleLists');
-    let datas = await this.getUserLists();
+    let [a, b] = await Promise.all([this.getUserLists(), this.getRoleLists()]);
 
-    if (datas) {
+    if (a && b) {
       this.state = 'loaded';
     }
-    this.getRoleLists();
   },
   components: {TableHeader, MyButton, AddStaffDialog}
 };

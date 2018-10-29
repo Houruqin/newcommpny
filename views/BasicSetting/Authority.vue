@@ -35,8 +35,8 @@
           </el-table-column>
           <el-table-column label="权限" align="center">
             <template slot-scope="scope">
-              <el-checkbox-group v-model="scope.row.checked" @change="roleCheckChange(scope.row)">
-                <el-checkbox v-for="(item, num) in scope.row.permissions" :key="num" :label="item.id" >{{item.display_name}}</el-checkbox>
+              <el-checkbox-group v-model="scope.row.checked" @change="roleCheckChange(scope.row)" class="d-f f-w-w role-check-box">
+                <el-checkbox v-for="(item, num) in scope.row.permissions" :key="num" :label="item.id" class="role-check-item">{{item.display_name}}</el-checkbox>
               </el-checkbox-group>
             </template>
           </el-table-column>
@@ -144,6 +144,7 @@ export default {
       }
 
       this.$message.success('删除角色成功');
+      this.dialogStatus.role = false;
       this.getRoleLists();
     },
     // 角色全选
@@ -263,14 +264,9 @@ export default {
       if (!result) {
         return 0;
       }
-
-      // result.lists.forEach(v => {
-      //   v.role.forEach(k => {
-      //     k.hover = false;
-      //   });
-      // });
-
       this.roleLists = result.lists;
+      this.$store.commit('getRoleLists', result.lists);
+
       if (isRefresh) {
         this.getActiveRoleId();
       }
@@ -281,8 +277,6 @@ export default {
     async getAuthorityLists () {
       this.loading = true;
       let res = await this.$$request.post('permission/lists', {role_id: this.activeRoleId});
-
-      console.log(res);
 
       if (!res) {
         return 0;
@@ -295,7 +289,6 @@ export default {
             checked.push(k.id);
           }
         });
-
         let isCheckAll = v.permissions.every(m => {
           return m.status;
         });
@@ -307,6 +300,7 @@ export default {
 
       this.authorityLists = res.navs;
       this.loading = false;
+      console.log(this.authorityLists);
 
       return true;
     }
@@ -348,6 +342,19 @@ export default {
   .form-box {
     /deep/ .el-input {
       width: 300px;
+    }
+  }
+
+  .role-check-box {
+    padding: 0 20px;
+    /deep/ .el-checkbox+.el-checkbox {
+      margin-left: 0;
+    }
+    /deep/ .role-check-item {
+      margin-top: 10px;
+      margin-right: 30px;
+      width: 230px;
+      text-align: left;
     }
   }
 </style>

@@ -108,11 +108,12 @@ export default {
                 });
               });
             }
+
             this.menuLists.push({
-              id: this.menuData[v.description].id,
+              id: childItem.length > 1 || !childItem.length ? this.menuData[v.description].id : childItem[0].id,
               text: v.name,
               icon: this.menuData[v.description].icon,
-              itemLists: childItem
+              itemLists: childItem.length > 1 ? childItem : []
             });
           }
         });

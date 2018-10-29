@@ -71,15 +71,8 @@ const mutations = {
 
     state.allUser = result.users;
   },
-  async getRoleLists (state) {
-    let result = await Request.post('/permission/roleLists');
-
-    console.log(result);
-
-    if (!result) {
-      return 0;
-    }
-    state.roleLists = result.lists;
+  async getRoleLists (state, data) {
+    state.roleLists = data;
   },
   async getAdvisor (state) {
     let result = await Request.get('/user/normalLists', {type: 'seller'});
@@ -185,10 +178,6 @@ const actions = {
 
   getAllUser (context) {
     context.commit('getAllUser');
-  },
-
-  getRoleLists (context) {
-    context.commit('getRoleLists');
   },
 
   getAdvisor (context) {
