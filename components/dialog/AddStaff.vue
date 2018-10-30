@@ -90,12 +90,22 @@ export default {
         return 0;
       }
 
-      this.roleTypeForm = newVal.type_all.map(v => {
-        return {
-          department_id: v.department.id,
-          role_id: v.id
-        };
+      newVal.type_all.forEach(v => {
+        if (v.type_en !== 'master') {
+          this.roleTypeForm.push({
+            department_id: v.department.id,
+            role_id: v.id
+          });
+        }
       });
+
+
+      // this.roleTypeForm = newVal.type_all.map(v => {
+      //   return {
+      //     department_id: v.department.id,
+      //     role_id: v.id
+      //   };
+      // });
 
       for (let key in this.staffForm) {
         if (key === 'entry_date') {
@@ -128,7 +138,7 @@ export default {
       staffDialogStatus: this.value,
       staffForm: {name: '', mobile: '', entry_date: '', id: '', kind: '', sex: ''},
       roleLists: [],
-      staffType: 'add',
+      staffType: '',
 
       roleTypeForm: [],
       roleSelectOptions: {},
