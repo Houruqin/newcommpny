@@ -459,68 +459,68 @@
         </el-dialog>
 
         <!-- 手动消课 -->
-        <el-dialog title="手动消课" width="900px" center :visible.sync="removeTimetableDialog" :close-on-click-modal="false" @close="timetableDialogClose">
+        <el-dialog title="手动消课" width="850px" center :visible.sync="removeTimetableDialog" :close-on-click-modal="false" @close="timetableDialogClose">
             <el-form label-width="120px" :model="removeTimetableForm" size="small" ref="removeTimeTable" :rules="removeTimetableRules">
-                <div class="form-box">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="消课课程：">{{removeTimetableForm.course_name}}</el-form-item>
+                <div class="form-box remove-timetable">
+                    <div class="d-f">
+                        <div class="flex1">
+                          <el-form-item label="消课课程：">{{removeTimetableForm.course_name}}</el-form-item>
 
-                            <el-form-item label="上课教室：" prop="room_id">
-                                <el-select placeholder="请选择" v-model="removeTimetableForm.room_id">
-                                    <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
+                          <el-form-item label="上课教室：" prop="room_id">
+                              <el-select placeholder="请选择" v-model="removeTimetableForm.room_id">
+                                  <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
+                              </el-select>
+                          </el-form-item>
 
-                            <el-form-item label="消课类型：" prop="type" v-if="removeTimetableForm.class_pattern == 1">
-                                <el-select placeholder="请选择" v-model="removeTimetableForm.type">
-                                    <el-option label="签到" value="sign"></el-option>
-                                    <el-option label="请假" value="leave"></el-option>
-                                    <el-option label="旷课" value="absenteeism"></el-option>
-                                </el-select>
-                            </el-form-item>
+                          <el-form-item label="消课类型：" prop="type" v-if="removeTimetableForm.class_pattern == 1">
+                              <el-select placeholder="请选择" v-model="removeTimetableForm.type">
+                                  <el-option label="签到" value="sign"></el-option>
+                                  <el-option label="请假" value="leave"></el-option>
+                                  <el-option label="旷课" value="absenteeism"></el-option>
+                              </el-select>
+                          </el-form-item>
 
-                            <el-row class='time_select'>
-                                <el-col :span="17">
-                                    <el-form-item label="上课时间：" prop="day">
-                                        <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
-                                            @change="removeTimeChange"
-                                            placeholder="选择日期" value-format="yyyy/MM/dd">
-                                        </el-date-picker>
-                                    </el-form-item>
-                                </el-col>
+                          <el-row class='time-select'>
+                              <el-col :span="17">
+                                  <el-form-item label="上课时间：" prop="day">
+                                      <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
+                                          @change="removeTimeChange"
+                                          placeholder="选择日期" value-format="yyyy/MM/dd">
+                                      </el-date-picker>
+                                  </el-form-item>
+                              </el-col>
 
-                                <el-col :span="6" :offset="1">
-                                    <el-form-item label-width="0" prop="time">
-                                        <el-time-select
-                                            :editable="false"
-                                            v-model="removeTimetableForm.time"
-                                            :picker-options="timePicker"
-                                            placeholder="时间">
-                                        </el-time-select>
-                                    </el-form-item>
-                                </el-col>
-                            </el-row>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="选择班级：" prop="grade_id" v-if="removeTimetableForm.class_pattern == 1">
-                                <el-select placeholder="请选择" v-model="removeTimetableForm.grade_id" @change="removeTimeTableChange">
-                                    <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <template>
-                                <el-form-item label="上课老师：" prop="teacher_id" v-if="removeTimetableForm.class_pattern == 1">
-                                    <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
-                                        <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="上课老师：" prop="teacher_name" v-else>{{removeTimetableForm.teacher_name}}</el-form-item>
-                            </template>
-                            <el-form-item label="扣课时数：" prop="lesson_num">
-                                <el-input-number v-model="removeTimetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
+                              <el-col :span="6" :offset="1">
+                                  <el-form-item label-width="0" prop="time">
+                                      <el-time-select
+                                          :editable="false"
+                                          v-model="removeTimetableForm.time"
+                                          :picker-options="timePicker"
+                                          placeholder="时间">
+                                      </el-time-select>
+                                  </el-form-item>
+                              </el-col>
+                          </el-row>
+                        </div>
+                        <div class="flex1">
+                          <el-form-item label="选择班级：" prop="grade_id" v-if="removeTimetableForm.class_pattern == 1">
+                              <el-select placeholder="请选择" v-model="removeTimetableForm.grade_id" @change="removeTimeTableChange">
+                                  <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                              </el-select>
+                          </el-form-item>
+
+                          <el-form-item label="上课老师：" prop="teacher_id" v-if="removeTimetableForm.class_pattern == 1" key="teacher_id_form">
+                              <el-select placeholder="请选择" v-model="removeTimetableForm.teacher_id">
+                                  <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
+                              </el-select>
+                          </el-form-item>
+                          <el-form-item label="上课老师：" prop="teacher_name" v-else key="teacher_id">{{removeTimetableForm.teacher_name}}</el-form-item>
+
+                          <el-form-item label="扣课时数：" prop="lesson_num">
+                              <el-input type="number" placeholder="扣课时数" v-model.number="removeTimetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
+                          </el-form-item>
+                        </div>
+                    </div>
 
                     <div class="d-f f-j-c mt-30">
                         <MyButton @click.native="timetableDone" :loading="submitLoading.removeTimetable">确定</MyButton>
@@ -692,7 +692,9 @@ export default {
           {required: true, message: '请选择老师', trigger: 'change'}
         ],
         lesson_num: [
-          {required: true, message: '请输入课时数'}
+          {required: true, message: '请输入课时数'},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
+          {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
         day: [
           {required: true, message: '请选择日期', trigger: 'change'}
@@ -1473,6 +1475,18 @@ export default {
             overflow-y: auto;
         }
     }
+    .remove-timetable {
+      padding: 0;
+      /deep/ .el-input {
+        width: 240px;
+      }
+      .time-select {
+        width: 360px;
+        /deep/ .el-input {
+          width: 100%;
+        }
+      }
+    }
     .quit-price-form {
         padding: 0 20px;
         .el-input {
@@ -1584,9 +1598,6 @@ export default {
                 }
             }
         }
-    }
-    .time_select /deep/ .el-input--suffix .el-input__inner{
-        padding-right: 10px;
     }
     .timetable-multiple {
       top: 0;

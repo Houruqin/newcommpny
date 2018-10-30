@@ -585,7 +585,7 @@ export default {
         ],
         lesson_num: [
           {required: true, message: '请输入课时数'},
-          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
         lesson_time: [

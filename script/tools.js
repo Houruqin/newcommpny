@@ -61,7 +61,7 @@ const Tools = {
         if (isNaN(value)) {
           return callback(new Error('请输入数字'));
         } else if (value < 0) {
-          return callback(new Error('请输入正数!'));
+          return callback(new Error('不能为负数'));
         } else if (String(value).split('.')[1] && String(value).split('.')[1].length > num) {
           return callback(new Error(`最多${num}位小数`));
         }
@@ -73,8 +73,8 @@ const Tools = {
       if (type === 'int') {
         if (isNaN(value)) {
           return callback(new Error('请输入数字'));
-        } else if (value < 0) {
-          return callback(new Error('请输入正数!'));
+        } else if (value < 1) {
+          return callback(new Error('数值最小为1'));
         } else if (String(value).indexOf('.') > -1) {
           return callback(new Error('不能输入小数'));
         }
@@ -86,6 +86,19 @@ const Tools = {
       if (type === 'total') {
         if (value > num) {
           return callback(new Error(`数值不能大于${num}`));
+        }
+
+        return callback();
+      }
+
+      //课时验证
+      if (type === 'lesson_num') {
+        if (isNaN(value)) {
+          return callback(new Error('请输入数字'));
+        } else if (value < 0) {
+          return callback(new Error('不能为负数'));
+        } else if (String(value).indexOf('.') > -1) {
+          return callback(new Error('不能输入小数'));
         }
 
         return callback();

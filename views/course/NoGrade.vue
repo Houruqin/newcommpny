@@ -80,45 +80,45 @@
         <el-dialog title="快速排课" width="850px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('timetableForm')">
             <div class="form-box">
                 <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm">
-                    <el-row>
-                        <el-col :span="12">
-                            <el-form-item label="排课课程：">{{timetableForm.course_name}}</el-form-item>
+                    <div class="d-f">
+                      <div class="flex1">
+                        <el-form-item label="排课课程：">{{timetableForm.course_name}}</el-form-item>
 
-                            <el-form-item label="上课教室：" prop="room_id">
-                                <el-select placeholder="请选择"  v-model="timetableForm.room_id">
-                                    <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
-                                </el-select>
-                            </el-form-item>
+                        <el-form-item label="上课教室：" prop="room_id">
+                          <el-select placeholder="请选择"  v-model="timetableForm.room_id">
+                              <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
+                          </el-select>
+                        </el-form-item>
 
-                            <div class="d-f">
-                                <el-form-item label="上课时间：" prop="begin_day" class="begin-day-form">
-                                    <el-date-picker v-model="timetableForm.begin_day"
-                                        :picker-options="pickerBeginDateAfter" type="date" :editable="false"
-                                        @change="beginTimeChange"
-                                        placeholder="选择日期" value-format="yyyy/MM/dd">
-                                    </el-date-picker>
-                                </el-form-item>
+                        <div class="time-select">
+                          <el-col :span="16">
+                              <el-form-item label="上课时间：" prop="begin_day">
+                                  <el-date-picker v-model="timetableForm.begin_day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
+                                      @change="beginTimeChange"
+                                      placeholder="选择日期" value-format="yyyy/MM/dd">
+                                  </el-date-picker>
+                              </el-form-item>
+                          </el-col>
 
-                                <el-form-item  label-width="0" prop="begin_time" class="begin-day-time ml-10">
-                                    <el-time-select
-                                        :editable="false" v-model="timetableForm.begin_time"
-                                        :picker-options="timePicker" placeholder="时间">
-                                    </el-time-select>
-                                </el-form-item>
-                            </div>
-                        </el-col>
+                          <el-col :span="7" :offset="1">
+                              <el-form-item label-width="0" prop="begin_time">
+                                  <el-time-select v-model="timetableForm.begin_time" :editable="false" :picker-options="timePicker" placeholder="时间">
+                                  </el-time-select>
+                              </el-form-item>
+                          </el-col>
+                        </div>
+                      </div>
 
-                        <el-col :span="12">
-                            <el-form-item label="上课老师：">{{timetableForm.teacher_name}}</el-form-item>
+                      <div class="flex1">
+                        <el-form-item label="上课老师：">{{timetableForm.teacher_name}}</el-form-item>
 
-                            <el-form-item label="上课学员：">{{timetableForm.student_name}}</el-form-item>
+                        <el-form-item label="上课学员：">{{timetableForm.student_name}}</el-form-item>
 
-                            <el-form-item label="扣课时数：" prop="lesson_num">
-                                <el-input-number v-model="timetableForm.lesson_num" controls-position="right" :min="1" :max="99"></el-input-number><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-
+                        <el-form-item label="扣课时数：" prop="lesson_num">
+                            <el-input type="number" placeholder="扣课时数" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
+                        </el-form-item>
+                      </div>
+                    </div>
                     <div class="d-f f-j-c mt-30">
                         <MyButton @click.native="timetableDone" :loading="submitLoading.timetable">确定</MyButton>
                     </div>
@@ -239,7 +239,9 @@ export default {
           {required: true, message: '请选择上课时间', trigger: 'change'}
         ],
         lesson_num: [
-          {required: true, message: '请输入扣课时数'}
+          {required: true, message: '请输入课时数'},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
+          {validator: this.$$tools.formOtherValidate('total', 99)}
         ]
       },
       timePicker: timePicker,
@@ -621,17 +623,6 @@ export default {
             border-left: 1px #eeeeee solid;
             border-right: 1px #eeeeee solid;
         }
-        // .unfold-icon {
-        //     .iconfont {
-        //         -webkit-transition: transform 300ms;
-        //         transition: transform 300ms;
-        //         display: block;
-        //         &.rotate {
-        //             -webkit-transform :rotate(180deg);
-        //             transform: rotate(180deg);
-        //         }
-        //     }
-        // }
         .course_type{
             display: inline-block;
             border: 1px solid #a9a9a9;
@@ -650,20 +641,14 @@ export default {
     }
     .form-box {
         padding: 0 10px;
-        .el-select {
-            width: 100%;
-        }
-        /deep/ .begin-day-form .el-date-editor{
-            // width: 130px !important;
-        }
-        /deep/ .begin-day-time .el-date-editor{
-            width: 100px !important;
-        }
-        /deep/ .el-input-number {
-            width: 150px;
-        }
         /deep/ .el-input {
-            width: 150px;
+            width: 240px;
+        }
+        .time-select {
+          width: 340px;
+          /deep/ .el-input {
+            width: 100%;
+          }
         }
     }
     .conflict-box {

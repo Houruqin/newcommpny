@@ -218,11 +218,11 @@ export default {
         ],
         lesson_num: [
           {required: true, message: '请输入购买课时数'},
-          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
           {validator: this.$$tools.formOtherValidate('total', 200)}
         ],
         given_num: [
-          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
           {validator: this.$$tools.formOtherValidate('total', 200)}
         ],
         expire: [
@@ -242,7 +242,7 @@ export default {
           {validator: this.courseValidator('course')}
         ],
         lesson_num_already: [
-          {validator: this.$$tools.formOtherValidate('int')},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
           {validator: this.$$tools.formOtherValidate('total', 200)},
           {validator: this.courseValidator('lesson_num_already')}
         ],
@@ -550,17 +550,11 @@ export default {
 <style lang="less" scoped>
     .form-box {
         padding: 0 0 0 20px;
-        // .el-select, .el-date-editor {
-        //     width: 100%;
-        // }
         h3 {
             font-weight: normal;
             font-size: 14px;
             padding-left: 38px;
             margin-bottom: 15px;
-        }
-        /deep/ .el-input-number {
-            width: 150px;
         }
         /deep/ .el-input {
             width: 150px;

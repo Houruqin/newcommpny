@@ -1,7 +1,7 @@
 <template>
     <el-dialog :title="type == 'edit' ? '修改课程' : '添加课程'" width="720px" center :visible.sync="courseDialogStatus" :close-on-click-modal="false" @close="dialogClose('courseForm')">
         <el-form :model="courseForm" label-width="125px" size="small" ref="courseForm" :rules="courseRules">
-            <div class="form-box add_course">
+            <div class="form-box">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="课程名字：" prop="name">
@@ -220,13 +220,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    .add_course /deep/ .el-input-number--small{
-        width: 180px;
-    }
     .form-box {
-        /deep/ .el-input-number {
-            width: 150px;
-        }
         /deep/ .el-input {
             width: 150px;
         }
