@@ -398,10 +398,10 @@
                 </el-table>
             </div>
 
-            <div class="d-f p-r" v-if="isDelete">
+            <div class="d-f p-r" v-if="$$tools.isAuthority('deleteSigned')">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox && $$tools.isAuthority('deleteSigned')" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
-                <MyButton v-if="!isShowCheckbox && $$tools.isAuthority('deleteSigned')" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </div>
@@ -482,7 +482,6 @@ export default {
       currPage: false,
 
       activePage: 1,
-      isDelete: false,
       isShowCheckbox: false,
       selectedIds: [], //批量删除学员列表
       deleteErrorStudents: [],
@@ -993,7 +992,6 @@ export default {
     }
   },
   async created () {
-    this.isDelete = this.$$cache.getMemberInfo().type === 'institution' || this.$$cache.getMemberInfo().type === 'master';
     this.searchFilter.month = new Date().getMonth() + 1;
     let datas = await this.getAllLists();
 

@@ -9,7 +9,6 @@
                 </div>
                 <div class="btn" v-else-if="!item.lesson_end_time
                 && $$tools.isAuthority('endingCourse')
-                && $$cache.getMemberInfo().lesson_end
                 && item.end_time < new Date().getTime() / 1000
                 && item.course_type === 1 || (item.student_grades.length && item.course_type === 2)">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>

@@ -81,7 +81,8 @@
                               </el-table-column>
                               <el-table-column label="操作" align="center">
                                   <template slot-scope="scope">
-                                      <span class="cursor-pointer" :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
+                                      <span class="cursor-pointer" v-if="$$tools.isAuthority('hasClassScheduling')"
+                                      :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
                                       <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
                                       <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
                                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>

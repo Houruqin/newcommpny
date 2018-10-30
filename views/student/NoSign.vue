@@ -99,10 +99,10 @@
                 </el-table-column>
             </el-table>
 
-            <div class="d-f p-r" v-if="$$cache.getMemberInfo().type === 'institution' || $$cache.getMemberInfo().type === 'master'">
+            <div class="d-f p-r" v-if="$$tools.isAuthority('delereUnsigned')">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox && $$tools.isAuthority('delereUnsigned')" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
-                <MyButton v-if="!isShowCheckbox && $$tools.isAuthority('delereUnsigned')" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </div>

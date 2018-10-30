@@ -71,7 +71,7 @@
                         <el-dropdown trigger="click" @command="settingHandleCommand" @visible-change="settingShowHandle">
                             <a class="cursor-pointer user-box p-r fc-5 el-dropdown-link pl-10" :class="{'rotate': settingShow}">你好，{{memberInfo.name}}</a>
                             <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item command="usersetting" v-if="$$cache.getMemberInfo().type != 'institution' && $$cache.getMemberInfo().type != 'jyf_operation'">
+                                <el-dropdown-item command="usersetting" v-if="$$cache.getMemberInfo().type !== 'institution' && $$cache.getMemberInfo().type !== 'jyf_operation'">
                                     <i class="iconfont icon-fl-renyuan cursor-pointer fc-9"></i>
                                     <span class="pl-5">我的资料</span>
                                 </el-dropdown-item>
@@ -167,8 +167,8 @@
                     <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
                         v-if="(item.id === 'addStudent' && $$tools.isAuthority('registerStudent'))
                          || (item.id === 'importStudent' && $$tools.isAuthority('importStudent'))
-                         || item.id != 'addListen'
-                         || (item.id == 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
+                         || item.id === 'notice' && $$tools.isAuthority('sendCircular')
+                         || (item.id === 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>
