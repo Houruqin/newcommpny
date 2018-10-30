@@ -77,14 +77,23 @@ const mutations = {
     state.roleLists = data;
   },
   async getAdvisor (state) {
-    let result = await Request.get('/user/normalLists', {type: 'seller'});
+    let result = await Request.get('/user/consultingList');
 
     console.log(result);
     if (!result) {
       return 0;
     }
 
-    state.advisor = result.lists;
+    state.advisor = result;
+  },
+  async getTeacher (state) {
+    let result = await Request.get('/user/educationList');
+
+    if (!result) {
+      return 0;
+    }
+    console.log(result);
+    state.teacherList = result;
   },
   async getSource (state) {
     let result = await Request.post('/source/lists');
@@ -148,15 +157,6 @@ const mutations = {
     }
     console.log(result);
     state.familyRelations = result.relations;
-  },
-  async getTeacher (state) {
-    let result = await Request.get('/user/normalLists', {type: 'teacher'});
-
-    if (!result) {
-      return 0;
-    }
-    console.log(result);
-    state.teacherList = result.lists;
   },
   async getFollowupStatusLists (state) {
     let result = await Request.get('/followUp/status');
