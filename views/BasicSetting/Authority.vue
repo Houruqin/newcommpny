@@ -347,6 +347,7 @@ export default {
 
   .role-check-box {
     padding: 0 20px;
+    margin-bottom: 10px;
     /deep/ .el-checkbox+.el-checkbox {
       margin-left: 0;
     }
