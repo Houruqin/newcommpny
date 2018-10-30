@@ -334,17 +334,17 @@ export default {
     },
     //登记学员成功，二次提醒是否购课
     studentSuccessMessage (data) {
-        if(this.$$tools.isAuthority('purchaseCourse')){
-          this.$confirm('已成功登记学员，是否选择购课?', '提示', {
+      if (this.$$tools.isAuthority('purchaseCourse')) {
+        this.$confirm('已成功登记学员，是否选择购课?', '提示', {
           confirmButtonText: '购买课程',
           cancelButtonText: '暂不办理',
           type: 'success'
         }).then(() => {
           this.$emit('CB-buyCourse', data);
         }).catch(() => {
-          return 0;
+          this.$emit('CB-addStudent');
         });
-      }else{
+      } else {
         this.$emit('CB-addStudent');
       }
     }

@@ -61,7 +61,7 @@
                         <div class="operable-btn-box">
                           <span class="cursor-pointer fc-subm" v-if="!scope.row.status && $$tools.isAuthority('deleteStaffs')" @click="deleteUserInfo(scope.row)">删除</span>
                           <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable && $$tools.isAuthority('editStaffs')" @click="modifyHandle(scope.row)">编辑</span>
-                          <span class="cursor-pointer fc-m" v-if="scope.row.operable && $$tools.isAuthority('enableDisable')" @click="forbidClick(scope.row)">
+                          <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('enableDisable')" @click="forbidClick(scope.row)">
                               {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
                           </span>
                           <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('quitStaffs') && scope.row.status" @click="dimissionClick(scope.row)">离职</span>
