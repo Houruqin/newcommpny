@@ -7,10 +7,10 @@
                     <a class="cursor-pointer" @click="detailEdit(item)" v-if="$$tools.isAuthority('hasClassScheduling') && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">编辑</a>
                     <a v-if="$$tools.isAuthority('deleteTimetable')" class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
                 </div>
-                <div class="btn" v-else-if="!item.lesson_end_time
-                && $$tools.isAuthority('endingCourse')
-                && item.end_time < new Date().getTime() / 1000
-                && item.course_type === 1 || (item.student_grades.length && item.course_type === 2)">
+
+                <div class="btn" v-else-if="!item.lesson_end_time && $$tools.isAuthority('endingCourse')
+                    && item.end_time < new Date().getTime() / 1000
+                    && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
             </div>
