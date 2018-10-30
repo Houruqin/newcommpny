@@ -94,7 +94,7 @@
                   <div class="loading-icon"><span>加载中</span><i></i></div>
                   <p class="loading-text">正在努力加载，请耐心等候</p>
                 </div>
-                <div class="page-error-box" v-if="'error' === $store.state.pageState">
+                <div class="page-error-box" :class="{'bgc-f': 'error' === $store.state.pageState}" v-if="'error' === $store.state.pageState">
                   <img :src="errorLoading">
                   <div class="page-error-inner">
                     <p>很抱歉！</p>
@@ -332,6 +332,7 @@ import AddStudentDialog from '../components/dialog/AddStudent';
 import AddCourseDialog from '../components/dialog/AddCourse';
 
 import errorLoading from '!url-loader!../images/state-500.png';
+// import errorLoading from '!url-loader!../images/network/net500.png';
 
 import config from 'config';
 // import Jquery from 'jquery';
@@ -706,6 +707,8 @@ export default {
       if (!result) {
         return 0;
       }
+
+      this.$emit('refresh');
 
       this.$store.commit('saveAuthority', d => {
         if (d) {

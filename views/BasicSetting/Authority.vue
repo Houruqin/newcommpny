@@ -74,6 +74,7 @@ export default {
     return {
       state: 'loading',
       activeId: 'education_department',
+      oldTabId: 'education_department',
       activeRoleId: '',
       loading: false,
       // activeDepartmentId: '',
@@ -102,6 +103,10 @@ export default {
       this.roleForm.name = '';
     },
     tabClick () {
+      if (this.activeId === this.oldTabId) {
+        return 0;
+      }
+      this.oldTabId = this.activeId;
       this.getActiveRoleId();
     },
     roleListsClick (id) {

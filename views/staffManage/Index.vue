@@ -59,7 +59,7 @@
                   <el-table-column label="操作" align="center">
                       <template slot-scope="scope">
                         <div class="operable-btn-box">
-                          <span class="cursor-pointer fc-subm" v-if="!scope.row.status" @click="deleteUserInfo(scope.row)">删除</span>
+                          <span class="cursor-pointer fc-subm" v-if="!scope.row.status && $$tools.isAuthority('deleteStaffs')" @click="deleteUserInfo(scope.row)">删除</span>
                           <span class="cursor-pointer fc-m" v-if="scope.row.status && scope.row.is_enable && $$tools.isAuthority('editStaffs')" @click="modifyHandle(scope.row)">编辑</span>
                           <span class="cursor-pointer fc-m" v-if="scope.row.operable" @click="forbidClick(scope.row)">
                               {{scope.row.is_enable == 1 ? '禁用' : '启用'}}
