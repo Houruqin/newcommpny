@@ -96,7 +96,7 @@
         </el-form>
 
         <el-dialog title="添加渠道" width="500px" center :visible.sync="sourceDialogStatus" :close-on-click-modal="false" @close="dialogClose('sourseForm')" append-to-body>
-            <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm">
+            <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm" @submit.native.prevent>
                 <div class="form-box">
                     <el-form-item label="渠道来源：" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>

@@ -25,7 +25,7 @@
                                       <el-option v-for="(item, index) in roleSelectOptions[roleType.department_id]" :key="index"  :label="item.cnName" :value="item.id"></el-option>
                                   </el-select>
                               </el-form-item>
-                              <i v-if="roleTypeForm.length > 1" @click="roleTypeForm.splice(num, 1)" class="p-a delete-time el-tag__close el-icon-close"></i>
+                              <i v-if="roleTypeForm.length > 1 || isMaster" @click="roleTypeForm.splice(num, 1)" class="p-a delete-time el-tag__close el-icon-close"></i>
                             </div>
                           </el-form>
                           <div class="d-f mt-10" v-if="roleTypeForm.length < $store.state.roleLists.length"><MyButton type="border" fontColor="fc-m" @click.native="addRoleType">添加职务</MyButton></div>
@@ -93,6 +93,8 @@ export default {
             department_id: v.department.id,
             role_id: v.id
           });
+        } else {
+          this.isMaster = true;
         }
       });
 
@@ -124,6 +126,7 @@ export default {
       submitLoading: {
         add: false, remove: false
       },
+      isMaster: false, // 是否是校长
       staffDialogStatus: this.value,
       staffForm: {name: '', mobile: '', entry_date: '', id: '', kind: '', sex: ''},
       roleLists: [],
@@ -170,6 +173,7 @@ export default {
       });
 
       this.roleTypeForm.splice(0, this.roleTypeForm.length);
+      this.isMaster = false;
       this.$emit('input', false);
       this.$emit('CB-dialogStatus', 'staff');
     },
@@ -206,11 +210,17 @@ export default {
       this.$refs.userForm.validate(valid => {
         a = valid ? true : false;
       });
+
       for (let i = 0, len = this.$refs.roleTypeForm.length; i < len; i++) {
         this.$refs.roleTypeForm[i].validate(valid => {
           b = valid ? true : false;
         });
       }
+
+      if (this.isMaster && a) {
+        return this.submitUserInfo();
+      }
+
       if (a && b) {
         this.submitUserInfo();
       }

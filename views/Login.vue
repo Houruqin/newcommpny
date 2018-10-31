@@ -6,10 +6,10 @@
         p 欢迎登录
         div.login-input
           div.input-box.phone-input
-            input(placeholder="请输入手机号码" v-model="phone" @keydown.enter="onLogin")
+            input(placeholder="请输入手机号码" v-model="phone" @keydown.enter="onLogin" type="number" @input="phone = phone.length > 11 ? phone.slice(0, 11) : phone")
         div.login-input
           div.input-box.check-code.d-f
-            input(placeholder="请输入验证码" v-model="verificationCode" @keydown.enter="onLogin")
+            input(placeholder="请输入验证码" v-model="verificationCode" @keydown.enter="onLogin" type="number" @input="verificationCode = verificationCode.length > 4 ? verificationCode.slice(0, 4) : verificationCode")
             span.code-btn(@click="sendCode") {{ -1 === codeTime ? '发送中...' : 0 === codeTime ? '获取验证码' : codeTime + '秒重发' }}
         .remmber-me(:class="{ active: checked }" @click="checked = !checked") #[i]记住账号
         .login-btn(@click="onLogin" :class="{ loading: loginState }") {{ loginState ? '登录中...' : '立即登录' }}
@@ -73,9 +73,9 @@ export default {
         sms_code: this.verificationCode.trim()
       });
 
-      this.loginState = false;
-
       if (!result) {
+        this.loginState = false;
+
         return 0;
       }
 
@@ -100,10 +100,13 @@ export default {
       let result = await this.$$request.post('/school/exists');
 
       if (!result) {
+        this.loginState = false;
+
         return 0;
       }
 
       if (!result.status) {
+        this.loginState = false;
         this.$router.push({path: '/addschool'});
       } else {
         this.getAllRoleMenus();
@@ -114,6 +117,7 @@ export default {
     // 获取所有角色 菜单
     getAllRoleMenus () {
       this.$store.commit('saveAuthority', d => {
+        this.loginState = false;
         if (d) {
           this.$router.push({path: '/'});
         }

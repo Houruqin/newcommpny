@@ -52,7 +52,7 @@
 
     <!-- 添加，修改角色弹窗 -->
     <el-dialog :title="roleOperation == 'add' ? '添加' : '编辑'" width="500px" center :visible.sync="dialogStatus.role" :close-on-click-modal="false" @close="dialogClose('roleForm')">
-      <el-form :model="roleForm" label-width="100px" :rules="roleRules" ref="roleForm" size="small" class="form-box">
+      <el-form :model="roleForm" label-width="100px" :rules="roleRules" ref="roleForm" size="small" class="form-box" @submit.native.prevent>
         <el-form-item label="角色名称：" prop="name">
             <el-input v-model.trim="roleForm.name" placeholder="角色名称"></el-input>
         </el-form-item>

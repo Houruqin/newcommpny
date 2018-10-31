@@ -174,7 +174,7 @@
       </el-dialog>
 
       <el-dialog title="添加支出类型" width="500px" center :visible.sync="dialog.addType.show" :close-on-click-modal="false" append-to-body>
-        <el-form :model="dialog.addType" ref="addType" label-width="100px" size="small" :rules="addTypeRules" class="commodity-type-formbox">
+        <el-form :model="dialog.addType" ref="addType" label-width="100px" size="small" :rules="addTypeRules" class="commodity-type-formbox" @submit.native.prevent>
           <el-form-item label="支出类型" prop="type" class="pl-50">
             <el-input v-model.trim="dialog.addType.type" placeholder="请输入支出类型"></el-input>
           </el-form-item>

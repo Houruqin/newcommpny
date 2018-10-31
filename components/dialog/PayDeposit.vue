@@ -1,6 +1,6 @@
 <template>
   <el-dialog :title="paymentType === 'add' ? '缴纳定金' : '退回定金'" width="560px" center :visible.sync="dialogStatus" :close-on-click-modal="false" @close="dialogClose">
-      <el-form :model="paymentForm" ref="payment" :rules="rules" class="pl-60 pr-60 fomr-box" size="small" label-width="95px">
+      <el-form :model="paymentForm" ref="payment" :rules="rules" class="pl-60 pr-60 fomr-box" size="small" label-width="95px" @submit.native.prevent>
         <div v-if="paymentType === 'add'" key="add">
           <el-form-item label="定金金额：" prop="money">
             <el-input type="number" v-model.number="paymentForm.money" placeholder="请输入定金金额"></el-input>

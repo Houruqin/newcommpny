@@ -93,7 +93,7 @@
 
         <!-- 添加教室 -->
         <el-dialog title="添加教室" width="500px" center :visible.sync="roomDialogStatus" :close-on-click-modal="false" @close="dialogClose('roomForm')" append-to-body>
-            <el-form :model="roomForm" label-width="100px" size="small" :rules="roomRules" ref="roomForm" class="form-box pl-10 pr-10">
+            <el-form :model="roomForm" label-width="100px" size="small" :rules="roomRules" ref="roomForm" class="form-box pl-10 pr-10" @submit.native.prevent>
                 <div class="d-f f-j-c">
                     <el-form-item label="教室名称" prop="name">
                         <el-input v-model.trim="roomForm.name" placeholder="教室名称"></el-input>

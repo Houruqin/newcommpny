@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <div class="speedy-btn cursor-pointer">
+        <div class="speedy-btn cursor-pointer" v-if="$$tools.isAuthority('registerStudent') || $$tools.isAuthority('importStudent') || $$tools.isAuthority('sendCircular') || $$tools.isAuthority('handleAudition')">
             <el-dropdown trigger="click" @visible-change="speedyClick" @command="speedyChange">
                 <div class="el-dropdown-link speedy-img" :class="{'rotate': speedyShow}">
                     <img src="../images/common/speedy.png" alt="">
@@ -172,7 +172,6 @@
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="t-o-e ml-5">{{item.name}}</span>
                     </el-dropdown-item>
-
                 </el-dropdown-menu>
             </el-dropdown>
         </div>

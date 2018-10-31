@@ -173,11 +173,14 @@ const mutations = {
 
     console.log(res);
     if (!res) {
-      return 0;
-    }
-    state.allMenusData = res;
-    if (fn && typeof fn === 'function') {
-      fn(true);
+      if (fn && typeof fn === 'function') {
+        fn(false);
+      }
+    } else {
+      state.allMenusData = res;
+      if (fn && typeof fn === 'function') {
+        fn(true);
+      }
     }
   }
 };

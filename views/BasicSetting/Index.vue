@@ -43,7 +43,7 @@
         </el-row>
 
         <el-dialog :title="classMask[maskState]" width="500px" center :visible.sync="classMaskStatus" :close-on-click-modal="false" @close="dialogClose('classForm')">
-            <el-form :model="classForm" label-width="100px" size="small" :rules="classRules" ref="classForm">
+            <el-form :model="classForm" label-width="100px" size="small" :rules="classRules" ref="classForm" @submit.native.prevent>
                 <div class="form-box">
                     <el-form-item :label="classMask.label" prop="name">
                         <el-input v-model.trim="classForm.name" placeholder="教室名称"></el-input>
@@ -54,7 +54,7 @@
         </el-dialog>
 
         <el-dialog :title="sourseMask[maskState]" width="500px" center :visible.sync="sourceMaskStatus" :close-on-click-modal="false" @close="dialogClose('sourseForm')">
-            <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm">
+            <el-form :model="sourceForm" label-width="100px" size="small" :rules="sourceRules" ref="sourseForm" @submit.native.prevent>
                 <div class="form-box">
                     <el-form-item :label="sourseMask.label" prop="name">
                         <el-input v-model.trim="sourceForm.name" placeholder="渠道名称"></el-input>
