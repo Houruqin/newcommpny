@@ -7,7 +7,7 @@
           <el-tab-pane v-if="item.enName !== 'master'" v-for="(item, index) in roleLists" :key="index" :label="item.cnName" :name="item.enName"></el-tab-pane>
       </el-tabs>
       <div v-loading="loading">
-        <div class="role-item-box mt-10">
+        <div class="role-item-box mt-10 p-r">
           <div v-for="(item, index) in roleLists" :key="index" v-show="item.enName === activeId">
             <ul class="d-f">
               <li v-for="(role, num) in item.role" :key="role.id" class="cursor-pointer p-r" :class="{'active': role.id === activeRoleId, 'ml-20': num, 'mr-20': role.level === 2 && activeRoleId === role.id}"
@@ -21,6 +21,8 @@
               </li>
             </ul>
           </div>
+
+          <span class="p-a remake-info">注：如果没有勾选任何权限则默认该职务不能登录PC端</span>
         </div>
 
         <div class="authority-box mt-20">
@@ -51,7 +53,7 @@
     </el-card>
 
     <!-- 添加，修改角色弹窗 -->
-    <el-dialog :title="roleOperation == 'add' ? '添加' : '编辑'" width="500px" center :visible.sync="dialogStatus.role" :close-on-click-modal="false" @close="dialogClose('roleForm')">
+    <el-dialog :title="roleOperation == 'add' ? '添加角色' : '编辑角色'" width="500px" center :visible.sync="dialogStatus.role" :close-on-click-modal="false" @close="dialogClose('roleForm')">
       <el-form :model="roleForm" label-width="100px" :rules="roleRules" ref="roleForm" size="small" class="form-box" @submit.native.prevent>
         <el-form-item label="角色名称：" prop="name">
             <el-input v-model.trim="roleForm.name" placeholder="角色名称"></el-input>
@@ -82,7 +84,7 @@ export default {
       activeNavId: '',
 
       roleLists: [], // 所有角色列表
-      roleOperation: 'add',
+      roleOperation: '',
 
       authorityLists: [], // 权限列表
       authorityCheckInfo: {},
@@ -151,7 +153,7 @@ export default {
 
       this.$message.success('删除角色成功');
       this.dialogStatus.role = false;
-      this.getRoleLists(true);
+      this.getRoleLists();
     },
     // 角色全选
     roleCheckAllChange (val) {
@@ -254,7 +256,10 @@ export default {
         return 0;
       }
 
-      this.getRoleLists();
+      if (this.roleOperation === 'add') {
+        this.activeRoleId = res.id;
+      }
+      this.getRoleLists(this.roleOperation);
       this.$message.success(`${this.roleOperation === 'add' ? '新增' : '编辑'}成功`);
       this.dialogStatus.role = false;
     },
@@ -278,9 +283,10 @@ export default {
       }
       this.roleLists = result.lists;
       this.$store.commit('getRoleLists', result.lists);
-
-      if (isRefresh) {
+      if (!isRefresh) {
         this.getActiveRoleId();
+      } else if (isRefresh === 'add') {
+        this.getAuthorityLists();
       }
 
       return true;
@@ -318,7 +324,7 @@ export default {
     }
   },
   async created () {
-    let datas = await this.getRoleLists(true);
+    let datas = await this.getRoleLists();
 
     if (datas) {
       this.state = 'loaded';
@@ -349,6 +355,12 @@ export default {
         color: #ED9374;
         border-color: #ED9374;
       }
+    }
+    .remake-info {
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
     }
   }
   .form-box {

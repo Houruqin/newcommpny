@@ -234,7 +234,7 @@ export default {
     },
     async forbideHandle (data) {
       console.log(data);
-      let result = await this.$$request.post(`user/${data.is_enable ? 'disable' : 'enable'}`, {user_id: data.id});
+      let result = await this.$$request.post('/user/manage', {user_id: data.id, status: data.is_enable ? 0 : 1});
 
       console.log(result);
       if (!result) {

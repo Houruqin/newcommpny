@@ -110,7 +110,7 @@
                     </el-form-item>
 
                     <el-form-item label="下次跟进：" class="mt-30" prop="next_at">
-                        <el-date-picker type="datetime" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                        <el-date-picker type="datetime" :editable="false" v-model="followUpForm.next_at" :picker-options="pickListenDisable" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
                     <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')" :loading="submitLoading">确定</MyButton></div>
@@ -200,14 +200,9 @@ export default {
           {max: 20, message: '长度不能超过20个字符'}
         ]
       },
-      pickerBeginDateAfter: {
-        disabledDate: (time) => {
-          return time.getTime() > new Date().getTime();
-        }
-      },
       pickListenDisable: {
         disabledDate: (time) => {
-          return time.getTime() < new Date().setHours(0, 0, 0, 0);
+          return time.getTime() < new Date().setHours(24, 0, 0, 0);
         }
       }
     };

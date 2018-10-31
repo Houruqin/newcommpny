@@ -45,11 +45,9 @@
 export default {
   props: ['list'],
   data () {
-    return {
-
-    }
+    return {};
   }
-}
+};
 </script>
 
 <style lang="less" scoped>
@@ -61,7 +59,8 @@ export default {
       p {
         color: #777;
         i {
-          color: #000;
+          color: #303133;
+          word-break: break-all;
         }
       }
       .line {
