@@ -71,7 +71,7 @@ import MyButton from '../../components/common/MyButton';
 export default {
   props: {
     role: {default: false},
-    type: {default: 'add'},
+    staffType: {default: 'add'},
     value: {default: false},
     appendBody: {default: false},
     editDetail: {default: null}
@@ -81,9 +81,6 @@ export default {
       if (val) {
         this.pageShowInit();
       }
-    },
-    type (newVal) {
-      this.staffType = newVal;
     },
     editDetail (newVal) {
       if (!Object.keys(newVal).length) {
@@ -98,14 +95,6 @@ export default {
           });
         }
       });
-
-
-      // this.roleTypeForm = newVal.type_all.map(v => {
-      //   return {
-      //     department_id: v.department.id,
-      //     role_id: v.id
-      //   };
-      // });
 
       for (let key in this.staffForm) {
         if (key === 'entry_date') {
@@ -138,8 +127,6 @@ export default {
       staffDialogStatus: this.value,
       staffForm: {name: '', mobile: '', entry_date: '', id: '', kind: '', sex: ''},
       roleLists: [],
-      staffType: '',
-
       roleTypeForm: [],
       roleSelectOptions: {},
 
@@ -250,7 +237,6 @@ export default {
         params.id = this.staffForm.id;
       }
 
-      console.log(this.staffType)
       console.log(params);
       let result = await this.$$request.post(url, params);
 

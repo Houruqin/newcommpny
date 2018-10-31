@@ -17,10 +17,6 @@
                     <span v-else class="title cursor-pointer" @click="tabClick(list)" :class="{'active': list.departmentId === staffType.departmentId}">{{list.cnName}}</span>
                   </li>
                 </ul>
-                <!-- <el-tabs v-model="staffType" @tab-click="tabClick" class="tab-toolbar">
-                    <el-tab-pane label="全部" name="all"></el-tab-pane>
-                    <el-tab-pane v-for="(item, index) in $store.state.roleLists" :key="index" :label="item.display_name" :name="item.name"></el-tab-pane>
-                </el-tabs> -->
                 <el-select v-model="filterVal" placeholder="请选择" class="ml-50 filter-box" @change="filterChange" size="small">
                     <el-option label="全部任职状态" value=""></el-option>
                     <el-option label="在职" :value="1"></el-option>
@@ -40,7 +36,7 @@
                       <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.mobile}}</span></template>
                   </el-table-column>
                   <el-table-column label="性别" align="center">
-                      <template slot-scope="scope">{{scope.row.sex ? '男' : '女'}}</template>
+                      <template slot-scope="scope"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.sex ? '男' : '女'}}</span></template>
                   </el-table-column>
                   <el-table-column label="任职岗位" align="center">
                       <template slot-scope="scope">
@@ -83,7 +79,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog v-model="dialogStatus" :editDetail="editDetail" :type="type"
+        <AddStaffDialog v-model="dialogStatus" :editDetail="editDetail" :staffType="userType"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
     </div>
@@ -103,13 +99,12 @@ export default {
         departmentId: 'all',
         roleId: ''
       },
-      // staffType: 'all',
       staffListInfo: {},
       filterVal: '',
       dialogStatus: false,
       loading: true,
       editDetail: {},
-      type: '',
+      userType: '',
       currPage: false,
 
       activePage: 1,
@@ -130,11 +125,11 @@ export default {
   },
   methods: {
     addUser () {
-      this.type = 'add';
+      this.userType = 'add';
       this.dialogStatus = true;
     },
     CB_dialogStatus () {
-      this.type = '';
+      this.userType = '';
       this.dialogStatus = false;
       this.editDetail = {};
     },
@@ -195,7 +190,7 @@ export default {
     },
     //修改
     modifyHandle (data) {
-      this.type = 'edit';
+      this.userType = 'edit';
       console.log(data);
       this.editDetail = data;
       this.dialogStatus = true;
@@ -329,8 +324,6 @@ export default {
       } else {
         params.roleList = [this.staffType.roleId];
       }
-
-      // let params = {type: this.staffType};
 
       if (currentPage) {
         params.page = currentPage;

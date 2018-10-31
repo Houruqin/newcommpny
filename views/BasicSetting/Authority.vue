@@ -6,43 +6,44 @@
       <el-tabs v-model="activeId" @tab-click="tabClick" class="tab-toolbar">
           <el-tab-pane v-if="item.enName !== 'master'" v-for="(item, index) in roleLists" :key="index" :label="item.cnName" :name="item.enName"></el-tab-pane>
       </el-tabs>
-      <div class="role-item-box mt-20">
-        <div v-for="(item, index) in roleLists" :key="index" v-show="item.enName === activeId">
-          <ul class="d-f">
-            <li v-for="(role, num) in item.role" :key="role.id" class="cursor-pointer p-r" :class="{'active': role.id === activeRoleId, 'ml-20': num, 'mr-20': role.level === 2 && activeRoleId === role.id}"
-              @click="roleListsClick(role.id)">
-              <span>{{role.cnName}}</span>
-              <i class="iconfont icon-bianji fc-m ml-10 p-a edit-icon" v-if="role.level === 2 && activeRoleId === role.id" @click.stop="editRoleMethod(role)"></i>
-            </li>
-            <li class="add-btn ml-20 cursor-pointer" @click="addRoleMethod(item.departmentId)">
-              <i class="iconfont icon-40 fc-subm"></i>
-              <span>添加</span>
-            </li>
-          </ul>
+      <div v-loading="loading">
+        <div class="role-item-box mt-10">
+          <div v-for="(item, index) in roleLists" :key="index" v-show="item.enName === activeId">
+            <ul class="d-f">
+              <li v-for="(role, num) in item.role" :key="role.id" class="cursor-pointer p-r" :class="{'active': role.id === activeRoleId, 'ml-20': num, 'mr-20': role.level === 2 && activeRoleId === role.id}"
+                @click="roleListsClick(role.id)">
+                <span>{{role.cnName}}</span>
+                <i class="iconfont icon-bianji fc-m ml-10 p-a edit-icon" v-if="role.level === 2 && activeRoleId === role.id" @click.stop="editRoleMethod(role)"></i>
+              </li>
+              <li class="add-btn ml-20 cursor-pointer" @click="addRoleMethod(item.departmentId)" v-if="item.role.length < 6">
+                <i class="iconfont icon-40 fc-subm"></i>
+                <span>添加</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="authority-box mt-20">
+          <el-table :data="authorityLists" border>
+            <el-table-column label="模块" align="center" width="200">
+              <template slot-scope="scope">
+                <div class="checkall-box" :mydata="JSON.stringify(scope.row)">
+                  <el-checkbox :indeterminate="scope.row.isIndeterminate" v-model="scope.row.isCheckAll" @change="roleCheckAllChange(scope.row)">
+                    {{scope.row.display_name}}
+                  </el-checkbox>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="权限" align="center">
+              <template slot-scope="scope">
+                <el-checkbox-group v-model="scope.row.checked" @change="roleCheckChange(scope.row)" class="d-f f-w-w role-check-box">
+                  <el-checkbox v-for="(item, num) in scope.row.permissions" :key="num" :label="item.id" class="role-check-item">{{item.display_name}}</el-checkbox>
+                </el-checkbox-group>
+              </template>
+            </el-table-column>
+          </el-table>
         </div>
       </div>
-
-      <div class="authority-box mt-30">
-        <el-table :data="authorityLists" border v-loading="loading">
-          <el-table-column label="模块" align="center" width="200">
-            <template slot-scope="scope">
-              <div class="checkall-box" :mydata="JSON.stringify(scope.row)">
-                <el-checkbox :indeterminate="scope.row.isIndeterminate" v-model="scope.row.isCheckAll" @change="roleCheckAllChange(scope.row)">
-                  {{scope.row.display_name}}
-                </el-checkbox>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="权限" align="center">
-            <template slot-scope="scope">
-              <el-checkbox-group v-model="scope.row.checked" @change="roleCheckChange(scope.row)" class="d-f f-w-w role-check-box">
-                <el-checkbox v-for="(item, num) in scope.row.permissions" :key="num" :label="item.id" class="role-check-item">{{item.display_name}}</el-checkbox>
-              </el-checkbox-group>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-
       <div class="d-f mt-20">
         <MyButton @click.native="authorityReset">恢复默认设置</MyButton>
         <MyButton @click.native="saveAuthority" class="ml-20">保存设置</MyButton>
@@ -150,7 +151,7 @@ export default {
 
       this.$message.success('删除角色成功');
       this.dialogStatus.role = false;
-      this.getRoleLists();
+      this.getRoleLists(true);
     },
     // 角色全选
     roleCheckAllChange (val) {
@@ -231,6 +232,11 @@ export default {
     },
     // 提交角色新增、修改数据
     async submitRoleData () {
+      if (this.submitLoading.role) {
+        return 0;
+      }
+
+      this.submitLoading.role = true;
       let params = {displayName: this.roleForm.name};
 
       if (this.roleOperation === 'add') {
@@ -243,6 +249,7 @@ export default {
       let res = await this.$$request.post(`/role/${this.roleOperation === 'add' ? 'create' : 'edit'}`, params);
 
       console.log(res);
+      this.submitLoading.role = false;
       if (!res) {
         return 0;
       }

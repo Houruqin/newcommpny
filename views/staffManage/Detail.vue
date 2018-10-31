@@ -110,7 +110,7 @@
         </el-card>
 
         <!-- 新增员工弹窗 -->
-        <AddStaffDialog v-model="dialogStatus.detail" :editDetail="editDetail" :type="userType"
+        <AddStaffDialog v-model="dialogStatus.detail" :editDetail="editDetail" :staffType="userType"
             @CB-dialogStatus="CB_dialogStatus" @CB-AddStaff="CB_addStaff">
         </AddStaffDialog>
 

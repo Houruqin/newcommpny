@@ -161,6 +161,8 @@ export default {
 
       listStudentId: '',
       operationLists: [
+        // {type: 'buy_course', text: '购课'},
+        // {type: 'audition', text: '试听'},
         {type: 'edit', text: '编辑'},
         {type: 'delete', text: '删除'},
         {type: 'down_payment', text: '缴纳定金'},
