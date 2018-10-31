@@ -328,7 +328,7 @@
         </el-dialog>
 
         <!-- 分班弹窗 -->
-        <el-dialog title="分班" width="800px" center :visible.sync="classMaskStatus" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
+        <el-dialog :title="divideClassType === 'add' ? '分班' : '转班'" width="800px" center :visible.sync="classMaskStatus" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
             <div class="form-box divide-grade-dialog">
                 <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
                     <div class="fc-m fs-16">{{course.name}}</div>
@@ -355,45 +355,6 @@
             <div class="d-f f-j-c mt-30">
                 <MyButton :type="gradeDivideLists.disabled ? 'gray': 'main'" @click.native="divideClassDone(gradeDivideLists.disabled)" :loading="submitLoading.gradeDivide">确认</MyButton>
             </div>
-        </el-dialog>
-
-        <!-- 添加跟进弹窗 -->
-        <el-dialog title="添加跟进" width="600px" center :visible.sync="maskFollowUp" :close-on-click-modal="false" @close="dialogClose('followUpForm')">
-            <el-form :model="followUpForm" label-width="125px" size="small" :rules="followUpRules" ref="followUpForm">
-                <div class="form-box">
-                    <el-form-item label="跟进方式：" prop="way_id" class="mt-30">
-                        <el-select v-model="followUpForm.way_id" placeholder="请选择">
-                            <el-option v-for="(item, index) in wayIdArr" :key="index" :label="item.name" :value="item.id"></el-option>
-                        </el-select>
-                    </el-form-item>
-
-                    <el-form-item label="跟进结果：" prop="status" class="mt-30">
-                        <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                          <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code"
-                          v-if="item.code !== 10 && item.code !== -2 && item.code !== 0 && item.code !== 9"></el-option>
-                        </el-select>
-                    </el-form-item>
-
-                    <el-form-item v-if="followupStatus === 4 && checkListenCourse.timetable_id">
-                        <span>试听课程：{{checkListenCourse.course_name}}</span>
-                        <span class="ml-10">上课时间: {{checkListenCourse.begin_time}}</span>
-                    </el-form-item>
-
-                    <el-form-item v-if="followupStatus === 2" label="邀约到访时间：" prop="invited_at" class="mt-30">
-                        <el-date-picker type="datetime" :editable="false" v-model="followUpForm.invited_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </el-form-item>
-
-                    <el-form-item label="跟进内容：" prop="content" class="mt-30 textarea-cls">
-                        <el-input type="textarea" :rows="4" v-model.trim="followUpForm.content" placeholder="请输入跟进内容"></el-input>
-                    </el-form-item>
-
-                    <el-form-item label="下次跟进：" class="mt-30"  >
-                        <el-date-picker type="date" :editable="false" v-model="followUpForm.next_at" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                    </el-form-item>
-
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="doneHandle('followUpForm')" :loading="submitLoading.followUp">确定</MyButton></div>
-                </div>
-            </el-form>
         </el-dialog>
 
         <!-- 班级信息列表，扣课时数弹窗 -->
@@ -619,8 +580,6 @@ export default {
 
       classMaskStatus: false, //分班弹窗
       quitCourseMaskStatus: false, //退费弹窗
-      maskFollowUp: false, //添加跟进弹窗
-      followupStatus: '', //跟进结果
       paymentMethod: StudentStatic.paymentMethod, //付款方式
       wayIdArr: StudentStatic.followUp.wayId,
       relationArr: StudentStatic.relation,
@@ -670,13 +629,6 @@ export default {
       },
       removeTimetableForm: {
         course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
-      },
-      followUpForm: {
-        way_id: '', //跟进方式
-        status: '', //跟进结果
-        invited_at: '', //邀约时间
-        content: '', //跟进内容
-        next_at: ''
       },
       removeTimetableRules: {
         room_id: [
@@ -757,10 +709,7 @@ export default {
       this.$refs.teacherForm.resetFields();
     },
     dialogClose (form) {
-      if (form === 'followUpForm') {
-        this.listenCourseInit();
-        this.$refs[form].resetFields();
-      } else if (form === 'divideGrade') {
+      if (form === 'divideGrade') {
         this.divideClassRadio = '';
       } else {
         this.$refs[form].resetFields();
@@ -1052,24 +1001,6 @@ export default {
         return 0;
       }
     },
-    //添加跟进
-    addFollowUp () {
-      Object.keys(this.followUpForm).forEach(v => {
-        this.followUpForm[v] = '';
-      });
-      this.followupStatus = '';
-      this.maskFollowUp = true;
-    },
-    //跟进结果选择
-    followUpStatusChange (value) {
-      this.followupStatus = value;
-      if (value === 4) {
-        this.auditionType = 'followup_audition';
-        this.dialogStatus.audition = true;
-      } else {
-        this.listenCourseInit();
-      }
-    },
     //添加试听
     addListenHandle () {
       this.auditionType = 'audition';
@@ -1227,9 +1158,7 @@ export default {
     doneHandle (type) {
       this.$refs[type].validate(valid => {
         if (valid) {
-          if (type === 'followUpForm') {
-            this.submitFollowUpInfo();
-          } else if (type === 'quitCourseForm') {
+          if (type === 'quitCourseForm') {
             this.submitQuitCourse();
           }
         }
@@ -1293,42 +1222,6 @@ export default {
       this.getBottomTabLists();
       this.$message.success('分班成功');
       this.classMaskStatus = false;
-    },
-    //提交跟进
-    async submitFollowUpInfo () {
-      if (this.followupStatus === 4 && !this.checkListenCourse.timetable_id) {
-        return this.$message.warning('邀约试听，试听课程不能为空!');
-      }
-
-      if (this.submitLoading.followUp) {
-        return 0;
-      }
-
-      this.submitLoading.followUp = true;
-
-      let params = {type_id: 6, student_id: this.studentId};
-
-      if (this.checkListenCourse.timetable_id) {
-        params.timetable_id = this.checkListenCourse.timetable_id;
-      }
-
-      Object.keys(this.followUpForm).forEach(key => {
-        params[key] = key === 'invited_at' || key === 'next_at' ? this.followUpForm[key] / 1000 : this.followUpForm[key];
-      });
-
-      console.log(params);
-
-      let result = await this.$$request.post('/followUp/add', params); //type_id默认售后跟进6
-
-      this.submitLoading.followUp = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.$message.success('添加成功');
-      this.maskFollowUp = false;
-      this.listenCourseInit();
-      this.getBottomTabLists();
     },
     //获取学员详情
     async getStudentDetail () {
