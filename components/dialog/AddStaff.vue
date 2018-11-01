@@ -211,14 +211,14 @@ export default {
         a = valid ? true : false;
       });
 
+      if (this.isMaster && a) {
+        return this.submitUserInfo();
+      }
+
       for (let i = 0, len = this.$refs.roleTypeForm.length; i < len; i++) {
         this.$refs.roleTypeForm[i].validate(valid => {
           b = valid ? true : false;
         });
-      }
-
-      if (this.isMaster && a) {
-        return this.submitUserInfo();
       }
 
       if (a && b) {

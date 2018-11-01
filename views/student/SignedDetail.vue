@@ -505,7 +505,7 @@
         <RefundDialog :routerAble="false" :dialogStatus="dialogStatus.quitPrice" :refundData="quitPriceDetail" @CB-dialogStatus="CB_dialogStatus"></RefundDialog>
 
         <!-- 试听弹窗 -->
-        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
+        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
 
         <!-- 学员基础信息 -->
         <EditStudent v-model="dialogStatus.student" :editDetail="studentEditDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
@@ -535,7 +535,6 @@ export default {
 
       state: 'loading',
       dialogStatus: {student: false, editTeacher: false, quitPrice: false, audition: false},
-      auditionType: 'audition',
 
       studentId: '', //学员id
       studentDetail: {},
@@ -552,8 +551,6 @@ export default {
       timetableLists: {}, //学员课表
       courseCommentLists: {}, //课评列表
       followUpLists: {}, //跟进列表
-
-      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
 
       gradeDivideLists: {
         lists: [],
@@ -695,11 +692,27 @@ export default {
 
       return text;
     },
-    CB_audition (data) {
-      this.checkListenCourse = data;
-    },
-    CB_dialogStatus () {
-      this.studentEditDetail = {};
+    //弹窗变比，改变dialog状态回调
+    CB_dialogStatus (type) {
+      if (type === 'student') {
+        this.studentEditDetail = {};
+
+        return 0;
+      }
+
+      if (type === 'contract') {
+        this.contractData = {};
+        this.dialogStatus.contract = false;
+
+        return 0;
+      }
+
+      if (type === 'refund') {
+        this.quitPriceDetail = {};
+        this.dialogStatus.quitPrice = false;
+
+        return 0;
+      }
     },
     CB_success () {
       this.getStudentDetail();
@@ -707,6 +720,10 @@ export default {
     },
     editTeahcerDiaClose () {
       this.$refs.teacherForm.resetFields();
+    },
+    // 试听成功
+    CB_auditionSuccess () {
+      this.getBottomTabLists();
     },
     dialogClose (form) {
       if (form === 'divideGrade') {
@@ -985,32 +1002,9 @@ export default {
       this.quitPriceDetail = result;
       this.dialogStatus.quitPrice = true;
     },
-    //弹窗变比，改变dialog状态回调
-    CB_dialogStatus (type) {
-      if (type === 'contract') {
-        this.contractData = {};
-        this.dialogStatus.contract = false;
-
-        return 0;
-      }
-
-      if (type === 'refund') {
-        this.quitPriceDetail = {};
-        this.dialogStatus.quitPrice = false;
-
-        return 0;
-      }
-    },
     //添加试听
     addListenHandle () {
-      this.auditionType = 'audition';
       this.dialogStatus.audition = true;
-    },
-    //试听跟进弹窗关闭，数据重置
-    listenCourseInit () {
-      Object.keys(this.checkListenCourse).forEach(v => {
-        this.checkListenCourse[v] = '';
-      });
     },
     //添加分班
     gradeDivideClick (type, data) {

@@ -119,7 +119,7 @@
         </el-dialog>
 
         <!-- 试听弹窗 -->
-        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-audition="CB_audition"></AddAudition>
+        <AddAudition v-model="dialogStatus.audition" :studentId="studentId" :auditionType="auditionType" @CB-auditionSuccess="CB_auditionSuccess" @CB-audition="CB_audition"></AddAudition>
 
         <!-- 登记学员弹窗 -->
         <AddStudentDialog  :dialogStatus="dialogStatus.student" :editDetail="editDetail" :type="studentType"
@@ -246,6 +246,10 @@ export default {
     // 跟进 选择试听关闭回调
     CB_audition (data) {
       this.checkListenCourse = data;
+    },
+    // 直接试听成功
+    CB_auditionSuccess () {
+      this.getFollowUpLists();
     },
     //添加跟进
     addFollowUp () {

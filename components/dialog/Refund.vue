@@ -69,10 +69,10 @@ export default {
   },
   components: {MyButton},
   watch: {
-    dialogStatus (newVal, oldVal) {
+    dialogStatus (newVal) {
       this.refundDialogStatus = newVal;
     },
-    refundData (newVal, oldVal) {
+    refundData (newVal) {
       console.log(newVal);
       this.refundDataInfo = newVal;
     }
@@ -91,9 +91,6 @@ export default {
     printCompact () {
       this.$router.push({path: '/refundPrint', query: {refundDataInfo: JSON.stringify(this.refundDataInfo)}});
     }
-  },
-  created () {
-    console.log(this.refundDataInfo);
   }
 };
 </script>
