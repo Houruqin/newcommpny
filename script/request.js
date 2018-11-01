@@ -54,8 +54,6 @@ axios.interceptors.response.use(res => {
         Bus.$emit('refreshSchoolLists');
       }
 
-      // if(result.data.user) cache.setMemberInfo(result.data.user);
-
       return result.data;
     // case 3:
     //     Message.warning(result.message);

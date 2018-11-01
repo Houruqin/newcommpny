@@ -202,7 +202,7 @@ export default {
       },
       pickListenDisable: {
         disabledDate: (time) => {
-          return time.getTime() < new Date().setHours(24, 0, 0, 0);
+          return time.getTime() < new Date().setHours(24, 0, 0, 0) - 864e5;
         }
       }
     };
