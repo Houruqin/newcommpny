@@ -75,7 +75,7 @@
                               :value="item.id">
                           </el-option>
                       </el-select>
-                      <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
+                      <div class="p-a add-room ver-c cursor-pointer" v-if="$$tools.isAuthority('addClassroom')" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
                   </el-form-item>
               </div>
             </div>

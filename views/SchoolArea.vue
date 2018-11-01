@@ -208,7 +208,7 @@ export default {
       this.$store.commit('saveAuthority', d => {
         this.loginState = false;
         if (d) {
-          this.formLists.splice(0, this.formLists.length);
+          // this.formLists.splice(0, this.formLists.length);
           this.submitLoading = false;
           this.$router.push({path: '/'});
         }
