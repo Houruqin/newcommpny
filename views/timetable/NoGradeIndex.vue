@@ -529,7 +529,7 @@ export default {
       studentCheckAll: false,
       allStudentLists: [], //学员总数
 
-      timePicker: timePicker,
+      timePicker: JSON.parse(JSON.stringify(timePicker)),
 
       weekList: [
         {id: 1, name: '周一', type: 'week_one'},

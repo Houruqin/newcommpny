@@ -222,7 +222,7 @@ import {timePicker} from '../../script/static';
 import MyButton from '../common/MyButton';
 
 export default {
-  components: {timePicker, MyButton},
+  components: {MyButton},
   props: {
     value: {default: false},
     tableType: {default: 'single'},
@@ -314,7 +314,7 @@ export default {
       addTableType: '',
       timetableFull: {},
       courseType: 1, //课程类型  普通课程、一对一课程
-      timePicker: timePicker,
+      timePicker: JSON.parse(JSON.stringify(timePicker)),
       formAddDate: [],
       submitLoading: {
         timetable: false,
@@ -473,6 +473,7 @@ export default {
         this.formAddDate.push({begin_time: '', end_time: '', week: ''});
         this.timetableForm.start_time = new Date().getTime();
       }
+
 
       this.dialogStatus.timetable = true;
     },

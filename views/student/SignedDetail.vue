@@ -568,7 +568,7 @@ export default {
       leaveNumDetailMask: false,
 
       //消课先关字段
-      timePicker: timePicker,
+      timePicker: JSON.parse(JSON.stringify(timePicker)),
       removeTimetableDialog: false, //手动消课弹窗
       gradeLists: [], //手动消课填充数据
 

@@ -112,7 +112,6 @@
 
 import {StudentStatic} from '../../script/static';
 import MyButton from '../common/MyButton';
-import Bus from '../../script/bus';
 
 export default {
   props: {

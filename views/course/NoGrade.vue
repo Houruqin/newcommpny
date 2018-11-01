@@ -244,7 +244,7 @@ export default {
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ]
       },
-      timePicker: timePicker,
+      timePicker: JSON.parse(JSON.stringify(timePicker)),
       disableStartTime: new Date().setHours(0, 0, 0, 0),
       pickerBeginDateAfter: {
         disabledDate: (time) => {

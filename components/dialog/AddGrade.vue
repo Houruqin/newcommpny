@@ -283,13 +283,13 @@ export default {
     },
     //班级学员checkbox，全选
     studentCheckAllChange (val) {
-      this.studentLists = val ? this.allStudentLists : [];
+      this.studentLists = val ? this.allStudentLists.filter(v => {return v.buy_lesson_num - v.scheduled > 0}) : [];
     },
     //学员checkbox，多选
     studentCheckChange (val) {
       let checkedCount = val.length;
 
-      this.studentCheckAll = checkedCount === this.allStudentLists.length;
+      this.studentCheckAll = checkedCount === this.allStudentLists.filter(v => {return v.buy_lesson_num - v.scheduled > 0}).length;
     },
     //添加教室
     addRoom () {
