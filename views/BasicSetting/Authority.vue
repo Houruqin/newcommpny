@@ -95,7 +95,8 @@ export default {
       roleForm: {id: '', name: ''},
       roleRules: {
         name: [
-          {required: true, message: '请输入角色名称'}
+          {required: true, message: '请输入角色名称'},
+          {max: 7, message: '长度不能超过7个字符'}
         ]
       }
     };

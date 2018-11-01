@@ -34,14 +34,14 @@
 
         <el-card shadow="hover" class="mt-20">
             <TableHeader title="班级课表">
-              <div class="d-f f-a-c">
+              <div class="d-f f-a-c" v-if="$$tools.isAuthority('deleteTimetable')">
                 <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteTimeTable">批量删除</span>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
             </TableHeader>
 
-            <el-table :data="timeTableLists.data" strip ref="timetable" @selection-change="handleSelectionChange">
+            <el-table :data="timeTableLists.data" strip ref="timetable" @selection-change="handleSelectionChange" v-loading="loading">
                 <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="isShowCheckbox"></el-table-column>
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="上课日期" align="center">
@@ -93,6 +93,7 @@ export default {
   data () {
     return {
       state: 'loading',
+      loading: false,
       gradeId: 167,
       gradeDetail: {},
       timeTableLists: [],
@@ -191,7 +192,6 @@ export default {
       this.$router.go(-1);
     },
     async deleteTimeTable () {
-      console.log(this.selectedIds)
       if (this.selectedIds && this.selectedIds.length) {
         this.$confirm('删除之后数据不能恢复，请确认进行批量删除操作！', '删除确认', {
           confirmButtonText: '确定',
@@ -248,6 +248,7 @@ export default {
       return true;
     },
     async getTimeTableLists (curr_page) {
+      this.loading = true;
       let params = {grade_id: this.gradeId};
 
       if (curr_page) {
@@ -261,7 +262,9 @@ export default {
       if (!result) {
         return 0;
       }
+
       this.timeTableLists = result.timetable;
+      this.loading = false;
 
       return true;
     }

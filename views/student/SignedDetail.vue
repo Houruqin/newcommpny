@@ -70,7 +70,7 @@
               <el-tabs v-model="activeTab" @tab-click="tabClick">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
               </el-tabs>
-              <div class="d-f f-a-c p-a timetable-multiple" v-if="activeTab === 'timetable'">
+              <div class="d-f f-a-c p-a timetable-multiple" v-if="activeTab === 'timetable' && $$tools.isAuthority('deleteTimetable')">
                 <MyButton v-if="!timetableMultiple.isShowCheckbox" @click.native="timetableMultiple.isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <span v-if="timetableMultiple.isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': timetableMultiple.selectedIds.length}" @click="deleteTimeTable">批量删除</span>
                 <MyButton v-if="timetableMultiple.isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
@@ -420,7 +420,7 @@
         </el-dialog>
 
         <!-- 手动消课 -->
-        <el-dialog title="手动消课" width="850px" center :visible.sync="removeTimetableDialog" :close-on-click-modal="false" @close="timetableDialogClose">
+        <el-dialog title="手动消课" width="900px" center :visible.sync="removeTimetableDialog" :close-on-click-modal="false" @close="timetableDialogClose">
             <el-form label-width="120px" :model="removeTimetableForm" size="small" ref="removeTimeTable" :rules="removeTimetableRules">
                 <div class="form-box remove-timetable">
                     <div class="d-f">
@@ -442,7 +442,7 @@
                           </el-form-item>
 
                           <el-row class='time-select'>
-                              <el-col :span="17">
+                              <el-col :span="16">
                                   <el-form-item label="上课时间：" prop="day">
                                       <el-date-picker v-model="removeTimetableForm.day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
                                           @change="removeTimeChange"
@@ -451,7 +451,7 @@
                                   </el-form-item>
                               </el-col>
 
-                              <el-col :span="6" :offset="1">
+                              <el-col :span="7" :offset="1">
                                   <el-form-item label-width="0" prop="time">
                                       <el-time-select
                                           :editable="false"
@@ -1371,10 +1371,10 @@ export default {
     .remove-timetable {
       padding: 0;
       /deep/ .el-input {
-        width: 240px;
+        width: 260px;
       }
       .time-select {
-        width: 360px;
+        width: 380px;
         /deep/ .el-input {
           width: 100%;
         }

@@ -861,6 +861,9 @@ export default {
         this.$refs.calendarPopover.showPopper = false;
       }
     });
+  },
+  beforeDestroy () {
+    Bus.$off('home_refreshTimeTable');
   }
 };
 </script>
