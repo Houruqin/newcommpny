@@ -386,7 +386,7 @@
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
                                 <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type === 'audition'
+                                  v-if="operation.type === 'audition' && $$tools.isAuthority('handleAudition')
                                   || (operation.type === 'edit' && $$tools.isAuthority('editSigned'))
                                   || (operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses'))
                                   || (activeTab === 'over' && $$tools.isAuthority('deleteSigned') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}

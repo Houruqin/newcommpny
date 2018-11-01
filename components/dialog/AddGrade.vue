@@ -17,7 +17,7 @@
                               :value="item.id">
                           </el-option>
                       </el-select>
-                      <div class="p-a add-room ver-c cursor-pointer" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
+                      <div class="p-a add-room ver-c cursor-pointer" v-if="$$tools.isAuthority('addStaffs')" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
                   </el-form-item>
                   <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
                       <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
@@ -31,7 +31,7 @@
                               :value="item.id">
                           </el-option>
                       </el-select>
-                      <div class="p-a add-room ver-c cursor-pointer" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
+                      <div class="p-a add-room ver-c cursor-pointer" v-if="$$tools.isAuthority('addClassroom')" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
                   </el-form-item>
                   <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
                       <el-select v-model="classForm.is_listen" placeholder="请选择">

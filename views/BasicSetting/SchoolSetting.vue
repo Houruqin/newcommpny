@@ -23,7 +23,7 @@
                             <template slot-scope="scope">
                                 <div class="d-f operate-btn f-j-c">
                                     <a class="cursor-pointer fc-m" @click="operateHnadle(scope.row, 'modify')">编辑</a>
-                                    <a v-if="schoolLists.length > 1" class="cursor-pointer ml-30 fc-subm" @click="operateHnadle(scope.row, 'delete')">删除</a>
+                                    <a v-if="schoolLists.length > 1" class="cursor-pointer ml-20 fc-m" @click="operateHnadle(scope.row, 'delete')">删除</a>
                                 </div>
                             </template>
                         </el-table-column>
@@ -165,23 +165,31 @@ export default {
     //列表操作按钮方法
     operateHnadle (scope, type) {
       console.log(scope);
-      if (type == 'modify') {
+      if (type === 'modify') {
         for (let key in scope) {
-          if (key != 'institution_info') {
+          if (key !== 'institution_info') {
             this.form[key] = scope[key];
             switch (key) {
               case 'school_name':
                 school_name = scope.school_name;
+                break;
               case 'user_name':
                 user_name = scope.user_name;
+                break;
               case 'user_mobile':
                 user_mobile = scope.user_mobile;
+                break;
               case 'school_contact':
                 school_contact = scope.school_contact;
+                break;
               case 'school_address':
                 school_address = scope.school_address;
+                break;
               case 'class_pattern':
                 class_pattern = scope.class_pattern;
+                break;
+              default:
+                break;
             }
           } else {
             organization_id = scope.institution_info.id;
@@ -235,10 +243,9 @@ export default {
       }
       this.submitLoading = true;
 
-      let url = this.maskType == 'add' ? '/school/add' : '/school/edit';
+      let url = this.maskType === 'add' ? '/school/add' : '/school/edit';
       let postdata = this.getModifyParams();
 
-      console.log(postdata);
       let result = await this.$$request.post(url, postdata);
 
       this.submitLoading = false;
@@ -248,9 +255,9 @@ export default {
         return 0;
       }
 
-      this.getSchoolLists('edit');
+      this.getSchoolLists();
       Bus.$emit('refreshSchoolId'); //新增校区，更新home的schoolId
-      this.$message.success(this.maskType == 'add' ? '添加成功' : '修改成功');
+      this.$message.success(this.maskType === 'add' ? '添加成功' : '修改成功');
       this.maskStatus = false;
     },
     //参数处理方法
@@ -273,7 +280,7 @@ export default {
         }
       };
 
-      if (this.maskType == 'modify') {
+      if (this.maskType === 'modify') {
         params.school.id = form.school_id;
         params.user.id = form.user_id;
         params.user.school_id = form.school_id;
@@ -295,7 +302,7 @@ export default {
       return postdata;
     },
     //获取校区列表
-    async getSchoolLists (type) {
+    async getSchoolLists () {
       this.loading = true;
       let result = await this.$$request.get('/school/lists');
 
@@ -304,16 +311,16 @@ export default {
       }
       this.schoolLists = result.lists;
 
-      if (type === 'edit') {
-        let memberInfo = this.$$cache.getMemberInfo();
+      // if (type === 'edit') {
+      //   let memberInfo = this.$$cache.getMemberInfo();
 
-        result.lists.forEach(v => {
-          if (memberInfo.school_id == v.id) {
-            memberInfo.class_pattern = v.class_pattern;
-            this.$$cache.setMemberInfo(memberInfo);
-          }
-        });
-      }
+      //   result.lists.forEach(v => {
+      //     if (memberInfo.school_id == v.id) {
+      //       memberInfo.class_pattern = v.class_pattern;
+      //       this.$$cache.setMemberInfo(memberInfo);
+      //     }
+      //   });
+      // }
 
       this.loading = false;
 
@@ -337,9 +344,6 @@ export default {
     if (r1 && r2) {
       this.state = 'loaded';
     }
-  },
-  beforeDestroy () {
-    Bus.$off('refreshSchoolId');
   },
   components: {TableHeader, MyButton}
 };

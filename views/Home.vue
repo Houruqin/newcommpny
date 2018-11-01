@@ -564,6 +564,7 @@ export default {
       this.dialogStatus.listenStudent = false;
 
       this.$message.success('办理试听成功!');
+      Bus.$emit('home_refreshTimeTable');
     },
     //获取试听填充列表
     async getListenLists () {
@@ -707,8 +708,6 @@ export default {
         return 0;
       }
 
-      this.$emit('refresh');
-
       this.$store.commit('saveAuthority', d => {
         if (d) {
           this.$router.push({path: '/refresh', query: {url: '/'}}); //刷新工作台路由
@@ -803,8 +802,7 @@ export default {
     });
   },
   beforeDestroy () {
-    Bus.$off('refreshCourseLists');
-    Bus.$off('home_refreshTimeTable');
+    Bus.$off('refreshSchoolId');
   },
   beforeRouteLeave (to, from, next) {
     //强行删除遮罩层

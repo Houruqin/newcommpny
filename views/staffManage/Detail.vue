@@ -10,7 +10,7 @@
                     </a>
                     <div class="mt-5 t-a-c">
                         <span class="fs-16">{{userDetail.name}}</span>
-                        <span v-if="userDetail.is_enable == 1" class="iconfont icon-bianji cursor-pointer" @click="editHandle"></span>
+                        <span v-if="userDetail.is_enable && $$tools.isAuthority('editStaffs')" class="iconfont icon-bianji cursor-pointer" @click="editHandle"></span>
                     </div>
                 </div>
                 <div class="right ml-36">
@@ -158,6 +158,7 @@ export default {
   methods: {
     editHandle () {
       this.userType = 'edit';
+      console.log(this.userDetail)
       this.editDetail = this.userDetail;
       this.dialogStatus.detail = true;
     },

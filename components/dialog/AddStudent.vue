@@ -51,7 +51,7 @@
                             <el-select v-model="studentForm.source_id" placeholder="请选择">
                                 <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
-                            <div class="p-a add-source ver-c cursor-pointer" @click="addSource"><img src="../../images/common/add.png" alt=""></div>
+                            <div class="p-a add-source ver-c cursor-pointer" @click="addSource" v-if="$$tools.isAuthority('addChannel')"><img src="../../images/common/add.png" alt=""></div>
                         </el-form-item>
                     </el-col>
                     <el-col :span="11" class="ml-30">

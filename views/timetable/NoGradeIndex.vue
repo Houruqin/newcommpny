@@ -839,7 +839,6 @@ export default {
     },
     //详情删除
     detailDelete (detail) {
-        if(!this.$$tools.isAuthority('deleteTimetable')) return false;
       this.$confirm('确定删除排课吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

@@ -20,7 +20,7 @@
                           <span class="syllabus fc-m ml-20" v-if="$store.state.systemSetting.outline && $store.state.systemSetting.outline.status" @click="syllabusClick(course.id)">课程大纲</span>
                       </div>
                       <div class="d-f f-a-c">
-                          <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)">
+                          <span class="d-f f-a-c fc-m cursor-pointer" @click="addClassRoom(course.id, course.type)" v-if="$$tools.isAuthority('addClasses')">
                               <img src="../../images/common/add.png" alt="">
                               <i class="pl-10">添加班级</i>
                           </span>
