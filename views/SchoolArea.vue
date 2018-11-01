@@ -47,7 +47,7 @@
                 </div>
             </div>
             <div class="d-f mt-60 f-j-c">
-                <MyButton @click.native="doneHandle('schoolForm')">确定</MyButton>
+                <MyButton @click.native="doneHandle('schoolForm')" :loading="submitLoading">确定</MyButton>
                 <MyButton type="subm" @click.native="addHandle('schoolForm')" class="ml-20">继续添加</MyButton>
                 <MyButton type="gray" @click.native="quitHandle" class="ml-20">退出</MyButton>
             </div>
@@ -64,6 +64,7 @@ export default {
   data () {
     return {
       logo: Logo,
+      submitLoading: false,
       addShow: true, //是否展示添加校区表单
       organizationInfo: [],
       formLists: [{
@@ -165,6 +166,11 @@ export default {
     },
     //提交数据
     async submitHandle () {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
       let params = this.formLists.map(v => {
         return {
           school: {
@@ -194,8 +200,19 @@ export default {
       memberInfo.school_id = result.school_id;
       this.$$cache.setMemberInfo(memberInfo);
 
-      this.formLists.splice(0, this.formLists.length);
-      this.$router.replace({path: '/'});
+      // this.$router.replace({path: '/'});
+      this.getAllRoleMenus();
+    },
+    // 获取所有角色 菜单
+    getAllRoleMenus () {
+      this.$store.commit('saveAuthority', d => {
+        this.loginState = false;
+        if (d) {
+          this.formLists.splice(0, this.formLists.length);
+          this.submitLoading = false;
+          this.$router.push({path: '/'});
+        }
+      });
     }
   },
   async created () {

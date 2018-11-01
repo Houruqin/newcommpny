@@ -113,7 +113,7 @@
                         <el-date-picker type="datetime" :editable="false" v-model="followUpForm.next_at" :picker-options="pickListenDisable" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                     </el-form-item>
 
-                    <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle('followUpForm')" :loading="submitLoading">确定</MyButton></div>
+                    <div class="d-f f-j-c mt-50"><MyButton @click.native="followUpDoneHandle()" :loading="submitLoading">确定</MyButton></div>
                 </div>
             </el-form>
         </el-dialog>
@@ -326,11 +326,15 @@ export default {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
+      if (this.followUpForm.next_at < new Date().getTime()) {
+        return this.$message.warning('下次跟进时间不能小于当前时间');
+      }
+
       if (this.submitLoading) {
         return 0;
       }
-
       this.submitLoading = true;
+
       let params = {
         type_id: 5, //type_id默认售前跟进5
         student_id: this.detail.id,
