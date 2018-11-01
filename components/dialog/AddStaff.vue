@@ -28,7 +28,7 @@
                               <i v-if="roleTypeForm.length > 1 || isMaster" @click="roleTypeForm.splice(num, 1)" class="p-a delete-time el-tag__close el-icon-close"></i>
                             </div>
                           </el-form>
-                          <div class="d-f mt-10" v-if="roleTypeForm.length < $store.state.roleLists.length"><MyButton type="border" fontColor="fc-m" @click.native="addRoleType">添加职务</MyButton></div>
+                          <div class="d-f mt-10" v-if="roleTypeForm.length < $store.state.roleLists.length && !role"><MyButton type="border" fontColor="fc-m" @click.native="addRoleType">添加职务</MyButton></div>
                         </div>
                       </div>
                     </div>
