@@ -166,7 +166,7 @@
 
             <el-dialog :title="commodityTypeStatus == 'add' ? '添加' : '修改' + '物品类型'" width="500px" center :visible.sync="dialogStatus.commodityType"
                 :close-on-click-modal="false" @close="dialogClose('commodityType_set')" append-to-body>
-                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType_set" class="commodity-type-formbox">
+                <el-form :model="commodityTypeForm" label-width="100px" size="small" :rules="commodityTypeRules" ref="commodityType_set" class="commodity-type-formbox" @submit.native.prevent>
                     <el-form-item label="物品类型：" prop="name" class="pl-50">
                         <el-input v-model.trim="commodityTypeForm.name" placeholder="请输入物品类型"></el-input>
                     </el-form-item>
