@@ -39,16 +39,6 @@ const StudentStatic = {
   ]
 };
 
-const courseStatic = {
-  classRoomStatus: [
-    {type: 'begin', text: '开课', icon: 'icon-renwuweikaishi'},
-    {type: 'plan', text: '排课', icon: 'icon-paike1'},
-    {type: 'over', text: '结课', icon: 'icon-jieke'},
-    {type: 'stop', text: '停课', icon: 'icon-tingke'},
-    {type: 'edit', text: '编辑', icon: 'icon-icon1'},
-    {type: 'delete', text: '删除', icon: 'icon-shanchu'}
-  ]
-};
 
 const timeTableStatic = {
   status: [
@@ -198,4 +188,4 @@ const explainLists = {
 };
 
 
-export {StudentStatic, courseStatic, timeTableStatic, excelHeader, conflictLists, timePicker, explainLists};
+export {StudentStatic, timeTableStatic, excelHeader, conflictLists, timePicker, explainLists};

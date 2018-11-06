@@ -4,7 +4,7 @@
             <div class="d-f f-j-b">
                 <span class="fs-17 fc-m">{{item.course_name}}</span>
                 <div class="d-f btn" v-if="!pastdue && item.begin_time > new Date().getTime() / 1000">
-                    <a class="cursor-pointer" @click="detailEdit(item)" v-if="$$tools.isAuthority('noClassScheduling') && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">编辑</a>
+                    <a class="cursor-pointer" @click="detailEdit(item)" v-if="$$tools.isAuthority('editScheduling') && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">编辑</a>
                     <a v-if="$$tools.isAuthority('deleteTimetable')" class="cursor-pointer ml-10" @click="detailDelete(item)">删除</a>
                 </div>
                 <div class="btn" v-else-if="!item.lesson_end_time

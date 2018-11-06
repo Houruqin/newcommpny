@@ -51,7 +51,7 @@
         </el-table-column>
         <el-table-column label="姓名" align="center">
           <template slot-scope="scope">
-            <div v-if="$$tools.isAuthority('studentDetail')">
+            <div v-if="$$tools.isAuthority('signDetail')">
               <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
             </div>
             <div v-else>{{scope.row.student_name}}</div>
@@ -89,7 +89,7 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" align="center">
           <template slot-scope="scope">
-            <div v-if="$$tools.isAuthority('studentDetail')">
+            <div v-if="$$tools.isAuthority('signDetail')">
               <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
             </div>
             <div v-else>{{scope.row.student.name}}</div>
@@ -128,7 +128,7 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="student_name" align="center">
           <template slot-scope="scope">
-            <div v-if="$$tools.isAuthority('studentDetail')">
+            <div v-if="$$tools.isAuthority('signDetail')">
               <NameRoute :id="scope.row.student_id">{{scope.row.student_name}}</NameRoute>
             </div>
             <div v-else>{{scope.row.student_name}}</div>

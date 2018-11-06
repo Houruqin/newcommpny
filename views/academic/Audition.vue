@@ -39,7 +39,7 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="试听学员" prop="stu_name" align="center">
           <template slot-scope="scope">
-            <div v-if="$$tools.isAuthority('studentDetail')">
+            <div v-if="$$tools.isAuthority('signDetail')">
               <NameRoute :type="scope.row.stu_type" :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
             </div>
             <div v-else>{{scope.row.stu_name}}</div>

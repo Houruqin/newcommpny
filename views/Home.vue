@@ -187,12 +187,12 @@
                 <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
                 <el-table-column label="学员姓名" align="center" width="160">
                   <template slot-scope="scope">
-                    <router-link v-if="scope.row.type === 'sign' && $$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                    <router-link v-if="scope.row.type === 'sign' && $$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon'>
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>
                     </router-link>
-                    <router-link v-else-if="scope.row.type === 'unsign' && $$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}">
+                    <router-link v-else-if="scope.row.type === 'unsign' && $$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}">
                       <span class='c_icon'>
                         <span class='name fc-m cursor-pointer' @click="dialogStatus.search = false">{{scope.row.name}}</span>
                       </span>
@@ -777,8 +777,8 @@ export default {
       this.schoolId = this.$$cache.getMemberInfo().school_id;
     },
     reloadPage () {
-      // this.$store.replace(`/refresh?path=${this.$route.fullpath}`);
-      location.reload();
+      this.$router.replace({path: '/refresh', query: {url: this.$route.fullPath}}); //刷新工作台路由
+      // location.reload();
     }
   },
   mounted () {

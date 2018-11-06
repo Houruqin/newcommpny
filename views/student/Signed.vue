@@ -55,7 +55,7 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton icon="import" v-if="$$tools.isAuthority('exportSigned')" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
+                <MyButton icon="import" v-if="$$tools.isAuthority('exportStudent')" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
             <div class="student-lists-box mt-20">
@@ -65,7 +65,7 @@
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                             <span v-else>{{scope.row.student_name}}</span>
                         </template>
                     </el-table-column>
@@ -116,17 +116,16 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="操作" class-name="table-item" align="center">
+                    <el-table-column label="操作" class-name="table-item" align="center" v-if="operationLists.length">
                         <template slot-scope="scope">
-                            <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                            <span v-if="$$tools.isAuthority('handleAudition')" class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
-                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                            <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                              :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                              {{operation.text}}
+                            </span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
-                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
-                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index" v-if="index > 1"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -141,7 +140,7 @@
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                             <span v-else>{{scope.row.name}}</span>
                         </template>
                     </el-table-column>
@@ -189,7 +188,7 @@
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                             <span v-else>{{scope.row.student_name}}</span>
                         </template>
                     </el-table-column>
@@ -229,17 +228,16 @@
                             </ul>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" class-name="table-item" align="center">
+                    <el-table-column label="操作" class-name="table-item" align="center" v-if="operationLists.length">
                         <template slot-scope="scope">
-                            <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                            <span v-if="$$tools.isAuthority('handleAudition')" class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
-                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                            <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                              :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                              {{operation.text}}
+                            </span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
-                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
-                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index" v-if="index > 1"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -254,7 +252,7 @@
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                             <span v-else>{{scope.row.student_name}}</span>
                         </template>
                     </el-table-column>
@@ -303,17 +301,16 @@
                             </ul>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" class-name="table-item" align="center">
+                    <el-table-column label="操作" class-name="table-item" align="center" v-if="operationLists.length">
                         <template slot-scope="scope">
-                            <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                            <span v-if="$$tools.isAuthority('handleAudition')" class="fc-m cursor-pointer ml-10" @click="addAudition(scope.row.student_id)">试听</span>
-                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                            <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                              :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                              {{operation.text}}
+                            </span>
+                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                               <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                               <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="(operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses')) ||
-                                  (operation.type === 'edit' && $$tools.isAuthority('editSigned')) ||
-                                  (operation.type === 'delete' && $$tools.isAuthority('deleteSigned'))"
+                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index" v-if="index > 1"
                                   :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                                 </el-dropdown-item>
                               </el-dropdown-menu>
@@ -328,7 +325,7 @@
                     <el-table-column label="序号" prop="index" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
                             <span v-else>{{scope.row.student_name}}</span>
                         </template>
                     </el-table-column>
@@ -372,27 +369,35 @@
 
                     <el-table-column label="操作" class-name="table-item" align="center">
                         <template slot-scope="scope">
-                            <span v-if="activeTab === 'over'">
-                              <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                              <span v-if="$$tools.isAuthority('endTurnLose')" class="fc-m cursor-pointer ml-10" @click="lossStudent(scope.row.course_lists[0].student_id)">流失</span>
-                            </span>
+                            <div v-if="activeTab === 'over'" key="over_operation">
+                              <span v-for="(operation, num) in invalidLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                                :class="{'ml-10': num}" v-if="invalidLists.length <= 3 && num < 3 || invalidLists.length > 3 && num < 2">
+                                {{operation.text}}
+                              </span>
+                              <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="invalidLists.length > 3">
+                                <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                                <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                  <el-dropdown-item v-for="(operation, index) in invalidLists" :key="index" v-if="index > 1"
+                                    :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                  </el-dropdown-item>
+                                </el-dropdown-menu>
+                              </el-dropdown>
+                            </div>
 
-                            <span v-else>
-                              <span v-if="$$tools.isAuthority('purchaseCourse')" class="fc-m cursor-pointer" @click="buyCourse(scope.row.course_lists[0])">购课</span>
-                              <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('deleteSigned')" @click="deleteStudent(scope.row.student_id)">删除</span>
-                            </span>
-
-                            <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
-                              <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
-                              <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                  v-if="operation.type === 'audition' && $$tools.isAuthority('handleAudition')
-                                  || (operation.type === 'edit' && $$tools.isAuthority('editSigned'))
-                                  || (operation.type === 'divideGrade' && $$tools.isAuthority('divideClasses'))
-                                  || (activeTab === 'over' && $$tools.isAuthority('deleteSigned') && operation.type === 'delete')" :command="{type: operation.type, data: scope.row}">{{ operation.text}}
-                                </el-dropdown-item>
-                              </el-dropdown-menu>
-                            </el-dropdown>
+                            <div v-else key="loss_operation">
+                              <span v-for="(operation, num) in lostLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                                :class="{'ml-10': num}" v-if="lostLists.length <= 3 && num < 3 || lostLists.length > 3 && num < 2">
+                                {{operation.text}}
+                              </span>
+                              <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="lostLists.length > 3">
+                                <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                                <el-dropdown-menu slot="dropdown" class="operation-lists">
+                                  <el-dropdown-item v-for="(operation, index) in lostLists" :key="index" v-if="index > 1"
+                                    :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                                  </el-dropdown-item>
+                                </el-dropdown-menu>
+                              </el-dropdown>
+                            </div>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -419,7 +424,7 @@
         </el-card>
 
         <!-- 分班弹窗 -->
-        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
+        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divide_grade')">
             <div class="form-box divide-grade-dialog">
                 <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
                     <div class="fc-m fs-16">{{course.name}}</div>
@@ -473,6 +478,29 @@ import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
 
+const OperationLists = [
+  {type: 'buy_course', text: '购课', permission: 'purchaseViewCourse'},
+  {type: 'audition', text: '试听', permission: 'handleAudition'},
+  {type: 'divide_grade', text: '分班', permission: 'divideClasses'},
+  {type: 'edit', text: '编辑', permission: 'editSigned'},
+  {type: 'delete', text: '删除', permission: 'delereUnsigned'}
+];
+
+const InvalidOperation = [
+  {type: 'buy_course', text: '购课', permission: 'purchaseViewCourse'},
+  {type: 'loss_student', text: '流失', permission: 'endTurnLose'},
+  {type: 'audition', text: '试听', permission: 'handleAudition'},
+  {type: 'edit', text: '编辑', permission: 'editSigned'},
+  {type: 'delete', text: '删除', permission: 'delereUnsigned'}
+];
+
+const LoseOperation = [
+  {type: 'buy_course', text: '购课', permission: 'purchaseViewCourse'},
+  {type: 'delete', text: '删除', permission: 'delereUnsigned'},
+  {type: 'audition', text: '试听', permission: 'handleAudition'},
+  {type: 'edit', text: '编辑', permission: 'editSigned'}
+];
+
 export default {
   components: {TableHeader, Classify, MyButton, AddAudition, EditStudent},
   data () {
@@ -501,12 +529,10 @@ export default {
       },
 
       listStudentId: '',
-      operationLists: [
-        {type: 'audition', text: '试听'},
-        {type: 'divideGrade', text: '分班'},
-        {type: 'edit', text: '编辑'},
-        {type: 'delete', text: '删除'}
-      ],
+
+      operationLists: [],
+      invalidLists: [],
+      lostLists: [],
 
       monthArr: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
 
@@ -581,7 +607,7 @@ export default {
     },
     //关闭弹窗
     dialogClose (form) {
-      if (form === 'divideGrade') {
+      if (form === 'divide_grade') {
         this.divideClassRadio = '';
       } else if (form === 'errorAlert') {
         this.deleteErrorStudents = [];
@@ -616,10 +642,10 @@ export default {
     },
     handleCommand (d) {
       switch (d.type) {
-        case 'buyCourse':
+        case 'buy_course':
           this.buyCourse(d.data.course_lists[0]);
           break;
-        case 'divideGrade':
+        case 'divide_grade':
           this.divideGradeHandle(d.data.course_lists[0]);
           break;
         case 'audition':
@@ -993,6 +1019,19 @@ export default {
   },
   async created () {
     this.searchFilter.month = new Date().getMonth() + 1;
+
+    this.operationLists = OperationLists.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
+
+    this.invalidLists = InvalidOperation.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
+
+    this.lostLists = LoseOperation.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
+
     let datas = await this.getAllLists();
 
     if (datas) {

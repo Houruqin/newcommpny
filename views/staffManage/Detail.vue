@@ -34,7 +34,7 @@
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                          <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                          <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                           <span v-else>{{scope.row.name}}</span>
                         </template>
                     </el-table-column>

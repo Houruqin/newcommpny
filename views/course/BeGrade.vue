@@ -81,45 +81,50 @@
                               </el-table-column>
                               <el-table-column label="操作" align="center">
                                   <template slot-scope="scope">
-                                      <span class="cursor-pointer" v-if="$$tools.isAuthority('hasClassScheduling')"
+                                      <!-- <span class="cursor-pointer" v-if="$$tools.isAuthority('scheduling')"
                                       :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
-                                      <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span>
-                                      <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                                      <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span> -->
+                                      <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, grade_info: scope.row, course_info: course})"
+                                        :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                                        {{operation.text}}
+                                      </span>
+                                      <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                                           <el-dropdown-menu slot="dropdown" class="operation-lists">
                                               <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
+
                                                   <!--未开课-->
-                                                  <template v-if="scope.row.begin_status == 0">
+                                                  <!-- <template v-if="scope.row.begin_status == 0">
                                                       <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
                                                           || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
                                                           <i class="iconfont" :class="item.icon"></i>
                                                           <span>{{item.text}}</span>
                                                       </div>
-                                                  </template>
+                                                  </template> -->
                                                   <!--已开课-->
-                                                  <template v-else>
+                                                  <!-- <template v-else> -->
                                                       <!--停课-->
-                                                      <template v-if="scope.row.status == -3">
+                                                      <!-- <template v-if="scope.row.status == -3">
                                                           <div class="d-f f-j-b" v-if="(item.type == 'begin' && $$tools.isAuthority('stopClasses'))
                                                               || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
                                                               || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>
                                                           </div>
-                                                      </template>
+                                                      </template> -->
 
                                                       <!--结课-->
-                                                      <template v-else-if="scope.row.status == -2">
+                                                      <!-- <template v-else-if="scope.row.status == -2">
                                                           <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
                                                               || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
                                                               :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>
                                                           </div>
-                                                      </template>
+                                                      </template> -->
 
                                                       <!--正常开课-->
-                                                      <template v-else>
+                                                      <!-- <template v-else>
                                                           <div class="d-f f-j-b" v-if="(item.type == 'stop' && $$tools.isAuthority('stopClasses'))
                                                               || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
                                                               || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
@@ -127,8 +132,8 @@
                                                               <i class="iconfont" :class="item.icon"></i>
                                                               <span>{{item.text}}</span>
                                                           </div>
-                                                      </template>
-                                                  </template>
+                                                      </template> -->
+                                                  <!-- </template> -->
                                               </el-dropdown-item>
                                           </el-dropdown-menu>
                                       </el-dropdown>
@@ -162,11 +167,20 @@
 
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
-import {courseStatic} from '../../script/static';
 import AddCourseDialog from '../../components/dialog/AddCourse';
 import AddGradeDialog from '../../components/dialog/AddGrade';
 import CourseSyllabus from '../../components/dialog/CourseSyllabus';
 import AddTimeTable from '../../components/dialog/AddTimeTable';
+
+
+const OperationLists = [
+  {type: 'begin', text: '开课', permission: 'stopClasses'},
+  {type: 'plan', text: '排课', permission: 'scheduling'},
+  {type: 'over', text: '结课', permission: 'endingClass'},
+  {type: 'stop', text: '停课', permission: 'stopClasses'},
+  {type: 'edit', text: '编辑', permission: 'editClasses'},
+  {type: 'delete', text: '删除', permission: 'deleteClasses'}
+];
 
 export default {
   components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus, AddTimeTable},
@@ -198,7 +212,14 @@ export default {
       editGradeDetail: {},
       classEdit: false,
       courseOperate: '', //添加课程/编辑课程
-      operationLists: courseStatic.classRoomStatus,
+      operationLists: [
+        // {type: 'begin', text: '开课', icon: 'icon-renwuweikaishi'},
+        // {type: 'plan', text: '排课', icon: 'icon-paike1'},
+        // {type: 'over', text: '结课', icon: 'icon-jieke'},
+        // {type: 'stop', text: '停课', icon: 'icon-tingke'},
+        // {type: 'edit', text: '编辑', icon: 'icon-icon1'},
+        // {type: 'delete', text: '删除', icon: 'icon-shanchu'}
+      ],
       timeRules: {
         begin_time: [
           {required: true, message: '请选择起始时间', trigger: 'change'}
@@ -517,6 +538,12 @@ export default {
   },
   async created () {
     this.$store.dispatch('getSynstemSetLists');
+
+    this.operationLists = OperationLists.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
+    console.log(this.operationLists);
+
     let datas = await this.getCourseLists();
 
     if (datas) {

@@ -27,7 +27,7 @@
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="姓名" prop="stu_name" align="center">
           <template slot-scope="scope">
-            <div v-if="$$tools.isAuthority('studentDetail')">
+            <div v-if="$$tools.isAuthority('signDetail')">
               <NameRoute :id="scope.row.stu_id">{{scope.row.stu_name}}</NameRoute>
             </div>
             <div v-else>{{scope.row.stu_name}}</div>
@@ -52,7 +52,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span v-if="$$tools.isAuthority('viewCourse')" class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
+                <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
               </div>
             </div>
           </template>

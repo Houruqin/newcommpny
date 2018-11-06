@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <span v-if="$$tools.isAuthority('studentDetail')" class="fc-m cursor-pointer" @click="detail">
+      <span v-if="$$tools.isAuthority('signDetail')" class="fc-m cursor-pointer" @click="detail">
         <slot></slot>
       </span>
       <span v-else>

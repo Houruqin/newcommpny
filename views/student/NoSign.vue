@@ -36,7 +36,7 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton v-if="$$tools.isAuthority('exportUnsigned')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
+                <MyButton v-if="$$tools.isAuthority('exportStudent')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
             </div>
 
             <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange" ref="studentTable">
@@ -44,7 +44,7 @@
                 <el-table-column label="序号" type="index" align="center"></el-table-column>
                 <el-table-column label="学员姓名" align="center">
                     <template slot-scope="scope">
-                        <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                        <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                         <span v-else>{{scope.row.name}}</span>
                     </template>
                 </el-table-column>
@@ -79,18 +79,20 @@
                 </el-table-column>
                 <el-table-column label="渠道来源" prop="source_info.name" align="center"></el-table-column>
                 <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column label="操作" align="center" v-if="operationLists.length">
                     <template slot-scope="scope">
-                        <span v-if="$$tools.isAuthority('purchaseCourse')" class="cursor-pointer fc-m" @click="handleCommand({type: 'buyCourse', data: scope.row})">购课</span>
-                        <span v-if="$$tools.isAuthority('handleAudition')" class="cursor-pointer fc-m ml-10" @click="handleCommand({type: 'audition', data: scope.row})">试听</span>
-                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
+                        <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                          :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                          {{operation.text}}
+                        </span>
+                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                           <el-dropdown-menu slot="dropdown" class="operation-lists">
                             <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                              v-if="(operation.type === 'edit' && $$tools.isAuthority('editUnsigned'))
-                              || (operation.type === 'down_payment' && $$tools.isAuthority('payDeposit') && scope.row.deposit_money <= 0)
-                              || (operation.type === 'back_payment' && $$tools.isAuthority('returnDeposit') && scope.row.deposit_money > 0)
-                              || (operation.type == 'delete' && $$tools.isAuthority('delereUnsigned'))"
+                              v-if="index > 1 && (operation.type === 'edit'
+                              || (operation.type === 'down_payment' && scope.row.deposit_money <= 0)
+                              || (operation.type === 'back_payment' && scope.row.deposit_money > 0)
+                              || operation.type == 'delete')"
                               :command="{type: operation.type, data: scope.row}">{{ operation.text}}
                             </el-dropdown-item>
                           </el-dropdown-menu>
@@ -144,6 +146,15 @@ import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
 
+const OperationLists = [
+  {type: 'buy_course', text: '购课', permission: 'purchaseViewCourse'},
+  {type: 'audition', text: '试听', permission: 'handleAudition'},
+  {type: 'edit', text: '编辑', permission: 'editUnsigned'},
+  {type: 'delete', text: '删除', permission: 'delereUnsigned'},
+  {type: 'down_payment', text: '缴纳定金', permission: 'payReturnDeposit'},
+  {type: 'back_payment', text: '退回定金', permission: 'payReturnDeposit'}
+];
+
 export default {
   data () {
     return {
@@ -160,14 +171,7 @@ export default {
       paymentDetail: {},
 
       listStudentId: '',
-      operationLists: [
-        // {type: 'buy_course', text: '购课'},
-        // {type: 'audition', text: '试听'},
-        {type: 'edit', text: '编辑'},
-        {type: 'delete', text: '删除'},
-        {type: 'down_payment', text: '缴纳定金'},
-        {type: 'back_payment', text: '退回定金'}
-      ],
+      operationLists: [],
 
       headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
       studentTable: {},
@@ -287,7 +291,7 @@ export default {
     handleCommand (d) {
       console.log(d);
       switch (d.type) {
-        case 'buyCourse':
+        case 'buy_course':
           this.buyCourse(d.data);
           break;
         case 'audition':
@@ -482,6 +486,10 @@ export default {
       }
     });
 
+    this.operationLists = OperationLists.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
+    console.log(this.operationLists)
     let datas = await this.getAllLists();
 
     if (datas) {

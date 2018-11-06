@@ -83,7 +83,7 @@
           <template slot-scope="scope">
             <div>
               <div>
-                <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('viewCourse')" @click="show_contract(scope.row.id)">合同详情</span>
+                <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('purchaseViewCourse')" @click="show_contract(scope.row.id)">合同详情</span>
               </div>
             </div>
           </template>

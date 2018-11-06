@@ -63,7 +63,7 @@
               <el-table class="student-table" :data="leave_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
@@ -94,7 +94,7 @@
               <el-table class="student-table" :data="divide_info.data" v-loading="loading" :span-method="objectSpanMethod" :show-header="true">
                 <el-table-column class-name="table_head" label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
+                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student_name}}</span>
                       </span>
@@ -124,7 +124,7 @@
               <el-table class="student-table" :data="renewal_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
+                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student_name}}</span>
                       </span>
@@ -142,7 +142,7 @@
                     <span v-else>{{scope.row.may_expire_at | date('yyyy-MM-dd')}}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="$$tools.isAuthority('purchaseCourse')" label="操作" prop="operate" align="center">
+                <el-table-column v-if="$$tools.isAuthority('purchaseViewCourse')" label="操作" prop="operate" align="center">
                   <template slot-scope="scope">
                     <a class="student_handle able_handle" @click="renew(scope.row)">续约</a>
                   </template>
@@ -155,7 +155,7 @@
               <el-table class="student-table" :data="birth_info.data" v-loading="loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
+                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.id}}">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.name}}</span>
                       </span>
@@ -285,7 +285,7 @@
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
@@ -321,7 +321,7 @@
               <el-table class="student-table" :data="follow_up_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
@@ -351,7 +351,7 @@
               <el-table class="student-table" :data="assign_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('studentDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
+                    <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">
                       <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.name}}</span>
                       </span>

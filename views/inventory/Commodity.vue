@@ -60,20 +60,20 @@
                 <el-table-column prop="organ_has" align="center" :render-header="organRender"></el-table-column>
                 <el-table-column prop="student_total" align="center" :render-header="studentRender"></el-table-column>
                 <el-table-column label="物品单位" prop="unit" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column label="操作" align="center" v-if="operationLists.length">
                     <template slot-scope="scope">
-                        <span class="fc-m cursor-pointer" @click="addStorage(scope.row)" v-if="$$tools.isAuthority('inTreasury')">入库</span>
-                        <span class="fc-m ml-10 cursor-pointer" @click="removeStorage(scope.row)" v-if="$$tools.isAuthority('outTreasury')">出库</span>
-                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom">
-                            <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
-                            <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
-                                    v-if="(operation.type === 'delete' && $$tools.isAuthority('deleteThings'))
-                                        || (operation.type === 'borrow' && scope.row.use_type != 2 && $$tools.isAuthority('borrowThings'))
-                                        || (operation.type === 'edit' && $$tools.isAuthority('editThings'))"
-                                    :command="{type: operation.type, data: scope.row}">{{operation.text}}
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
+                        <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
+                          :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                          {{operation.text}}
+                        </span>
+                        <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
+                          <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
+                          <el-dropdown-menu slot="dropdown" class="operation-lists">
+                            <el-dropdown-item v-for="(operation, index) in operationLists" :key="index"
+                              v-if="index > 1 && (operation.type !== 'borrow' || operation.type === 'borrow' && scope.row.use_type != 2)"
+                              :command="{type: operation.type, data: scope.row}">{{ operation.text}}
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
                         </el-dropdown>
                     </template>
                 </el-table-column>
@@ -264,6 +264,14 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 
+const OperationLists = [
+  {type: 'add_storage', text: '入库', permission: 'inTreasury'},
+  {type: 'remove_storage', text: '出库', permission: 'outTreasury'},
+  {type: 'borrow', text: '借用', permission: 'borrowThings'},
+  {type: 'edit', text: '编辑', permission: 'editThings'},
+  {type: 'delete', text: '删除', permission: 'deleteThings'}
+];
+
 export default {
   data () {
     return {
@@ -281,9 +289,7 @@ export default {
       state: 'loading',
       operationCommodity: 'add', //操作物品，默认为新增  可编辑
 
-      operationLists: [
-        {type: 'borrow', text: '借用'}, {type: 'edit', text: '编辑'}, {type: 'delete', text: '删除'}
-      ],
+      operationLists: [],
 
 
       removeStorageWaringText: {
@@ -462,6 +468,12 @@ export default {
     handleCommand (info) {
       console.log(info);
       switch (info.type) {
+        case 'add_storage':
+          this.addStorage(info.data);
+          break;
+        case 'remove_storage':
+          this.removeStorage(info.data);
+          break;
         case 'borrow':
           this.borrowForm.name = info.data.name;
           this.borrowForm.total_num = info.data.real_num;
@@ -470,7 +482,6 @@ export default {
           break;
         case 'edit':
           this.operationCommodity = 'edit';
-
           this.addCommodityForm.name = info.data.name;
           this.addCommodityForm.type = info.data.type;
           this.addCommodityForm.use_type = info.data.use_type;
@@ -478,7 +489,6 @@ export default {
           this.addCommodityForm.warning = info.data.warning;
           this.addCommodityForm.goods_id = info.data.id;
           this.addCommodityForm.price = info.data.price;
-
           this.dialogStatus.addCommodity = true;
           break;
         case 'delete':
@@ -494,6 +504,8 @@ export default {
           }).catch(() => {
             return 0;
           });
+          break;
+        default:
           break;
       }
     },
@@ -847,6 +859,9 @@ export default {
   },
   async created () {
     this.$store.dispatch('getAllUser');
+    this.operationLists = OperationLists.filter(v => {
+      return this.$$tools.isAuthority(v.permission);
+    });
 
     let [a, b] = await Promise.all([this.getCommodityLists(), this.getCommodityTypeLists()]);
 
