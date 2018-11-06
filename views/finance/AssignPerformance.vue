@@ -331,6 +331,8 @@ export default {
     },
     //打开设置业绩弹窗
     open_setting (item) {
+      console.log(item)
+      console.log(StudentStatic,StudentStatic[5])
       this.dialog.performance.show = true;
       // this.$refs.performance_valid.resetFields();
 
@@ -350,7 +352,7 @@ export default {
             date: item.created_at,
             operater: item.achieve_allot_user.name,
             student_name: item.student.name,
-            pay_way: this.pay_list[item.student_course.pay_way].name,
+            pay_way: this.pay_list[item.student_course.pay_way*1-1].name,
             course_price: res.studentCourse.lesson_price,
             textbook_price: res.studentCourse.textbook_price,
             total_price: item.student_course.real_price,
