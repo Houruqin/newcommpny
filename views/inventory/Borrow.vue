@@ -66,9 +66,9 @@
                       <div v-else>{{scope.row.remark}}</div>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column label="操作" align="center" v-if="(scope.row.borrow_num - scope.row.return_num) && $$tools.isAuthority('returnThings')">
                     <template slot-scope="scope">
-                        <span class="fc-m cursor-pointer" v-if="(scope.row.borrow_num - scope.row.return_num) && $$tools.isAuthority('returnThings')" @click="giveBackClick(scope.row)">归还</span>
+                        <span class="fc-m cursor-pointer" @click="giveBackClick(scope.row)">归还</span>
                     </template>
                 </el-table-column>
             </el-table>

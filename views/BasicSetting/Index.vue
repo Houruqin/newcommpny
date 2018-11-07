@@ -10,7 +10,7 @@
                 <el-table :data="$store.state.classRoom" stripe>
                     <el-table-column label="序号" type="index" width="80" align="center"></el-table-column>
                     <el-table-column prop="name" label="教室"></el-table-column>
-                    <el-table-column label="操作" width="100" align="center">
+                    <el-table-column label="操作" width="100" align="center" v-if="$$tools.isAuthority(['editClassroom', 'deleteClassroom'])">
                         <template slot-scope="scope">
                             <div class="d-f f-j-c">
                                 <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'class')" v-if="$$tools.isAuthority('editClassroom')">编辑</span>
@@ -29,7 +29,7 @@
                 <el-table :data="$store.state.source" stripe cell-class-name="cell-style">
                     <el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
                     <el-table-column prop="name" label="渠道"></el-table-column>
-                    <el-table-column label="操作" width="100" align="center">
+                    <el-table-column label="操作" width="100" align="center" v-if="$$tools.isAuthority(['editChannel', 'deleteChannel'])">
                         <template slot-scope="scope">
                             <div class="d-f f-j-c">
                                 <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'source')" v-if="$$tools.isAuthority('editChannel')">编辑</span>

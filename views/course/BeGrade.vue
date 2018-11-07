@@ -79,20 +79,27 @@
                                       </div>
                                   </template>
                               </el-table-column>
-                              <el-table-column label="操作" align="center">
+                              <el-table-column label="操作" align="center" v-if="operationLists.length">
                                   <template slot-scope="scope">
                                       <!-- <span class="cursor-pointer" v-if="$$tools.isAuthority('scheduling')"
                                       :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
                                       <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span> -->
-                                      <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, grade_info: scope.row, course_info: course})"
-                                        :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
-                                        {{operation.text}}
+                                      <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer"
+                                        @click="handleCommand({type: operation.type, grade_info: scope.row, course_info: course})"
+                                        :class="{'ml-10': num, 'disabled-c': isDisabled(course.type, scope.row, operation.type)}"
+                                        v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
+                                        <i v-if="operation.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
+                                        <i v-else>{{operation.text}}</i>
                                       </span>
                                       <el-dropdown trigger="click" @command="handleCommand" placement="bottom" v-if="operationLists.length > 3">
                                           <span class="fc-m ml-10 cursor-pointer el-dropdown-link">更多</span>
                                           <el-dropdown-menu slot="dropdown" class="operation-lists">
-                                              <el-dropdown-item v-for="(item, index) in operationLists" :key="index" :command="{type: item.type, grade_info: scope.row, course_info: course}">
-
+                                              <el-dropdown-item v-for="(item, index) in operationLists" :key="index" v-if="index > 1"
+                                                :command="{type: item.type, grade_info: scope.row, course_info: course}"
+                                                :disabled="(scope.row.status === -3 && (item.type === 'plan' || item.type === 'over'))
+                                                 || (scope.row.status === -2 && item.type === 'over')">
+                                                  <i v-if="item.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
+                                                  <i v-else>{{item.text}}</i>
                                                   <!--未开课-->
                                                   <!-- <template v-if="scope.row.begin_status == 0">
                                                       <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
@@ -174,7 +181,7 @@ import AddTimeTable from '../../components/dialog/AddTimeTable';
 
 
 const OperationLists = [
-  {type: 'begin', text: '开课', permission: 'stopClasses'},
+  // {type: 'begin', text: '开课', permission: 'stopClasses'},
   {type: 'plan', text: '排课', permission: 'scheduling'},
   {type: 'over', text: '结课', permission: 'endingClass'},
   {type: 'stop', text: '停课', permission: 'stopClasses'},
@@ -354,14 +361,20 @@ export default {
       this.gradeType = 'edit';
       this.dialogStatus.grade = true;
     },
+    // 判断列表操作按钮是不是灰色
+    isDisabled (course_type, scope, operation_type) {
+      if (operation_type === 'plan') {
+        return (!scope.unscheduled && course_type === 1) || scope.status === -3;
+      } else if (operation_type === 'over') {
+        return scope.status === -2 || scope.status === -3;
+      }
+    },
     //班级操作列表点击回调
     handleCommand (option) {
       switch (option.type) {
-        case 'begin':
-          this.startCourseStatus(option);
-          break;
-        case 'stop':
-          this.classCourseState(option);
+        case 'plan':
+          if (this.isDisabled(option.course_info.type, option.grade_info, option.type)) return 0;
+          this.addTimetable(option);
           break;
         case 'edit':
           this.editClassRoom(option.grade_info, option.course_info.type);
@@ -376,6 +389,9 @@ export default {
           }).catch(() => {
             return 0;
           });
+          break;
+        default:
+          this.classCourseState(option);
           break;
       }
     },
@@ -407,6 +423,13 @@ export default {
     // },
     //班级课程结课、停课、开课
     classCourseState (option) {
+      if (option.type === 'stop' && option.grade_info.status === -3) {
+        return this.startCourseStatus(option); //开课
+      }
+
+      if (this.isDisabled(option.course_info.type, option.grade_info, option.type)) return 0;
+
+      console.log(option)
       let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
 
       this.$confirm(text, '提示', {
@@ -421,6 +444,9 @@ export default {
     },
     //开课 判断是不是需要排课
     async startCourseStatus (option) {
+      console.log(option)
+      return false;
+
       let result = await this.$$request.post('/grade/changeStatus', {id: option.grade_info.id, status: 8});
 
       console.log(result);
@@ -735,5 +761,8 @@ export default {
         /deep/ .el-dropdown-menu__item {
             padding: 0 27px;
         }
+    }
+    .disabled-c {
+        color: #bbb;
     }
 </style>

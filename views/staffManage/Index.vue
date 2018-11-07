@@ -52,7 +52,7 @@
                   <el-table-column label="账号状态" align="center">
                       <template slot-scope="scope"><span>{{!scope.row.status ? '--' : scope.row.is_enable == 1 ? '正常' : '禁用'}}</span></template>
                   </el-table-column>
-                  <el-table-column label="操作" align="center">
+                  <el-table-column label="操作" align="center" v-if="$$tools.isAuthority(['quitDeleteStaffs', 'editStaffs', 'enableDisable'])">
                       <template slot-scope="scope">
                         <div class="operable-btn-box">
                           <span class="cursor-pointer fc-subm" v-if="!scope.row.status && $$tools.isAuthority('quitDeleteStaffs')" @click="deleteUserInfo(scope.row)">删除</span>

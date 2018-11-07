@@ -30,14 +30,15 @@
                           <el-table-column label="序号" type="index" align="center"></el-table-column>
                           <el-table-column label="学员姓名" align="center">
                               <template slot-scope="scope">
-                                  <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+                                  <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+                                  <span v-else>{{scope.row.student.name}}</span>
                               </template>
                           </el-table-column>
                           <el-table-column label="任课老师" prop="teacher.name" align="center"> </el-table-column>
                           <el-table-column label="课程总课时" prop="total_num" align="center"></el-table-column>
                           <el-table-column label="未排课时" prop="no_rank_num" align="center"></el-table-column>
                           <el-table-column label="剩余课时" prop="lesson_num_remain" align="center"></el-table-column>
-                          <el-table-column label="操作" align="center">
+                          <el-table-column label="操作" align="center" v-if="$$tools.isAuthority(['assignTeacher', 'scheduling'])">
                               <template slot-scope="scope">
                                 <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacher(course, scope.row)">分配老师</span>
                                 <span class="ml-10 cursor-pointer" v-if="$$tools.isAuthority('scheduling')" :class="scope.row.no_rank_num <= 0 ? 'fc-9' : 'fc-m'" @click="planTimeTable(course, scope.row)">排课</span>

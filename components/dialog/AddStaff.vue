@@ -270,7 +270,6 @@ export default {
         this.$message.closeAll();
         this.$message.warning('不能删除校长职务！');
       }
-
     }
   },
   components: {MyButton}

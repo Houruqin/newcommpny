@@ -79,13 +79,9 @@
         <el-table-column label="课时费" prop="lesson_price" align="center"></el-table-column>
         <el-table-column label="教材费" prop="textbook_price" align="center"></el-table-column>
         <el-table-column label="合同总额" prop="real_price" align="center"></el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
           <template slot-scope="scope">
-            <div>
-              <div>
-                <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('purchaseViewCourse')" @click="show_contract(scope.row.id)">合同详情</span>
-              </div>
-            </div>
+            <span class="fc-m cursor-pointer"  @click="show_contract(scope.row.id)">合同详情</span>
           </template>
         </el-table-column>
       </el-table>

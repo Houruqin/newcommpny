@@ -155,7 +155,7 @@
                 <el-table-column label="状态" align="center">
                     <template slot-scope="scope">{{scope.row.status == 1 ? '正常' : '禁用'}}</template>
                 </el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column label="操作" align="center" v-if="$$tools.isAuthority(['modifyThingsType', 'forbidEnableThings', 'deleteThingsType'])">
                     <template slot-scope="scope">
                         <span class="fc-m cursor-pointer" v-if="$$tools.isAuthority('modifyThingsType')" @click="commodityTypeHandle('edit', scope.row)">修改</span>
                         <span class="fc-m cursor-pointer ml-10" v-if="$$tools.isAuthority('forbidEnableThings')" @click="commodityTypeHandle(scope.row.status, scope.row)">{{scope.row.status == 1 ? '禁用' : '启用'}}</span>

@@ -82,9 +82,9 @@
                           <div v-else>{{scope.row.remark}}</div>
                       </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center">
+                    <el-table-column label="操作" align="center" v-if="scope.row.type == 2 && $$tools.isAuthority('cancelTreasuryRecord')">
                         <template slot-scope="scope">
-                            <span v-if="scope.row.type == 2 && $$tools.isAuthority('cancelTreasuryRecord')" class="fc-m cursor-pointer" @click="cancellationClick(scope.row.id)">作废</span>
+                            <span class="fc-m cursor-pointer" @click="cancellationClick(scope.row.id)">作废</span>
                         </template>
                     </el-table-column>
                 </el-table>

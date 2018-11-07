@@ -67,13 +67,9 @@
         <el-table-column label="课时退费" prop="remain_lesson_price" align="center"></el-table-column>
         <el-table-column label="教材退费" prop="remain_textbook_price" align="center"></el-table-column>
         <el-table-column label="实退金额" prop="rel_remain" align="center"></el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('refundAndView')">
           <template slot-scope="scope">
-            <div>
-              <div>
-                <span v-if="$$tools.isAuthority('refundAndView')" class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
-              </div>
-            </div>
+            <span class="fc-m cursor-pointer" @click="show_refund(scope.row)">退费详情</span>
           </template>
         </el-table-column>
       </el-table>

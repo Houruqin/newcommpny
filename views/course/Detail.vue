@@ -24,7 +24,8 @@
                         <span>班级学员：</span>
                         <ul class="flex1 d-f fc-2 student-box f-w-w">
                             <li v-for="(student, index) in gradeDetail.student" :key="index" class="mr-10 mb-10">
-                                <router-link :to="{path: '/student/signeddetail', query: {id: student.id}}" class="cursor-pointer fc-m">{{student.name}}</router-link>
+                                <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: student.id}}" class="fc-m">{{student.name}}</router-link>
+                                <span v-else>{{student.name}}</span>
                             </li>
                         </ul>
                     </p>

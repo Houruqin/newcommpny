@@ -69,9 +69,9 @@
           <template slot-scope="scope">{{pay_list[scope.row.student_course.pay_way - 1].name}}</template>
         </el-table-column>
         <el-table-column label="业绩金额" prop="achieve_price" align="center"></el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('adjustAchievement')">
           <template slot-scope="scope">
-            <span class="fc-m cursor-pointer" @click="open_setting(scope.row)" v-if="$$tools.isAuthority('adjustAchievement')">调整业绩</span>
+            <span class="fc-m cursor-pointer" @click="open_setting(scope.row)">调整业绩</span>
           </template>
         </el-table-column>
       </el-table>

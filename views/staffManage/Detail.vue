@@ -34,7 +34,7 @@
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                          <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
+                          <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.id}}" class="fc-m">{{scope.row.name}}</router-link>
                           <span v-else>{{scope.row.name}}</span>
                         </template>
                     </el-table-column>
@@ -58,7 +58,8 @@
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="学员姓名" align="center">
                         <template slot-scope="scope">
-                            <router-link :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student_id}}" class="fc-m">{{scope.row.student_name}}</router-link>
+                            <span v-else>{{scope.row.student_name}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="联系电话" align="center" prop="mobile"></el-table-column>
@@ -67,8 +68,8 @@
                         <template slot-scope="scope"><span>{{$$tools.format(scope.row.created_at)}}</span></template>
                     </el-table-column>
                     <el-table-column label="签约人" align="center" prop="user_name"></el-table-column>
-                    <el-table-column label="操作" align="center">
-                        <template slot-scope="scope"><span class="cursor-pointer fc-m" @click="showContract(scope.row)">查看</span></template>
+                    <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
+                        <template slot-scope="scope"><span class="cursor-pointer fc-m" @click="showContract(scope.row)">购课详情</span></template>
                     </el-table-column>
                 </el-table>
                 <!-- 任课班级列表 -->

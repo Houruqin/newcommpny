@@ -367,7 +367,7 @@
                     </el-table-column>
 
 
-                    <el-table-column label="操作" class-name="table-item" align="center">
+                    <el-table-column label="操作" class-name="table-item" align="center" v-if="(activeTab === 'over' && invalidLists.length) || (activeTab === 'loss' && lostLists.length)">
                         <template slot-scope="scope">
                             <div v-if="activeTab === 'over'" key="over_operation">
                               <span v-for="(operation, num) in invalidLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"

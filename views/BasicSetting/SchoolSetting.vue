@@ -310,18 +310,6 @@ export default {
         return void 0;
       }
       this.schoolLists = result.lists;
-
-      // if (type === 'edit') {
-      //   let memberInfo = this.$$cache.getMemberInfo();
-
-      //   result.lists.forEach(v => {
-      //     if (memberInfo.school_id == v.id) {
-      //       memberInfo.class_pattern = v.class_pattern;
-      //       this.$$cache.setMemberInfo(memberInfo);
-      //     }
-      //   });
-      // }
-
       this.loading = false;
 
       return true;

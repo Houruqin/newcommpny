@@ -24,10 +24,7 @@ const VALIDATE_RULE = {
 const Tools = {
   // 权限验证
   isAuthority (authority) {
-    // let permission = store.state.allMenusData.permission.map(v => {return v.description});
 
-    // let permission = store.state.allMenusData.permission.filter(v => {return v.type === 'permission'});
-    // let authority = permission.map(v => {return v.description})
     let permission = [];
 
     store.state.allMenusData.permission.forEach(v => {
@@ -39,7 +36,9 @@ const Tools = {
     if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
       return true;
     }
-
+    if (authority instanceof Array) {
+      return authority.some(v => {return permission.includes(v)});
+    }
     return permission.includes(authority);
   },
   //表单验证

@@ -104,7 +104,7 @@
                                 <span v-else>正常</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" align="center" width="230">
+                        <el-table-column label="操作" align="center" width="230" v-if="$$tools.isAuthority(['purchaseViewCourse', 'refundAndView', 'manualEliminate'])">
                             <template slot-scope="scope">
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
@@ -183,7 +183,7 @@
                                 </ul>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" align="center" class-name="table-item">
+                        <el-table-column label="操作" align="center" class-name="table-item" v-if="$$tools.isAuthority(['changeClasses', 'stopCourses', 'assignTeacher'])">
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">

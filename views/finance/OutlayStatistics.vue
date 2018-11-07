@@ -158,7 +158,7 @@
           <el-table-column label="状态" align="center">
             <template slot-scope="scope">{{scope.row.status === 1 ? '正常' : (scope.row.status === 0 ? '禁用' : '删除')}}</template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="操作" align="center" v-if="$$tools.isAuthority(['modifyExpenditureType', 'forbidEnableExpenditure', 'deleteExpenditureType'])">
             <template slot-scope="scope">
               <span class="fc-m cursor-pointer" @click="type_edit(scope.row.id,scope.row.name)" v-if="$$tools.isAuthority('modifyExpenditureType')">修改</span>
               <span v-if="scope.row.status === 1 && $$tools.isAuthority('forbidEnableExpenditure')" class="fc-m cursor-pointer ml-10" @click="type_handle(scope.row.id,0)">禁用</span>

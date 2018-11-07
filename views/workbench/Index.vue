@@ -54,7 +54,7 @@
         <el-card shadow="hover">
           <TableHeader title="今日待办">
             <MyButton v-if="$$tools.isAuthority('registerStudent')" @click.native="register">登记学员</MyButton>
-            <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;" v-if="$$tools.isAuthority('addMemo')">备忘录</div>
+            <div class="t_button" @click="memo_info.show = true;memo_info.content = '';memo_info.readonly = false;">备忘录</div>
           </TableHeader>
           <el-tabs v-model="activeName" @tab-click="change_tab">
 
@@ -285,7 +285,7 @@
               <el-table class="student-table" :data="audition_list" v-loading="follow_loading" :show-header="true">
                 <el-table-column label="学员姓名" align="left">
                   <template slot-scope="scope">
-                    <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
+                    <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student.id}}">
                       <span class='c_icon' :class="[scope.row.student.sex === 0 ? 'icon_girl' : 'icon_boy']">
                         <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
                       </span>
@@ -367,12 +367,12 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="渠道来源" prop="source_info.name"  align="center"></el-table-column>
-                <el-table-column label="操作" prop="operate" align="center">
+                <el-table-column label="操作" prop="operate" align="center" v-if="$$tools.isAuthority('assignConsultant')">
                   <template slot-scope="scope">
                     <!-- <a class="cursor-pointer fc-m" @click="assign_advisor(scope.row.id)">分配顾问</a> -->
                     <el-dropdown trigger="click" placement="left" @command="select_advisor">
                         <span class="el-dropdown-link">
-                            <div v-if="$$tools.isAuthority('assignConsultant')" class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
+                            <div class="student_handle able_handle" slot="reference" @click="handle_student.id = scope.row.id">分配</div>
                         </span>
                         <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                             <el-scrollbar style="height: 100%;">
@@ -474,7 +474,7 @@
         <span class='text_num' v-if="!memo_info.readonly">{{memo_info.content.length}}/500</span>
         <el-button type="primary" v-if="!memo_info.readonly && memo_info.render" @click.once="add_memo();">提交</el-button>
         <el-button type="primary" v-if="memo_info.readonly" @click="memo_info.show = false;">确定</el-button>
-        <el-button v-if="memo_info.readonly && $$tools.isAuthority('deleteMemo')" @click="delete_memo(memo_info.id)">删除</el-button>
+        <el-button v-if="memo_info.readonly" @click="delete_memo(memo_info.id)">删除</el-button>
       </span>
     </el-dialog>
 
@@ -586,7 +586,7 @@
               </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority(['signIn', 'leave'])">
           <template slot-scope="scope">
               <span v-if="$$tools.isAuthority('signIn')" @click="sign_student(scope.row.student_id,scope.row.timetable_id,scope.row.status2,scope.row)" :class="[scope.row.status2 !== 1 && all_student_info.sign && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle']">签到</span>
               <span v-if="$$tools.isAuthority('leave') && scope.row.type === 1 && all_student_info.course_type !== 1" @click="leave_student(scope.row)" :class="[scope.row.status2 === 5 && !all_student_info.end ? 'able_handle' : 'disable_handle','student_handle','ml-10']">请假</span>

@@ -48,13 +48,9 @@
             <span :class="[scope.row.state === 0 ? 'in_school' : 'graduation','student_status']">{{scope.row.state === 0  ? '在校' : '结业'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="合约详情" align="center">
+        <el-table-column label="合约详情" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
           <template slot-scope="scope">
-            <div>
-              <div>
-                <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
-              </div>
-            </div>
+              <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
           </template>
         </el-table-column>
       </el-table>
