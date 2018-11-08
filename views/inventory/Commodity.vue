@@ -532,27 +532,54 @@ export default {
       }
     },
     //物品类型删除、禁用
-    async commodityTypeSubmit (type, id) {
-      if (type == 'delete') {
-        this.$confirm('确定删除该物品类型?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.typeSubmitHandle(type, id);
-        }).catch(() => {
-          return 0;
-        });
-      } else {
-        this.typeSubmitHandle(type, id);
+    commodityTypeSubmit (type, id) {
+      let params = {
+        id: id
+      };
+
+      if (type !== 'delete') {
+        params.type = type === 1 ? 'limit' : 'start';
       }
+
+      let word = type == 'delete' ? '删除' : type == 1 ? '禁用' : '启用';
+
+      this.$confirm(`确定${word}该物品类型?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        let res = await this.$$request.get(`/goodsType/${type === 'delete' ? 'goodsTypeDel' : 'goodsTypeOperate'}`, params);
+        console.log(res);
+
+        if (!res) {
+          return 0;
+        }
+        this.getCommodityTypeLists();
+        this.$message.success(`${word}成功`);
+      }).catch(() => {
+        return 0;
+      });
+
+      // if (type == 'delete') {
+      //   this.$confirm('确定删除该物品类型?', '提示', {
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //     type: 'warning'
+      //   }).then(() => {
+      //     this.typeSubmitHandle(type, id);
+      //   }).catch(() => {
+      //     return 0;
+      //   });
+      // } else {
+      //   this.typeSubmitHandle(type, id);
+      // }
     },
     async typeSubmitHandle (type, id) {
       let params = {id: id, type: type == 'delete' ? 'del' : type == 1 ? 'limit' : 'start'};
 
       console.log(params);
 
-      let result = await this.$$request.get('/goodsType/goodsTypeOperate', params);
+      let result = await this.$$request.get('/goodsTypeOperate', params);
 
       console.log(result);
       if (!result) {

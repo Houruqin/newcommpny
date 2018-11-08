@@ -973,7 +973,6 @@ export default {
         expire: data.expire,
         buy_type: 2,
         course_id: data.course_id,
-        is_order: data.is_order,
         class_pattern: data.class_pattern,
         teacher_id: data.teacher_ids
       };

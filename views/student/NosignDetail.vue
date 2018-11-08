@@ -326,7 +326,7 @@ export default {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
-      if (this.followUpForm.next_at < new Date().getTime()) {
+      if (this.followUpForm.next_at && this.followUpForm.next_at < new Date().getTime()) {
         return this.$message.warning('下次跟进时间不能小于当前时间');
       }
 

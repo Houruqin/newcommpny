@@ -290,7 +290,7 @@
                     <MyButton @click.native="listenStudentSearch" :radius="false">搜索</MyButton>
                 </div>
 
-                <el-table class="student-table mt-30" :data="listenStudentFilterLists" stripe height="400" v-loading="loading">
+                <el-table class="bor-t mt-30 scroll-box" :data="listenStudentFilterLists" stripe height="400" v-loading="loading">
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="姓名" prop="name" align="center"></el-table-column>
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
@@ -620,6 +620,8 @@ export default {
     },
     //试听学员列表搜索搜索筛选方法
     listenStudentFilter (text) {
+      document.querySelector('.scroll-box .el-table__body-wrapper').scrollTo(0, 0);
+
       if (typeof text === 'undefined') {
         return this.listenStudentLists;
       }

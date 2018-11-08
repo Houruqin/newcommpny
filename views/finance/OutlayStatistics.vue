@@ -485,9 +485,14 @@ export default {
     //类型设置——操作
     type_handle (id, status) {
       const params = {
-        id: id,
-        status: status
+        id: id
+        // status: status
       };
+
+      if (status !== -1) {
+        params.status = status;
+      }
+
       let word = status === -1 ? '删除' : status === 1 ? '启用' : '禁用';
 
       this.$confirm(`确定要${ word }该类型吗?`, '提示', {
@@ -495,10 +500,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
-        let result = await this.$$request.post(
-          '/financeManage/expendType/set',
-          params
-        );
+        let result = await this.$$request.post(`/financeManage/${status === -1 ? 'expendType/del' : 'expendType/set'}`, params);
 
         if (!result) {
           return false;

@@ -28,8 +28,12 @@
                   <el-table-column label="序号" type="index" align="center"></el-table-column>
                   <el-table-column label="员工姓名" align="center">
                       <template slot-scope="scope">
-                          <router-link v-if="scope.row.status && $$tools.isAuthority('viewStaffs')" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
+                          <router-link v-if="!scope.row.isInstitution && scope.row.status && $$tools.isAuthority('viewStaffs')" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
                           <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
+
+                          <el-popover v-if="scope.row.isInstitution" popper-class="grade-student-popver" placement="right" trigger="hover" content="机构管理员">
+                              <i slot="reference" class="iconfont icon-huangguan cursor-pointer fc-subm"></i>
+                          </el-popover>
                       </template>
                   </el-table-column>
                   <el-table-column label="手机号码" align="center">
@@ -411,23 +415,6 @@ export default {
             }
           }
         }
-        // width: 100%;
-        // .tab-toolbar {
-        //     /deep/ .el-tabs__header {
-        //         margin: 0;
-        //     }
-        //     /deep/ .el-tabs__nav-wrap::after {content: none}
-        // }
-        // &::after {
-        //     content: "";
-        //     position: absolute;
-        //     left: 0;
-        //     bottom: -1px;
-        //     width: 100%;
-        //     height: 2px;
-        //     background-color: #e4e7ed;
-        //     z-index: 1;
-        // }
     }
     .role-popver-box {
       .drop-item {
