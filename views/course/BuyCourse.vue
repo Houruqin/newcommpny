@@ -66,21 +66,11 @@
                             <el-input placeholder="课时单价" type="number"  v-model.number="courseForm.unit_price"></el-input><span class="pl-10">元/课时</span>
                         </el-form-item>
 
-                        <el-form-item label="赠送课时：">
+                        <el-form-item label="赠送课时：" prop="given_num">
                             <el-input type="number" placeholder="赠送课时" v-model.number="courseForm.given_num"></el-input><span class="pl-10">课时</span>
                         </el-form-item>
                     </div>
                     <div class="list-item">
-                        <!-- <div v-if="$$cache.getMemberInfo().class_pattern === 2">
-                            <el-form-item label="已扣课时：" prop="lesson_num_already" label-width="110px">
-                                <el-input type="number" placeholder="已扣课时" v-model.number="courseForm.lesson_num_already"></el-input><span class="pl-10">课时</span>
-                            </el-form-item>
-                        </div> -->
-                        <!-- <div v-else>
-                            <el-form-item label="允许请假数：" prop="leave_num" label-width="110px">
-                                <el-input type="number" placeholder="允许请假数" v-model.number="courseForm.leave_num"></el-input><span class="pl-10">次</span>
-                            </el-form-item>
-                        </div> -->
                         <el-form-item label="课程优惠：" prop="preferential_class_price" label-width="110px">
                             <el-input type="number" placeholder="优惠金额" v-model.number="courseForm.preferential_class_price"></el-input><span class="pl-10">元</span>
                         </el-form-item>
@@ -219,11 +209,11 @@ export default {
         lesson_num: [
           {required: true, message: '请输入购买课时数'},
           {validator: this.$$tools.formOtherValidate('lesson_num')},
-          {validator: this.$$tools.formOtherValidate('total', 200)}
+          {validator: this.$$tools.formOtherValidate('total', 999)}
         ],
         given_num: [
           {validator: this.$$tools.formOtherValidate('lesson_num')},
-          {validator: this.$$tools.formOtherValidate('total', 200)}
+          {validator: this.$$tools.formOtherValidate('total', 999)}
         ],
         expire: [
           {required: true, message: '请输入课程有效期'},
@@ -243,14 +233,9 @@ export default {
         ],
         lesson_num_already: [
           {validator: this.$$tools.formOtherValidate('lesson_num')},
-          {validator: this.$$tools.formOtherValidate('total', 200)},
+          {validator: this.$$tools.formOtherValidate('total', 999)},
           {validator: this.courseValidator('lesson_num_already')}
         ],
-        // leave_num: [
-        //   {validator: this.$$tools.formOtherValidate('int')},
-        //   {validator: this.$$tools.formOtherValidate('total', 200)},
-        //   {validator: this.courseValidator('leave_num')}
-        // ],
         unit_price: [
           {required: true, message: '请输入课时单价'},
           {validator: this.$$tools.formOtherValidate('decimals', 2)},

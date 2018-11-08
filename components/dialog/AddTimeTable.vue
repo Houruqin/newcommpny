@@ -177,7 +177,7 @@
           <div class="conflict-box">
               <h3>排课冲突提醒</h3>
               <p class="mb-20">班级：{{timetableForm.grade_name}}</p>
-              <el-table class="student-table" border :data="conflictLists" height="400" header-row-class-name="row-header">
+              <el-table border :data="conflictLists" height="400" header-row-class-name="row-header">
                   <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
                   <el-table-column label="上课日期">
                       <template slot-scope="scope">
@@ -871,7 +871,7 @@ export default {
       this.submitLoading.timetable = true;
       this.conflict_room = this.addTableType === 'multiple' ? [] : '';
 
-      let result = await this.$$request.post('/timetable/conflictLists', params);
+      let result = await this.$$request.post(`/timetable/${this.addTableType === 'edit' ? 'editTimetable' : 'conflictLists'}`, params);
 
       console.log(result);
       this.submitLoading.timetable = false;
@@ -956,9 +956,6 @@ export default {
 
 <style lang="less" scoped>
   .form-box {
-      // max-height: 450px;
-      // overflow: hidden;
-      // overflow-y: auto;
       .add-date {
           position: absolute;
           right: -35px;
