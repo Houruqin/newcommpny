@@ -350,7 +350,6 @@ export default {
     CB_popverClose () {
       this.addTableType = '';
       this.timetableDetail = {};
-      // this.timetableWeekList = [];
     },
     CB_startTimeChange (val) {
       this.getWeekList(val, 'timetable');
