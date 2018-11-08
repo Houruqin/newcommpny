@@ -260,6 +260,45 @@
                             </el-popover>
                         </template>
                     </el-table-column>
+                    <el-table-column label="就读学校" align="center" v-if="activeTab == 'student'">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.school.data" size="small" @change="scope.row.school.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.school.error}">{{scope.row.school.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="意向课程" align="center" v-if="activeTab == 'student'">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.intent_course.data" size="small" @change="scope.row.intent_course.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.intent_course.error}">{{scope.row.intent_course.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="课程意向度" align="center" v-if="activeTab == 'student'">
+                        <template slot-scope="scope">
+                            <el-select v-model="scope.row.intention.data" size="small" placeholder="">
+                                <el-option label="高" value="高"></el-option>
+                                <el-option label="中" value="中"></el-option>
+                                <el-option label="低" value="低"></el-option>
+                            </el-select>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="备注" align="center" v-if="activeTab == 'student'">
+                        <template slot-scope="scope">
+                            <el-popover placement="bottom" width="170" trigger="click">
+                                <el-input v-model="scope.row.remark.data" size="small" @change="scope.row.remark.error = false"></el-input>
+                                <div class="cell-box" slot="reference">
+                                    <span class="out-line" :class="{'red': scope.row.remark.error}">{{scope.row.remark.data}}</span>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
 
                 </el-table>
 
@@ -315,7 +354,7 @@ export default {
         submit_excel: false, submit_list: false
       },
       tableAllHeader: {
-        student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source'],
+        student: ['error_info', 'student_name', 'sex', 'mobile', 'birthday', 'course_advisor', 'source', 'school', 'intent_course', 'intention', 'remark'],
         course: ['error_info', 'student_name', 'mobile', 'course_name', 'course_teacher', 'buy_lesson_num', 'given_lesson_num',
           'surplus_lesson_num', 'textbook_price', 'total_price', 'expire', 'pay_way', 'advisor_name'
         ],
@@ -648,6 +687,12 @@ export default {
             .red {
                 color: red;
                 padding-right: 2px;
+            }
+        }
+        /deep/ .el-select {
+            input {
+                border: none;
+                text-align: center;
             }
         }
     }
