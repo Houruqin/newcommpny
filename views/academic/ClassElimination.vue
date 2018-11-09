@@ -457,7 +457,7 @@ export default {
         };
       }
 
-      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}eduCount/exportClassEliminationOut?${qs.stringify(params)}`;
     },
     //获取消课记录
     async get_elimination_data () {

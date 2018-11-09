@@ -156,7 +156,7 @@ export default {
         token: token.replace('bearer ', '')
       };
 
-      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}eduCount/exportClassTimeOut?${qs.stringify(params)}`;
     },
     //获取课时列表
     async getLessonLists (page) {

@@ -30,6 +30,17 @@
             </div>
           </div>
 
+          <!-- 分配顾问 公共池 -->
+          <div v-else-if="list === 'longTimeNoFollowUp'" class="d-f f-d-c f-a-e">
+            <el-switch v-model="setting[list].status" active-color="#45DAD5" :disabled="!$$tools.isAuthority('editSystem')" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
+            <div class="mt-20 fc-7 p-r">
+              <span>分配顾问后</span>
+              <el-input type="number" class="ml-10 mr-10" v-model.trim="setting[list].num" size="small" :disabled="!setting[list].status || !$$tools.isAuthority('editSystem')"/>
+              <span>天未跟进，自动进入公共池再分配顾问</span>
+              <div v-if="setting[list].num != setting[list].oldVal" class="save-btn" @click="saveSetting(list)">保存</div>
+            </div>
+          </div>
+
           <!-- 其他输入值 -->
           <div v-else class="p-r">
             <el-input type="number" v-model.trim="setting[list].num" size="small" :disabled="!$$tools.isAuthority('editSystem')"/>
@@ -46,7 +57,8 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 
-const SETTING_SORT = ['studentCourseRemain', 'studentAppointCourse', 'studentCancelAppointCourse', 'teacherSign', 'studentLeaveTicket', 'outline', 'LeaveTicketDeductLessonNum', 'longTimeNoByCourse'];
+const SETTING_SORT = ['studentCourseRemain', 'studentAppointCourse', 'studentCancelAppointCourse', 'teacherSign',
+'studentLeaveTicket', 'outline', 'LeaveTicketDeductLessonNum', 'longTimeNoByCourse', 'longTimeNoFollowUp'];
 
 export default {
   components: {TableHeader, MyButton},

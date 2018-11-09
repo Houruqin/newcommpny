@@ -437,17 +437,27 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.submitChangeCourseStatus(option, option.type == 'over' ? -2 : -3);
+        option.type == 'over' ? this.lessonEndStatus(option, -2) : this.submitChangeCourseStatus(option, -3);
       }).catch(() => {
         return 0;
       });
+    },
+    // 结课
+    async lessonEndStatus (option, status) {
+      let res = await this.$$request.post('/grade/changeStatus', {id: option.grade_info.id, status: status});
+
+      if (!res) {
+        return 0;
+      }
+      this.$message.success('修改状态成功');
+      this.getCourseLists(option.course_info.id);
     },
     //开课 判断是不是需要排课
     async startCourseStatus (option) {
       console.log(option)
       return false;
 
-      let result = await this.$$request.post('/grade/changeStatus', {id: option.grade_info.id, status: 8});
+      let result = await this.$$request.post('/changeStatusStopOrStart', {id: option.grade_info.id, status: 8});
 
       console.log(result);
       if (!result) {
@@ -503,10 +513,10 @@ export default {
           break;
       }
     },
-    //改变班级状态 开课/结课/停课
+    //改变班级状态 开课/停课
     async submitChangeCourseStatus (option, status) {
       let params = {id: option.grade_info.id, status: status};
-      let result = await this.$$request.post('/grade/changeStatus', params);
+      let result = await this.$$request.post('/changeStatusStopOrStart', params);
 
       if (!result) {
         return 0;

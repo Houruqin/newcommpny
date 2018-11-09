@@ -135,7 +135,7 @@ export default {
         token: token.replace('bearer ', '')
       };
 
-      window.location.href = `${baseUrl}eduCount/export?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}eduCount/exportStudentCourseOut?${qs.stringify(params)}`;
     },
     tab_change () {
       this.page_info.page = 1;
