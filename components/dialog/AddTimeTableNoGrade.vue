@@ -552,7 +552,7 @@ export default {
       }
       this.submitLoading.timetable = true;
 
-      let result = await this.$$request.post('/timetable/notModelCourse', params);
+      let result = await this.$$request.post(`/timetable/${this.tableType === 'edit' ? 'notModelCourseEdit' : 'notModelCourse'}`, params);
 
       console.log(result);
       this.submitLoading.timetable = false;

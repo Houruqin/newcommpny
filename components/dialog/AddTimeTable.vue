@@ -20,8 +20,8 @@
                           </el-select>
                       </el-form-item>
 
-                      <el-form-item label="上课教室：" prop="room_id">
-                          <el-select placeholder="请选择"  v-model="timetableForm.room_id" :multiple="addTableType === 'multiple'" :key="addTableType + '_room'">
+                      <el-form-item label="上课教室：">
+                          <el-select placeholder="请选择" v-model="timetableForm.room_id" :multiple="addTableType === 'multiple'" :key="addTableType + '_room'">
                               <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id"></el-option>
                           </el-select>
                       </el-form-item>
@@ -369,9 +369,9 @@ export default {
         grade_info: [
           {required: true, message: '请选择班级', trigger: 'change'}
         ],
-        room_id: [
-          {required: true, message: '请选择教室', trigger: 'change'}
-        ],
+        // room_id: [
+          // {required: true, message: '请选择教室', trigger: 'change'}
+        // ],
         teacher_ids: [
           {required: true, message: '请选择任课老师', trigger: 'change'},
           {validator: this.teacherValidator('teacher')}

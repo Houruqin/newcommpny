@@ -394,10 +394,9 @@ export default {
     lastWeekLists () {
       if (this.tableType === 'week') {
         let last = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() - ONE_DAY_LONG * 7;
-
-        if (this.isSameWeek(last)) {
-          last = new Date().getTime();
-        }
+        // if (this.isSameWeek(last)) {
+        //   last = new Date().getTime();
+        // }
         this.calendarTime = last / 1000;
         this.getWeekList(last, 'all');
       } else {
@@ -412,10 +411,6 @@ export default {
     nextWeekLists () {
       if (this.tableType === 'week') {
         let next = new Date(`${this.defaultWeekList[0].day.newFullDay} 00:00`).getTime() + ONE_DAY_LONG * 7;
-
-        if (this.isSameWeek(next)) {
-          next = new Date().getTime();
-        }
         this.calendarTime = next / 1000;
         this.getWeekList(next, 'all');
       } else {

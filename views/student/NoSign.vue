@@ -361,7 +361,7 @@ export default {
       let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
       let params = {data: this.searchFilter, token: token.replace('bearer ', '')};
 
-      window.location.href = `${baseUrl}student/lists?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}student/export?${qs.stringify(params)}`;
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
