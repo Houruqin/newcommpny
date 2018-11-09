@@ -380,7 +380,7 @@ export default {
           {validator: this.teacherValidator('counselor')}
         ],
         lesson_num: [
-          {required: true, message: '请输入课时数'},
+          {required: true, message: '请输入扣课时数'},
           {validator: this.$$tools.formOtherValidate('lesson_num')},
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ],

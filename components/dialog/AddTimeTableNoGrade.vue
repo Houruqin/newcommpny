@@ -254,7 +254,9 @@ export default {
           {required: true, message: '请选择任课老师', trigger: 'change'}
         ],
         lesson_num: [
-          {required: true, message: '请输入扣课时数'}
+          {required: true, message: '请输入扣课时数'},
+          {validator: this.$$tools.formOtherValidate('lesson_num')},
+          {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
         lesson_time: [
           {required: true, message: '请输入课节时长'}

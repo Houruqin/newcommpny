@@ -31,7 +31,7 @@
                           <router-link v-if="!scope.row.isInstitution && scope.row.status && $$tools.isAuthority('viewStaffs')" :to="{path: '/staff/detail', query: {user_id: scope.row.id}}" class="fc-m"><span :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span></router-link>
                           <span v-else :class="{'list-item-gray': !scope.row.status}">{{scope.row.name}}</span>
 
-                          <el-popover v-if="scope.row.isInstitution" popper-class="grade-student-popver" placement="right" trigger="hover" content="机构管理员">
+                          <el-popover v-if="scope.row.isInstitution" popper-class="grade-student-popver" placement="right" trigger="hover" content="机构所有者">
                               <i slot="reference" class="iconfont icon-huangguan cursor-pointer fc-subm"></i>
                           </el-popover>
                       </template>

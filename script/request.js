@@ -68,13 +68,30 @@ axios.interceptors.response.use(res => {
       }
 
       return null;
+    case 1101:
+      if (store.state.pageState === 'loaded') {
+        Message.warning(result.message || '请求错误，请稍后再试');
+      } else {
+        store.commit('stateChange', { state: 'error', errorMsg: result.message || '请求错误，请稍后再试' });
+      }
+      store.commit('httpStateChange', 'authority');
+      store.commit('saveAuthority');
+      return null;
+    case 1100:
+      if (store.state.pageState === 'loaded') {
+        Message.warning(result.message || '请求错误，请稍后再试');
+      } else {
+        store.commit('stateChange', { state: 'error', errorMsg: result.message || '请求错误，请稍后再试' });
+      }
+      store.commit('httpStateChange', 'menu');
+      return null;
     default:
       if (store.state.pageState === 'loaded') {
         Message.warning(result.message || '请求错误，请稍后再试');
       } else {
         store.commit('stateChange', { state: 'error', errorMsg: result.message || '请求错误，请稍后再试' });
       }
-
+      store.commit('httpStateChange', 'normal');
       return null;
   }
 }, error => {

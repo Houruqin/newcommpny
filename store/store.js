@@ -27,7 +27,8 @@ const state = {
   systemSetting: {},
   followupStatus: [],
 
-  allMenusData: {} // 初始化菜单数据，包含权限、菜单、角色
+  allMenusData: {}, // 初始化菜单数据，包含权限、菜单、角色
+  httpState: 'normal' // 请求状态 normal menu authority
 };
 
 const mutations = {
@@ -35,17 +36,18 @@ const mutations = {
     state.pageState = pageStateObj.state;
     switch (pageStateObj.state) {
       case 'loading':
-        // document.title = '加载中...';
         state.pageErrorText = '';
         break;
       case 'loaded':
-        // document.title = pageStateObj.title;
         state.pageErrorText = '';
         break;
       default:
-        state.errorType = pageStateObj.errorType;
+        // state.errorType = pageStateObj.errorType;
         state.pageErrorText = pageStateObj.errorMsg;
     }
+  },
+  httpStateChange (state, httpState) {
+    state.httpState = httpState;
   },
   async getSynstemSetLists (state) {
     let result = await Request.get('/school/systemSetLists');

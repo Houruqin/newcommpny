@@ -99,7 +99,7 @@
                   <div class="page-error-inner">
                     <p>很抱歉！</p>
                     <span>{{ $store.state.pageErrorText }}</span>
-                    <i @click="reloadPage">刷新页面</i>
+                    <i @click="reloadPage" v-if="$store.state.httpState === 'normal' || $store.state.httpState === 'menu'">刷新页面</i>
                   </div>
                 </div>
                 <!-- <keep-alive><router-view v-if="$route.meta.keepAlive"></router-view></keep-alive>  v-if="!$route.meta.keepAlive"-->
@@ -784,7 +784,18 @@ export default {
       this.schoolId = this.$$cache.getMemberInfo().school_id;
     },
     reloadPage () {
-      this.$router.replace({path: '/refresh', query: {url: this.$route.fullPath}}); //刷新工作台路由
+      // 普通请求错误
+      if (this.$store.state.httpState === 'normal') {
+        this.$router.replace({path: '/refresh', query: {url: this.$route.fullPath}}); //刷新当前路由
+      } else {
+        //没有权限访问子菜单，跳转到工作台路由
+        this.$store.commit('saveAuthority', d => {
+          if (d) {
+            this.$router.push({path: '/refresh', query: {url: '/'}}); //刷新工作台路由
+          }
+        });
+      }
+
       // location.reload();
     }
   },
