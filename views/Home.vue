@@ -158,22 +158,25 @@
             </div>
         </div>
 
+        <!-- 快捷操作悬浮 -->
         <div class="speedy-btn cursor-pointer" v-if="$$tools.isAuthority('registerStudent') || $$tools.isAuthority('importStudent') || $$tools.isAuthority('sendCircular') || $$tools.isAuthority('handleAudition')">
-            <el-dropdown trigger="click" @visible-change="speedyClick" @command="speedyChange">
-                <div class="el-dropdown-link speedy-img" :class="{'rotate': speedyShow}">
-                    <img src="../images/common/speedy.png" alt="">
-                </div>
-                <el-dropdown-menu slot="dropdown" class="speedy-lists">
-                    <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
-                        v-if="(item.id === 'addStudent' && $$tools.isAuthority('registerStudent'))
-                         || (item.id === 'importStudent' && $$tools.isAuthority('importStudent'))
-                         || item.id === 'notice' && $$tools.isAuthority('sendCircular')
-                         || (item.id === 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
-                        <i class="iconfont" :class="item.icon"></i>
-                        <span class="t-o-e ml-5">{{item.name}}</span>
-                    </el-dropdown-item>
-                </el-dropdown-menu>
-            </el-dropdown>
+            <!-- <VueDragResize :isActive="true" :isResizable="false" :w="56" :h="56" :x="144" :y="144" class="speedy-btn-drag" :parentLimitation="true"> -->
+                <el-dropdown trigger="click" @visible-change="speedyClick" @command="speedyChange">
+                  <div class="el-dropdown-link speedy-img" :class="{'rotate': speedyShow}">
+                      <img src="../images/common/speedy.png" alt="">
+                  </div>
+                  <el-dropdown-menu slot="dropdown" class="speedy-lists">
+                      <el-dropdown-item :title="item.name" v-for="(item, index) in speedyLists" :command="item.id" :key="index"
+                          v-if="(item.id === 'addStudent' && $$tools.isAuthority('registerStudent'))
+                          || (item.id === 'importStudent' && $$tools.isAuthority('importStudent'))
+                          || item.id === 'notice' && $$tools.isAuthority('sendCircular')
+                          || (item.id === 'addListen' && $$tools.isAuthority('handleAudition') && $$cache.getMemberInfo().class_pattern != 2)">
+                          <i class="iconfont" :class="item.icon"></i>
+                          <span class="t-o-e ml-5">{{item.name}}</span>
+                      </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+            <!-- </VueDragResize> -->
         </div>
 
         <!-- 查找学员弹窗 -->
@@ -336,6 +339,8 @@ import errorLoading from '!url-loader!../images/state-500.png';
 import config from 'config';
 // import Jquery from 'jquery';
 // import '../../plugins/drag';
+
+// import VueDragResize from 'vue-drag-resize';
 
 export default {
   data () {
@@ -1095,7 +1100,9 @@ export default {
         position: fixed;
         right: 50px;
         bottom: 50px;
-        z-index: 500;
+        // width: 200px;
+        // height: 200px;
+        z-index: 1100;
         img {display: block;}
         .speedy-img {
             outline: none;
@@ -1105,6 +1112,11 @@ export default {
                 -webkit-transform :rotate(135deg);
                 transform: rotate(135deg);
             }
+        }
+        .speedy-btn-drag {
+          &:before {
+            outline: none;
+          }
         }
     }
     .form-box {

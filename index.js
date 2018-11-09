@@ -16,6 +16,7 @@ import App from './App';
 import router from './router';
 import Element from 'element-ui';
 import store from './store/store';
+// import VueDragResize from 'vue-drag-resize'
 
 //引入封装js
 import './script/request';
@@ -39,6 +40,7 @@ import Explain from './components/common/Explain';
 
 Vue.component('PageState', PageState);
 Vue.component('Explain', Explain);
+// Vue.component('vue-drag-resize', VueDragResize)
 
 Vue.config.productionTip = false;
 Vue.use(Element);
