@@ -40,7 +40,7 @@
                           </el-select>
                       </el-form-item>
                       <el-form-item label="职位性质：" prop="kind">
-                          <el-select v-model="staffForm.kind" placeholder="选择职位性质">
+                          <el-select v-model="staffForm.kind" placeholder="选择职位性质" :disabled="isMaster">
                               <el-option label="全职" :value="1"></el-option>
                               <el-option label="兼职" :value="2"></el-option>
                           </el-select>

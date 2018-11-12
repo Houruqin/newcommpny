@@ -25,7 +25,7 @@
                   <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1" class="p-r">
                       <el-select v-model="classForm.room_id" placeholder="请选择">
                           <el-option
-                              v-for="item in classSelectInfo.room"
+                              v-for="item in $store.state.classRoom"
                               :key="item.id"
                               :label="item.name"
                               :value="item.id">
