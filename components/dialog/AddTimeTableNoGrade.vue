@@ -22,7 +22,7 @@
               </el-select>
           </el-form-item>
           <el-form-item label="上课教室：">
-              <el-select placeholder="请选择" v-model="timetableForm.room_id">
+              <el-select placeholder="请选择" v-model="timetableForm.room_id" :clearable="true">
                   <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
               </el-select>
           </el-form-item>

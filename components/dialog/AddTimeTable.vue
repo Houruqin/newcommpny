@@ -21,7 +21,7 @@
                       </el-form-item>
 
                       <el-form-item label="上课教室：">
-                          <el-select placeholder="请选择" v-model="timetableForm.room_id" :multiple="addTableType === 'multiple'" :key="addTableType + '_room'">
+                          <el-select placeholder="请选择" v-model="timetableForm.room_id" :multiple="addTableType === 'multiple'" :key="addTableType + '_room'" :clearable="true">
                               <el-option v-for="(item, index) in timetableFull.class_room" :key="index" :label="item.name" :value="item.id"></el-option>
                           </el-select>
                       </el-form-item>
