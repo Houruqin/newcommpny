@@ -256,8 +256,9 @@ export default {
       this.userRole = false;
     },
     CB_addStaff (data) {
-      this.getGradeFill();
-      this.classForm.teacher_ids = data.id;
+      this.getGradeFill(v => {
+        this.classForm.teacher_ids = data.id;
+      });
     },
     //班级课时验证
     lessonNumValidator () {
@@ -314,7 +315,7 @@ export default {
       });
     },
     //获取老师列表、上课教室等附加信息
-    async getGradeFill () {
+    async getGradeFill (fn) {
       let params = {course_id: this.courseId, grade_id: this.gradeId};
 
       let result = await this.$$request.post('/grade/fill', params);
@@ -324,7 +325,7 @@ export default {
         return 0;
       }
       this.classSelectInfo = result.lists;
-
+      if (fn && typeof fn === 'function') fn(true);
       if (this.gradeType === 'add') {
         this.allStudentLists = result.lists.student_course;
       } else {
@@ -354,10 +355,11 @@ export default {
         return 0;
       }
 
-      this.$store.dispatch('getClassRoom'); //更新教室信息
-      this.roomDialogStatus = false;
-      this.$message.success('添加成功');
-      this.classForm.room_id = result.class_room.id;
+      this.$store.dispatch('getClassRoom', d => {
+        this.roomDialogStatus = false;
+        this.$message.success('添加成功');
+        this.classForm.room_id = result.class_room.id;
+      }); //更新教室信息
     },
     //新增、编辑班级提交数据
     submitGrade () {

@@ -293,7 +293,7 @@
                     <MyButton @click.native="listenStudentSearch" :radius="false">搜索</MyButton>
                 </div>
 
-                <el-table class="bor-t mt-30 scroll-box" :data="listenStudentFilterLists" stripe height="400" v-loading="loading">
+                <el-table class="mt-30 scroll-box student-table" :data="listenStudentFilterLists" stripe height="400" v-loading="loading">
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
                     <el-table-column label="姓名" prop="name" align="center"></el-table-column>
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>

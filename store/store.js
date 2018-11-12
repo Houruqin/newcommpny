@@ -107,15 +107,26 @@ const mutations = {
     state.sourceState = 'loaded';
     state.source = result.lists;
   },
-  async getClassRoom () {
+  async getClassRoom (state, fn) {
     let result = await Request.post('/classRoom/lists');
 
     console.log(result);
+    // if (!result) {
+    //   return 0;
+    // }
     if (!result) {
-      return 0;
+      if (fn && typeof fn === 'function') {
+        fn(false);
+      }
+    } else {
+      state.classRoomState = 'loaded';
+      state.classRoom = result.lists;
+      if (fn && typeof fn === 'function') {
+        fn(true);
+      }
     }
-    state.classRoomState = 'loaded';
-    state.classRoom = result.lists;
+    // state.classRoomState = 'loaded';
+    // state.classRoom = result.lists;
   },
   async getCourse (state) {
     let result = await Request.post('/course/normalLists');
@@ -208,8 +219,8 @@ const actions = {
     context.commit('getSource');
   },
 
-  getClassRoom (context) {
-    context.commit('getClassRoom');
+  getClassRoom (context, fn) {
+    context.commit('getClassRoom', fn);
   },
 
   getCourse (context) {
