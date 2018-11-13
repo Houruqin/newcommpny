@@ -19,10 +19,16 @@
                       </el-select>
                       <div class="p-a add-room ver-c cursor-pointer" v-if="$$tools.isAuthority('addStaffs')" @click="addTeacher"><img src="../../images/common/add.png" alt=""></div>
                   </el-form-item>
-                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
+                  <!-- <el-form-item label="开班日期：" prop="start_time" v-if="courseType === 1">
                       <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
+                  </el-form-item> -->
+                  <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
+                      <el-select v-model="classForm.is_listen" placeholder="请选择">
+                          <el-option label="是" :value="1"></el-option>
+                          <el-option label="否" :value="0"></el-option>
+                      </el-select>
                   </el-form-item>
-                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType !== 1" class="p-r">
+                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
                       <el-select v-model="classForm.room_id" placeholder="请选择">
                           <el-option
                               v-for="item in $store.state.classRoom"
@@ -33,12 +39,6 @@
                       </el-select>
                       <div class="p-a add-room ver-c cursor-pointer" v-if="$$tools.isAuthority('addClassroom')" @click="addRoom"><img src="../../images/common/add.png" alt=""></div>
                   </el-form-item>
-                  <el-form-item label="可否试听：" prop="is_listen" v-if="courseType === 1">
-                      <el-select v-model="classForm.is_listen" placeholder="请选择">
-                          <el-option label="是" :value="1"></el-option>
-                          <el-option label="否" :value="0"></el-option>
-                      </el-select>
-                  </el-form-item>
               </div>
 
               <div class="flex1">
@@ -47,9 +47,9 @@
                       <el-input type="number" v-model.number="classForm.lesson_num"></el-input><span class="pl-10">课时</span>
                   </el-form-item>
 
-                  <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
+                  <!-- <el-form-item label="开班日期：" prop="start_time" v-if="courseType !== 1">
                       <el-date-picker v-model.trim="classForm.start_time" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
-                  </el-form-item>
+                  </el-form-item> -->
 
                   <el-form-item label="辅助老师：" prop="counselor_ids">
                       <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable :disabled="disabled.counselor" @change="$refs.gradeForm.validateField('teacher_ids')">
@@ -66,7 +66,7 @@
                       <el-input type="number" v-model.number="classForm.limit_num"></el-input>
                   </el-form-item>
 
-                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
+                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 2" class="p-r">
                       <el-select v-model="classForm.room_id" placeholder="请选择">
                           <el-option
                               v-for="item in $store.state.classRoom"
@@ -145,9 +145,6 @@ export default {
             this.classForm[key] = newVal['teacher_lists'].length ? newVal['teacher_lists'][0].id : '';
           } else if (key === 'counselor_ids') {
             this.classForm[key] = newVal['counselor_lists'].length ? newVal['counselor_lists'][0].id : '';
-          } else if (key === 'start_time') {
-            //若开课时间大于五年 则显示当前日期
-            this.classForm[key] = newVal[key] * 1000 - new Date().getTime() > 5 * 360 * 24 * 60 * 60 * 1000 ? new Date().getTime() : newVal[key] * 1000;
           } else if (key === 'limit_num') {
             this.classForm[key] = `${newVal[key]}`;
           } else {
@@ -188,7 +185,7 @@ export default {
         lesson_num: '', //课程课时
         name: '', //班级名称
         teacher_ids: '', //任课老师id
-        start_time: '', //开课日期
+        // start_time: '', //开课日期
         limit_num: '', //人数上限
         counselor_ids: '', // 辅助老师id
         room_id: '', //所选教室id
@@ -213,9 +210,9 @@ export default {
         counselor_ids: [
           {validator: this.teacherValidator('counselor')}
         ],
-        start_time: [
-          {required: true, message: '请选择开课日期', trigger: 'change'}
-        ],
+        // start_time: [
+        //   {required: true, message: '请选择开课日期', trigger: 'change'}
+        // ],
         limit_num: [
           {required: true, message: '请设置人数上限'},
           {validator: this.$$tools.formOtherValidate('int')},
@@ -393,8 +390,6 @@ export default {
       for (let key in this.classForm) {
         if (key === 'teacher_ids' || key === 'counselor_ids') {
           params[key] = `,${this.classForm[key]},`;
-        } else if (key === 'start_time') {
-          params[key] = this.classForm[key] / 1000;
         } else {
           params[key] = this.classForm[key];
         }

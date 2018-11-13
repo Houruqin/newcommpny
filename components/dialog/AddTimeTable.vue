@@ -2,7 +2,7 @@
   <el-dialog :title="addTableType == 'multiple' ? '批量排课' : addTableType == 'single' ? '添加排课'  : '修改排课'"
       width="900px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('addTimeTable')">
       <el-form label-width="100px" :model="timetableForm" size="small" ref="addTimeTable" :rules="timetableRules">
-          <div class="form-box pr-20 pl-20" id="form-box" v-if="Object.keys(timetableFull).length">
+          <div class="form-box pr-20 pl-20" v-if="Object.keys(timetableFull).length">
               <div class="d-f">
                   <div class="flex1">
                       <el-form-item label="选择班级：" prop="grade_info" v-if="parentPage === 'timetable'" key="grade_info">
@@ -40,7 +40,7 @@
 
                   <div class="flex1">
                       <el-form-item label="课程属性：">
-                          <span>{{courseType === 1 ? '一对多课程' : '一对一课程'}}</span>
+                          <span>{{courseType === 1 ? '一对多课程' : courseType === 2 ? '一对一课程' : ''}}</span>
                           <!-- <span class="ml-10" v-if="timetableForm.lesson_time">{{timetableForm.lesson_time}}分钟</span> -->
                           <span class="fc-m ml-10" v-if="timetableForm.no_timetable !== '' && courseType === 1">未排课时：{{timetableForm.no_timetable}}</span>
                       </el-form-item>
@@ -93,7 +93,7 @@
                   <div class="add-date-box d-f flex1">
                       <div class="title p-r is-required">上课时间：</div>
                       <div class="flex1">
-                          <div class="scroll-box">
+                          <div class="scroll-box" id="formAddDate">
                               <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
                                   <div class="p-r d-f">
                                       <div :class="addTableType === 'edit' ? 'date-change' : 'flex1' ">
@@ -313,7 +313,7 @@ export default {
       },
       addTableType: '',
       timetableFull: {},
-      courseType: 1, //课程类型  普通课程、一对一课程
+      courseType: '', //课程类型  普通课程、一对一课程
       timePicker: JSON.parse(JSON.stringify(timePicker)),
       formAddDate: [],
       submitLoading: {
@@ -428,7 +428,7 @@ export default {
       this.allStudentLists = [];
       this.studentRadio = '';
       this.studentLists = [];
-      this.courseType = 1;
+      this.courseType = '';
       this.timetableForm.no_timetable = '';
       this.checkStudentForm = [];
       this.radioStudentForm = '';
@@ -567,7 +567,7 @@ export default {
     addDateHandle () {
       this.formAddDate.push({begin_time: '', end_time: '', week: ''});
       setTimeout(() => {
-        document.querySelector('#form-box').scrollTo(0, document.querySelector('#form-box').scrollHeight);
+        document.querySelector('#formAddDate').scrollTo(0, document.querySelector('#formAddDate').scrollHeight);
       }, 10);
     },
     //删除时间段

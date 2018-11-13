@@ -483,7 +483,7 @@ const OperationLists = [
   {type: 'audition', text: '试听', permission: 'handleAudition'},
   {type: 'divide_grade', text: '分班', permission: 'divideClasses'},
   {type: 'edit', text: '编辑', permission: 'editSigned'},
-  {type: 'delete', text: '删除', permission: 'delereUnsigned'}
+  {type: 'delete', text: '删除', permission: 'deleteSigned'}
 ];
 
 const InvalidOperation = [
@@ -491,12 +491,12 @@ const InvalidOperation = [
   {type: 'loss_student', text: '流失', permission: 'endTurnLose'},
   {type: 'audition', text: '试听', permission: 'handleAudition'},
   {type: 'edit', text: '编辑', permission: 'editSigned'},
-  {type: 'delete', text: '删除', permission: 'delereUnsigned'}
+  {type: 'delete', text: '删除', permission: 'deleteSigned'}
 ];
 
 const LoseOperation = [
   {type: 'buy_course', text: '购课', permission: 'purchaseViewCourse'},
-  {type: 'delete', text: '删除', permission: 'delereUnsigned'},
+  {type: 'delete', text: '删除', permission: 'deleteSigned'},
   {type: 'audition', text: '试听', permission: 'handleAudition'},
   {type: 'edit', text: '编辑', permission: 'editSigned'}
 ];

@@ -67,7 +67,7 @@
 
         <!-- 编辑，修改老师弹窗 -->
         <el-dialog title="编辑" width="400px" center :visible.sync="dialogStatus.edit" :close-on-click-modal="false">
-            <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
+            <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm" @submit.native.prevent>
                 <el-form-item prop="techer_id" label="选择老师：">
                     <el-select v-model="teacherForm.techer_id" placeholder="请选择">
                         <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
@@ -79,96 +79,98 @@
 
         <!-- 排课弹窗 -->
         <el-dialog title="快速排课" width="850px" center :visible.sync="dialogStatus.timetable" :close-on-click-modal="false" @close="dialogClose('timetableForm')">
-            <div class="form-box">
-                <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm">
-                    <div class="d-f">
-                      <div class="flex1">
-                        <el-form-item label="排课课程：">{{timetableForm.course_name}}</el-form-item>
+          <el-form :model="timetableForm" label-width="100px" size="small" :rules="timetableRules" ref="timetableForm" class="form-box">
+              <div class="d-f">
+                <div class="flex1">
+                  <el-form-item label="排课课程：">{{timetableForm.course_name}}</el-form-item>
 
-                        <el-form-item label="上课教室：" prop="room_id">
-                          <el-select placeholder="请选择"  v-model="timetableForm.room_id">
-                              <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
-                          </el-select>
+                  <el-form-item label="上课教室：">
+                    <el-select placeholder="请选择"  v-model="timetableForm.room_id">
+                        <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                  </el-form-item>
+
+                  <el-form-item label="人数上限：" prop="limit_num">
+                      <el-input type="number" v-model.number="timetableForm.limit_num" placeholder="人数上限" :disabled="activeTab == 2"></el-input>
+                  </el-form-item>
+
+                  <div class="time-select">
+                    <el-col :span="16">
+                        <el-form-item label="上课时间：" prop="begin_day">
+                            <el-date-picker v-model="timetableForm.begin_day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
+                                @change="beginTimeChange"
+                                placeholder="选择日期" value-format="yyyy/MM/dd">
+                            </el-date-picker>
                         </el-form-item>
+                    </el-col>
 
-                        <div class="time-select">
-                          <el-col :span="16">
-                              <el-form-item label="上课时间：" prop="begin_day">
-                                  <el-date-picker v-model="timetableForm.begin_day" type="date" :editable="false" :picker-options="pickerBeginDateAfter"
-                                      @change="beginTimeChange"
-                                      placeholder="选择日期" value-format="yyyy/MM/dd">
-                                  </el-date-picker>
-                              </el-form-item>
-                          </el-col>
-
-                          <el-col :span="7" :offset="1">
-                              <el-form-item label-width="0" prop="begin_time">
-                                  <el-time-select v-model="timetableForm.begin_time" :editable="false" :picker-options="timePicker" placeholder="时间">
-                                  </el-time-select>
-                              </el-form-item>
-                          </el-col>
-                        </div>
-                      </div>
-
-                      <div class="flex1">
-                        <el-form-item label="上课老师：">{{timetableForm.teacher_name}}</el-form-item>
-
-                        <el-form-item label="上课学员：">{{timetableForm.student_name}}</el-form-item>
-
-                        <el-form-item label="扣课时数：" prop="lesson_num">
-                            <el-input type="number" placeholder="扣课时数" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label-width="0" prop="begin_time">
+                            <el-time-select v-model="timetableForm.begin_time" :editable="false" :picker-options="timePicker" placeholder="时间">
+                            </el-time-select>
                         </el-form-item>
-                      </div>
-                    </div>
-                    <div class="d-f f-j-c mt-30">
-                        <MyButton @click.native="timetableDone" :loading="submitLoading.timetable">确定</MyButton>
-                    </div>
-                </el-form>
-            </div>
-        </el-dialog>
-
-        <!-- 冲突弹窗 -->
-        <el-dialog width="1020px" center :visible.sync="dialogStatus.conflictMask" :close-on-click-modal="false">
-            <div class="conflict-box">
-                <h3>排课冲突提醒</h3>
-                <p class="mb-20">课程：{{timetableForm.course_name}}</p>
-
-                <el-table class="student-table" border :data="conflictLists" height="400" header-row-class-name="row-header">
-                    <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
-                    <el-table-column label="上课日期">
-                        <template slot-scope="scope">
-                            <el-date-picker size="small" type="date" :editable="false" :clearable="false" value-format="timestamp" v-model="scope.row.begin_time"></el-date-picker>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="开始时间">
-                        <template slot-scope="scope">
-                            <el-time-select size="small" :picker-options="timePicker" :editable="false" :clearable="false" v-model="scope.row.begin_hours"></el-time-select>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="冲突教室">
-                        <template slot-scope="scope">
-                            <el-select v-model="conflict_room" size="small" v-if="scope.row.conflict_data.reason == 2" key="conflict_room">
-                                <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
-                            </el-select>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="冲突学员">
-                        <template slot-scope="scope">
-                            <span v-if="scope.row.conflict_data.reason == 3">
-                                <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
-                            </span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="解决建议">
-                        <template slot-scope="scope">{{conflictType[`reason${scope.row.conflict_data.reason}`]}}</template>
-                    </el-table-column>
-                </el-table>
-
-                <div class="d-f f-j-c mt-30">
-                    <MyButton type="gray" @click.native="dialogStatus.conflictMask = false">返回编辑</MyButton>
-                    <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
+                    </el-col>
+                  </div>
                 </div>
-            </div>
+
+                <div class="flex1">
+                  <el-form-item label="上课老师：">{{timetableForm.teacher_name}}</el-form-item>
+
+                  <el-form-item label="上课学员：">{{timetableForm.student_name}}</el-form-item>
+
+                  <el-form-item label="扣课时数：" prop="lesson_num">
+                      <el-input type="number" placeholder="扣课时数" v-model.number="timetableForm.lesson_num"></el-input><span class="pl-10">课时</span>
+                  </el-form-item>
+                </div>
+              </div>
+              <div class="d-f f-j-c mt-30">
+                  <MyButton @click.native="timetableDone" :loading="submitLoading.timetable">确定</MyButton>
+              </div>
+          </el-form>
+
+          <!-- 冲突弹窗 -->
+          <el-dialog width="1020px" center :visible.sync="dialogStatus.conflict" :close-on-click-modal="false" append-to-body>
+              <div class="conflict-box">
+                  <h3>排课冲突提醒</h3>
+                  <p class="mb-20">课程：{{timetableForm.course_name}}</p>
+
+                  <el-table border :data="conflictLists" height="400" header-row-class-name="row-header">
+                      <el-table-column label="序号" prop="index" type="index" width="50" class-name="number"></el-table-column>
+                      <el-table-column label="上课日期">
+                          <template slot-scope="scope">
+                              <el-date-picker size="small" type="date" :editable="false" :clearable="false" value-format="timestamp" v-model="scope.row.begin_time"></el-date-picker>
+                          </template>
+                      </el-table-column>
+                      <el-table-column label="开始时间">
+                          <template slot-scope="scope">
+                              <el-time-select size="small" :picker-options="timePicker" :editable="false" :clearable="false" v-model="scope.row.begin_hours"></el-time-select>
+                          </template>
+                      </el-table-column>
+                      <el-table-column label="冲突教室">
+                          <template slot-scope="scope">
+                              <el-select v-if="scope.row.conflict_data.reason == 2" size="small" v-model="scope.row.room_id">
+                                  <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
+                              </el-select>
+                          </template>
+                      </el-table-column>
+                      <el-table-column label="冲突学员">
+                          <template slot-scope="scope">
+                              <span v-if="scope.row.conflict_data.reason == 3">
+                                  <i v-for="(item, index) in scope.row.conflict_data.data" :key="index"><i v-if="index > 0">/</i>{{item.name}}</i>
+                              </span>
+                          </template>
+                      </el-table-column>
+                      <el-table-column label="解决建议">
+                          <template slot-scope="scope">{{conflictType[`reason${scope.row.conflict_data.reason}`]}}</template>
+                      </el-table-column>
+                  </el-table>
+
+                  <div class="d-f f-j-c mt-30">
+                      <MyButton type="gray" @click.native="dialogStatus.conflict = false">返回编辑</MyButton>
+                      <MyButton type="subm" class="ml-30" @click.native="doneModify" :loading="submitLoading.timetable">确认修改</MyButton>
+                  </div>
+              </div>
+          </el-dialog>
         </el-dialog>
 
         <!-- 课程大纲 -->
@@ -200,8 +202,6 @@ export default {
       oldTab: '1',
       loading: false,
 
-      conflict_room: '',
-
       syllabusParams: {},
       courseInfo: {
         course: {}, index: ''
@@ -214,7 +214,7 @@ export default {
         course: false,
         edit: false,
         timetable: false,
-        conflictMask: false,
+        conflict: false,
         syllabus: false
       },
       submitLoading: {
@@ -222,7 +222,7 @@ export default {
         timetable: false
       },
       conflictLists: [], //冲突列表
-      other_lists: [], //正常数据
+      otherLists: [], //正常数据
       teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
       timetableForm: {
         course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
@@ -233,8 +233,11 @@ export default {
         ]
       },
       timetableRules: {
-        room_id: [
-          {required: true, message: '请选择上课教室', trigger: 'change'}
+        // room_id: [
+        //   {required: true, message: '请选择上课教室', trigger: 'change'}
+        // ],
+        begin_day: [
+          {required: true, message: '请选择上课时间', trigger: 'change'}
         ],
         begin_time: [
           {required: true, message: '请选择上课时间', trigger: 'change'}
@@ -408,6 +411,8 @@ export default {
       if (grade_info.no_rank_num <= 0) {
         return this.$message.error('暂无可排课时');
       }
+
+      this.timetableForm.limit_num = this.activeTab == 1 ? 10 : 1;
       this.timetableForm.course_id = course_info.id;
       this.timetableForm.course_name = course_info.name;
       this.timetableForm.student_id = grade_info.student.id;
@@ -435,11 +440,12 @@ export default {
 
       let params = {
         course_id: this.timetableForm.course_id,
-        // student_id: this.timetableForm.student_id,
+        commit_type: 'single',
         student_lists: [{student_id: this.timetableForm.student_id}],
         teacher_ids: this.timetableForm.teacher_id,
         room_id: this.timetableForm.room_id,
-        lesson_num: this.timetableForm.lesson_num
+        lesson_num: this.timetableForm.lesson_num,
+        limit_num: 10
       };
 
       params.begin_time = new Date(`${this.timetableForm.begin_day} ${this.timetableForm.begin_time}`).getTime() / 1000;
@@ -458,8 +464,6 @@ export default {
               item[key] = new Date(`${this.$$tools.format(v[key] / 1000).replace(/\-/g, '/')} ${v.begin_hours}`).getTime() / 1000;
             } else if (key === 'end_time') {
               item[key] = item.begin_time + this.timetableForm.lesson_time * 60;
-            } else if (key === 'room_id') {
-              item[key] = this.conflict_room ? this.conflict_room : this.timetableForm.room_id;
             } else {
               item[key] = v[key];
             }
@@ -471,7 +475,7 @@ export default {
 
       console.log(lists);
 
-      lists = lists.concat(this.other_lists);
+      lists = lists.concat(this.otherLists);
       this.getConflictLists({lists: lists});
     },
     //提交排课数据，验证冲突
@@ -492,28 +496,18 @@ export default {
       if (result.status === 1) {
         this.$message.success('快速排课成功!');
         this.dialogStatus.timetable = false;
-        this.dialogStatus.conflictMask = false;
+        this.dialogStatus.conflict = false;
         this.getOrderStudentLists(this.activeCurrentPage);
       } else if (result.status === -1) {
         result.conflict_lists.forEach(v => {
           v.begin_time = v.begin_time * 1000;
           let nowtime = new Date(v.begin_time);
-
           v.begin_hours = [nowtime.getHours(), nowtime.getMinutes()].join(':').replace(/\b\d\b/g, '0$&');
-          if (v.conflict_data.reason == 2) {
-            if (v.conflict_data.data.constructor === Array) {
-              this.conflict_room = v.conflict_data.data.map(k => {
-                return k.id;
-              });
-            } else {
-              this.conflict_room = v.conflict_data.data.id;
-            }
-          }
         });
 
         this.conflictLists = result.conflict_lists; //冲突列表
-        this.other_lists = result.lists; //正常列表
-        this.dialogStatus.conflictMask = true;
+        this.otherLists = result.lists; //正常列表
+        this.dialogStatus.conflict = true;
       }
     },
     //编辑修改老师信息 click

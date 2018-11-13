@@ -87,8 +87,8 @@
 
                     <el-form-item label="跟进结果：" prop="status" class="mt-30">
                         <el-select v-model="followUpForm.status" placeholder="请选择" @change="followUpStatusChange">
-                            <el-option v-for="(item, index) in $store.state.followupStatus"
-                            :key="index" :label="item.comment" :value="item.code" v-if="(item.code === 4 && $$tools.isAuthority('handleAudition')) || (item.code === 9 && $$tools.isAuthority('payDeposit')) || ![-2,0,4,9,10].includes(item.code) "></el-option>
+                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code"
+                            v-if="(item.code === 4 && $$tools.isAuthority('handleAudition')) || (item.code === 9 && $$tools.isAuthority('payDeposit')) || ![-2,0,4,9,10].includes(item.code) "></el-option>
                         </el-select>
                     </el-form-item>
 
