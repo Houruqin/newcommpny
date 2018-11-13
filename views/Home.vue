@@ -272,7 +272,7 @@
                                     <i class="teacher-icon"></i>
                                     <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
                                 </span>
-                                <span class="ml-30 d-f f-a-c">
+                                <span v-if="list.class_room" class="ml-30 d-f f-a-c">
                                     <i class="address-icon"></i>
                                     <i class="pl-5">{{list.class_room.name}}</i>
                                 </span>
