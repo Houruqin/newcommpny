@@ -702,7 +702,7 @@ export default {
       });
     },
     async grantGiftHandle (id) {
-      let result = await this.$$request.post('/sign/gift', {student_id: id});
+      let result = await this.$$request.post('/student/sendGift', {student_id: id, type: 2});
 
       console.log(result);
 

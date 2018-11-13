@@ -871,7 +871,7 @@ export default {
       this.view_all_leave_record();
     },
     //查看全部请假记录
-    view_all_leave_record () {
+    async view_all_leave_record () {
       this.leave_record_loading = true;
       let info = this.all_leave_record.search_info;
       const params = {
@@ -882,13 +882,12 @@ export default {
         page_num: info.pageNum
       };
 
-      this.$$request.post('/leaveTicket/processedLists', params).then(
-        res => {
-          this.all_leave_record.data = res.lists.data;
-          this.all_leave_record.page_info.total = res.lists.total;
-          this.leave_record_loading = false;
-        }
-      );
+      let res = await this.$$request.post('/leaveTicket/processedLists', params);
+      if(!res) return false;
+
+      this.all_leave_record.data = res.lists.data;
+      this.all_leave_record.page_info.total = res.lists.total;
+      this.leave_record_loading = false;
     },
     //请假记录弹窗翻页
     go_leave_record_page (page) {
@@ -907,7 +906,7 @@ export default {
       this.dialogStatus.student = true;
     },
     //添加备忘录
-    add_memo () {
+    async add_memo () {
       this.memo_info.render = false;
       if (this.memo_info.content.length < 1) {
         this.$nextTick(() => {
@@ -922,11 +921,11 @@ export default {
         content: this.memo_info.content
       };
 
-      this.$$request.post('/memorandum/add', params).then(res => {
+      let res = await this.$$request.post('/memorandum/add', params);
+      if(!res) return false;
         this.memo_info.show = false;
         this.get_memo_data();
         this.$message.success('已添加');
-      });
     },
     //删除备忘录
     delete_memo (id) {
@@ -934,16 +933,16 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
+      }).then(async () => {
         const params = {
           id: id
         };
 
-        this.$$request.post('/memorandum/delete', params).then(res => {
+        let res = await this.$$request.post('/memorandum/delete', params);
+        if(!res) return false;
           this.memo_info.show = false;
           this.get_memo_data();
           this.$message.success('已删除');
-        });
       }).catch(() => {
         return 0;
       });
@@ -1057,7 +1056,7 @@ export default {
       this.leave_info.id = parseInt(id);
     },
     //获取待分班列表
-    get_divide_data () {
+    async get_divide_data () {
       this.row_span_num = new Map();
       this.loading = true;
       const params = {
@@ -1065,7 +1064,8 @@ export default {
         page: this.page_info.current_page
       };
 
-      this.$$request.post('/sign/noGrade', params).then(res => {
+      let res = await this.$$request.post('/sign/noGrade', params)
+      if(!res) return false;
         let data = res.lists.data;
         let data_map = new Map();
 
@@ -1086,15 +1086,15 @@ export default {
         this.merge_data(data_sort);
         this.page_info.total = res.lists.total;
         this.loading = false;
-      });
     },
     //分班
-    divide_class (info) {
+    async divide_class (info) {
       const params = {
         id: info.course_id
       };
 
-      this.$$request.post('/sign/gradeLists', params).then(res => {
+      let res = await this.$$request.post('/sign/gradeLists', params);
+      if(!res) return false;
         if (res.lists.length < 1) {
           this.$message.warning('暂无可选班级');
         }
@@ -1104,7 +1104,6 @@ export default {
         this.divide_info.class.student_id = info.student_id;
         this.divide_info.class.lists = res.lists;
         this.divide_info.show_divide_dialog = true;
-      });
     },
     //获取需续约学员列表
     async get_renewal_data () {
@@ -1161,18 +1160,18 @@ export default {
       this.$router.push({path: '/student/signedbuycourse', query: {buyCourseData: JSON.stringify(params)}});
     },
     //获取生日学员列表
-    get_birth_data () {
+    async get_birth_data () {
       this.loading = true;
       const params = {
         page_num: 5,
         page: this.page_info.current_page
       };
 
-      this.$$request.get('/student/birthday', params).then(res => {
+      let res = await this.$$request.get('/student/birthday', params);
+      if(!res) return false;
         this.birth_info.data = res.lists;
         this.page_info.total = res.total;
         this.loading = false;
-      });
     },
     //发放礼物
     give_gift (id, name) {
@@ -1184,26 +1183,26 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.$$request.post('/student/sendGift', params).then(res => {
+      }).then(async () => {
+        let res = await this.$$request.post('/student/sendGift', params);
+        if(!res) return false;
           this.get_birth_data();
           this.$message.success('操作成功');
-        });
       });
     },
     //获取备忘录列表
-    get_memo_data () {
+    async get_memo_data () {
       this.loading = true;
       const params = {
         page_num: 6,
         page: this.page_info.current_page
       };
 
-      this.$$request.post('/memorandum/lists', params).then(res => {
+      let res = await this.$$request.post('/memorandum/lists', params);
+      if(!res) return false;
         this.memo_info.data = res.memorandums.data;
         this.page_info.total = res.memorandums.total;
         this.loading = false;
-      });
     },
     merge_data (data) {
       for (let i = 0; i < data.length; i++) {
@@ -1260,18 +1259,18 @@ export default {
       }
     },
     //确定操作
-    doneHandle (type) {
+    async doneHandle (type) {
       const params = {
         student_id: this.divide_info.class.student_id,
         grade_id: this.divide_info.class.id,
         sc_id: this.divide_info.class.sc_id
       };
 
-      this.$$request.post('/studentGrade/add', params).then(res => {
+      let res = await this.$$request.post('/studentGrade/add', params);
+      if(!res) return false;
         this.$message.success('分班成功');
         this.divide_info.show_divide_dialog = false;
         this.get_data();
-      });
     },
     //================财务统计模块================
     async get_finance_data () {
@@ -1402,21 +1401,21 @@ export default {
       //   this.all_student_info.leave = false;
       // }
     },
-    get_all_student_list (id) {
+    async get_all_student_list (id) {
       const params = {
         timetable_id: id
       };
 
-      this.$$request.get('/timetable/studentLists', params).then(res => {
+      let res = await this.$$request.get('/timetable/studentLists', params);
+      if(!res) return false;
         this.all_student_info.data = res.lists;
         this.all_student_info.end = res.lesson_end_time > 0;
         this.all_student_info.loading = false;
-      });
     },
     //学员签到
     async sign_student (s_id, t_id, status, item) {
       if (status !== 1 && this.all_student_info.sign && !this.all_student_info.end) {
-        item.status2 = 1;
+        
         const params = {
           timetable_id: t_id,
           student_id: s_id
@@ -1427,7 +1426,8 @@ export default {
         if (!result) {
           return 0;
         }
-
+        
+        item.status2 = 1;
         this.$message.success('已签到');
         this.get_all_student_list(t_id);
       }
@@ -1457,23 +1457,26 @@ export default {
     },
     //================今日跟进管理模块================
     //到访确认
-    handle_visit (id) {
+    async handle_visit (id) {
       const params = {
         follow_up_id: id
       };
 
-      this.$$request.post('/followUp/inviteSure', params).then(() => {
+      let res = await this.$$request.post('/followUp/inviteSure', params);
+      if(!res) return false;
         this.get_follow_up_data();
         this.$message.success('操作成功');
-      });
     },
     //列表顾问选择
     async select_advisor (val) {
-      let result = await this.$$request.post('/student/distribute', {student_id: this.handle_student.id, advisor_id: val})
-        .then(res => {
-          this.get_follow_up_data();
-          this.$message.success('操作成功');
-        });
+      let res = await this.$$request.post('/student/distribute', {student_id: this.handle_student.id, advisor_id: val});
+
+      if(!res){
+        return false;
+      }
+
+      this.get_follow_up_data();
+      this.$message.success('操作成功');
     },
     //================通知模块================
 
@@ -1500,17 +1503,17 @@ export default {
       return true;
     },
     //获取员工发送通知列表
-    get_notice_send_list () {
+    async get_notice_send_list () {
       this.notice_loading = true;
       const params = {
         page: this.notice_page_info.current_page
       };
 
-      this.$$request.get('/notification/lists', params).then(res => {
-        this.notice_send_lists = res.lists;
-        this.notice_page_info.total = res.total;
-        this.notice_loading = false;
-      });
+      let res = await this.$$request.get('/notification/lists', params);
+      if(!res) return false;
+      this.notice_send_lists = res.lists;
+      this.notice_page_info.total = res.total;
+      this.notice_loading = false;
     },
 
     //查看通知

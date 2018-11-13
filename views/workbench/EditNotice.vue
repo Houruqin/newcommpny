@@ -97,7 +97,7 @@ export default {
       this.role_lists.splice(i,1);
     },
     //发布通知
-    publish() {
+    async publish() {
       if (this.title.length < 1) {
         this.$message.warning("请输入标题");
 
@@ -128,7 +128,7 @@ export default {
         receivers: roles_id
       };
 
-      let res = this.$$request.post("/notification/send", params);
+      let res = await this.$$request.post("/notification/send", params);
 
       if (!res) {
         return false;
