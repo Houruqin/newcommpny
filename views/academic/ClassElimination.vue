@@ -38,7 +38,7 @@
           </li>
         </ul>
 
-        <MyButton v-if="$$tools.isAuthority('exportStudentRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportStudentRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出列表</MyButton>
       </div>
       <!-- 消课模块 -->
       <el-table key="elimination" v-if="active === 'elimination'" stripe class="student-table mt-30" :data="elimination_info.data" :span-method="objectSpanMethod" v-loading="loading" :show-header="true" :cell-style="cell_style">
@@ -422,6 +422,14 @@ export default {
           this.get_absenteeism_data();
           break;
       }
+    },
+    async exportAuthority () {
+      let res = await this.$$request.get('/eduCount/exportClassEliminationOutShadow');
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+      this.exportTable();
     },
     //导出列表
     async exportTable () {

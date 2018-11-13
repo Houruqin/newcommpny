@@ -20,7 +20,7 @@
           </li>
         </ul>
 
-        <MyButton v-if="$$tools.isAuthority('exportPurchaseRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportPurchaseRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出列表</MyButton>
       </div>
 
       <el-table stripe class="student-table mt-30" :data="buy_info.data" v-loading="loading" :show-header="true">
@@ -121,6 +121,14 @@ export default {
       };
 
       this.search_info = search_info;
+    },
+    async exportAuthority () {
+      let res = await this.$$request.get('/eduCount/exportStudentCourseOutShadow');
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+      this.exportTable();
     },
     //导出列表
     async exportTable () {

@@ -31,7 +31,7 @@
           <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
         </ul>
 
-        <MyButton v-if="$$tools.isAuthority('exportTeacherRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportTable">导出列表</MyButton>
+        <MyButton v-if="$$tools.isAuthority('exportTeacherRecord')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出列表</MyButton>
       </div>
 
       <el-table class="mt-20 bor-t" :data="lessonTable.data" v-loading="loading" stripe>
@@ -190,6 +190,14 @@ export default {
     },
     dialogPaginationClick(current_page) {
       this.getEliminationDetail(this.eliminationData,current_page)
+    },
+    async exportAuthority () {
+      let res = await this.$$request.get('/eduCount/exportClassTimeOutShadow');
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+      this.exportTable();
     },
     //导出列表
     async exportTable () {

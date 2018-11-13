@@ -427,12 +427,6 @@
                         <div class="flex1">
                           <el-form-item label="消课课程：">{{removeTimetableForm.course_name}}</el-form-item>
 
-                          <el-form-item label="上课教室：" prop="room_id">
-                              <el-select placeholder="请选择" v-model="removeTimetableForm.room_id">
-                                  <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id"></el-option>
-                              </el-select>
-                          </el-form-item>
-
                           <el-form-item label="消课类型：" prop="type" v-if="removeTimetableForm.class_pattern == 1">
                               <el-select placeholder="请选择" v-model="removeTimetableForm.type">
                                   <el-option label="签到" value="sign"></el-option>
@@ -625,12 +619,9 @@ export default {
         ]
       },
       removeTimetableForm: {
-        course_id: '', course_name: '', room_id: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
+        course_id: '', course_name: '', type: '', grade_id: '', teacher_id: '', lesson_num: '', day: '', time: '', begin_time: '', teacher_name: ''
       },
       removeTimetableRules: {
-        room_id: [
-          {required: true, message: '请选择教室', trigger: 'change'}
-        ],
         type: [
           {required: true, message: '请选择消课类型', trigger: 'change'}
         ],
@@ -885,7 +876,6 @@ export default {
     removeTimeTableChange (val) {
       this.gradeLists.forEach(v =>{
         if (v.id == val) {
-          this.removeTimetableForm.room_id = v.room_id;
           this.removeTimetableForm.teacher_id = +v.teacher_ids.substring(1, v.teacher_ids.length - 1);
         }
       });
@@ -918,7 +908,6 @@ export default {
         course_id: this.removeTimetableForm.course_id,
         grade_id: this.removeTimetableForm.grade_id,
         teacher_id: this.removeTimetableForm.teacher_id,
-        room_id: this.removeTimetableForm.room_id,
         lesson_num: this.removeTimetableForm.lesson_num,
         type: this.removeTimetableForm.class_pattern == 1 ? this.removeTimetableForm.type : 'sign'
       };
