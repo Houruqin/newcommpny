@@ -1218,7 +1218,7 @@ export default {
     },
     //获取学员详情
     async getStudentDetail () {
-      let result = await this.$$request.post('/student/detail', {id: this.studentId});
+      let result = await this.$$request.post('/sign/detail', {id: this.studentId});
 
       console.log(result);
       if (!result) {

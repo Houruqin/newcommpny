@@ -32,10 +32,11 @@
         </div>
         <div class="course-item pl-13 pr-10 pt-8 p-r"
             :class="{'gray': item.lesson_end_time,
-                    'green': !item.lesson_end_time && item.course_type == 1,
-                    'yellow': !item.lesson_end_time && item.course_type == 2}" slot="reference">
-            <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.grade_limit_num">
-                <div class="proportion p-a" :style="{height: (item.student_grades.length / item.grade_limit_num * 100) + '%'}"></div>
+                    'green': !item.lesson_end_time && item.course_type === 1,
+                    'yellow': !item.lesson_end_time && (item.course_type === 2 || (item.student_grades.length == item.limit_num)),
+                    'red': !item.lesson_end_time && item.course_type === 1 && item.student_grades.length > item.limit_num}" slot="reference">
+            <div class="proportion-box p-a" v-if="!item.lesson_end_time && item.student_grades.length < item.limit_num">
+                <div class="proportion p-a" :style="{height: (item.student_grades.length / item.limit_num * 100) + '%'}"></div>
             </div>
 
             <div class="leave-status p-a fs-13" :class="{'gray': item.lesson_end_time}" v-if="item.student_grades.length && item.course_type === 2 && item.student_grades[0].status === -1">已请假</div>

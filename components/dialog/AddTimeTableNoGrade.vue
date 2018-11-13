@@ -17,7 +17,7 @@
               </el-date-picker>
           </el-form-item>
           <el-form-item label="上课老师：" prop="teacher_ids">
-              <el-select placeholder="请选择" v-model="timetableForm.teacher_ids" :disabled="!planTeacherLists.length" @change="planTeacherChange">
+              <el-select placeholder="请选择" v-model="timetableForm.teacher_ids" :disabled="!timetableForm.course_id || tableType === 'edit'" @change="planTeacherChange">
                   <el-option v-for="(item, index) in planTeacherLists" :key="index" :label="item.name" :value="item.id"></el-option>
               </el-select>
           </el-form-item>
@@ -58,7 +58,7 @@
             <el-input type="number" v-model.number="timetableForm.lesson_time" placeholder="课节时长"></el-input><span class="pl-10">分钟</span>
           </el-form-item>
           <el-form-item label="线下预约：">
-            <el-select v-model.trim="timetableForm.student_lists" multiple filterable :disabled="!allStudentLists.length" key="student_lists">
+            <el-select v-model.trim="timetableForm.student_lists" multiple filterable :disabled="!timetableForm.teacher_ids" key="student_lists">
               <el-option v-for="item in allStudentLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
@@ -68,7 +68,7 @@
       <div class="add-date-box d-f flex1">
           <div class="title p-r is-required">上课时间：</div>
           <div class="flex1">
-              <div class="scroll-box">
+              <div class="scroll-box" id="formAddDate">
                   <el-form :model="addDate" size="small" ref="addDateForm" :rules="timeRules" v-for="(addDate, num) in formAddDate" :key="num">
                       <div class="p-r d-f">
                           <div :class="tableType === 'edit' ? 'date-change' : 'flex1' ">
@@ -178,10 +178,10 @@ export default {
       }
     },
     tableFull (val) {
+      console.log(val);
       this.planCourseLists = val;
     },
     weekLists (val) {
-      console.log(val);
       this.timetableWeekList = val;
     },
     // 课表编辑数据
@@ -199,7 +199,7 @@ export default {
       this.timetableForm.lesson_num = detail.lesson_num;
       this.timetableForm.lesson_time = Math.round((detail.end_time - detail.begin_time) / 60);
       this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : ''; //任课老师
-      this.timetableForm.room_id = detail.room_id;
+      this.timetableForm.room_id = detail.room_id ? detail.room_id : '';
       this.timetableForm.student_lists = detail.student_grades.length ? detail.student_grades.map(v => {return v.id}) : [];
     }
   },
@@ -303,6 +303,7 @@ export default {
       this.timePicker.minTime = 0;
       this.$emit('input', false);
       this.$emit('CB-popverClose');
+      this.courseType = '';
     },
     // 课表排课 批量、单个
     planTimeTable () {
@@ -321,6 +322,8 @@ export default {
         this.formAddDate.push({begin_time: newTime, end_time: '', week: day});
       } else {
         this.formAddDate.push({begin_time: '', end_time: '', week: ''});
+        this.timetableForm.begin_time = Date.now();
+        this.timetableForm.end_time = Date.now();
       }
 
       this.dialogStatus.timetable = true;
@@ -513,7 +516,6 @@ export default {
 
         params.time_lists = time_lists;
       }
-      console.log(params);
       this.getConflictLists(params);
     },
     //冲突页面确定修改
@@ -544,11 +546,12 @@ export default {
       if (this.tableType == 'edit') {
         params.id = this.timetableForm.timetable_id;
       }
-      console.log(params);
       this.getConflictLists(params);
     },
     //检测是否有冲突，获取冲突数据列表
     async getConflictLists (params) {
+      console.log(params);
+
       if (this.submitLoading.timetable) {
         return 0;
       }
