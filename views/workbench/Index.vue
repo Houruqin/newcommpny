@@ -231,7 +231,7 @@
                   <i class='c_icon icon_teacher'></i>
                   <span v-for="teacher in item.teacher" :key="teacher.id" class='ml-16'>{{teacher.name}}</span>
                 </el-col>
-                <el-col class="fs-13 t-a-c" :span="7" :offset="1">
+                <el-col v-if="item.class_room" class="fs-13 t-a-c" :span="7" :offset="1">
                   <i class='c_icon icon_people'></i>
                   <span class='ml-16'>{{item.class_room.name}}</span>
                 </el-col>
