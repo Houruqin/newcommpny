@@ -36,7 +36,7 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton v-if="$$tools.isAuthority('exportStudent')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
+                <MyButton v-if="$$tools.isAuthority('exportStudent')" icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出学员</MyButton>
             </div>
 
             <el-table class="student-table mt-20" :data="studentTable.data" v-loading="loading" stripe @selection-change="handleSelectionChange" ref="studentTable">
@@ -341,6 +341,14 @@ export default {
     addStudent () {
       this.studentType = 'add';
       this.dialogStatus.student = true;
+    },
+    async exportAuthority () {
+      let res = await this.$$request.get('/student/exportShadow');
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+      this.exportStudent();
     },
     //导出学员
     async exportStudent () {

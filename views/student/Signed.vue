@@ -55,7 +55,7 @@
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
 
-                <MyButton icon="import" v-if="$$tools.isAuthority('exportStudent')" type="border" fontColor="fc-m" class="ml-20" @click.native="exportStudent">导出学员</MyButton>
+                <MyButton icon="import" v-if="$$tools.isAuthority('exportStudent')" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出学员</MyButton>
             </div>
 
             <div class="student-lists-box mt-20">
@@ -566,6 +566,14 @@ export default {
     //搜索
     searchHandle () {
       this.getStudentLists();
+    },
+    async exportAuthority () {
+      let res = await this.$$request.get('/sign/exportShadow');
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+      this.exportStudent();
     },
     //导出学员
     async exportStudent () {
