@@ -27,15 +27,15 @@
                             <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                         </el-form-item>
 
-                        <div v-if="buyCourse_type == 1">
+                        <div v-if="buyCourse_type == 1" key="change_grade">
                             <el-form-item label="选择班级：">
-                                <el-select v-model="courseForm.grade_id" placeholder="请选择">
+                                <el-select v-model="courseForm.grade_id" placeholder="请选择" :clearable="true">
                                     <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
 
-                        <div v-if="buyCourse_type == 2">
+                        <div v-if="buyCourse_type == 2" key="change_teacher">
                             <el-form-item label="选择老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="courseForm.teacher_id">
                                     <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>

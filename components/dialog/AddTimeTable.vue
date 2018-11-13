@@ -260,7 +260,8 @@ export default {
       this.timetableForm.lesson_time = Math.round((detail.end_time - detail.begin_time) / 60);
       this.timetableForm.teacher_ids = detail.teacher.length ? detail.teacher[0].id : ''; //任课老师
       this.timetableForm.counselor_ids = detail.counselor.length ? detail.counselor[0].id : ''; //辅助老师
-      this.timetableForm.room_id = detail.room_id;
+      this.timetableForm.room_id = detail.room_id ? detail.room_id : '';
+      // this.timetableForm.room_id = detail.room_id;
     },
     // 课程快速排课数据
     parentData (option) {
@@ -497,7 +498,6 @@ export default {
         }
       });
 
-      console.log(gradeInfo);
       this.allStudentLists = gradeInfo.student_course.concat(gradeInfo.student_grade);
 
       if (this.courseType === 1) {

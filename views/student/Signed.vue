@@ -72,11 +72,11 @@
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c">
+                            <div v-if="scope.row.advisor_id > 0">{{scope.row.advisor_name}}</div>
+                            <div v-else-if="$$tools.isAuthority('assignConsultant')" class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -85,6 +85,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </div>
+                            <div v-else>暂无顾问</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="签约课程" class-name="table-item" align="center">
@@ -147,11 +148,11 @@
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c">
+                            <div v-if="scope.row.advisor_id > 0">{{scope.row.advisor_name}}</div>
+                            <div v-else-if="$$tools.isAuthority('assignConsultant')" class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -160,6 +161,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </div>
+                            <div v-else>暂无顾问</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="出生日期" align="center">
@@ -195,11 +197,11 @@
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c">
+                            <div v-if="scope.row.advisor_id > 0">{{scope.row.advisor_name}}</div>
+                            <div v-else-if="$$tools.isAuthority('assignConsultant')" class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -208,6 +210,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </div>
+                            <div v-else>暂无顾问</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="签约课程" class-name="table-item" align="center">
@@ -259,11 +262,11 @@
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c">
+                            <div v-if="scope.row.advisor_id > 0">{{scope.row.advisor_name}}</div>
+                            <div v-else-if="$$tools.isAuthority('assignConsultant')" class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -272,6 +275,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </div>
+                            <div v-else>暂无顾问</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="签约课程" class-name="table-item" align="center">
@@ -332,11 +336,11 @@
                     <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                     <el-table-column label="课程顾问" align="center">
                         <template slot-scope="scope">
-                            <div v-if="scope.row.advisor_id">{{scope.row.advisor_name}}</div>
-                            <div v-else class="d-f f-a-c f-j-c">
+                            <div v-if="scope.row.advisor_id > 0">{{scope.row.advisor_name}}</div>
+                            <div v-else-if="$$tools.isAuthority('assignConsultant')" class="d-f f-a-c f-j-c">
                                 <el-dropdown trigger="click" placement="left" @command="listAdvisorChange">
                                     <span class="el-dropdown-link">
-                                        <div v-if="$$tools.isAuthority('assignConsultant')" class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
+                                        <div class="allocation-advisor-btn" slot="reference" @click="advisorClick(scope.row)">分配</div>
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
@@ -345,6 +349,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </div>
+                            <div v-else>暂无顾问</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="签约课程" class-name="table-item" align="center">

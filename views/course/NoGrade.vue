@@ -225,7 +225,7 @@ export default {
       otherLists: [], //正常数据
       teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
       timetableForm: {
-        course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
+        course_id: '', course_name: '', student_id: '', student_name: '', teacher_id: '', teacher_name: '', limit_num: '', room_id: '', begin_time: '', begin_day: '', lesson_num: ''
       },
       teacherRules: {
         techer_id: [
@@ -445,7 +445,7 @@ export default {
         teacher_ids: this.timetableForm.teacher_id,
         room_id: this.timetableForm.room_id,
         lesson_num: this.timetableForm.lesson_num,
-        limit_num: 10
+        limit_num: this.timetableForm.limit_num
       };
 
       params.begin_time = new Date(`${this.timetableForm.begin_day} ${this.timetableForm.begin_time}`).getTime() / 1000;

@@ -41,11 +41,11 @@
                                       <span v-else>{{scope.row.name}}</span>
                                   </template>
                               </el-table-column>
-                              <el-table-column label="开课日期" align="center">
+                              <!-- <el-table-column label="开课日期" align="center">
                                   <template slot-scope="scope">
                                       <span>{{scope.row.start_time * 1000 - new Date().getTime() > 5*360*24*60*60*1000 ? '' : $$tools.format(scope.row.start_time)}}</span>
                                   </template>
-                              </el-table-column>
+                              </el-table-column> -->
                               <el-table-column label="任课老师/辅助老师" align="center">
                                   <template slot-scope="scope">
                                       <span>{{scope.row.teacher_lists.length ? scope.row.teacher_lists[0].name : ''}}<i v-if="scope.row.counselor_lists.length">/</i>{{scope.row.counselor_lists.length ? scope.row.counselor_lists[0].name : ''}}</span>
@@ -70,12 +70,10 @@
                               </el-table-column>
                               <el-table-column label="上课状态" align="center">
                                   <template slot-scope="scope">
-                                      <div class="fc-f fs-12 course-status">
-                                          <div class="d-f f-a-c f-j-c">
-                                              <span :class="{'green': scope.row.gradeStatus.id === 'yes', 'red': scope.row.gradeStatus.id === 'no', 'gray': scope.row.gradeStatus.id === 'stop'}">
-                                                  {{scope.row.gradeStatus.name}}
-                                              </span>
-                                          </div>
+                                      <div class="fc-f fs-12 course-status d-f f-a-c f-j-c">
+                                        <span :class="{'green': scope.row.defineStatus.status === -1,
+                                        'red': scope.row.defineStatus.status === 0,
+                                        'gray': scope.row.defineStatus.status === -3 || scope.row.defineStatus.status === -2}">{{scope.row.defineStatus.define}}</span>
                                       </div>
                                   </template>
                               </el-table-column>
@@ -299,19 +297,6 @@ export default {
         dom.style.height = 0;
         course.collapse = false;
       }
-    },
-    gradeStatus (data) {
-      let date = new Date().getTime() / 1000, result = {};
-
-      if (data.status === -3) {
-        result = {id: 'stop', name: '停课'};
-      } else if (data.status === -2) {
-        result = {id: 'no', name: '未开课'};
-      } else {
-        result = data.start_time < date ? {id: 'yes', name: '已开课'} : {id: 'no', name: '未开课'};
-      }
-
-      return result;
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus (type) {
@@ -538,7 +523,6 @@ export default {
     },
     //获取课程列表
     async getCourseLists (course_id) {
-      console.log(course_id)
       this.loading = true;
       let active = '';
       let result = await this.$$request.post('/course/lists', {type: this.activeTab});
@@ -553,10 +537,6 @@ export default {
         } else {
           d.collapse = false;
         }
-
-        d.class_lists.forEach(v => {
-          v.gradeStatus = this.gradeStatus(v);
-        });
       });
       this.courseLists = result.lists;
       this.loading = false;

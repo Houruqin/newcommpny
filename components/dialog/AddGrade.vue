@@ -28,7 +28,7 @@
                           <el-option label="否" :value="0"></el-option>
                       </el-select>
                   </el-form-item>
-                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 1" class="p-r">
+                  <el-form-item label="上课教室：" v-if="courseType === 1" class="p-r">
                       <el-select v-model="classForm.room_id" placeholder="请选择">
                           <el-option
                               v-for="item in $store.state.classRoom"
@@ -66,7 +66,7 @@
                       <el-input type="number" v-model.number="classForm.limit_num"></el-input>
                   </el-form-item>
 
-                  <el-form-item label="上课教室：" prop="room_id" v-if="courseType === 2" class="p-r">
+                  <el-form-item label="上课教室：" v-if="courseType === 2" class="p-r">
                       <el-select v-model="classForm.room_id" placeholder="请选择">
                           <el-option
                               v-for="item in $store.state.classRoom"
@@ -147,6 +147,8 @@ export default {
             this.classForm[key] = newVal['counselor_lists'].length ? newVal['counselor_lists'][0].id : '';
           } else if (key === 'limit_num') {
             this.classForm[key] = `${newVal[key]}`;
+          } else if (key === 'room_id'){
+            this.classForm[key] = newVal[key] ? newVal[key] : '';
           } else {
             this.classForm[key] = newVal[key];
           }
@@ -219,7 +221,7 @@ export default {
           {validator: this.$$tools.formOtherValidate('total', 99)}
         ],
         room_id: [
-          {required: true, message: '请选择上课教室', trigger: 'change'}
+          // {required: true, message: '请选择上课教室', trigger: 'change'}
         ],
         is_listen: [
           {required: true, message: '请设置可否试听', trigger: 'change'}
