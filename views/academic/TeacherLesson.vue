@@ -91,7 +91,7 @@
     </el-dialog>
 
     <el-dialog title="上课详情" width="800px" center :visible.sync="dialogStatus.course" :close-on-click-modal="false">
-      <p class="fs-15">上课老师：{{courseDetail.teacher_name}}</p>
+      <p class="fs-15">{{courseDetail.course_name}}-{{courseDetail.teacher_name}}</p>
       <el-table class="mt-20 bor-t" :data="courseDetail.lists" v-loading="loading" stripe height="300">
         <el-table-column label="序号" type="index" align="center"></el-table-column>
         <el-table-column label="上课日期" prop="attendBeginDate" align="center"></el-table-column>
@@ -127,9 +127,9 @@ export default {
         end_time: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
         course_id: '', keyword: ''
       },
-      courseDetail: {teacher_name: '', lists: []},
+      courseDetail: {teacher_name: '', lists: [], course_name: ''},
       eliminationData: '',
-      eliminationDetail: '',
+      eliminationDetail: {},
       lessonTable: {}
     };
   },
@@ -182,6 +182,7 @@ export default {
     },
     attendDetail (data) {
       this.courseDetail.teacher_name = data.teacherName;
+      this.courseDetail.course_name = data.courseName;
       this.courseDetail.lists = data.attendList;
       this.dialogStatus.course = true;
     },
