@@ -236,6 +236,10 @@ export default {
         // room_id: [
         //   {required: true, message: '请选择上课教室', trigger: 'change'}
         // ],
+        limit_num: [
+          {required: true, message: '请设置人数上限'},
+          {validator: this.$$tools.formOtherValidate('int')}
+        ],
         begin_day: [
           {required: true, message: '请选择上课时间', trigger: 'change'}
         ],
