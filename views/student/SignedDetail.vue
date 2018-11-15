@@ -82,7 +82,7 @@
                     <el-table :data="quitCourseLists.data" stripe v-loading="loading">
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="购课类型" align="center">
-                            <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : '续约'}}</template>
+                            <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : (scope.row.type === 2 ? '续约' : '转课')}}</template>
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
                         <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
@@ -107,7 +107,8 @@
                         <el-table-column label="操作" align="center" width="230" v-if="$$tools.isAuthority(['purchaseViewCourse', 'refundAndView', 'manualEliminate'])">
                             <template slot-scope="scope">
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
-                                <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
+                                <span v-if="$$tools.isAuthority('purchaseViewCourse') && scope.row.type !== 3" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
+                                <span v-if="scope.row.type === 3" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
                                 <span v-if="$$tools.isAuthority('manualEliminate') && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
@@ -187,6 +188,7 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
+                                        <span class="cursor-pointer fc-m"  @click="changeCourse(scope.row)">转课</span>
                                         <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
@@ -284,7 +286,10 @@
 
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
-
+        
+        <!-- 转课详情弹窗 -->
+        <ChangeCourseDialog :routerAble="false" :dialogStatus="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
+        
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
@@ -516,11 +521,14 @@ import {StudentStatic, timeTableStatic, timePicker} from '../../script/static';
 import Bus from '../../script/bus';
 
 import ContractDialog from '../../components/dialog/Contract';
+import ChangeCourseDialog from '../../components/dialog/ChangeCourseContract';
+
+
 import AddAudition from '../../components/dialog/AddAudition';
 import EditStudent from '../../components/dialog/StudentSigned';
 
 export default {
-  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition, EditStudent},
+  components: {TableHeader, MyButton, ContractDialog, RefundDialog, FollowUpList, AddAudition, EditStudent, ChangeCourseDialog},
   data () {
     return {
       submitLoading: {
@@ -528,12 +536,13 @@ export default {
       },
 
       state: 'loading',
-      dialogStatus: {student: false, editTeacher: false, quitPrice: false, audition: false},
+      dialogStatus: {student: false, editTeacher: false, quitPrice: false, audition: false, changeCourse: false},
 
       studentId: '', //学员id
       studentDetail: {},
       studentEditDetail: {},
       contractData: {}, //合约详情
+      changeCourseData: {}, //转课详情
       quitPriceDetail: {}, //退费详情
 
       editTeacherLists: [],
@@ -694,6 +703,7 @@ export default {
       if (type === 'contract') {
         this.contractData = {};
         this.dialogStatus.contract = false;
+        this.dialogStatus.changeCourse = false;
 
         return 0;
       }
@@ -979,6 +989,24 @@ export default {
       this.contractData = result.data;
       this.dialogStatus.contract = true;
     },
+    //课程信息列表查看转课详情
+    async getContractDetail(id) {
+      const params = {
+        id: id
+      };
+      let result = await this.$$request.get(
+        "/studentCourse/getTransferDetail",
+        params
+      );
+
+      this.submitLoading = false;
+      if (!result) {
+        return 0;
+      }
+      this.dialogStatus.changeCourse = true;
+
+      this.changeCourseData = result;
+    },
     //退费详情
     async getQuitPriceDetail (data) {
       let result = await this.$$request.get('/financeManage/quitCourseDetail', {student_course_id: data.id});
@@ -993,6 +1021,15 @@ export default {
     //添加试听
     addListenHandle () {
       this.dialogStatus.audition = true;
+    },
+    //转课
+    changeCourse(obj) {
+      let query = {
+        c_id: obj.course.id,
+        s_id: obj.student_id,
+        c_name: obj.course.name
+      }
+      this.$router.push({path:'/student/changecourse',query:query})
     },
     //添加分班
     gradeDivideClick (type, data) {

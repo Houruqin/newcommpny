@@ -28,6 +28,8 @@ const router = new Router({
       { path: '/student/importstudent', component: () => import(/* webpackChunkName: 'page-student-importstudent' */ '@/views/student/ImportStudent'), meta: { needlogin: true, menu: '/student/nosign' } },
       { path: '/student/nosignbuycourse', component: () => import(/* webpackChunkName: 'page-student-nosignbuycourse' */ '@/views/course/BuyCourse'), meta: { needlogin: true, menu: '/student/nosign' } },
       { path: '/student/signedbuycourse', component: () => import(/* webpackChunkName: 'page-student-signedbuycourse' */ '@/views/course/BuyCourse'), meta: { needlogin: true, menu: '/student/signed' } },
+      { path: '/student/changecourse', component: () => import(/* webpackChunkName: 'page-student-signedbuycourse' */ '@/views/student/ChangeCourse'), meta: { needlogin: true, menu: '/student/signed' } },
+
 
       { path: '/timetable/begrade', component: () => import(/* webpackChunkName: 'page-timetable-begrade' */ '@/views/timetable/BeGradeIndex'), meta: { needlogin: true } },
       { path: '/timetable/nograde', component: () => import(/* webpackChunkName: 'page-timetable-nograde' */ '@/views/timetable/NoGradeIndex'), meta: { needlogin: true } },
@@ -36,6 +38,7 @@ const router = new Router({
       { path: '/academic/audition', component: () => import(/* webpackChunkName: 'page-academic-audition' */ '@/views/academic/Audition'), meta: { needlogin: true } },
       { path: '/academic/buy', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/Buy'), meta: { needlogin: true } },
       { path: '/academic/teacherLesson', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/TeacherLesson'), meta: { needlogin: true } },
+      { path: '/academic/changeCourse', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/ChangeCourseRecord'), meta: { needlogin: true } },
 
       { path: '/staff', component: () => import(/* webpackChunkName: 'page-staff-index' */ '@/views/staffManage/Index'), meta: { needlogin: true } },
       { path: '/staff/detail', component: () => import(/* webpackChunkName: 'page-staff-detail' */ '@/views/staffManage/Detail'), meta: { needlogin: true, menu: '/staff' } },

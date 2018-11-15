@@ -39,6 +39,7 @@ import StorageView from '@/views/inventory/Storage';
 import Borrow from '@/views/inventory/Borrow';
 
 import BuyCourse from '@/views/course/BuyCourse';
+import ChangeCourse from '@/views/student/ChangeCourse';
 
 const homeRouter = [
   {path: '', component: Workbench, meta: {needlogin: true, menu: '/home/workbench'}},
@@ -56,6 +57,7 @@ const homeRouter = [
   {path: 'student/importstudent', component: ImportStudent, meta: {needlogin: true, menu: '/student/nosign'}},
   {path: 'student/nosignbuycourse', name: 'nosignBuyCourse', component: BuyCourse, meta: {needlogin: true, menu: '/student/nosign'}},
   {path: 'student/signedbuycourse', name: 'signedBuyCourse', component: BuyCourse, meta: {needlogin: true, menu: '/student/signed'}},
+  {path: 'student/changecourse', name: 'changecourse', component: ChangeCourse, meta: {needlogin: true, menu: '/student/signed'}},
 
   {path: 'timetable/index', component: TimeTableBeGrade, meta: {needlogin: true}},
   {path: 'timetable/begrade', component: TimeTableBeGrade, name: 'timetableBegrade', meta: {needlogin: true}},
