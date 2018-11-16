@@ -108,7 +108,7 @@
                             <template slot-scope="scope">
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse') && scope.row.type !== 3" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.type === 3" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
+                                <span v-if="scope.row.type === 3 && $$tools.isAuthority('transferCourse')" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
                                 <span v-if="$$tools.isAuthority('manualEliminate') && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
@@ -184,11 +184,11 @@
                                 </ul>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" align="center" class-name="table-item" v-if="$$tools.isAuthority(['changeClasses', 'stopCourses', 'assignTeacher'])">
+                        <el-table-column label="操作" align="center" class-name="table-item" v-if="$$tools.isAuthority(['changeClasses', 'stopCourses', 'assignTeacher', 'transferCourse'])">
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
-                                        <span class="cursor-pointer fc-m"  @click="changeCourse(scope.row)">转课</span>
+                                        <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
                                         <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m ml-10"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
@@ -285,10 +285,10 @@
         </el-card>
 
         <!-- 购课合约弹窗 -->
-        <ContractDialog :routerAble="false" :v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog :routerAble="false" v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 转课详情弹窗 -->
-        <ChangeCourseDialog :routerAble="false" :v-model="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
+        <ChangeCourseDialog :routerAble="false" v-model="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
 
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">

@@ -23,7 +23,7 @@
           <li class="ml-20"><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
         </ul>
 
-        <MyButton icon="import" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出列表</MyButton>
+        <MyButton icon="import" v-if="$$tools.isAuthority('exportTransferRecord')" type="border" fontColor="fc-m" class="ml-20" @click.native="exportAuthority">导出列表</MyButton>
       </div>
 
       <el-table stripe class="student-table mt-30" :data="courseLists.data" v-loading="loading" :show-header="true">
@@ -42,7 +42,7 @@
         <el-table-column label="转课时间" align="center">
           <template slot-scope="scope">{{scope.row.createdAt | date('yyyy-MM-dd')}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('transferCourse')">
           <template slot-scope="scope">
             <span class="fc-m cursor-pointer" @click="changeCourseDetail(scope.row.studentCourseId)">转课详情</span>
           </template>
@@ -142,12 +142,12 @@ export default {
     },
     // 验证导出权限
     async exportAuthority () {
-      let res = await this.$$request.get('/eduCount/exportClassTimeOutShadow');
+      let res = await this.$$request.get('/eduCount/exportTransferRecordShadow');
       console.log(res)
       if (!res) {
         return 0;
       }
-      // this.exportTable();
+      this.exportTable();
     },
     //导出列表
     async exportTable () {
@@ -155,15 +155,13 @@ export default {
       let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
 
       let params = {
-        teacherType: this.activeTab,
-        beginDate: this.searchFilter.begin_time / 1000,
-        endDate: this.searchFilter.end_time / 1000,
-        teacherName: this.searchFilter.keyword,
-        courseId: this.searchFilter.course_id,
+        startTime: this.getSeconde(this.searchFilter.begin_time),
+        endTime: this.getSeconde(this.searchFilter.end_time),
+        studentName: this.searchFilter.keyword,
         token: token.replace('bearer ', '')
       };
 
-      window.location.href = `${baseUrl}eduCount/exportClassTimeOut?${qs.stringify(params)}`;
+      window.location.href = `${baseUrl}eduCount/exportTransferRecord?${qs.stringify(params)}`;
     }
   },
   async created () {

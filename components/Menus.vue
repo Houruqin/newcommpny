@@ -46,7 +46,7 @@ export default {
           {id: '/academic/classElimination', name: 'classElimination', text: '学员消课记录'},
           {id: '/academic/audition', name: 'audition', text: '试听课记录'},
           {id: '/academic/buy', name: 'buy', text: '购课记录'},
-          {id: '/academic/changeCourse', name: 'changeCourse', text: '转课记录'}
+          {id: '/academic/changeCourse', name: 'transferRecord', text: '转课记录'}
         ]},
         course: {id: `/course/${Cache.getMemberInfo().class_pattern === 2 ? 'nograde' : 'begrade'}`, icon: 'icon-kecheng-', itemLists: [
           {id: '/course/begrade', name: 'begradeCourse', text: '有班课程'},
