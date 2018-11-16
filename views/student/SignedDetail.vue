@@ -189,7 +189,7 @@
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1">
                                         <span class="cursor-pointer fc-m"  @click="changeCourse(scope.row)">转课</span>
-                                        <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
+                                        <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m ml-10"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer ml-10" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
@@ -286,10 +286,10 @@
 
         <!-- 购课合约弹窗 -->
         <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
-        
+
         <!-- 转课详情弹窗 -->
         <ChangeCourseDialog :routerAble="false" :dialogStatus="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
-        
+
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
             <el-form label-width="130px" size="small" ref="quitCourseForm" :rules="quitCourseRules" :model="quitCourseForm" class="quit-price-form">
@@ -1029,7 +1029,7 @@ export default {
         s_id: obj.student_id,
         c_name: obj.course.name
       }
-      this.$router.push({path:'/student/changecourse',query:query})
+      this.$router.push({path:'/student/changecourse', query: query});
     },
     //添加分班
     gradeDivideClick (type, data) {

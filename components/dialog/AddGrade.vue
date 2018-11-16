@@ -29,7 +29,7 @@
                       </el-select>
                   </el-form-item>
                   <el-form-item label="上课教室：" v-if="courseType === 1" class="p-r">
-                      <el-select v-model="classForm.room_id" placeholder="请选择">
+                      <el-select v-model="classForm.room_id" placeholder="请选择" clearable>
                           <el-option
                               v-for="item in $store.state.classRoom"
                               :key="item.id"
@@ -67,7 +67,7 @@
                   </el-form-item>
 
                   <el-form-item label="上课教室：" v-if="courseType === 2" class="p-r">
-                      <el-select v-model="classForm.room_id" placeholder="请选择">
+                      <el-select v-model="classForm.room_id" placeholder="请选择" clearable>
                           <el-option
                               v-for="item in $store.state.classRoom"
                               :key="item.id"

@@ -38,7 +38,7 @@ const router = new Router({
       { path: '/academic/audition', component: () => import(/* webpackChunkName: 'page-academic-audition' */ '@/views/academic/Audition'), meta: { needlogin: true } },
       { path: '/academic/buy', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/Buy'), meta: { needlogin: true } },
       { path: '/academic/teacherLesson', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/TeacherLesson'), meta: { needlogin: true } },
-      { path: '/academic/changeCourse', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/ChangeCourseRecord'), meta: { needlogin: true } },
+      { path: '/academic/changeCourse', component: () => import(/* webpackChunkName: 'page-academic-buy' */ '@/views/academic/ChangeCourse'), meta: { needlogin: true } },
 
       { path: '/staff', component: () => import(/* webpackChunkName: 'page-staff-index' */ '@/views/staffManage/Index'), meta: { needlogin: true } },
       { path: '/staff/detail', component: () => import(/* webpackChunkName: 'page-staff-detail' */ '@/views/staffManage/Detail'), meta: { needlogin: true, menu: '/staff' } },

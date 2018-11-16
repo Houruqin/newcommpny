@@ -171,8 +171,8 @@
             </el-form>
         </el-card>
 
-        <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <!-- 转课详情弹窗 -->
+        <ContractDialog v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
     </div>
 </template>
 
@@ -276,19 +276,16 @@ export default {
     buyTotalMoney() {
       let coursePrice =
         Number(this.courseForm.unit_price) *
-          Number(this.courseForm.lesson_num) -
+        Number(this.courseForm.lesson_num) -
         Number(this.courseForm.preferential_class_price);
-      let money =
-        coursePrice +
-        this.courseForm.textbookPrice -
-        Number(this.courseForm.preferentialTextbookPrice);
+
+      let money = coursePrice + this.courseForm.textbookPrice - Number(this.courseForm.preferentialTextbookPrice);
 
       if (Number(this.courseForm.deposit_money) >= 0) {
         money = money - Number(this.courseForm.deposit_money);
       }
-      let b;
 
-      b = money.toFixed(2);
+      let b = money.toFixed(2);;
       this.courseForm.totalMoney = isNaN(b) ? "--" : b;
 
       return isNaN(b) ? "--" : b;
@@ -297,14 +294,12 @@ export default {
     SettlementMoney() {
       let out_money = 0;
       for (let i = 0; i < this.orderInfo.length; i++) {
-        out_money +=
-          this.orderInfo[i].unit_price * this.courseForm.out_lesson_num[i];
+        out_money += this.orderInfo[i].unit_price * this.courseForm.out_lesson_num[i];
       }
       let in_money = this.courseForm.inLessonNum * this.courseForm.inUnitPrice;
-      let textbook_money =
-        this.courseForm.textbookPrice -
-        this.courseForm.preferentialTextbookPrice;
+      let textbook_money = this.courseForm.textbookPrice - this.courseForm.preferentialTextbookPrice;
       let result = textbook_money + in_money - out_money;
+
       return isNaN(result) ? "--" : result;
     }
   },
@@ -326,6 +321,7 @@ export default {
           );
         }
       }
+      return true;
     },
     dialogClose() {
       this.$refs.courseForm.resetFields();
@@ -379,8 +375,6 @@ export default {
     CB_dialogStatus(type) {
       if (type === "contract") {
         this.contractData = {};
-        this.dialogStatus.contract = false;
-
         return 0;
       }
     },
@@ -398,6 +392,8 @@ export default {
         return 0;
       }
       this.courseLists = result.lists;
+
+      return true;
     },
     //购买课程，选择课程change
     addCourseChange(val) {
@@ -503,13 +499,13 @@ export default {
           params[key] = this.courseForm[key];
         }
       }
-      params.inPrice =
-        (this.courseForm.inUnitPrice * this.courseForm.inLessonNum).toFixed(
-          2
-        ) || 0;
+
+      params.inPrice = (this.courseForm.inUnitPrice * this.courseForm.inLessonNum).toFixed(2) || 0;
       params.planPrice = this.SettlementMoney.toFixed(2);
-      if(params.planPrice < 0) params.realPrice = (-params.realPrice);
       params.fromStudentCourseList = [];
+
+      if(params.planPrice < 0) params.realPrice = (-params.realPrice);
+
       for (let i = 0; i < this.orderInfo.length; i++) {
         let q = this.orderInfo[i];
         params.fromStudentCourseList.push({
@@ -520,10 +516,7 @@ export default {
           outEliminateNum: q.eliminate_num
         });
       }
-      params.dataId =
-        this.buyCourse_type == 1
-          ? this.courseForm.grade_id
-          : this.courseForm.teacher_id;
+      params.dataId = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
       params.textbook = this.textbookFormLists.map(k => {
         return {
           goods_id: k.goods_id,
@@ -532,12 +525,10 @@ export default {
         };
       });
 
-      let result = await this.$$request.post(
-        "/studentCourse/transferCourse",
-        params
-      );
+      let result = await this.$$request.post("/studentCourse/transferCourse", params);
 
       if (!result) {
+        this.submitLoading = false;
         return 0;
       }
 
@@ -545,21 +536,15 @@ export default {
     },
     //转课后获取转课详情
     async getContractDetail(id) {
-      const params = {
-        id: id
-      };
-      let result = await this.$$request.get(
-        "/studentCourse/getTransferDetail",
-        params
-      );
+      let result = await this.$$request.get("/studentCourse/getTransferDetail", {id: id});
 
       this.submitLoading = false;
       if (!result) {
         return 0;
       }
-      this.dialogStatus.contract = true;
 
       this.contractData = result;
+      this.dialogStatus.contract = true;
     },
     async getTextBookLists() {
       let result = await this.$$request.get("/goods/textbookList");
@@ -588,19 +573,19 @@ export default {
     }
   },
   async created() {
-    let query = this.$route.query;
-    this.courseForm.fromCourseId = query.c_id;
-    this.courseForm.studentId = query.s_id;
-    this.course_name = query.c_name;
+    if (this.$route.query) {
+      let query = this.$route.query;
+      this.courseForm.fromCourseId = query.c_id;
+      this.courseForm.studentId = query.s_id;
+      this.course_name = query.c_name;
 
-    await this.getOrderDetail(query.c_id, query.s_id);
-    await this.getCourseLists(query.s_id);
-    let datas = await this.getTextBookLists();
+      let [a, b, c] = await Promise.all([this.getTextBookLists(), this.getOrderDetail(query.c_id, query.s_id), this.getCourseLists(query.s_id)]);
 
-    this.getContractDetail(1661);
+      if (a && b && c) {
+        this.state = "loaded";
+      }
 
-    if (datas) {
-      this.state = "loaded";
+      // this.getContractDetail(1661);
     }
   },
   components: { TableHeader, MyButton, ContractDialog }

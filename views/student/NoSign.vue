@@ -104,7 +104,8 @@
 
             <div class="d-f p-r" v-if="$$tools.isAuthority('delereUnsigned')">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="distributionAdvisor">批量分配</span>
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer ml-20" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
                 <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
@@ -132,6 +133,28 @@
 
         <!-- 缴纳定金/退回定金 -->
         <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
+
+        <!-- 批量分配顾问 -->
+        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false">
+            <p class="t-a-c">
+              <span>将</span>
+              <span class="fc-m" v-for="(item, index) in selectedIds" :key="index" v-if="index <= 2">
+                {{item.student_name}}
+                <i v-if="selectedIds.length > 1 && index < (selectedIds.length <= 3 ? selectedIds.length - 1 : 2)">、</i>
+              </span>
+              <span class="fc-m" v-if="selectedIds.length > 3">等{{selectedIds.length}}名学员</span>
+              <span>分配给</span>
+            </p>
+            <div class="d-f f-j-c mt-20">
+              <el-select v-model="advisorId" placeholder="请选择" size="small">
+                  <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+              </el-select>
+            </div>
+            <div class="d-f f-j-c mt-40">
+              <MyButton @click.native="dialogStatus.advisor = false" type="border" fontColor="fc-m">取消</MyButton>
+              <MyButton @click.native="advisorMultipleDone()" :loading="submitLoading" class="ml-20">确定</MyButton>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -169,9 +192,12 @@ export default {
       currPage: false,
       activePage: 1,
 
+      submitLoading: false,
+
       paymentDetail: {},
 
       listStudentId: '',
+      advisorId: '',
       operationLists: [],
 
       headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
@@ -179,7 +205,7 @@ export default {
       searchKeyWord: '',
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
-      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false},
+      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false},
       studentType: '',
 
       editDetail: {},
@@ -246,7 +272,7 @@ export default {
       });
     },
     async deleteHandle (id) {
-      let result = await this.$$request.post('/student/delete', {id: id === 'all' ? this.selectedIds : [id]});
+      let result = await this.$$request.post('/student/delete', {id: id === 'all' ? this.selectedIds.map(v => v.student_id) : [id]});
 
       if (!result) {
         return 0;
@@ -259,6 +285,50 @@ export default {
         this.selectedIds.splice(0, this.selectedIds.length);
       }
     },
+    //批量分配
+    distributionAdvisor () {
+      if (!this.selectedIds.length) {
+        return this.$message.error('请至少选中一条数据');
+      }
+
+      this.dialogStatus.advisor = true;
+    },
+    // 批量分配顾问确定
+    advisorMultipleDone () {
+      if (!this.advisorId) {
+        return this.$message.error('请选择顾问');
+      }
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+      this.listAdvisorChange('all');
+    },
+    //列表顾问选择
+    async listAdvisorChange (id) {
+      let params = {
+        student_id: id === 'all' ? this.selectedIds.map(v => v.student_id) : [this.listStudentId],
+        advisor_id: id === 'all' ? this.advisorId : id
+      };
+      console.log(params);
+
+      let result = await this.$$request.post('/student/distribute', params);
+      console.log(result);
+
+      this.submitLoading = false;
+      if (!result) {
+        return 0;
+      }
+
+      this.dialogStatus.advisor = false;
+      this.getAllLists(true);
+      this.$message.success('分配成功');
+      if (id === 'all') {
+        this.isShowCheckbox = false;
+        this.advisorId = '';
+        this.selectedIds.splice(0, this.selectedIds.length);
+      }
+    },
     // 取消批量删除
     cancelMultipleDel () {
       this.isShowCheckbox = false;
@@ -266,7 +336,9 @@ export default {
       this.$refs.studentTable.clearSelection();
     },
     handleSelectionChange (x) {
-      this.selectedIds = x.map(v => v.id);
+      this.selectedIds = x.map(v => {
+        return {student_id: v.id, student_name: v.name};
+      });
     },
     tabClick (tab) {
       this.searchKeyWord = '';
@@ -404,17 +476,6 @@ export default {
     //搜索
     searchHandle () {
       this.getStudentLists();
-    },
-    //列表顾问选择
-    async listAdvisorChange (val) {
-      let result = await this.$$request.post('/student/distribute', {student_id: this.listStudentId, advisor_id: val});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.getAllLists(true);
     },
     nextClick (currentPage) {
       this.currPage = true;

@@ -99,33 +99,39 @@
 </template>
 
 <script>
-import MyButton from "../common/MyButton";
+import MyButton from '../common/MyButton';
 
 export default {
   props: {
-    dialogStatus: "",
-    contractData: { default: {} }
+    value: {default: false},
+    contractData: { default: {} },
+    routerAble: {default: true} //如果是转课流程，转课以后跳到签约学员详情页
   },
   components: { MyButton },
   watch: {
-    dialogStatus(newVal, oldVal) {
-      this.contractDialogStatus = newVal;
+    value (val) {
+      this.contractDialogStatus = val;
     }
   },
   data() {
     return {
-      contractDialogStatus: false
+      contractDialogStatus: this.value
     };
   },
   methods: {
     dialogClose() {
-      this.$emit("CB-dialogStatus", "contract");
-      this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.studentId}});
+      this.$emit('input', false);
+      this.$emit('CB-dialogStatus', 'contract');
+      if (this.routerAble) {
+        this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.studentId}});
+      }
     },
     //确定按钮，跳转签约学员详情
     goSignedLists() {
       this.contractDialogStatus = false;
-      this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.studentId}});
+      if (this.routerAble) {
+        this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.studentId}});
+      }
     }
   }
 };

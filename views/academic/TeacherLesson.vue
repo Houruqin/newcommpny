@@ -283,21 +283,21 @@ export default {
 
 <style lang="less" scoped>
   .fifter-toolbar {
-        ul li {
-            &:not(:last-child) {
-                width: 150px;
-            }
-            .el-select, .el-date-editor {
-                width: 100%;
-            }
-            &.name {
-                width: auto;
-            }
-            &.text {
-                width: 15px;
-            }
-        }
-    }
+      ul li {
+          &:not(:last-child) {
+              width: 150px;
+          }
+          .el-select, .el-date-editor {
+              width: 100%;
+          }
+          &.name {
+              width: auto;
+          }
+          &.text {
+              width: 15px;
+          }
+      }
+  }
 </style>
 
 

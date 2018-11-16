@@ -414,7 +414,6 @@ export default {
 
       if (this.isDisabled(option.course_info.type, option.grade_info, option.type)) return 0;
 
-      console.log(option)
       let text = option.type === 'over' ? '结课以后会将班级的学员和课表信息清空，您确定要结课吗?' : '停课以后将班级的课表信息关闭，您确定要停课吗？';
 
       this.$confirm(text, '提示', {
@@ -440,9 +439,7 @@ export default {
     //开课 判断是不是需要排课
     async startCourseStatus (option) {
       console.log(option)
-      return false;
-
-      let result = await this.$$request.post('/changeStatusStopOrStart', {id: option.grade_info.id, status: 8});
+      let result = await this.$$request.post('/grade/changeStatusStopOrStart', {id: option.grade_info.id, status: 8});
 
       console.log(result);
       if (!result) {
@@ -501,7 +498,7 @@ export default {
     //改变班级状态 开课/停课
     async submitChangeCourseStatus (option, status) {
       let params = {id: option.grade_info.id, status: status};
-      let result = await this.$$request.post('/changeStatusStopOrStart', params);
+      let result = await this.$$request.post('/grade/changeStatusStopOrStart', params);
 
       if (!result) {
         return 0;
