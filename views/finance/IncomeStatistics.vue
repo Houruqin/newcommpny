@@ -115,7 +115,7 @@
           <el-table-column label="转入课时金额" prop="inPrice" align="center"></el-table-column>
           <el-table-column label="教材费" prop="textbookPrice" align="center"></el-table-column>
           <el-table-column label="实际补交差价" prop="realPrice" align="center"></el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('transferCourse')">
             <template slot-scope="scope">
               <span class="fc-m cursor-pointer" @click="changeCourseDetail(scope.row.studentCourseId)">转课详情</span>
             </template>
