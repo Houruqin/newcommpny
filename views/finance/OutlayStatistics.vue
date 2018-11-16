@@ -190,7 +190,6 @@
 <script>
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
-import ContractDialog from '../../components/dialog/Contract';
 import NameRoute from '../../components/common/NameRoute';
 
 export default {
@@ -548,7 +547,7 @@ export default {
     //   this.all_user = this.$store.state.allUser;
     // });
   },
-  components: { TableHeader, MyButton, ContractDialog, NameRoute }
+  components: { TableHeader, MyButton, NameRoute }
 };
 </script>
 

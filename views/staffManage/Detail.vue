@@ -116,7 +116,7 @@
         </AddStaffDialog>
 
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :routerAble="false" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog v-model="dialogStatus.contract" :routerAble="false" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
     </div>
 </template>
 
@@ -172,8 +172,6 @@ export default {
       }
       if (type === 'contract') {
         this.contractData = {};
-        this.dialogStatus.contract = false;
-
         return 0;
       }
     },

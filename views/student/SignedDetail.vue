@@ -285,10 +285,10 @@
         </el-card>
 
         <!-- 购课合约弹窗 -->
-        <ContractDialog :routerAble="false" :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog :routerAble="false" :v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
 
         <!-- 转课详情弹窗 -->
-        <ChangeCourseDialog :routerAble="false" :dialogStatus="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
+        <ChangeCourseDialog :routerAble="false" :v-model="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseDialog>
 
         <!-- 退费弹窗 -->
         <el-dialog title="退费" width="940px" center :visible.sync="quitCourseMaskStatus" :close-on-click-modal="false" @close="dialogClose('quitCourseForm')">
@@ -696,22 +696,22 @@ export default {
     CB_dialogStatus (type) {
       if (type === 'student') {
         this.studentEditDetail = {};
-
         return 0;
       }
 
       if (type === 'contract') {
         this.contractData = {};
-        this.dialogStatus.contract = false;
-        this.dialogStatus.changeCourse = false;
-
         return 0;
       }
 
       if (type === 'refund') {
         this.quitPriceDetail = {};
         this.dialogStatus.quitPrice = false;
+        return 0;
+      }
 
+      if (type === 'changeCourse') {
+        this.changeCourseData = {};
         return 0;
       }
     },

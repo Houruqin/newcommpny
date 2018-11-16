@@ -150,7 +150,7 @@
         </el-card>
 
         <!-- 购课合约弹窗 -->
-        <ContractDialog :dialogStatus="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+        <ContractDialog v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
     </div>
 </template>
 
@@ -330,8 +330,6 @@ export default {
     CB_dialogStatus (type) {
       if (type === 'contract') {
         this.contractData = {};
-        this.dialogStatus.contract = false;
-
         return 0;
       }
     },

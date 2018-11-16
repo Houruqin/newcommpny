@@ -121,7 +121,7 @@ export default {
   methods: {
     dialogClose() {
       this.$emit('input', false);
-      this.$emit('CB-dialogStatus', 'contract');
+      this.$emit('CB-dialogStatus', 'changeCourse');
       if (this.routerAble) {
         this.$router.push({path: '/student/signeddetail', query: {id: this.contractData.studentId}});
       }

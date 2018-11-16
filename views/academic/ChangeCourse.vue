@@ -42,7 +42,7 @@
         <el-table-column label="转课时间" align="center">
           <template slot-scope="scope">{{scope.row.createdAt | date('yyyy-MM-dd')}}</template>
         </el-table-column>
-        <el-table-column label="转课详情" align="center">
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <span class="fc-m cursor-pointer" @click="changeCourseDetail(scope.row.studentCourseId)">转课详情</span>
           </template>
@@ -91,8 +91,10 @@ export default {
     getSeconde (date) {
       return new Date(date).getTime() / 1000;
     },
-    CB_dialogStatus () {
-      this.contractData = {};
+    CB_dialogStatus (type) {
+      if (type === 'changeCourse') {
+        this.contractData = {};
+      }
     },
     dateChange () {
       if (this.searchFilter.end_time < this.searchFilter.begin_time) {

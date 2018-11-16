@@ -48,7 +48,7 @@
             <span :class="[scope.row.state === 0 ? 'in_school' : 'graduation','student_status']">{{scope.row.state === 0  ? '在校' : '结业'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="合约详情" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
+        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
           <template slot-scope="scope">
               <span class="fc-m cursor-pointer" @click="show_contract(scope.row.id)">购课详情</span>
           </template>
@@ -59,7 +59,7 @@
       <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
       </el-pagination>
     </el-card>
-    <ContractDialog :routerAble="false" :dialogStatus="dialog.contract.show" :contractData="dialog.contract.data" @CB-dialogStatus="close"></ContractDialog>
+    <ContractDialog :routerAble="false" v-model="dialog.contract.show" :contractData="dialog.contract.data" @CB-dialogStatus="close"></ContractDialog>
   </div>
 </template>
 
@@ -199,10 +199,10 @@ export default {
         });
     },
     //弹窗关闭回调
-    close () {
-      this.dialog.contract.data = {};
-      // this.contract_data = {};
-      this.dialog.contract.show = false;
+    close (type) {
+      if (type === 'contract') {
+        this.dialog.contract.data = {};
+      }
     }
   },
   async created () {

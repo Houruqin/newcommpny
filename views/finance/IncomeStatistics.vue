@@ -2,8 +2,13 @@
   <div class="flex1">
     <PageState :state="state" />
     <el-card shadow="hover">
-      <TableHeader title="收款管理">
-      </TableHeader>
+      <TableHeader title="收款管理"></TableHeader>
+
+      <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
+          <el-tab-pane label="合同收款" name="contract"></el-tab-pane>
+          <el-tab-pane label="转课差价" name="changeCourse"></el-tab-pane>
+      </el-tabs>
+
       <div class="toolbar mt-20">
         <ul class="d-f date_type">
           <li @click="choose_date('current_month')">
@@ -24,19 +29,19 @@
       </div>
       <div class="toolbar mt-20">
         <ul class="d-f">
-          <li class="ml-20">
+          <li class="ml-20" v-if="activeTab === 'contract'">
             <el-select size="small" placeholder="选择课程" v-model="search_info.course_id" @change="search">
               <el-option label="全部课程" :value="0"></el-option>
               <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
-          <li class="ml-20">
+          <li class="ml-20" v-if="activeTab === 'contract'">
             <el-select size="small" placeholder="选择顾问" v-model="search_info.advisor_id" @change="search">
               <el-option label="全部顾问" :value="0"></el-option>
               <el-option v-for="(item, index) in $store.state.advisor" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
-          <li class="ml-20">
+          <li class="ml-20" v-if="activeTab === 'contract'">
             <el-select size="small" placeholder="支付方式" v-model="search_info.pay_method" @change="search">
               <el-option label="全部支付方式" :value="0"></el-option>
               <el-option v-for="(item, index) in pay_list" :key="index" :value="item.id" :label="item.name"></el-option>
@@ -50,47 +55,87 @@
           </li>
         </ul>
       </div>
+      <!-- 合同收款table -->
+      <div v-if="activeTab === 'contract'" key="contractTable">
+        <el-table stripe class="student-table mt-30" :data="buyCourseTable.lists.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
+          <el-table-column label="序号" type="index" align="center"></el-table-column>
+          <el-table-column label="合同编号" prop="orderno" align="center"></el-table-column>
+          <el-table-column label="学员姓名" align="center">
+            <template slot-scope="scope">
+              <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.student.id}}" class="fc-m">{{scope.row.student.name}}</router-link>
+              <span v-else>{{scope.row.student_name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="购买课程" prop="course.name" align="center"></el-table-column>
+          <el-table-column label="签约日期" align="center">
+            <template slot-scope="scope">{{scope.row.pay_at | date('yyyy-MM-dd')}}</template>
+          </el-table-column>
+          <el-table-column label="支付方式" align="center">
+            <template slot-scope="scope">
+              <div>{{pay_list[scope.row.pay_way - 1] ? pay_list[scope.row.pay_way - 1].name : pay_list[scope.row.pay_way - 1]}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="业绩顾问" prop="advisor.name" align="center"></el-table-column>
+          <el-table-column label="操作人" prop="user.name" align="center"></el-table-column>
+          <el-table-column label="课时费" prop="lesson_price" align="center"></el-table-column>
+          <el-table-column label="教材费" prop="textbook_price" align="center"></el-table-column>
+          <el-table-column label="合同总额" prop="real_price" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
+            <template slot-scope="scope">
+              <span class="fc-m cursor-pointer"  @click="show_contract(scope.row.id)">合同详情</span>
+            </template>
+          </el-table-column>
+        </el-table>
 
-      <el-table stripe class="student-table mt-30" :data="income_info.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
-        <el-table-column label="序号" type="index" align="center"></el-table-column>
-        <el-table-column label="合同编号" prop="orderno" align="center"></el-table-column>
-        <el-table-column label="学员姓名" align="center">
-          <template slot-scope="scope">
-            <div>
-              <NameRoute :id="scope.row.student.id">{{scope.row.student.name}}</NameRoute>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="购买课程" prop="course.name" align="center"></el-table-column>
-        <el-table-column label="签约日期" align="center">
-          <template slot-scope="scope">
-            <div>
-              <div>{{scope.row.pay_at | date('yyyy-MM-dd')}}</div>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="支付方式" align="center">
-          <template slot-scope="scope">
-            <div>{{pay_list[scope.row.pay_way - 1] ? pay_list[scope.row.pay_way - 1].name : pay_list[scope.row.pay_way - 1]}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="业绩顾问" prop="advisor.name" align="center"></el-table-column>
-        <el-table-column label="操作人" prop="user.name" align="center"></el-table-column>
-        <el-table-column label="课时费" prop="lesson_price" align="center"></el-table-column>
-        <el-table-column label="教材费" prop="textbook_price" align="center"></el-table-column>
-        <el-table-column label="合同总额" prop="real_price" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('purchaseViewCourse')">
-          <template slot-scope="scope">
-            <span class="fc-m cursor-pointer"  @click="show_contract(scope.row.id)">合同详情</span>
-          </template>
-        </el-table-column>
-      </el-table>
+        <!-- 分页 -->
+       <el-pagination v-if="buyCourseTable.lists.total > buyCourseTable.lists.per_page"
+          class="d-f f-j-c mt-50 mb-50" :page-size="buyCourseTable.lists.per_page"
+          background layout="total, prev, pager, next"
+          :total="buyCourseTable.lists.total" :current-page="buyCourseTable.lists.current_page" @current-change="go_page">
+        </el-pagination>
+      </div>
 
-      <!-- 分页 -->
-      <el-pagination v-if="page_info.total > 10" class="d-f f-j-c mt-50 mb-50" :page-size="10" background layout="total, prev, pager, next" :total="page_info.total" :current-page="page_info.page" @current-change="go_page">
-      </el-pagination>
+      <!-- 转课差价table -->
+      <div v-else key="changeCourseTable">
+        <el-table stripe class="student-table mt-30" :data="changeCourseTable.lists.data" v-loading="loading" :show-header="true" show-summary :summary-method="get_sum">
+          <el-table-column label="序号" type="index" align="center"></el-table-column>
+          <el-table-column label="学员姓名" align="center">
+            <template slot-scope="scope">
+              <router-link v-if="$$tools.isAuthority('signDetail')" :to="{path: '/student/signeddetail', query: {id: scope.row.studentId}}" class="fc-m">{{scope.row.studentName}}</router-link>
+              <span v-else>{{scope.row.student_name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="转出课程" prop="outCourseName" align="center"></el-table-column>
+          <el-table-column label="转入课程" prop="inCourseName" align="center"></el-table-column>
+          <el-table-column label="转课时间" align="center">
+            <template slot-scope="scope">{{scope.row.createdAt | date('yyyy-MM-dd')}}</template>
+          </el-table-column>
+          <el-table-column label="操作人" prop="operation" align="center"></el-table-column>
+          <el-table-column label="转出课时金额" prop="outPrice" align="center"></el-table-column>
+          <el-table-column label="转入课时金额" prop="inPrice" align="center"></el-table-column>
+          <el-table-column label="教材费" prop="textbookPrice" align="center"></el-table-column>
+          <el-table-column label="实际补交差价" prop="realPrice" align="center"></el-table-column>
+          <el-table-column label="操作" align="center">
+            <template slot-scope="scope">
+              <span class="fc-m cursor-pointer" @click="changeCourseDetail(scope.row.studentCourseId)">转课详情</span>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <el-pagination v-if="changeCourseTable.lists.total > changeCourseTable.lists.per_page"
+          class="d-f f-j-c mt-50 mb-50" :page-size="10"
+          background layout="total, prev, pager, next"
+          :total="changeCourseTable.lists.total" :current-page="changeCourseTable.lists.current_page" @current-change="go_page">
+        </el-pagination>
+      </div>
     </el-card>
-    <ContractDialog :routerAble="false" :dialogStatus="dialog.contract.show" :contractData="dialog.contract.data" @CB-dialogStatus="close"></ContractDialog>
+
+    <!-- 购课详情 -->
+    <ContractDialog :routerAble="false" v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+
+    <!-- 转课详情弹窗 -->
+    <ChangeCourseContract :routerAble="false" v-model="dialogStatus.changeCourse" :contractData="changeCourseData" @CB-dialogStatus="CB_dialogStatus"></ChangeCourseContract>
   </div>
 </template>
 
@@ -98,19 +143,21 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import ContractDialog from '../../components/dialog/Contract';
-import NameRoute from '../../components/common/NameRoute';
+import ChangeCourseContract from '../../components/dialog/ChangeCourseContract';
 import { StudentStatic } from '../../script/static';
 
 export default {
   data () {
     return {
       state: 'loading',
+      activeTab: 'contract',
+      oldTab: 'contract',
+      dialogStatus: {contract: false, changeCourse: false},
+      loading: false,
       //搜索信息
       search_info: {
         begin: new Date(this.$format_date(new Date(), 'yyyy/MM/01')),
-        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(
-          0
-        ),
+        end: new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(0),
         name: '',
         date_type: 'current_month',
         course_id: 0,
@@ -119,29 +166,34 @@ export default {
       },
       //支付列表
       pay_list: StudentStatic.paymentMethod,
-      //购课信息
-      income_info: {
-        data: [],
-        total: ''
-      },
-      //分页信息
-      page_info: {
-        page_num: 10,
-        page: 1,
-        total: 0
-      },
-      //弹窗
-      dialog: {
-        contract: {
-          data: new Object(),
-          show: false
-        }
-      },
-      contract_data: {},
-      loading: false
+
+      contractData: {}, //购课合约详情
+      changeCourseData: {}, //转课详情
+
+      buyCourseTable: {lists: {}, total: {}},  //购课table
+      changeCourseTable: {lists: {}, total: {}},  //转课table
     };
   },
   methods: {
+    tabClick () {
+      if (this.oldTab === this.activeTab) return 0;
+      this.oldTab = this.activeTab;
+
+      this.search_info.name = '';
+      this.search_info.course_id = 0;
+      this.search_info.advisor_id = 0;
+      this.search_info.pay_method = 0;
+      this.choose_date('current_month');
+
+      this.getTableData();
+    },
+    CB_dialogStatus (type) {
+      if (type === 'contract') {
+        this.contractData = {}
+      } else {
+        this.changeCourseData = {}
+      }
+    },
     //选择时间
     choose_date (type) {
       console.log(type);
@@ -171,107 +223,140 @@ export default {
           this.search_info.end = new Date(new Date().setMonth(12)).setDate(0);
           break;
       }
-      this.page_info.page = 1;
-      this.get_data();
-      console.log(this.search_info.begin, this.search_info.end);
+      this.getTableData();
     },
     date_change () {
       this.search_info.date_type = '';
       if (this.search_info.end < this.search_info.begin) {
         return this.$message.warning('结束时间不能小于开始时间，请从新选择');
       }
-      this.page_info.page = 1;
-      this.get_data();
+      this.getTableData();
     },
     search () {
-      this.page_info.page = 1;
-      this.get_data();
+      this.getTableData();
     },
     go_page (page) {
-      this.page_info.page = page;
-      this.get_data();
+      this.getTableData(page);
     },
-    async get_data () {
+
+    // 获取两个列表数据
+    async getTableData (page) {
+      console.log(this.search_info);
+
       this.loading = true;
-      const params = {
-        time_type: 'custom',
-        begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
-        end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
-        course_id: this.search_info.course_id,
-        seller_id: this.search_info.advisor_id,
-        pay_type: this.search_info.pay_method,
-        user_name: this.search_info.name,
-        page: this.page_info.page,
-        page_num: this.page_info.page_num
-      };
+      let params = {};
 
-      console.log(params);
-      let res = await this.$$request.get(
-        '/financeManage/studentCourse/lists',
-        params
-      );
-
-      console.log(res);
-      if (!res) {
-        return false;
+      if (this.activeTab === 'contract') {
+        params = {
+          time_type: 'custom',
+          begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
+          end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
+          course_id: this.search_info.course_id,
+          seller_id: this.search_info.advisor_id,
+          pay_type: this.search_info.pay_method,
+          user_name: this.search_info.name
+        }
+      } else {
+        params = {
+          startTime: this.getSeconde(this.search_info.begin),
+          endTime: this.getSeconde(this.search_info.end),
+          studentName: this.search_info.name
+        }
       }
-      this.income_info.data = res.lists.data;
-      this.income_info.total = res.total;
-      this.page_info.total = res.lists.total;
+
+      if (page) params.page = page;
+
+      let url = this.activeTab === 'contract' ? '/financeManage/studentCourse/lists' : '/financeManage/getTransferCourse';
+      let res = await this.$$request.get(url, params);
+
+      console.log(res)
+      if (!res) return 0;
+
+      if (this.activeTab === 'contract') {
+        this.buyCourseTable.lists = res.lists;
+        this.buyCourseTable.total = res.total;
+      } else {
+        this.changeCourseTable.lists = res.lists;
+        this.changeCourseTable.total = res.total;
+      }
+
       this.loading = false;
+      console.log(this.buyCourseTable)
 
       return true;
     },
     //将时间转换为秒数
-    get_seconde (date) {
+    getSeconde (date) {
       return new Date(date).getTime() / 1000;
     },
     //查看合约详情
-    show_contract (id) {
-      this.$$request.get('/studentCourse/detail', { sc_id: id }).then(res => {
-        this.dialog.contract.data = res.data;
-        this.dialog.contract.show = true;
-      });
+    async show_contract (id) {
+      let res = await this.$$request.get('/studentCourse/detail', {sc_id: id});
+      if (!res) {
+        return 0;
+      }
+      this.contractData = res.data;
+      this.dialogStatus.contract = true;
     },
-    //弹窗关闭回调
-    close () {
-      this.dialog.contract.data = {};
-      // this.contract_data = {};
-      this.dialog.contract.show = false;
+    // 获取转课详情
+    async changeCourseDetail (id) {
+      let res = await this.$$request.get('/studentCourse/getTransferDetail', {id: id});
+      if (!res) {
+        return 0;
+      }
+      this.changeCourseData = res;
+      this.dialogStatus.changeCourse = true;
     },
     get_sum (param) {
       let sums = [];
       const { columns, data } = param;
 
       sums[1] = '合计';
-      columns.forEach((item, index) => {
-        switch (item.label) {
-          case '课时费':
-            return sums[index] =
-              `${this.income_info.total.total_lesson_price } 元`;
-            break;
-          case '教材费':
-            return sums[index] =
-              `${this.income_info.total.total_textbook_price } 元`;
-            break;
-          case '合同总额':
-            return sums[index] = `${this.income_info.total.total_price } 元`;
-            break;
-        }
-      });
 
+      if (this.activeTab === 'contract') {
+        columns.forEach((item, index) => {
+          switch (index) {
+            case 8:
+              return sums[index] = `${this.buyCourseTable.total.total_lesson_price } 元`;
+              break;
+            case 9:
+              return sums[index] = `${this.buyCourseTable.total.total_textbook_price } 元`;
+              break;
+            case 10:
+              return sums[index] = `${this.buyCourseTable.total.total_price } 元`;
+              break;
+          }
+        });
+      } else {
+        columns.forEach((item, index) => {
+          switch (index) {
+            case 6:
+              return sums[index] = `${this.changeCourseTable.total.transferOutPrice } 元`;
+              break;
+            case 7:
+              return sums[index] = `${this.changeCourseTable.total.transferInPrice } 元`;
+              break;
+            case 8:
+              return sums[index] = `${this.changeCourseTable.total.textbookPrice } 元`;
+              break;
+            case 9:
+              return sums[index] = `${this.changeCourseTable.total.realPrice } 元`;
+              break;
+          }
+        });
+      }
       return sums;
     }
   },
   async created () {
-    let res = await this.get_data();
+    let res = await this.getTableData();
 
     if (!res) {
       return false;
     }
     this.state = 'loaded';
   },
-  components: { TableHeader, MyButton, ContractDialog, NameRoute }
+  components: { TableHeader, MyButton, ContractDialog, ChangeCourseContract }
 };
 </script>
 

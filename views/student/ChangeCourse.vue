@@ -22,7 +22,10 @@
                         </el-table-column>
                         <el-table-column label="转出课时" align="center">
                             <template slot-scope="scope" v-if="courseForm.out_lesson_num.length > 0">
-                                <el-form-item :prop="`out_lesson_num[${scope.$index}]`" :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },{ validator: courseValidator('out_lesson_num',scope.$index) }]">
+                                <el-form-item :prop="`out_lesson_num[${scope.$index}]`"
+                                    :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
+                                            { validator: courseValidator('out_lesson_num', scope.$index) },
+                                            { validator: $$tools.formOtherValidate('int')}]">
                                     <el-input type="number" size="small" placeholder="转出课时" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
                                 </el-form-item>
                             </template>
@@ -373,7 +376,7 @@ export default {
     },
     //弹窗变比，改变dialog状态回调
     CB_dialogStatus(type) {
-      if (type === "contract") {
+      if (type === "changeCourse") {
         this.contractData = {};
         return 0;
       }
@@ -619,7 +622,11 @@ export default {
     margin-bottom: 15px;
   }
   /deep/ .el-input {
-    width: 150px;
+    min-width: 130px;
+    max-width: 160px;
+    &.el-date-editor {
+      width: 150px;
+    }
   }
   .head-info {
     margin-top: 20px;
