@@ -473,7 +473,7 @@
         </el-dialog>
 
         <!-- 批量分配顾问 -->
-        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false">
+        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false" @close="dialogClose('advisor')">
             <p class="t-a-c">
               <span>将</span>
               <span class="fc-m" v-for="(item, index) in selectedIds" :key="index" v-if="index <= 2">
@@ -644,11 +644,13 @@ export default {
       window.location.href = `${config.api}sign/export?${qs.stringify(params)}`;
     },
     //关闭弹窗
-    dialogClose (form) {
-      if (form === 'divide_grade') {
+    dialogClose (type) {
+      if (type === 'divide_grade') {
         this.divideClassRadio = '';
-      } else if (form === 'errorAlert') {
+      } else if (type === 'errorAlert') {
         this.deleteErrorStudents = [];
+      } else if (type === 'advisor') {
+        this.advisorId = '';
       }
     },
     CB_dialogStatus () {
@@ -808,7 +810,6 @@ export default {
       this.$message.success('分配成功');
       if (id === 'all') {
         this.isShowCheckbox = false;
-        this.advisorId = '';
         this.selectedIds.splice(0, this.selectedIds.length);
       }
     },

@@ -135,7 +135,7 @@
         <PayDeposit v-model="dialogStatus.payment" :paymentDetail="paymentDetail" @CB-payment="CB_payment"></PayDeposit>
 
         <!-- 批量分配顾问 -->
-        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false">
+        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false" @close="dialogClose('advisor')">
             <p class="t-a-c">
               <span>将</span>
               <span class="fc-m" v-for="(item, index) in selectedIds" :key="index" v-if="index <= 2">
@@ -255,6 +255,11 @@ export default {
     };
   },
   methods: {
+    dialogClose (type) {
+      if (type === 'advisor') {
+        this.advisorId = '';
+      }
+    },
     //删除学员
     deleteStudent (id) {
       if (id === 'all' && !this.selectedIds.length) {
@@ -325,7 +330,6 @@ export default {
       this.$message.success('分配成功');
       if (id === 'all') {
         this.isShowCheckbox = false;
-        this.advisorId = '';
         this.selectedIds.splice(0, this.selectedIds.length);
       }
     },

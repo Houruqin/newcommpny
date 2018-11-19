@@ -237,6 +237,7 @@ export default {
         ],
         inLessonNum: [
           { required: true, message: "请输入转入课时数" },
+          { validator: this.$$tools.formOtherValidate('total', 999)},
           { validator: this.$$tools.formOtherValidate("int") }
         ],
         inUnitPrice: [

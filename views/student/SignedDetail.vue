@@ -778,13 +778,13 @@ export default {
     quitPriceValidate (type) {
       return (rule, value, callback) => {
         if (type === 'lesson') {
-          if (value > Number(this.quitCourseInfo.real_price)) {
+          if (value > Number(this.quitCourseInfo.residue_lesson_price)) {
             return callback(new Error('课时退费金额不能超过剩余课时费'));
           }
 
           return callback();
         }
-        if (value > Number(this.quitCourseInfo.textbook_price)) {
+        if (value > Number(this.quitCourseInfo.textbooks_price)) {
           return callback(new Error('教材退费金额不能超过剩余教材费'));
         }
 
@@ -1213,15 +1213,15 @@ export default {
 
       console.log(params);
 
-      let result = await this.$$request.post('/quitCourse/add', params);
+      // let result = await this.$$request.post('/quitCourse/add', params);
 
       this.submitLoading.quitCourse = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
+      // console.log(result);
+      // if (!result) {
+      //   return 0;
+      // }
       this.$message.success('退费成功');
-      this.getBottomTabLists();
+      // this.getBottomTabLists();
       this.quitCourseMaskStatus = false;
     },
     //提交分班信息
