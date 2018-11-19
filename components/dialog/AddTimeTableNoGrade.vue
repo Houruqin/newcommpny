@@ -128,7 +128,7 @@
                 </el-table-column>
                 <el-table-column label="冲突教室">
                     <template slot-scope="scope">
-                        <el-select v-if="scope.row.conflict_data.reason == 2" size="small" v-model="scope.row.room_id">
+                        <el-select v-if="scope.row.conflict_data.reason == 2" size="small" v-model="scope.row.room_id" :clearable="true">
                             <el-option v-for="(item, index) in $store.state.classRoom" :key="index" :label="item.name" :value="item.id" ></el-option>
                         </el-select>
                     </template>

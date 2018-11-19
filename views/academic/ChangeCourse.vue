@@ -133,7 +133,7 @@ export default {
       }
 
       let res = await this.$$request.get('/eduCount/getTransferRecord', params);
-      console.log(res);
+      // console.log(res);
 
       this.courseLists = res;
       this.loading = false;
