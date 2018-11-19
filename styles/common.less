@@ -125,6 +125,11 @@ a, input, button {outline: none;}
 .b-radius {border-radius: 3px;}
 .out-line {outline: none;}
 .bor-t {border-top: 1px #e3e3e3 solid;}
+.list-btn-box span {
+  &:not(:first-child) {
+    margin-left: 10px;
+  }
+}
 
 /* 边距 */
 .margin-loop (@i : 1) when (@i <= 200) {
