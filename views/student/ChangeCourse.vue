@@ -25,7 +25,7 @@
                                 <el-form-item :prop="`out_lesson_num[${scope.$index}]`"
                                     :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
                                             { validator: courseValidator('out_lesson_num', scope.$index) },
-                                            { validator: $$tools.formOtherValidate('int')}]">
+                                            { validator: $$tools.formOtherValidate('lesson_num')}]">
                                     <el-input type="number" size="small" placeholder="转出课时" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
                                 </el-form-item>
                             </template>
@@ -472,17 +472,35 @@ export default {
     },
     //表单确定
     doneHandle() {
+      if (this.submitLoading) return 0;
+
       this.$refs.courseForm.validate(valid => {
         if (valid) {
-          this.submitBuyCourse();
+          let text = '';
+
+          if (this.SettlementMoney >= 0 || Math.abs(this.SettlementMoney) === this.courseForm.realPrice) {
+            text = '';
+          } else if (this.courseForm.realPrice > Math.abs(this.SettlementMoney)){
+            text = `此次转课亏损${this.courseForm.realPrice - Math.abs(this.SettlementMoney)}元，`;
+          } else {
+            text = `此次转课少退费${Math.abs(this.SettlementMoney) - this.courseForm.realPrice}元，`;
+          }
+
+          this.$confirm(`${text}确认要进行此次转课操作？`, '转课确认', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.submitBuyCourse();
+          }).catch(() => {return 0});
         }
       });
     },
     //提交购买课程
     async submitBuyCourse() {
-      if (this.submitLoading) {
-        return 0;
-      }
+      // if (this.submitLoading) {
+      //   return 0;
+      // }
       this.submitLoading = true;
 
       let params = {};
