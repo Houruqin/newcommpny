@@ -9,17 +9,14 @@
         <p class="head-info">转出课程：
           <span>{{course_name}}</span>
         </p>
-        <div class="mt-10 d-f">
+        <div class="mt-10 d-f row-header">
           <el-table :data="orderInfo" v-loading="loading" row-class-name="row-header">
             <el-table-column label="订单编号" prop="orderno" align="center"></el-table-column>
             <el-table-column label="购买课时" prop="lesson_num" align="center"></el-table-column>
             <el-table-column label="已消课时" prop="eliminate_num" align="center"></el-table-column>
             <el-table-column label="赠送课时" prop="given_num" align="center"></el-table-column>
             <el-table-column label="剩余课时" prop="lesson_num_left" align="center"></el-table-column>
-            <el-table-column label="课程单价(元/课时)" prop="unit_price" align="center"></el-table-column>
-            <el-table-column label="课程有效期" prop="expired_at" align="center">
-              <template slot-scope="scope">{{scope.row.expired_at | date('yyyy-MM-dd')}}</template>
-            </el-table-column>
+            <el-table-column label="购买单价(元/课时)" prop="unit_price" align="center"></el-table-column>
             <el-table-column label="转出课时" align="center">
               <template slot-scope="scope" v-if="courseForm.out_lesson_num.length > 0">
                 <el-form-item :prop="`out_lesson_num[${scope.$index}]`" :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
@@ -28,6 +25,9 @@
                   <el-input @input="valid_out_lesson_num" type="number" size="small" placeholder="转出课时(必填)" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
                 </el-form-item>
               </template>
+            </el-table-column>
+            <el-table-column label="课程有效期" prop="expired_at" align="center">
+              <template slot-scope="scope">{{scope.row.expired_at | date('yyyy-MM-dd')}}</template>
             </el-table-column>
             <el-table-column label="转出课时金额" align="center">
               <template slot-scope="scope">
@@ -38,7 +38,7 @@
         </div>
 
         <p class="head-info">转入课程</p>
-        <div class="mt-10 d-f">
+        <div class="mt-10 d-f row-header">
           <el-table :data="[courseForm]" v-loading="loading" row-class-name="row-header">
 
             <el-table-column label="课程名称" align="center">
@@ -51,7 +51,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column :label="buyCourse_type === 1 ? '选择班级' : '选择老师'" align="center">
+            <el-table-column :label="buyCourse_type === 1 ? '选择班级' : '分配老师'" align="center">
               <template slot-scope="scope">
                 <div v-if="buyCourse_type === 1">
                   <el-select size="small" v-model="courseForm.grade_id" placeholder="选择班级" :clearable="true">
@@ -67,6 +67,13 @@
                 </div>
               </template>
             </el-table-column>
+            <el-table-column label="转入课程单价(元/课时)" align="center">
+              <template slot-scope="scope">
+                <el-form-item prop="inUnitPrice">
+                  <el-input size="small" placeholder="课时单价(必填)" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
+                </el-form-item>
+              </template>
+            </el-table-column>
             <el-table-column label="转入课时" align="center">
               <template slot-scope="scope">
                 <el-form-item prop="inLessonNum">
@@ -78,13 +85,6 @@
               <template slot-scope="scope">
                 <el-form-item prop="inGivenNum">
                   <el-input size="small" type="number" placeholder="赠送课时" v-model.number="courseForm.inGivenNum"></el-input>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column label="转入课程单价(元/课时)" align="center">
-              <template slot-scope="scope">
-                <el-form-item prop="inUnitPrice">
-                  <el-input size="small" placeholder="课时单价(必填)" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -153,7 +153,7 @@
           </el-form-item>
 
           <el-form-item label="转课说明：" class="mt-30 textarea-cls explain-input" prop="explain">
-            <el-input type="textarea" :rows="4" placeholder="转课说明" v-model.trim="courseForm.explain"></el-input>
+            <el-input type="textarea" :rows="2" placeholder="限50字" v-model.trim="courseForm.explain"></el-input>
           </el-form-item>
         </div>
         <div class="pl-12 mt-10">
@@ -255,7 +255,7 @@ export default {
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
           { validator: this.courseValidator("text_book") }
         ],
-        explain: [{ max: 100, message: "长度不能超过100个字符" }],
+        explain: [{ max: 50, message: "长度不能超过50个字符" }],
         realPrice: [
           { required: true, message: "请输入实际金额" },
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
@@ -341,8 +341,8 @@ export default {
       this.$emit("CB-dialogStatus", "course");
     },
     valid_out_lesson_num() {
-      for(let i = 0; i<this.courseForm.out_lesson_num.length; i++) {
-        this.$refs.courseForm.validateField(`out_lesson_num[${i}]`)
+      for (let i = 0; i < this.courseForm.out_lesson_num.length; i++) {
+        this.$refs.courseForm.validateField(`out_lesson_num[${i}]`);
       }
     },
     //优惠 输入验证   课程优惠 <= 课程费用    教材优惠 <= 教材费用
@@ -676,22 +676,23 @@ export default {
 
 <style lang="less" scoped>
 .form-box {
-  /deep/ .el-table {
-    .row-header {
-      > td {
+  /deep/ .row-header {
+      td {
         padding: 0;
         height: 60px;
-        /deep/ .el-form-item__content {
-          margin: 18px 0 0 !important;
-        }
-        /deep/ .el-form-item__error {
-          width: 150px;
-          left: 50%;
-          text-align: left;
-          transform: translateX(-50%);
-        }
       }
     }
+  .row-header /deep/ .el-form-item__content {
+    margin: 18px 0 0 !important;
+  }
+  .row-header/deep/ .el-form-item__error {
+    width: 150px;
+    left: 50%;
+    text-align: left;
+    transform: translateX(-50%);
+  }
+  .row-header/deep/ .el-form-item__content {
+    margin: 18px 0 0 !important;
   }
   padding: 0 0 0 20px;
   h3 {
