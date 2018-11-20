@@ -1215,15 +1215,15 @@ export default {
 
       console.log(params);
 
-      // let result = await this.$$request.post('/quitCourse/add', params);
+      let result = await this.$$request.post('/quitCourse/add', params);
 
       this.submitLoading.quitCourse = false;
-      // console.log(result);
-      // if (!result) {
-      //   return 0;
-      // }
+      console.log(result);
+      if (!result) {
+        return 0;
+      }
       this.$message.success('退费成功');
-      // this.getBottomTabLists();
+      this.getBottomTabLists();
       this.quitCourseMaskStatus = false;
     },
     //提交分班信息
@@ -1419,8 +1419,8 @@ export default {
         }
     }
     .course-comment {
-        max-height: 600px;
-        overflow-y: auto;
+        // max-height: 600px;
+        // overflow-y: auto;
         // overflow: hidden;
         ul {
             li {

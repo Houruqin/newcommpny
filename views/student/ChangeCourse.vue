@@ -26,7 +26,7 @@
                                     :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
                                             { validator: courseValidator('out_lesson_num', scope.$index) },
                                             { validator: $$tools.formOtherValidate('lesson_num')}]">
-                                    <el-input type="number" size="small" placeholder="转出课时" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
+                                    <el-input type="number" size="small" placeholder="转出课时(必填)" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
                                 </el-form-item>
                             </template>
                         </el-table-column>
@@ -45,7 +45,7 @@
                         <el-table-column label="课程名称" align="center">
                             <template slot-scope="scope">
                                 <el-form-item prop="toCourseId">
-                                    <el-select size="small" v-model="courseForm.toCourseId" placeholder="选择课程" @change="addCourseChange">
+                                    <el-select size="small" v-model="courseForm.toCourseId" placeholder="选择课程(必填)" @change="addCourseChange">
                                         <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -71,7 +71,7 @@
                         <el-table-column label="转入课时" align="center">
                             <template slot-scope="scope">
                                 <el-form-item prop="inLessonNum">
-                                    <el-input size="small" type="number" placeholder="转入课时" v-model.number="courseForm.inLessonNum"></el-input>
+                                    <el-input size="small" type="number" placeholder="转入课时(必填)" v-model.number="courseForm.inLessonNum"></el-input>
                                 </el-form-item>
                             </template>
                         </el-table-column>
@@ -85,7 +85,7 @@
                         <el-table-column label="转入课程单价(元/课时)" align="center">
                             <template slot-scope="scope">
                                 <el-form-item prop="inUnitPrice">
-                                    <el-input size="small" placeholder="课时单价" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
+                                    <el-input size="small" placeholder="课时单价(必填)" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
                                 </el-form-item>
                             </template>
                         </el-table-column>
