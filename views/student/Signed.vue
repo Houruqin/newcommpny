@@ -696,6 +696,9 @@ export default {
         case 'edit':
           this.editStudent(d.data.course_lists[0]);
           break;
+        case 'loss_student':
+          this.lossStudent(d.data.student_id);
+          break;
         case 'delete':
           this.deleteStudent(d.data.student_id);
           break;
