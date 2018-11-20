@@ -36,7 +36,7 @@
                         <td>{{contractData.course.name}}</td>
                         <td>{{contractData.lesson_num}}</td>
                         <td>{{contractData.unit_price}}</td>
-                        <td>{{contractData.textbook_price + Number(contractData.preferential_textbook_price)}}</td>
+                        <td>{{(Number(contractData.textbook_price) + Number(contractData.preferential_textbook_price)).toFixed(2)}}</td>
                         <td>{{contractData.preferential_price}}</td>
                         <td>{{contractData.given_num}}</td>
                         <td>{{contractData.lesson_num_already}}</td>

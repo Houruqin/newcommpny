@@ -107,8 +107,8 @@
                         <el-table-column label="操作" align="center" width="230" v-if="$$tools.isAuthority(['purchaseViewCourse', 'refundAndView', 'manualEliminate'])">
                             <template slot-scope="scope">
                                 <span v-if="$$tools.isAuthority('purchaseViewCourse')" class="cursor-pointer fc-m mr-10" @click="againBuyCourse(scope.row)">续约</span>
-                                <span v-if="$$tools.isAuthority('purchaseViewCourse') && scope.row.type !== 3" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
-                                <span v-if="scope.row.type === 3 && $$tools.isAuthority('transferCourse')" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
+                                <span v-if="$$tools.isAuthority('purchaseViewCourse') && scope.row.type !== 3 && scope.row.status != 2" class="cursor-pointer fc-m mr-10" @click="showContract(scope.row)">购课详情</span>
+                                <span v-if="scope.row.type === 3 && $$tools.isAuthority('transferCourse') && scope.row.status != 2" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
                                 <span v-if="$$tools.isAuthority('manualEliminate') && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
@@ -265,7 +265,9 @@
                                 </div>
                                 <p class="fc-9 mt-5 cursor-pointer" v-if="list.pic.length > 2 && !list.imageMore" @click="list.imageMore = true">显示更多<span>{{list.pic.length - 2}}</span>张图片</p>
                                 <div v-if="list.imageMore">
-                                    <div v-for="(img, index) in list.pic" :key="index" class="commentmore-img-box" @click="list.imageMore = false"><img :src="img" alt=""></div>
+                                    <div v-for="(img, index) in list.pic" :key="index" class="commentmore-img-box" @click="list.imageMore = false">
+                                      <img :src="img" alt="">
+                                    </div>
                                 </div>
                             </li>
                         </ul>

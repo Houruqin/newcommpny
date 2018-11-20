@@ -259,7 +259,8 @@ export default {
         explain: [{ max: 100, message: "长度不能超过100个字符" }],
         realPrice: [
           { required: true, message: "请输入实际金额" },
-          { validator: this.$$tools.formOtherValidate("decimals", 2) }
+          { validator: this.$$tools.formOtherValidate("decimals", 2) },
+          { validator: this.courseValidator("real_price") }
         ]
       },
       textbookRules: {
@@ -369,6 +370,14 @@ export default {
         if (type === "lesson_num_already") {
           if (value > this.courseForm.lesson_num) {
             return callback(new Error("已扣课时数不能超过购买课时数"));
+          }
+
+          return callback();
+        }
+
+        if (type === 'real_price') {
+          if (value > Math.abs(this.SettlementMoney)) {
+            return callback(new Error(`${this.SettlementMoney >= 0 ? '实际补交费用不能超过应交费用' : '实际退费用不能超过应退费用'}`));
           }
 
           return callback();

@@ -410,8 +410,8 @@
 
             <div class="d-f p-r" v-if="$$tools.isAuthority('deleteSigned')">
               <div class="multiple-del-box d-f f-a-c">
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="distributionAdvisor">批量分配</span>
-                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer ml-20" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
+                <!-- <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="distributionAdvisor">批量分配</span> -->
+                <span v-if="isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': selectedIds.length}" @click="deleteStudent('all')">批量删除</span>
                 <MyButton v-if="!isShowCheckbox" @click.native="isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <MyButton v-if="isShowCheckbox" type="border" fontColor="fc-m" class="ml-20" :minWidth="70" @click.native="cancelMultipleDel">取消</MyButton>
               </div>
@@ -473,7 +473,7 @@
         </el-dialog>
 
         <!-- 批量分配顾问 -->
-        <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false" @close="dialogClose('advisor')">
+        <!-- <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false" @close="dialogClose('advisor')">
             <p class="t-a-c">
               <span>将</span>
               <span class="fc-m" v-for="(item, index) in selectedIds" :key="index" v-if="index <= 2">
@@ -492,7 +492,7 @@
               <MyButton @click.native="dialogStatus.advisor = false" type="border" fontColor="fc-m">取消</MyButton>
               <MyButton @click.native="advisorMultipleDone()" :loading="submitLoading.advisor" class="ml-20">确定</MyButton>
             </div>
-        </el-dialog>
+        </el-dialog> -->
     </div>
 </template>
 
@@ -767,51 +767,53 @@ export default {
     },
     //分配顾问点击
     advisorClick (data) {
-      console.log(data);
       this.listStudentId = data.student_id;
     },
-    //批量分配
-    distributionAdvisor () {
-      if (!this.selectedIds.length) {
-        return this.$message.error('请至少选中一条数据');
-      }
+    // //批量分配
+    // distributionAdvisor () {
+    //   if (!this.selectedIds.length) {
+    //     return this.$message.error('请至少选中一条数据');
+    //   }
 
-      this.dialogStatus.advisor = true;
-    },
+    //   this.dialogStatus.advisor = true;
+    // },
     // 批量分配顾问确定
-    advisorMultipleDone () {
-      if (!this.advisorId) {
-        return this.$message.error('请选择顾问');
-      }
-      if (this.submitLoading.advisor) {
-        return 0;
-      }
-      this.submitLoading.advisor = true;
-      this.listAdvisorChange('all');
-    },
+    // advisorMultipleDone () {
+    //   if (!this.advisorId) {
+    //     return this.$message.error('请选择顾问');
+    //   }
+    //   if (this.submitLoading.advisor) {
+    //     return 0;
+    //   }
+    //   this.submitLoading.advisor = true;
+    //   this.listAdvisorChange('all');
+    // },
     //列表顾问选择
     async listAdvisorChange (id) {
-      let params = {
-        student_id: id === 'all' ? this.selectedIds.map(v => v.student_id) : [this.listStudentId],
-        advisor_id: id === 'all' ? this.advisorId : id
-      };
-      console.log(params);
+      // let params = {
+      //   student_id: id === 'all' ? this.selectedIds.map(v => v.student_id) : [this.listStudentId],
+      //   advisor_id: id === 'all' ? this.advisorId : id
+      // };
+      // console.log(params);
 
-      let result = await this.$$request.post('/student/distribute', params);
+      let result = await this.$$request.post('/student/distribute', {
+        student_id: [this.listStudentId],
+        advisor_id: id
+      });
       console.log(result);
 
-      this.submitLoading.advisor = false;
+      // this.submitLoading.advisor = false;
       if (!result) {
         return 0;
       }
 
-      this.dialogStatus.advisor = false;
+      // this.dialogStatus.advisor = false;
       this.getAllLists(true);
       this.$message.success('分配成功');
-      if (id === 'all') {
-        this.isShowCheckbox = false;
-        this.selectedIds.splice(0, this.selectedIds.length);
-      }
+      // if (id === 'all') {
+      //   this.isShowCheckbox = false;
+      //   this.selectedIds.splice(0, this.selectedIds.length);
+      // }
     },
     //流失学员
     lossStudent (id) {

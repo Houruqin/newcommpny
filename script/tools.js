@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import store from '../store/store';
 import cache from './cache';
+import config from 'config';
 
 
 const VALIDATE_RULE = {
@@ -183,6 +184,11 @@ const Tools = {
     }
 
     return `${begin}-${end}`;
+  },
+
+  getImgUrl (url) {
+    let newUrl = /^http/.test(url) ? url : config.imgUrl + url;
+    return newUrl;
   }
 };
 
