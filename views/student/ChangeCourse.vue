@@ -1,182 +1,181 @@
 <template>
-    <div class="flex1 change-course-container">
-        <PageState :state="state" />
-        <el-card shadow="hover">
-            <TableHeader title="转课"></TableHeader>
+  <div class="flex1 change-course-container">
+    <PageState :state="state" />
+    <el-card shadow="hover">
+      <TableHeader title="转课"></TableHeader>
 
-            <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm" class="form-box mt-20">
+      <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm" class="form-box mt-20">
 
-                <p class="head-info">转出课程：
-                    <span>{{course_name}}</span>
-                </p>
-                <div class="mt-10 d-f">
-                    <el-table :data="orderInfo" v-loading="loading" row-class-name="row-header">
-                        <el-table-column label="订单编号" prop="orderno" align="center"></el-table-column>
-                        <el-table-column label="购买课时" prop="lesson_num" align="center"></el-table-column>
-                        <el-table-column label="已消课时" prop="eliminate_num" align="center"></el-table-column>
-                        <el-table-column label="赠送课时" prop="given_num" align="center"></el-table-column>
-                        <el-table-column label="剩余课时" prop="lesson_num_left" align="center"></el-table-column>
-                        <el-table-column label="课程单价(元/课时)" prop="unit_price" align="center"></el-table-column>
-                        <el-table-column label="课程有效期" prop="expired_at" align="center">
-                            <template slot-scope="scope">{{scope.row.expired_at | date('yyyy-MM-dd')}}</template>
-                        </el-table-column>
-                        <el-table-column label="转出课时" align="center">
-                            <template slot-scope="scope" v-if="courseForm.out_lesson_num.length > 0">
-                                <el-form-item :prop="`out_lesson_num[${scope.$index}]`"
-                                    :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
+        <p class="head-info">转出课程：
+          <span>{{course_name}}</span>
+        </p>
+        <div class="mt-10 d-f">
+          <el-table :data="orderInfo" v-loading="loading" row-class-name="row-header">
+            <el-table-column label="订单编号" prop="orderno" align="center"></el-table-column>
+            <el-table-column label="购买课时" prop="lesson_num" align="center"></el-table-column>
+            <el-table-column label="已消课时" prop="eliminate_num" align="center"></el-table-column>
+            <el-table-column label="赠送课时" prop="given_num" align="center"></el-table-column>
+            <el-table-column label="剩余课时" prop="lesson_num_left" align="center"></el-table-column>
+            <el-table-column label="课程单价(元/课时)" prop="unit_price" align="center"></el-table-column>
+            <el-table-column label="课程有效期" prop="expired_at" align="center">
+              <template slot-scope="scope">{{scope.row.expired_at | date('yyyy-MM-dd')}}</template>
+            </el-table-column>
+            <el-table-column label="转出课时" align="center">
+              <template slot-scope="scope" v-if="courseForm.out_lesson_num.length > 0">
+                <el-form-item :prop="`out_lesson_num[${scope.$index}]`" :rules="[{ required: true, message: '请输入转出课时', trigger: 'change' },
                                             { validator: courseValidator('out_lesson_num', scope.$index) },
                                             { validator: $$tools.formOtherValidate('lesson_num')}]">
-                                    <el-input type="number" size="small" placeholder="转出课时(必填)" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="转出课时金额" align="center">
-                            <template slot-scope="scope">
-                                <span class='fc-m'>{{(courseForm.out_lesson_num[scope.$index] * scope.row.unit_price).toFixed(2)}}</span>元
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                  <el-input @input="valid_out_lesson_num" type="number" size="small" placeholder="转出课时(必填)" v-model.number="courseForm.out_lesson_num[scope.$index]"></el-input>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column label="转出课时金额" align="center">
+              <template slot-scope="scope">
+                <span class='fc-m'>{{(courseForm.out_lesson_num[scope.$index] * scope.row.unit_price).toFixed(2)}}</span>元
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <p class="head-info">转入课程</p>
+        <div class="mt-10 d-f">
+          <el-table :data="[courseForm]" v-loading="loading" row-class-name="row-header">
+
+            <el-table-column label="课程名称" align="center">
+              <template slot-scope="scope">
+                <el-form-item prop="toCourseId">
+                  <el-select size="small" v-model="courseForm.toCourseId" placeholder="选择课程(必填)" @change="addCourseChange">
+                    <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                  </el-select>
+                </el-form-item>
+              </template>
+            </el-table-column>
+
+            <el-table-column :label="buyCourse_type === 1 ? '选择班级' : '选择老师'" align="center">
+              <template slot-scope="scope">
+                <div v-if="buyCourse_type === 1">
+                  <el-select size="small" v-model="courseForm.grade_id" placeholder="选择班级" :clearable="true">
+                    <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
+                  </el-select>
                 </div>
-
-                <p class="head-info">转入课程</p>
-                <div class="mt-10 d-f">
-                    <el-table :data="[courseForm]" v-loading="loading" row-class-name="row-header">
-
-                        <el-table-column label="课程名称" align="center">
-                            <template slot-scope="scope">
-                                <el-form-item prop="toCourseId">
-                                    <el-select size="small" v-model="courseForm.toCourseId" placeholder="选择课程(必填)" @change="addCourseChange">
-                                        <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-
-                        <el-table-column :label="buyCourse_type === 1 ? '选择班级' : '选择老师'" align="center">
-                            <template slot-scope="scope">
-                                <div v-if="buyCourse_type === 1">
-                                    <el-select size="small" v-model="courseForm.grade_id" placeholder="选择班级" :clearable="true">
-                                        <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
-                                    </el-select>
-                                </div>
-                                <div v-if="buyCourse_type === 2">
-                                    <el-form-item prop="teacher_id">
-                                        <el-select size="small" v-model="courseForm.teacher_id" placeholder="选择老师" :clearable="true">
-                                            <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="转入课时" align="center">
-                            <template slot-scope="scope">
-                                <el-form-item prop="inLessonNum">
-                                    <el-input size="small" type="number" placeholder="转入课时(必填)" v-model.number="courseForm.inLessonNum"></el-input>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="赠送课时" align="center">
-                            <template slot-scope="scope">
-                                <el-form-item prop="inGivenNum">
-                                    <el-input size="small" type="number" placeholder="赠送课时" v-model.number="courseForm.inGivenNum"></el-input>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="转入课程单价(元/课时)" align="center">
-                            <template slot-scope="scope">
-                                <el-form-item prop="inUnitPrice">
-                                    <el-input size="small" placeholder="课时单价(必填)" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="课程有效期" align="center">
-                            <template slot-scope="scope">
-                                <el-date-picker size="small" v-model="courseForm.expired_at" type="date" placeholder="选择日期" :picker-options="pickerOptions">
-                                </el-date-picker>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="转入课时金额" align="center">
-                            <template slot-scope="scope">
-                                <span class='fc-m'>{{(courseForm.inUnitPrice * courseForm.inLessonNum).toFixed(2)}}</span>元
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                <div v-if="buyCourse_type === 2">
+                  <el-form-item prop="teacher_id">
+                    <el-select size="small" v-model="courseForm.teacher_id" placeholder="选择老师" :clearable="true">
+                      <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
+                    </el-select>
+                  </el-form-item>
                 </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="转入课时" align="center">
+              <template slot-scope="scope">
+                <el-form-item prop="inLessonNum">
+                  <el-input size="small" type="number" placeholder="转入课时(必填)" v-model.number="courseForm.inLessonNum"></el-input>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column label="赠送课时" align="center">
+              <template slot-scope="scope">
+                <el-form-item prop="inGivenNum">
+                  <el-input size="small" type="number" placeholder="赠送课时" v-model.number="courseForm.inGivenNum"></el-input>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column label="转入课程单价(元/课时)" align="center">
+              <template slot-scope="scope">
+                <el-form-item prop="inUnitPrice">
+                  <el-input size="small" placeholder="课时单价(必填)" type="number" v-model.number="courseForm.inUnitPrice"></el-input>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column label="课程有效期" align="center">
+              <template slot-scope="scope">
+                <el-date-picker size="small" v-model="courseForm.expired_at" type="date" placeholder="选择日期" :picker-options="pickerOptions">
+                </el-date-picker>
+              </template>
+            </el-table-column>
+            <el-table-column label="转入课时金额" align="center">
+              <template slot-scope="scope">
+                <span class='fc-m'>{{(courseForm.inUnitPrice * courseForm.inLessonNum).toFixed(2)}}</span>元
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
 
-                <p class="head-info">教材信息</p>
-                <div class="d-f mt-20 textbook-form">
-                    <div class="d-f">
-                        <span class="p-r textbook-label pl-12">购买教材：</span>
-                        <div class="ml-12">
-                            <div class="add-textbook-box pr-100">
-                                <el-form :model="textbookForm" size="small" ref="textbookForm" v-for="(textbookForm, index) in textbookFormLists" :key="index" :rules="textbookRules">
-                                    <div class="d-f f-a-c">
-                                        <el-form-item label-width="0" class="textbook-select">
-                                            <el-select v-model="textbookForm.goods_id" placeholder="选择教材" @change="textbookChange(textbookForm, index)">
-                                                <el-option v-for="(item, index) in textbookList" :key="index" :label="item.name" :value="item.id"></el-option>
-                                            </el-select>
-                                        </el-form-item>
+        <p class="head-info">教材信息</p>
+        <div class="d-f mt-20 textbook-form">
+          <div class="d-f">
+            <span class="p-r textbook-label pl-12">购买教材：</span>
+            <div class="ml-12">
+              <div class="add-textbook-box pr-100">
+                <el-form :model="textbookForm" size="small" ref="textbookForm" v-for="(textbookForm, index) in textbookFormLists" :key="index" :rules="textbookRules">
+                  <div class="d-f f-a-c">
+                    <el-form-item label-width="0" class="textbook-select">
+                      <el-select v-model="textbookForm.goods_id" placeholder="选择教材" @change="textbookChange(textbookForm, index)">
+                        <el-option v-for="(item, index) in textbookList" :key="index" :label="item.name" :value="item.id"></el-option>
+                      </el-select>
+                    </el-form-item>
 
-                                        <el-form-item prop="num" label-width="0" class="ml-10 textbook-num">
-                                            <el-input type="number" placeholder="数量" v-model.number="textbookForm.num" @input="textbookNumChange"></el-input>
-                                        </el-form-item>
+                    <el-form-item prop="num" label-width="0" class="ml-10 textbook-num">
+                      <el-input type="number" placeholder="数量" v-model.number="textbookForm.num" @input="textbookNumChange"></el-input>
+                    </el-form-item>
 
-                                        <el-form-item class="fc-m ml-10">单价：{{textbookForm.unit_price}}元</el-form-item>
+                    <el-form-item class="fc-m ml-10">单价：{{textbookForm.unit_price}}元</el-form-item>
 
-                                        <span class="textbool-close mb-17 ml-10 cursor-pointer" @click="textbookRemove(index)" v-if="textbookFormLists.length">
-                                            <i class="el-tag__close el-icon-close"></i>
-                                        </span>
-                                    </div>
-                                </el-form>
-                            </div>
-                            <div class="textbook-add" @click="textbookAddClick">添加</div>
+                    <span class="textbool-close mb-17 ml-10 cursor-pointer" @click="textbookRemove(index)" v-if="textbookFormLists.length">
+                      <i class="el-tag__close el-icon-close"></i>
+                    </span>
+                  </div>
+                </el-form>
+              </div>
+              <div class="textbook-add" @click="textbookAddClick">添加</div>
 
-                            <el-form-item label="教材优惠：" prop="preferentialTextbookPrice" label-width="85px" class="mt-20" v-if="textbookFormLists.length">
-                                <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferentialTextbookPrice" :disabled="preferentialDisabled"></el-input>
-                                <span class="pl-10">元</span>
-                            </el-form-item>
-                        </div>
-                    </div>
-                    <!-- <el-form-item label="教材费用：" class="ml-50">
+              <el-form-item label="教材优惠：" prop="preferentialTextbookPrice" label-width="85px" class="mt-20" v-if="textbookFormLists.length">
+                <el-input type="number" placeholder="教材优惠" v-model.number="courseForm.preferentialTextbookPrice" :disabled="preferentialDisabled"></el-input>
+                <span class="pl-10">元</span>
+              </el-form-item>
+            </div>
+          </div>
+          <!-- <el-form-item label="教材费用：" class="ml-50">
                         {{courseForm.textbookPrice}}
                     </el-form-item> -->
-                </div>
+        </div>
 
-                <p class="head-info">结算信息</p>
-                <div class="mt-20">
-                    <el-form-item label="付款方式：" prop="payWay">
-                        <el-select v-model="courseForm.payWay" placeholder="付款方式">
-                            <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id">
-                                <span class="iconfont pr-5" :class="item.icon" :style="{color: item.font_color}"></span>
-                                <span>{{item.name}}</span>
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+        <p class="head-info">结算信息</p>
+        <div class="mt-20">
+          <el-form-item label="付款方式：" prop="payWay">
+            <el-select v-model="courseForm.payWay" placeholder="付款方式">
+              <el-option v-for="(item, index) in paymentMethod" :key="index" :label="item.name" :value="item.id">
+                <span class="iconfont pr-5" :class="item.icon" :style="{color: item.font_color}"></span>
+                <span>{{item.name}}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
 
-                    <el-form-item label="转课说明：" class="mt-30 textarea-cls explain-input" prop="explain">
-                        <el-input type="textarea" :rows="4" placeholder="转课说明" v-model.trim="courseForm.explain"></el-input>
-                    </el-form-item>
-                </div>
-                <div class="pl-12 mt-10">
-                    <span v-if="SettlementMoney >= 0">应补交：</span>
-                    <span v-else>应退费：</span>
-                    <span class="fc-m fs-30">￥{{Math.abs(SettlementMoney.toFixed(2))}}</span>
-                </div>
-                <div class="mt-10">
-                    <el-form-item prop="realPrice" :label="SettlementMoney >= 0 ? '实际补交：' : '实际退费：'">
-                        <el-input type="number" :placeholder="SettlementMoney >= 0 ? '实际补交' : '实际退费'" v-model.number="courseForm.realPrice"></el-input>
-                    </el-form-item>
-                </div>
+          <el-form-item label="转课说明：" class="mt-30 textarea-cls explain-input" prop="explain">
+            <el-input type="textarea" :rows="4" placeholder="转课说明" v-model.trim="courseForm.explain"></el-input>
+          </el-form-item>
+        </div>
+        <div class="pl-12 mt-10">
+          <span v-if="SettlementMoney >= 0">应补交：</span>
+          <span v-else>应退费：</span>
+          <span class="fc-m fs-30">￥{{Math.abs(SettlementMoney.toFixed(2))}}</span>
+        </div>
+        <div class="mt-10">
+          <el-form-item prop="realPrice" :label="SettlementMoney >= 0 ? '实际补交：' : '实际退费：'">
+            <el-input type="number" :placeholder="SettlementMoney >= 0 ? '实际补交' : '实际退费'" v-model.number="courseForm.realPrice"></el-input>
+          </el-form-item>
+        </div>
 
-                <div class="d-f f-j-c mt-30">
-                    <MyButton @click.native="doneHandle" :loading="submitLoading">确认转课</MyButton>
-                </div>
-            </el-form>
-        </el-card>
+        <div class="d-f f-j-c mt-30">
+          <MyButton @click.native="doneHandle" :loading="submitLoading">确认转课</MyButton>
+        </div>
+      </el-form>
+    </el-card>
 
-        <!-- 转课详情弹窗 -->
-        <ContractDialog v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
-    </div>
+    <!-- 转课详情弹窗 -->
+    <ContractDialog v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+  </div>
 </template>
 
 <script>
@@ -237,7 +236,7 @@ export default {
         ],
         inLessonNum: [
           { required: true, message: "请输入转入课时数" },
-          { validator: this.$$tools.formOtherValidate('total', 999)},
+          { validator: this.$$tools.formOtherValidate("total", 999) },
           { validator: this.$$tools.formOtherValidate("int") }
         ],
         inUnitPrice: [
@@ -281,16 +280,19 @@ export default {
     buyTotalMoney() {
       let coursePrice =
         Number(this.courseForm.unit_price) *
-        Number(this.courseForm.lesson_num) -
+          Number(this.courseForm.lesson_num) -
         Number(this.courseForm.preferential_class_price);
 
-      let money = coursePrice + this.courseForm.textbookPrice - Number(this.courseForm.preferentialTextbookPrice);
+      let money =
+        coursePrice +
+        this.courseForm.textbookPrice -
+        Number(this.courseForm.preferentialTextbookPrice);
 
       if (Number(this.courseForm.deposit_money) >= 0) {
         money = money - Number(this.courseForm.deposit_money);
       }
 
-      let b = money.toFixed(2);;
+      let b = money.toFixed(2);
       this.courseForm.totalMoney = isNaN(b) ? "--" : b;
 
       return isNaN(b) ? "--" : b;
@@ -299,10 +301,13 @@ export default {
     SettlementMoney() {
       let out_money = 0;
       for (let i = 0; i < this.orderInfo.length; i++) {
-        out_money += this.orderInfo[i].unit_price * this.courseForm.out_lesson_num[i];
+        out_money +=
+          this.orderInfo[i].unit_price * this.courseForm.out_lesson_num[i];
       }
       let in_money = this.courseForm.inLessonNum * this.courseForm.inUnitPrice;
-      let textbook_money = this.courseForm.textbookPrice - this.courseForm.preferentialTextbookPrice;
+      let textbook_money =
+        this.courseForm.textbookPrice -
+        this.courseForm.preferentialTextbookPrice;
       let result = textbook_money + in_money - out_money;
 
       return isNaN(result) ? "--" : result;
@@ -335,6 +340,11 @@ export default {
       });
       this.$emit("CB-dialogStatus", "course");
     },
+    valid_out_lesson_num() {
+      for(let i = 0; i<this.courseForm.out_lesson_num.length; i++) {
+        this.$refs.courseForm.validateField(`out_lesson_num[${i}]`)
+      }
+    },
     //优惠 输入验证   课程优惠 <= 课程费用    教材优惠 <= 教材费用
     courseValidator(type, query) {
       return (rule, value, callback, event, e, d) => {
@@ -354,13 +364,19 @@ export default {
           if (value > this.courseForm.textbookPrice) {
             return callback(new Error("教材优惠不能大于教材费用"));
           }
-
           return callback();
         }
 
         if (type === "out_lesson_num") {
+          let all_empty = this.courseForm.out_lesson_num.every(val => {
+            return val === 0;
+          });
           let i = query;
-          if (value > this.orderInfo[i].lesson_num_left) {
+
+          if (all_empty) {
+            console.log("全为0");
+            return callback(new Error("转出课时不能全为0"));
+          } else if (value > this.orderInfo[i].lesson_num_left) {
             return callback(new Error("转出课时不能大于剩余课时"));
           } else {
             return callback();
@@ -375,9 +391,17 @@ export default {
           return callback();
         }
 
-        if (type === 'real_price') {
+        if (type === "real_price") {
           if (value > Math.abs(this.SettlementMoney)) {
-            return callback(new Error(`${this.SettlementMoney >= 0 ? '实际补交费用不能超过应交费用' : '实际退费用不能超过应退费用'}`));
+            return callback(
+              new Error(
+                `${
+                  this.SettlementMoney >= 0
+                    ? "实际补交费用不能超过应交费用"
+                    : "实际退费用不能超过应退费用"
+                }`
+              )
+            );
           }
 
           return callback();
@@ -485,23 +509,34 @@ export default {
 
       this.$refs.courseForm.validate(valid => {
         if (valid) {
-          let text = '';
+          let text = "";
 
-          if (this.SettlementMoney >= 0 || Math.abs(this.SettlementMoney) === this.courseForm.realPrice) {
-            text = '';
-          } else if (this.courseForm.realPrice > Math.abs(this.SettlementMoney)){
-            text = `此次转课亏损${this.courseForm.realPrice - Math.abs(this.SettlementMoney)}元，`;
+          if (
+            this.SettlementMoney >= 0 ||
+            Math.abs(this.SettlementMoney) === this.courseForm.realPrice
+          ) {
+            text = "";
+          } else if (
+            this.courseForm.realPrice > Math.abs(this.SettlementMoney)
+          ) {
+            text = `此次转课亏损${this.courseForm.realPrice -
+              Math.abs(this.SettlementMoney)}元，`;
           } else {
-            text = `此次转课少退费${Math.abs(this.SettlementMoney) - this.courseForm.realPrice}元，`;
+            text = `此次转课少退费${Math.abs(this.SettlementMoney) -
+              this.courseForm.realPrice}元，`;
           }
 
-          this.$confirm(`${text}确认要进行此次转课操作？`, '转课确认', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            this.submitBuyCourse();
-          }).catch(() => {return 0});
+          this.$confirm(`${text}确认要进行此次转课操作？`, "转课确认", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+            .then(() => {
+              this.submitBuyCourse();
+            })
+            .catch(() => {
+              return 0;
+            });
         }
       });
     },
@@ -531,11 +566,14 @@ export default {
         }
       }
 
-      params.inPrice = (this.courseForm.inUnitPrice * this.courseForm.inLessonNum).toFixed(2) || 0;
+      params.inPrice =
+        (this.courseForm.inUnitPrice * this.courseForm.inLessonNum).toFixed(
+          2
+        ) || 0;
       params.planPrice = this.SettlementMoney.toFixed(2);
       params.fromStudentCourseList = [];
 
-      if(params.planPrice < 0) params.realPrice = (-params.realPrice);
+      if (params.planPrice < 0) params.realPrice = -params.realPrice;
 
       for (let i = 0; i < this.orderInfo.length; i++) {
         let q = this.orderInfo[i];
@@ -547,7 +585,10 @@ export default {
           outEliminateNum: q.eliminate_num
         });
       }
-      params.dataId = this.buyCourse_type == 1 ? this.courseForm.grade_id : this.courseForm.teacher_id;
+      params.dataId =
+        this.buyCourse_type == 1
+          ? this.courseForm.grade_id
+          : this.courseForm.teacher_id;
       params.textbook = this.textbookFormLists.map(k => {
         return {
           goods_id: k.goods_id,
@@ -556,7 +597,10 @@ export default {
         };
       });
 
-      let result = await this.$$request.post("/studentCourse/transferCourse", params);
+      let result = await this.$$request.post(
+        "/studentCourse/transferCourse",
+        params
+      );
 
       if (!result) {
         this.submitLoading = false;
@@ -567,7 +611,10 @@ export default {
     },
     //转课后获取转课详情
     async getContractDetail(id) {
-      let result = await this.$$request.get("/studentCourse/getTransferDetail", {id: id});
+      let result = await this.$$request.get(
+        "/studentCourse/getTransferDetail",
+        { id: id }
+      );
 
       this.submitLoading = false;
       if (!result) {
@@ -610,7 +657,11 @@ export default {
       this.courseForm.studentId = query.s_id;
       this.course_name = query.c_name;
 
-      let [a, b, c] = await Promise.all([this.getTextBookLists(), this.getOrderDetail(query.c_id, query.s_id), this.getCourseLists(query.s_id)]);
+      let [a, b, c] = await Promise.all([
+        this.getTextBookLists(),
+        this.getOrderDetail(query.c_id, query.s_id),
+        this.getCourseLists(query.s_id)
+      ]);
 
       if (a && b && c) {
         this.state = "loaded";
