@@ -188,7 +188,7 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.lesson_num_remain > 0">
                                     <div v-if="scope.row.course.class_pattern == 1" class="list-btn-box">
-                                        <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
+                                        <span :class="[{'fc-m': scope.row.isTransfer},'cursor-pointer fc-9']" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
                                         <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
                                         <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
@@ -196,7 +196,7 @@
                                     </div>
                                     <ul v-else class="table-item-list list-btn-box">
                                         <li v-for="(list, index) in scope.row.studentCourses" :key="index">
-                                          <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
+                                          <span :class="[{'fc-m': scope.row.isTransfer},'cursor-pointer fc-9']" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
                                           <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
                                         </li>
                                     </ul>
@@ -1027,6 +1027,11 @@ export default {
     },
     //转课
     changeCourse(obj) {
+      if(!obj.isTransfer) {
+        this.$message.closeAll();
+        this.$message.warning('该课程还有未结课的课表，请先进行结课操作');
+        return false;
+      }
       let query = {
         c_id: obj.course.id,
         s_id: obj.student_id,
