@@ -252,8 +252,8 @@
                         <ul>
                             <li v-for="(list, index) in courseCommentLists" :key="index">
                                 <h3 class="fc-m fs-16">{{list.grade && list.grade.name}}</h3>
-                                <p class="fs-12 fc-9 mt-10">{{list.teacher && list.teacher.name}}<span class="pl-20">发表于<i class="pl-5">{{$$tools.format(list.created_at)}}</i></span></p>
-                                <p class="mt-20 fs-15">{{list.content}}</p>
+                                <p class="fs-12 fc-9 mt-5">{{list.teacher && list.teacher.name}}<span class="pl-20">发表于<i class="pl-5">{{$$tools.format(list.created_at)}}</i></span></p>
+                                <p class="mt-10 fs-15">{{list.content}}</p>
                                 <div v-if="list.pic.length" class="mt-10 d-f">
                                     <div v-if="index < 2 && !list.imageMore"
                                         v-for="(img, index) in list.pic" :key="index"
@@ -1221,9 +1221,9 @@ export default {
       console.log(params);
 
       let result = await this.$$request.post('/quitCourse/add', params);
-
-      this.submitLoading.quitCourse = false;
       console.log(result);
+      this.submitLoading.quitCourse = false;
+
       if (!result) {
         return 0;
       }
