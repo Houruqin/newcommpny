@@ -256,7 +256,7 @@ export default {
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
           { validator: this.courseValidator("text_book") }
         ],
-        explain: [{ max: 100, message: "长度不能超过100个字符" }],
+        explain: [{ max: 50, message: "长度不能超过50个字符" }],
         realPrice: [
           { required: true, message: "请输入实际金额" },
           { validator: this.$$tools.formOtherValidate("decimals", 2) },
@@ -486,13 +486,10 @@ export default {
       this.$refs.courseForm.validate(valid => {
         if (valid) {
           let text = '';
+          let priceDifference = Math.abs(this.SettlementMoney) - this.courseForm.realPrice;
 
-          if (this.SettlementMoney >= 0 || Math.abs(this.SettlementMoney) === this.courseForm.realPrice) {
-            text = '';
-          } else if (this.courseForm.realPrice > Math.abs(this.SettlementMoney)){
-            text = `此次转课亏损${this.courseForm.realPrice - Math.abs(this.SettlementMoney)}元，`;
-          } else {
-            text = `此次转课少退费${Math.abs(this.SettlementMoney) - this.courseForm.realPrice}元，`;
+          if (this.courseForm.realPrice < Math.abs(this.SettlementMoney)) {
+            text = this.SettlementMoney >= 0 ? `此次转课亏损${priceDifference}元，` : `此次转课少退费${priceDifference}元，`;
           }
 
           this.$confirm(`${text}确认要进行此次转课操作？`, '转课确认', {
