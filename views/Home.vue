@@ -186,7 +186,7 @@
                 <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
             </div>
             <div class='fs-12 mb-10'>查询共{{page_info.total}}个学员</div>
-            <el-table class="student-table" :data="search_result" v-loading="loading" :show-header="true">
+            <el-table class="bor-t" :data="search_result" v-loading="loading" :show-header="true">
                 <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
                 <el-table-column label="学员姓名" align="center" width="160">
                   <template slot-scope="scope">
@@ -895,65 +895,9 @@ export default {
           }
         }
     }
-    .form-box {
-        padding: 0 20px;
-        .input-box {
-          width: 400px;
-          margin: 0 auto;
-        }
-        /deep/ .el-input {
-          width: 180px;
-        }
-        .listen-course-box {
-          max-height: 350px;
-          overflow: hidden;
-          overflow-y: auto;
-        }
-        .audition-lists {
-            li {
-                padding: 20px 130px 20px 20px;
-                &:not(:first-child) {
-                    border-top: 1px #e3e3e3 solid;
-                }
-                .two-p {
-                    span {
-                        position: relative;
-                    }
-                }
-                .listen-addstudent {
-                    right: 20px;
-                }
-            }
-        }
-        .listen-nothing {
-            width: 610px;
-            height: 120px;
-        }
-    }
 
     .search-input {
         width: 200px;
-    }
-    .student-table {
-        border-top: 1px #e3e3e3 solid;
-        .student-btn {
-            .btn {
-                width: 50px;
-                height: 30px;
-                line-height: 28px;
-                text-align: center;
-                border-radius: 3px;
-                cursor: pointer;
-                &.done {
-                    border: 1px #45DAD5 solid;
-                    color: #45DAD5;
-                }
-                &.cancel {
-                    border: 1px #e3e3e3 solid;
-                    color: #999;
-                }
-            }
-        }
     }
     .search_student{
         justify-content: center;

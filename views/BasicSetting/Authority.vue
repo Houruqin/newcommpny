@@ -317,7 +317,7 @@ export default {
         v.isIndeterminate = checked.length > 0 && checked.length < v.permissions.length;
       });
 
-      this.authorityLists = res.navs;
+      this.authorityLists = res.navs.filter(v => {return v.permissions.length});
       this.loading = false;
       console.log(this.authorityLists);
 
