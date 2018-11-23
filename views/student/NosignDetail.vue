@@ -151,7 +151,7 @@ export default {
 
       auditionType: 'audition',
 
-      checkListenCourse: {timetable_id: '', course_name: '', begin_time: ''}, //试听课程，跟进form显示
+      checkListenCourse: {timetable_id: '', course_name: '', begin_time: '', done_type: 'yes'}, //试听课程，跟进form显示
       currPage: false,
 
       auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
@@ -322,7 +322,7 @@ export default {
     },
     //提交跟进
     async submitFollowUpInfo () {
-      if (this.followUpForm.status === 4 && !this.checkListenCourse.timetable_id) {
+      if (this.followUpForm.status === 4 && this.checkListenCourse.done_type === 'yes' && !this.checkListenCourse.timetable_id) {
         return this.$message.warning('邀约试听，试听课程不能为空!');
       }
 
@@ -342,29 +342,26 @@ export default {
         next_at: this.followUpForm.next_at / 1000,
         way_id: this.followUpForm.way_id,
         content: this.followUpForm.content,
-        status: this.followUpForm.status
+        status: this.followUpForm.status,
+        timetable_id: this.checkListenCourse.timetable_id
       };
-
-      if (this.checkListenCourse.timetable_id) {
-        params.timetable_id = this.checkListenCourse.timetable_id;
-      }
 
       if (this.followUpForm.status === 9) {
         params.depositMoney = this.followUpForm.money;
       }
       console.log(params);
 
-      let result = await this.$$request.post('/followUp/add', params);
+      // let result = await this.$$request.post('/followUp/add', params);
 
       this.submitLoading = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.$message.success('添加成功');
-      this.maskFollowUp = false;
-      this.listenCourseInit();
-      this.getFollowUpLists();
+      // console.log(result);
+      // if (!result) {
+      //   return 0;
+      // }
+      // this.$message.success('添加成功');
+      // this.maskFollowUp = false;
+      // this.listenCourseInit();
+      // this.getFollowUpLists();
     },
     //获取跟进列表
     async getFollowUpLists (currentPage) {
