@@ -2,20 +2,29 @@
     <div class="flex1">
         <PageState :state="state"/>
         <el-card shadow="hover">
-            <TableHeader title="未签约学员">
-                <ul class="d-f f-a-c">
-                    <li>全部</li>
-                    <li>本月</li>
-                    <li>本周</li>
-                    <li>全部</li>
-                </ul>
-                <MyButton v-if="$$tools.isAuthority('registerStudent')" class="mr-20" @click.native="addStudent">登记学员</MyButton>
-                <router-link v-if="$$tools.isAuthority('importStudent')" :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
-            </TableHeader>
-
-            <div class="header-tab-box d-f f-j-b mt-50">
-                <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
+          <TableHeader title="未签约学员">
+              <MyButton v-if="$$tools.isAuthority('registerStudent')" class="mr-20" @click.native="addStudent">登记学员</MyButton>
+              <router-link v-if="$$tools.isAuthority('importStudent')" :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
+          </TableHeader>
+          <div class="filter-box d-f pt-30">
+            <ul class="d-f"><li v-for="item in timeTab" :key="item.id" @click="timeTabClick(item.id)" :class="{active: item.id === timeFilter.type}">{{item.name}}</li></ul>
+            <div class="ml-20">
+              <el-date-picker size="small" :editable="false" :clearable="false"
+                  @change="dateChange" v-model="timeFilter.begin_time"
+                  type="date" placeholder="选择日期" value-format="timestamp">
+              </el-date-picker>
+              <span class="pl-5 pr-5">至</span>
+              <el-date-picker size="small" :editable="false" :clearable="false"
+                  @change="dateChange" v-model="timeFilter.end_time"
+                  type="date" placeholder="选择日期" value-format="timestamp">
+              </el-date-picker>
             </div>
+          </div>
+          <div class="header-tab-box d-f f-j-b mt-30 mb-20">
+              <Classify v-for="(tab, index) in tabLists" :key="index" :tab="tab" :active="activeTab == tab.type" @tabclick="tabClick(tab)"></Classify>
+          </div>
+        </el-card>
+        <el-card shadow="hover" class="mt-20">
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
                     <li v-if="activeTab !== 'no_advisor'">
@@ -81,12 +90,18 @@
                         </span>
                     </template>
                 </el-table-column>
-                <el-table-column label="定金金额（元）" align="center">
+                <el-table-column label="定金金额（元）" align="center" v-if="activeTab !== 'no_advisor' && activeTab !== 'unFollowed'" key="deposit_money">
                   <template slot-scope="scope">{{scope.row.deposit_money > 0 ? scope.row.deposit_money : '-'}}</template>
                 </el-table-column>
                 <el-table-column label="渠道来源" prop="source_info.name" align="center"></el-table-column>
-                <el-table-column label="学员登记时间" prop="created_at" :formatter="dateForamt" align="center"></el-table-column>
-                <el-table-column label="操作" align="center" v-if="operationLists.length">
+                <template>
+                  <el-table-column label="学员登记时间" v-if="activeTab === 'unsign' || activeTab === 'no_advisor'" prop="created_at"
+                    :formatter="dateForamt" align="center" key="student_create"></el-table-column>
+                  <el-table-column label="分配顾问时间" v-if="activeTab === 'unFollowed'" prop="updated_at" :formatter="dateForamt" align="center" key="advisor_create"></el-table-column>
+                  <el-table-column label="下次跟进时间" v-if="activeTab === 'following'" prop="updated_at" :formatter="dateForamt" align="center" key="next_follow"></el-table-column>
+                  <el-table-column label="判为无效时间" v-if="activeTab === 'invalid'" prop="updated_at" :formatter="dateForamt" align="center" key="invalid_list"></el-table-column>
+                </template>
+                <el-table-column label="操作" align="center" v-if="operationLists.length && activeTab !== 'no_advisor'" key="operation">
                     <template slot-scope="scope">
                         <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
                           :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
@@ -206,11 +221,13 @@ export default {
       advisorId: '',
       operationLists: [],
 
-      // headTab: ['全部学员', '未分配顾问学员', '未跟进学员', '跟进中学员', '无效学员'],
       studentTable: {},
       searchKeyWord: '',
 
+      timeTab: [{id: 'all', name: '全部'}, {id: 'month', name: '本月'}, {id: 'week', name: '本周'}],
+
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
+      timeFilter: {type: 'all', begin_time: '', end_time: ''},
       dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false},
       studentType: '',
 
@@ -315,6 +332,22 @@ export default {
       this.submitLoading = true;
       this.listAdvisorChange('all');
     },
+    timeTabClick (id) {
+      this.timeFilter.type = id;
+
+      let date = new Date(), y = date.getFullYear(), m = date.getMonth(), d = date.getDay();
+
+      if (id === 'month') {
+        this.timeFilter.begin_time = new Date(y, m, 1);
+        this.timeFilter.end_time = new Date(y, m + 1, 0);
+      } else if (id === 'week') {
+        this.timeFilter.begin_time = new Date(date.getTime() - (d - 1) * 864e5);
+        this.timeFilter.end_time = new Date(date.getTime() + (7 - d) * 864e5);
+      }
+    },
+    dateChange () {
+
+    },
     //列表顾问选择
     async listAdvisorChange (id) {
       let params = {
@@ -359,6 +392,7 @@ export default {
             this.searchFilter[key] = key === 'type' ? tab.type : '';
           }
         }
+
         this.activeTab = tab.type;
         this.getStudentLists();
         this.isShowCheckbox = false;
@@ -516,11 +550,6 @@ export default {
         return 0;
       }
       this.tabLists = result.lists;
-      // this.tabLists = result.lists.map((v, index) => {
-      //   v.name = this.headTab[index];
-
-      //   return v;
-      // });
 
       return true;
     },
@@ -601,6 +630,26 @@ export default {
 <style lang="less" scoped>
     .header-tab-box {
         padding: 0 100px;
+    }
+    .filter-box {
+      ul li {
+        width: 62px;
+        height: 32px;
+        box-sizing: border-box;
+        border: 1px #45DAD5 solid;
+        color: #45DAD5;
+        text-align: center;
+        line-height: 32px;
+        margin-left: 20px;
+        cursor: pointer;
+        &.active {
+          background-color: #45DAD5;
+          color: #fff;
+        }
+      }
+      /deep/ .el-input {
+        width: 180px;
+      }
     }
     .fifter-toolbar {
         ul li {
