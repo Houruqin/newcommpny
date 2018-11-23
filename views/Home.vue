@@ -186,7 +186,7 @@
                 <i @click="search_student" class="iconfont icon-sousuo fc-m fs-26 ml-10 cursor-pointer"></i>
             </div>
             <div class='fs-12 mb-10'>查询共{{page_info.total}}个学员</div>
-            <el-table class="student-table" :data="search_result" v-loading="loading" :show-header="true">
+            <el-table class="bor-t" :data="search_result" v-loading="loading" :show-header="true">
                 <el-table-column label="序号"  align="center" width="60" type="index"></el-table-column>
                 <el-table-column label="学员姓名" align="center" width="160">
                   <template slot-scope="scope">
@@ -235,94 +235,15 @@
             @CB-dialogStatus="CB_dialogStatus" @CB-addCourse="CB_addCourse">
         </AddCourseDialog>
 
-        <!-- 办理试听 -->
-        <el-dialog title="办理试听" width="720px" center :visible.sync="dialogStatus.listen" :close-on-click-modal="false" @close="dialogClose('listen')">
-            <div class="form-box" v-loading="loading">
-                <div class="input-box">
-                  <div class="d-f f-j-b">
-                    <el-select v-model="auditionData.teacher_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                        <el-option label="全部老师" value=""></el-option>
-                        <el-option v-for="(item, index) in auditionData.teacher_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-
-                    <el-select v-model="auditionData.course_id" placeholder="请选择" size="small" @change="getListenCourseLists">
-                        <el-option label="全部课程" value=""></el-option>
-                        <el-option v-for="(item, index) in auditionData.course_lists" :key="index" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-                  </div>
-                  <el-date-picker size="small" class="mt-10"
-                      v-model="auditionData.time" type="date"
-                      value-format="timestamp" :clearable="false"
-                      :editable="false" placeholder="选择日期"
-                      @change="listenDateChange"
-                      :picker-options="pickListenDisable">
-                  </el-date-picker>
-                </div>
-
-                <div v-if="listenCourseLists.length" class="listen-course-box mt-30">
-                    <ul class="bgc-m audition-lists">
-                        <li class="fc-7 cursor-pointer p-r" v-for="(list, index) in listenCourseLists" :key="index">
-                            <p class="fs-16 fc-2">{{list.course.name}}</p>
-                            <p class="two-p mt-5 d-f f-a-c">
-                                <span class="d-f f-a-c">
-                                    <i class="time-icon"></i>
-                                    <i class="pl-5">{{$$tools.formatTime(list.begin_time)}}-{{$$tools.formatTime(list.end_time)}}</i>
-                                </span>
-                                <span class="ml-30 d-f f-a-c">
-                                    <i class="teacher-icon"></i>
-                                    <i class="pl-5" :class="{'pl-10': key}" v-for="(item, key) in list.teacher" :key="key">{{item.name}}</i>
-                                </span>
-                                <span v-if="list.class_room" class="ml-30 d-f f-a-c">
-                                    <i class="address-icon"></i>
-                                    <i class="pl-5">{{list.class_room.name}}</i>
-                                </span>
-                            </p>
-                            <p class="mt-5"><span>正式学员：<i>{{list.student_num}}/{{list.grade.limit_num}}</i></span><span class="pl-50">试听学员：{{list.listen_num}}</span></p>
-                            <MyButton class="listen-addstudent p-a ver-c" type="border" fontColor="fc-m" @click.native="listenAddStudent(list.id)">添加学员</MyButton>
-                        </li>
-                    </ul>
-                </div>
-                <div v-else class="bgc-m mt-30 d-f f-j-c f-a-c listen-nothing"><span class="fc-7">暂无数据</span></div>
-            </div>
-        </el-dialog>
-        <!-- 试听选择学员 -->
-        <el-dialog title="添加试听学员" width="800px" center :visible.sync="dialogStatus.listenStudent" :close-on-click-modal="false" @close="dialogClose('listen_student')">
-            <div class="pl-20 pr-20">
-                <div class="d-f f-j-c">
-                    <el-input v-model.trim="studentKeyword" placeholder="输入学员姓名/手机号" size="small" class="search-input mr-10"></el-input>
-                    <MyButton @click.native="listenStudentSearch" :radius="false">搜索</MyButton>
-                </div>
-
-                <el-table class="mt-30 scroll-box student-table" :data="listenStudentFilterLists" stripe height="400" v-loading="loading">
-                    <el-table-column label="序号" type="index" align="center"></el-table-column>
-                    <el-table-column label="姓名" prop="name" align="center"></el-table-column>
-                    <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
-                    <el-table-column label="顾问" prop="advisor_name" align="center"></el-table-column>
-                    <el-table-column label="渠道" prop="advisor_name" align="center"></el-table-column>
-                    <el-table-column label="操作" align="center">
-                        <template slot-scope="scope">
-                            <div class="d-f f-j-c student-btn">
-                                <div class="btn done" v-if="!scope.row.active" @click="listenStudentClick(scope.row, 'add')">加入</div>
-                                <div class="btn cancel" v-else @click="listenStudentClick(scope.row, 'delete')">取消</div>
-                            </div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-
-                <div class="d-f f-j-c mt-20">
-                    <MyButton class="mt-20" @click.native="listenStudentDone" :type="checkListenStudent.length ? 'main' : 'gray'" :loading="submitLoading">确定</MyButton>
-                </div>
-            </div>
-        </el-dialog>
+        <!-- 试听弹窗 -->
+        <AddAudition v-model="dialogStatus.listen" auditionType="student_audition"
+        @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
     </div>
 </template>
 
 <script>
 
 import Menu from '../components/Menus';
-// import bossIcon from '../images/common/boss-icon.png';
-// import masterIcon from '../images/common/master-icon.png';
-// import registerIcon from '../images/common/register-icon.png';
 import adminICon from '../images/staff/admin.png';
 import manICon from '../images/staff/user-man.png';
 import womanICon from '../images/staff/user-woman.png';
@@ -332,6 +253,7 @@ import MyButton from '../components/common/MyButton';
 
 import AddStudentDialog from '../components/dialog/AddStudent';
 import AddCourseDialog from '../components/dialog/AddCourse';
+import AddAudition from '../components/dialog/AddAudition';
 
 import errorLoading from '!url-loader!../images/state-500.png';
 // import errorLoading from '!url-loader!../images/network/net500.png';
@@ -368,15 +290,6 @@ export default {
       schoolLists: [],
 
       dialogStatus: {search: false, student: false, course: false, contract: false, addCourse: false, listen: false, listenStudent: false},
-      // buyCourseData: {},
-
-      auditionData: {time: new Date().getTime(), teacher_lists: [], course_lists: [], teacher_id: '', course_id: ''}, //试听数据
-      listenCourseLists: [], //试听课程列表
-      studentKeyword: '', //试听学员列表，搜索关键字
-      listenStudentLists: [], //试听学员列表
-      listenStudentFilterLists: [], ////试听学员筛选列表
-      checkListenStudent: [], //选中的试听学员
-      listenTimetableId: '', //选中的试听课程
 
       memberInfo: {},
 
@@ -410,6 +323,9 @@ export default {
   methods: {
     speedyClick (type) {
       this.speedyShow = type;
+    },
+    CB_auditionSuccess () {
+      Bus.$emit('home_refreshTimeTable');
     },
     //查找学员
     search_student () {
@@ -454,7 +370,7 @@ export default {
           break;
         case 'addListen':
           this.dialogStatus.listen = true;
-          this.getListenLists();
+          // this.getListenLists();
           break;
         case 'notice':
           this.$router.push({path: '/workbench/editNotice'});
@@ -492,157 +408,6 @@ export default {
     //新增课程成功，回调
     CB_addCourse () {
       this.dialogStatus.addCourse = false;
-    },
-    //试听窗口关闭
-    dialogClose (type) {
-      if (type === 'listen') {
-        this.listenCourseLists = [];
-        this.auditionData = {
-          time: new Date().getTime(),
-          teacher_lists: [],
-          course_lists: [],
-          teacher_id: '',
-          course_id: ''
-        };
-      } else if (type === 'listen_student') {
-        this.checkListenStudent = [];
-        this.listenTimetableId = '';
-        this.studentKeyword = '';
-      }
-    },
-    listenDateChange (val) {
-      if (new Date(val).toDateString() === new Date().toDateString()) {
-        this.auditionData.time = new Date().getTime();
-      }
-      this.getListenLists();
-    },
-    //试听学员搜索
-    listenStudentSearch () {
-      this.listenStudentFilterLists = this.listenStudentFilter(this.studentKeyword);
-    },
-    //试听列表添加学员
-    listenAddStudent (id) {
-      this.loading = true;
-      this.listenTimetableId = id;
-      this.getListenStudentLists();
-      this.checkListenStudent = [];
-      this.dialogStatus.listenStudent = true;
-    },
-    //试听学员列表操作
-    listenStudentClick (data, type) {
-      if (type === 'add') {
-        data.active = true;
-        this.checkListenStudent.push(data.id);
-      } else {
-        data.active = false;
-        let index = this.checkListenStudent.indexOf(data.id);
-
-        this.checkListenStudent.splice(index, 1);
-      }
-
-      console.log(this.checkListenStudent);
-    },
-    //试听学员确定
-    async listenStudentDone () {
-
-      if (!this.checkListenStudent.length) {
-        return this.$message.warning('请选择试听学员');
-      }
-
-      if (this.submitLoading) {
-        return 0;
-      }
-      this.submitLoading = true;
-
-      let result = await this.$$request.post('/listenCourse/add', {
-        timetable_id: this.listenTimetableId,
-        student_id: this.checkListenStudent
-      });
-
-      this.submitLoading = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.dialogStatus.listen = false;
-      this.dialogStatus.listenStudent = false;
-
-      this.$message.success('办理试听成功!');
-      Bus.$emit('home_refreshTimeTable');
-    },
-    //获取试听填充列表
-    async getListenLists () {
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let result = await this.$$request.post('/listenCourse/fill', {start_time: old_time});
-
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-      this.auditionData.teacher_lists = result.teacher;
-      this.auditionData.course_lists = result.course;
-      this.getListenCourseLists();
-    },
-    //获取试听课程列表
-    async getListenCourseLists () {
-      this.loading = true;
-      let old_time = Math.round(this.auditionData.time / 1000);
-
-      let params = {
-        time: old_time,
-        teacher_id: this.auditionData.teacher_id,
-        course_id: this.auditionData.course_id
-      };
-
-      let result = await this.$$request.post('/listenCourse/lists', {data: params});
-
-      this.loading = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      this.listenCourseLists = result.lists;
-    },
-    //获取试听学员列表
-    async getListenStudentLists () {
-      let result = await this.$$request.get('/listenCourse/studentLists', {timetable_id: this.listenTimetableId});
-
-      this.loading = false;
-      console.log(result);
-      if (!result) {
-        return 0;
-      }
-
-      result.lists.forEach(v => {
-        v.active = false;
-      });
-      this.listenStudentLists = result.lists; //原始数据
-      this.listenStudentFilterLists = this.listenStudentFilter();
-
-    },
-    //试听学员列表搜索搜索筛选方法
-    listenStudentFilter (text) {
-      document.querySelector('.scroll-box .el-table__body-wrapper').scrollTo(0, 0);
-
-      if (typeof text === 'undefined') {
-        return this.listenStudentLists;
-      }
-      let newData = [];
-
-      this.listenStudentLists.forEach(v => {
-        if (isNaN(text)) {
-          if (v.name.includes(text)) {
-            newData.push(v);
-          }
-        } else if (v.mobile.includes(text)) {
-          newData.push(v);
-        }
-      });
-
-      return newData;
     },
     //在线帮助下拉
     helpHandleCommand (val) {
@@ -831,7 +596,7 @@ export default {
     this.modalObj = null;
     next();
   },
-  components: {Menu, AddStudentDialog, AddCourseDialog, MyButton}
+  components: {Menu, AddStudentDialog, AddCourseDialog, MyButton, AddAudition}
 };
 </script>
 
@@ -1130,65 +895,9 @@ export default {
           }
         }
     }
-    .form-box {
-        padding: 0 20px;
-        .input-box {
-          width: 400px;
-          margin: 0 auto;
-        }
-        /deep/ .el-input {
-          width: 180px;
-        }
-        .listen-course-box {
-          max-height: 350px;
-          overflow: hidden;
-          overflow-y: auto;
-        }
-        .audition-lists {
-            li {
-                padding: 20px 130px 20px 20px;
-                &:not(:first-child) {
-                    border-top: 1px #e3e3e3 solid;
-                }
-                .two-p {
-                    span {
-                        position: relative;
-                    }
-                }
-                .listen-addstudent {
-                    right: 20px;
-                }
-            }
-        }
-        .listen-nothing {
-            width: 610px;
-            height: 120px;
-        }
-    }
 
     .search-input {
         width: 200px;
-    }
-    .student-table {
-        border-top: 1px #e3e3e3 solid;
-        .student-btn {
-            .btn {
-                width: 50px;
-                height: 30px;
-                line-height: 28px;
-                text-align: center;
-                border-radius: 3px;
-                cursor: pointer;
-                &.done {
-                    border: 1px #45DAD5 solid;
-                    color: #45DAD5;
-                }
-                &.cancel {
-                    border: 1px #e3e3e3 solid;
-                    color: #999;
-                }
-            }
-        }
     }
     .search_student{
         justify-content: center;

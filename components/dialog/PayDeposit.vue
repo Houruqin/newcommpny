@@ -96,17 +96,11 @@ export default {
       }
       this.submitLoading = true;
       let params = {
-        type_id: 5,
-        student_id: this.studentId,
-        depositMoney: this.paymentForm.money,
-        invited_at: 0,
-        next_at: 0,
-        content: '无跟进内容记录',
-        status: 9,
-        way_id: 5
+        studentId: this.studentId,
+        depositMoney: this.paymentForm.money
       };
 
-      let result = await this.$$request.post('/followUp/add', params);
+      let result = await this.$$request.post('/student/addDeposit', params);
 
       console.log(result);
       this.submitLoading = false;

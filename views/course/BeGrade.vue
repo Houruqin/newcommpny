@@ -547,11 +547,20 @@ export default {
       });
 
       return true;
+    },
+    // 获取角色列表
+    async getRoleLists () {
+      let result = await this.$$request.post('/permission/roleLists');
+
+      if (!result) {
+        return 0;
+      }
+      this.$store.commit('getRoleLists', result.lists);
     }
   },
   async created () {
     this.$store.dispatch('getSynstemSetLists');
-
+    this.getRoleLists();
     this.operationLists = OperationLists.filter(v => {
       return this.$$tools.isAuthority(v.permission);
     });
