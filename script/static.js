@@ -167,7 +167,7 @@ const timePicker = {start: '08:00', step: '00:05', end: '21:45', minTime: 0, max
 
 const explainLists = {
   'explain_a': { title: '需续约学员', text: '课时即将消耗完，需要进行续约的学员' },
-  'explain_b': { title: '意向学员', text: '有购课意向的学员' },
+  'explain_b': { title: '全部学员', text: '有购课意向的学员' },
   'explain_c': { title: '无效学员', text: '跟进过程中判定为无效的未签约学员' },
   'explain_d': { title: '在校学员', text: '剩余课时不为0的签约学员' },
   'explain_e': { title: '结业学员', text: '剩余课时为0的签约学员' },

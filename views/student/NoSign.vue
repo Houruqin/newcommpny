@@ -3,6 +3,12 @@
         <PageState :state="state"/>
         <el-card shadow="hover">
             <TableHeader title="未签约学员">
+                <ul class="d-f f-a-c">
+                    <li>全部</li>
+                    <li>本月</li>
+                    <li>本周</li>
+                    <li>全部</li>
+                </ul>
                 <MyButton v-if="$$tools.isAuthority('registerStudent')" class="mr-20" @click.native="addStudent">登记学员</MyButton>
                 <router-link v-if="$$tools.isAuthority('importStudent')" :to="{path: '/student/importstudent'}"><MyButton icon="import" type="border" fontColor="fc-m">导入学员</MyButton></router-link>
             </TableHeader>
@@ -200,7 +206,7 @@ export default {
       advisorId: '',
       operationLists: [],
 
-      headTab: ['意向学员', '未分配顾问学员', '跟进中学员', '无效学员'],
+      // headTab: ['全部学员', '未分配顾问学员', '未跟进学员', '跟进中学员', '无效学员'],
       studentTable: {},
       searchKeyWord: '',
 
@@ -509,11 +515,12 @@ export default {
       if (!result) {
         return 0;
       }
-      this.tabLists = result.lists.map((v, index) => {
-        v.name = this.headTab[index];
+      this.tabLists = result.lists;
+      // this.tabLists = result.lists.map((v, index) => {
+      //   v.name = this.headTab[index];
 
-        return v;
-      });
+      //   return v;
+      // });
 
       return true;
     },
@@ -532,6 +539,8 @@ export default {
         this.searchFilter.mobile = '';
         this.searchFilter.name = '';
       }
+      this.searchFilter.startTime = new Date().getTime()/1000;
+      this.searchFilter.endTime = new Date().getTime()/1000;
       let params = {data: this.searchFilter};
 
       if (currentPage) {

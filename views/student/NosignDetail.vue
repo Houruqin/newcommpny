@@ -45,6 +45,8 @@
                 <p><span>家庭住址：</span>{{detail.address}}</p>
                 <p><span>登记时间：</span>{{$$tools.format(detail.registerInfo.created_at)}}</p>
                 <p><span>登记人员：</span>{{detail.registerInfo.operator.name}}</p>
+                <p><span>渠道来源：</span>{{detail.source_info.name}}</p>
+                <p><span>就读学校：</span>{{detail.school_name}}</p>
                 <div class="d-f">
                   <span>学员备注：</span>
                   <template v-if="detail.remark && detail.remark.length > 30">

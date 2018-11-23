@@ -11,7 +11,7 @@
 <script>
 export default {
   props: {
-    tab: {default: {id: 'unsign', name: '意向学员', num: 358, status: 1}},
+    tab: {default: {}},
     active: {default: false}
   },
   data () {
@@ -20,7 +20,9 @@ export default {
     };
   },
   created () {
+    console.log(this.tab)
     this.explain = this.getExplain();
+    
   },
   methods: {
     classifyHandle (tab) {
