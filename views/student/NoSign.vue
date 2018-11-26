@@ -84,7 +84,7 @@
                 </el-table-column>
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
-                        <span class="follow-status fc-5" :class="{'green': scope.row.follow_status === 9 || scope.row.follow_status === 10,
+                        <span class="follow-status fc-5 cursor-pointer" @click="addFollowUpClick(scope.row)" :class="{'green': scope.row.follow_status === 9 || scope.row.follow_status === 10,
                           'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7 || scope.row.follow_status === 1 || scope.row.follow_status === 8}">
                           {{scope.row.follow_cn}}
                         </span>
@@ -149,6 +149,9 @@
             @CB-dialogStatus="CB_dialogStatus" @CB-buyCourse="CB_buyCourse" @CB-addStudent="CB_addStudent">
         </AddStudentDialog>
 
+        <!-- 添加跟进 -->
+        <AddFollowUp v-model="dialogStatus.followUp" :studentId="listStudentId" @CB-followUpSuccess="CB_followUpSuccess"></AddFollowUp>
+
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId" @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
 
@@ -187,6 +190,8 @@ import Classify from '../../components/common/StudentClassify';
 import AddStudentDialog from '../../components/dialog/AddStudent';
 import AddAudition from '../../components/dialog/AddAudition';
 import PayDeposit from '../../components/dialog/PayDeposit';
+import AddFollowUp from '../../components/dialog/AddFollowUp';
+
 import Bus from '../../script/bus';
 import qs from 'qs';
 import config from 'config';
@@ -228,7 +233,7 @@ export default {
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
       timeFilter: {type: 'all', begin_time: '', end_time: ''},
-      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false},
+      dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false, followUp: false},
       studentType: '',
 
       editDetail: {},
@@ -312,6 +317,11 @@ export default {
         this.isShowCheckbox = false;
         this.selectedIds.splice(0, this.selectedIds.length);
       }
+    },
+    addFollowUpClick (data) {
+      console.log(data);
+      this.listStudentId = data.id;
+      this.dialogStatus.followUp = true;
     },
     //批量分配
     distributionAdvisor () {
@@ -402,11 +412,15 @@ export default {
       this.paymentDetail = {};
       this.getAllLists(true);
     },
+    // 试听成功回调
     CB_auditionSuccess () {
       this.getStudentLists(this.activePage);
     },
+    // 添加跟进回调
+    CB_followUpSuccess () {
+      this.getStudentLists(this.activePage);
+    },
     handleCommand (d) {
-      console.log(d);
       switch (d.type) {
         case 'buy_course':
           this.buyCourse(d.data);
@@ -623,7 +637,7 @@ export default {
   beforeDestroy () {
     Bus.$off('refresh');
   },
-  components: {Classify, MyButton, TableHeader, AddStudentDialog, AddAudition, PayDeposit}
+  components: {Classify, MyButton, TableHeader, AddStudentDialog, AddAudition, PayDeposit, AddFollowUp}
 };
 </script>
 

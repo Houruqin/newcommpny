@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="试听" width="950px" center :visible.sync="dialogStatus.audition" :close-on-click-modal="false" @close="dialogClose">
+  <el-dialog title="试听" width="950px" center :visible.sync="dialogStatus.audition" :close-on-click-modal="false" @close="dialogClose" :append-to-body="istoBody">
       <div class="form-box d-f pl-30 pr-30">
         <div class="canlender-box d-f f-d-c f-j-b">
           <div class="input-box d-f f-j-b">
@@ -90,6 +90,7 @@ export default {
   props: {
     value: {default: false},
     studentId: {default: ''},
+    istoBody: {default: false},
     auditionType: {default: 'audition'}
   },
   components: {MyButton, TableCalender},

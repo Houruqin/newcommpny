@@ -8,7 +8,7 @@
           <span class="fc-5">{{setting[list].description}}</span>
 
           <!-- 课程大纲 -->
-          <div v-if="list === 'outline'">
+          <div v-if="list === 'outline' || list === 'editTimetableOnWechat'">
             <el-switch v-model="setting[list].status" active-color="#45DAD5" :disabled="!$$tools.isAuthority('editSystem')" inactive-color="#e3e3e3" @change="switchChange(list)" :active-value="1" :inactive-value="0"></el-switch>
           </div>
 
@@ -58,7 +58,7 @@ import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 
 const SETTING_SORT = ['studentCourseRemain', 'studentAppointCourse', 'studentCancelAppointCourse', 'teacherSign',
-'studentLeaveTicket', 'outline', 'LeaveTicketDeductLessonNum', 'longTimeNoByCourse', 'longTimeNoFollowUp'];
+'studentLeaveTicket', 'outline', 'editTimetableOnWechat', 'LeaveTicketDeductLessonNum', 'longTimeNoByCourse', 'longTimeNoFollowUp'];
 
 export default {
   components: {TableHeader, MyButton},
