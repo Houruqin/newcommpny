@@ -45,7 +45,7 @@
                               </template>
                           </el-table-column>
                       </el-table>
-                      <el-pagination v-if="course.student_lists.total > 10" small
+                      <el-pagination v-if="course.student_lists.total > course.student_lists.per_page" small
                         class="d-f f-j-e pt-20 student-pagination"
                         :page-size="course.student_lists.per_page"
                         layout="total, prev, pager, next"

@@ -12,7 +12,7 @@
 
           <el-form-item v-if="tableType === 'multiple'" key="begin_time" label="开始日期：" prop="begin_time">
               <el-date-picker v-model="timetableForm.begin_time" @change="startTimeChange"
-                  :picker-options="pickerBeginDateAfter" type="date" :editable="false"
+                  :picker-options="pickerEndDateAfter" type="date" :editable="false"
                   placeholder="选择日期" value-format="timestamp">
               </el-date-picker>
           </el-form-item>
@@ -47,7 +47,7 @@
           <el-form-item label="课程属性：">{{courseType === 1 ? '一对多课程' : courseType === 2 ? '一对一课程' : ''}}</el-form-item>
           <el-form-item v-if="tableType === 'multiple'" key="end_time" label="结束日期：" prop="end_time">
               <el-date-picker v-model="timetableForm.end_time" @change="endTimeChange"
-                  :picker-options="pickerBeginDateAfter" type="date" :editable="false"
+                  :picker-options="pickerEndDateAfter" type="date" :editable="false"
                   placeholder="选择日期" value-format="timestamp">
               </el-date-picker>
           </el-form-item>
@@ -287,14 +287,32 @@ export default {
         ]
       },
       disableStartTime: new Date().setHours(0, 0, 0, 0),
+      disableEndTime: this.getEndTime(),
       pickerBeginDateAfter: {
         disabledDate: (time) => {
           return time.getTime() < this.disableStartTime;
+        }
+      },
+      pickerEndDateAfter: {
+        disabledDate: (time) => {
+          return time.getTime() > this.disableEndTime || time.getTime() < this.disableStartTime;
         }
       }
     }
   },
   methods: {
+    getEndTime () {
+      let date = new Date(), y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+      if (m > 5) {
+        y++;
+        m = m - 6;
+      } else {
+        m = m + 6;
+      }
+
+      let netTime = new Date(y, m, d).getTime();
+      return netTime;
+    },
     dialogClose () {
       this.formAddDate.splice(0, this.formAddDate.length);
       this.$refs.addTimeTable.resetFields();
