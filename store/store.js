@@ -17,6 +17,8 @@ const state = {
   sourceState: 'loading',
   classRoom: [], //教室列表
   classRoomState: 'loading',
+  uncommitted: [], //未承诺上门列表
+  uncommittedState: 'loading',
   course: [], //课程列表
   grade: [], //班级列表
   listen_grade: [], //试听班级列表
@@ -128,6 +130,14 @@ const mutations = {
     // state.classRoomState = 'loaded';
     // state.classRoom = result.lists;
   },
+  async getUncommitted (state) {
+    let result = await Request.get('/uncommittedReason/lists');
+
+    if (!result) {
+      return 0;
+    }
+    state.uncommitted = result.reasons;
+  },
   async getCourse (state) {
     let result = await Request.post('/course/normalLists');
 
@@ -221,6 +231,10 @@ const actions = {
 
   getClassRoom (context, fn) {
     context.commit('getClassRoom', fn);
+  },
+
+  getUncommitted (context, fn) {
+    context.commit('getUncommitted', fn);
   },
 
   getCourse (context) {

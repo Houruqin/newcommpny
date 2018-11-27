@@ -3,7 +3,8 @@
       <PageState :state="state"/>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-card shadow="hover">
+              <el-row>
+                <el-card shadow="hover">
                 <TableHeader title="教室设置">
                     <MyButton @click.native="buttonHandle('addClassroom')" v-if="$$tools.isAuthority('addClassroom')">添加教室</MyButton>
                 </TableHeader>
@@ -19,7 +20,27 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                </el-card>
+              </el-row>
+            <el-row class='mt-20'>
+              <el-card shadow="hover">
+                <TableHeader title="跟进状态设置">
+                    <MyButton @click.native="buttonHandle('addUncommitted')" v-if="$$tools.isAuthority('addClassroom')">添加跟进状态</MyButton>
+                </TableHeader>
+                <el-table :data="$store.state.uncommitted" stripe>
+                    <el-table-column label="序号" type="index" width="80" align="center"></el-table-column>
+                    <el-table-column prop="reason" label="状态"></el-table-column>
+                    <el-table-column label="操作" width="100" align="center" v-if="$$tools.isAuthority(['editClassroom', 'deleteClassroom'])">
+                        <template slot-scope="scope">
+                            <div class="d-f f-j-c">
+                                <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'uncommittedReason')" v-if="$$tools.isAuthority('editUncommittedForm')">编辑</span>
+                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'uncommittedReason')" v-if="$$tools.isAuthority('deleteUncommittedForm')">删除</span>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
             </el-card>
+            </el-row>
           </el-col>
           <el-col :span="12">
             <el-card class="card-box" shadow="hover">
@@ -41,7 +62,6 @@
             </el-card>
           </el-col>
         </el-row>
-
         <el-dialog :title="classMask[maskState]" width="500px" center :visible.sync="classMaskStatus" :close-on-click-modal="false" @close="dialogClose('classForm')">
             <el-form :model="classForm" label-width="100px" size="small" :rules="classRules" ref="classForm" @submit.native.prevent>
                 <div class="form-box">
@@ -63,6 +83,17 @@
                 </div>
             </el-form>
         </el-dialog>
+
+        <el-dialog :title="uncommittedMask[maskState]" width="500px" center :visible.sync="uncommittedMaskStatus" :close-on-click-modal="false" @close="dialogClose('uncommittedForm')">
+            <el-form :model="uncommittedForm" label-width="100px" size="small" :rules="uncommittedRules" ref="uncommittedForm" @submit.native.prevent>
+                <div class="form-box">
+                    <el-form-item :label="uncommittedMask.label" prop="name">
+                        <el-input v-model.trim="uncommittedForm.name" placeholder="跟进状态"></el-input>
+                    </el-form-item>
+                    <div class="d-f f-j-c mt-40"><MyButton @click.native="doneHandle('uncommittedForm')" :loading="submitLoading">确定</MyButton></div>
+                </div>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -79,12 +110,15 @@ export default {
       sourceLists: [],
       classMaskStatus: false,
       sourceMaskStatus: false,
+      uncommittedMaskStatus: false,
       loading: true,
       classMask: { modify: '编辑教室', add: '添加教室', label: '教室名称：'},
       sourseMask: { modify: '编辑渠道', add: '添加渠道', label: '渠道来源：' },
+      uncommittedMask: { modify: '编辑跟进状态', add: '添加跟进状态', label: '跟进状态：' },
       maskState: 'add',
       classForm: {id: '', name: ''},
       sourceForm: {id: '', name: ''},
+      uncommittedForm: {id: '', name: ''},
       sourceRules: {
         name: [
           {required: true, message: '请输入渠道'},
@@ -94,6 +128,12 @@ export default {
       classRules: {
         name: [
           {required: true, message: '请输入教室'},
+          {max: 10, message: '长度不能超过10个字符'}
+        ]
+      },
+      uncommittedRules: {
+        name: [
+          {required: true, message: '请输入跟进状态'},
           {max: 10, message: '长度不能超过10个字符'}
         ]
       }
@@ -106,16 +146,20 @@ export default {
     },
     //头部按钮点击
     buttonHandle (d) {
-      if (d == 'addClassroom') {
-        this.classMaskStatus = true;
-        this.sourceMaskStatus = false;
-        this.classForm.name = '';
-      } else {
-        this.sourceMaskStatus = true;
-        this.classMaskStatus = false;
-        this.sourceForm.name = '';
+      switch (d) {
+        case 'addClassroom' :
+          this.classMaskStatus = true;
+          this.classForm.name = '';
+          break;
+        case 'addSource' : 
+          this.sourceMaskStatus = true;
+          this.sourceForm.name = '';
+          break;
+        case 'addUncommitted' : 
+          this.uncommittedMaskStatus = true;
+          this.uncommittedForm.name = '';
+          break;
       }
-
       this.maskState = 'add';
     },
     //表单确定点击
@@ -132,17 +176,22 @@ export default {
     },
     //点击修改
     modifySource (scope, type) {
-      console.log(scope);
-      if (type == 'class') {
-        this.classMaskStatus = true;
-        this.sourceMaskStatus = false;
-        this.classForm.name = scope.name;
-        this.classForm.id = scope.id;
-      } else {
-        this.sourceMaskStatus = true;
-        this.classMaskStatus = false;
-        this.sourceForm.name = scope.name;
-        this.sourceForm.id = scope.id;
+      switch (type) {
+        case 'class' :
+          this.classMaskStatus = true;
+          this.classForm.name = scope.name;
+          this.classForm.id = scope.id;
+          break;
+        case 'source' :
+          this.sourceMaskStatus = true;
+          this.sourceForm.name = scope.name;
+          this.sourceForm.id = scope.id;
+          break;
+        case 'uncommittedReason' :
+          this.uncommittedMaskStatus = true;
+          this.uncommittedForm.name = scope.reason;
+          this.uncommittedForm.id = scope.id;
+          break;
       }
 
       this.maskState = 'modify';
@@ -163,17 +212,29 @@ export default {
     },
     //删除调用方法
     async deleteHandle (scope, type) {
-      let url = type == 'source' ? '/source/delete' : '/classRoom/delete';
-      let result = await this.$$request.post(url, {id: scope.id});
+      let params;
+      let url = `/${type}/delete`;
+      if (type === 'uncommittedReason') {
+        params = {reason_id: scope.id}
+      } else {
+        params = {id: scope.id}
+      }
+      let result = await this.$$request.post(url, params);
 
       if (!result) {
         return 0;
       }
 
-      if (type == 'source') {
-        this.$store.dispatch('getSource'); //更新渠道信息
-      } else {
-        this.$store.dispatch('getClassRoom'); //更新教室信息
+      switch (type) {
+        case 'class' :
+        this.$store.dispatch('getClassRoom');
+        break;
+        case 'source' :
+        this.$store.dispatch('getSource');
+        break;
+        case 'uncommittedReason' :
+        this.$store.dispatch('getUncommitted');
+        break;
       }
 
       this.$message.success('已删除');
@@ -187,18 +248,29 @@ export default {
 
       let params = {}, url = '';
 
-      if (formName == 'classForm') {
-        params.name = this.classForm.name;
-        url = this.maskState == 'modify' ? '/classRoom/edit' : '/classRoom/add';
-        if (this.maskState == 'modify') {
-          params.id = this.classForm.id;
-        }
-      } else {
-        params.name = this.sourceForm.name;
-        url = this.maskState == 'modify' ? '/source/edit' : '/source/add';
-        if (this.maskState == 'modify') {
-          params.id = this.sourceForm.id;
-        }
+
+      switch (formName) {
+        case 'classForm' :
+          params.name = this.classForm.name;
+          url = this.maskState == 'modify' ? '/classRoom/edit' : '/classRoom/add';
+          if (this.maskState == 'modify') {
+            params.id = this.classForm.id;
+          };
+          break;
+        case 'sourceForm' :
+          params.name = this.sourceForm.name;
+          url = this.maskState == 'modify' ? '/source/edit' : '/source/add';
+          if (this.maskState == 'modify') {
+            params.id = this.sourceForm.id;
+          };
+          break;
+        case 'uncommittedForm' :
+          params.reason = this.uncommittedForm.name;
+          url = this.maskState == 'modify' ? '/uncommittedReason/edit' : '/uncommittedReason/add';
+          if (this.maskState == 'modify') {
+            params.reason_id = this.uncommittedForm.id;
+          };
+          break;
       }
 
       let result = await this.$$request.post(url, params);
@@ -212,14 +284,23 @@ export default {
 
       this.$message.success(this.maskState == 'modify' ? '修改成功' : '添加成功');
 
-      if (formName == 'classForm') {
-        this.$store.dispatch('getClassRoom'); //更新教室信息
-        this.classForm.name = '';
-        this.classMaskStatus = false;
-      } else {
-        this.$store.dispatch('getSource'); //更新渠道信息
-        this.sourceForm.name = '';
-        this.sourceMaskStatus = false;
+      
+      switch (formName) {
+        case 'classForm' : 
+          this.$store.dispatch('getClassRoom'); //更新教室信息
+          this.classForm.name = '';
+          this.classMaskStatus = false;
+          break;
+        case 'sourceForm' : 
+          this.$store.dispatch('getSource'); //更新渠道信息
+          this.sourceForm.name = '';
+          this.sourceMaskStatus = false;
+          break;
+        case 'uncommittedForm' :
+          this.$store.dispatch('getUncommitted'); //更新跟进状态信息
+          this.uncommittedForm.name = '';
+          this.uncommittedMaskStatus = false;
+          break;
       }
     },
     setLoaded () {
@@ -230,12 +311,16 @@ export default {
   },
   mounted () {
     this.setLoaded();
+    console.log(this.$store.state.uncommitted)
   },
   watch: {
     '$store.state.sourceState' () {
       this.setLoaded();
     },
     '$store.state.classRoomState' () {
+      this.setLoaded();
+    },
+    '$store.state.uncommittedState' () {
       this.setLoaded();
     }
   },

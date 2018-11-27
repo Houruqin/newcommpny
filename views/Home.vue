@@ -574,6 +574,7 @@ export default {
     this.$store.dispatch('getCourse');
     this.$store.dispatch('getSource');
     this.$store.dispatch('getClassRoom');
+    this.$store.dispatch('getUncommitted');
     this.$store.dispatch('getGrade');
     this.$store.dispatch('getRelation');
     this.$store.dispatch('getTeacher');
