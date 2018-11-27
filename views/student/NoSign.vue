@@ -10,7 +10,7 @@
             <ul class="d-f"><li v-for="item in timeTab" :key="item.id" @click="timeTabClick(item.id)" :class="{active: item.id === timeFilter.type}">{{item.name}}</li></ul>
             <div class="ml-20">
               <el-date-picker size="small" :editable="false" :clearable="false"
-                  @change="dateChange" v-model="timeFilter.begin_time"
+                  @change="dateChange" v-model="timeFilter.begin_time" :picker-options="pickerBeginDateAfter"
                   type="date" placeholder="选择日期" value-format="timestamp">
               </el-date-picker>
               <span class="pl-5 pr-5">至</span>
@@ -39,7 +39,7 @@
                             <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li v-if="activeTab !== 'no_advisor' && activeTab !== 'invalid'">
+                    <li v-if="activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid'">
                         <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
                             <el-option label="全部跟进" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.followupStatus" :key="index"
@@ -47,6 +47,14 @@
                             </el-option>
                         </el-select>
                     </li>
+                    <!-- <li v-if="(activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid') && type">
+                        <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
+                            <el-option label="全部原因" value=""></el-option>
+                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index"
+                              :label="item.comment" :value="item.code" v-if="(activeTab !== 'following' && item.code !== -1 && item.code !== -2) || (activeTab === 'following' && item.code !== 0 && item.code !== -1 && item.code !== -2)">
+                            </el-option>
+                        </el-select>
+                    </li> -->
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
@@ -97,9 +105,9 @@
                 <template>
                   <el-table-column label="学员登记时间" v-if="activeTab === 'unsign' || activeTab === 'no_advisor'" prop="created_at"
                     :formatter="dateForamt" align="center" key="student_create"></el-table-column>
-                  <el-table-column label="分配顾问时间" v-if="activeTab === 'unFollowed'" prop="updated_at" :formatter="dateForamt" align="center" key="advisor_create"></el-table-column>
-                  <el-table-column label="下次跟进时间" v-if="activeTab === 'following'" prop="updated_at" :formatter="dateForamt" align="center" key="next_follow"></el-table-column>
-                  <el-table-column label="判为无效时间" v-if="activeTab === 'invalid'" prop="updated_at" :formatter="dateForamt" align="center" key="invalid_list"></el-table-column>
+                  <el-table-column label="分配顾问时间" v-if="activeTab === 'unFollowed'" prop="follow_time" :formatter="dateForamt" align="center" key="advisor_create"></el-table-column>
+                  <el-table-column label="下次跟进时间" v-if="activeTab === 'following'" prop="next_at" :formatter="dateForamt" align="center" key="next_follow"></el-table-column>
+                  <el-table-column label="判为无效时间" v-if="activeTab === 'invalid'" prop="follow_time" :formatter="dateForamt" align="center" key="invalid_list"></el-table-column>
                 </template>
                 <el-table-column label="操作" align="center" v-if="operationLists.length && activeTab !== 'no_advisor'" key="operation">
                     <template slot-scope="scope">
@@ -232,52 +240,16 @@ export default {
       timeTab: [{id: 'all', name: '全部'}, {id: 'month', name: '本月'}, {id: 'week', name: '本周'}],
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
-      timeFilter: {type: 'all', begin_time: '', end_time: ''},
+      timeFilter: {type: 'all', begin_time: this.$$cache.getMemberInfo().school_create_at * 1000, end_time: new Date().getTime()},
       dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false, followUp: false},
       studentType: '',
 
       editDetail: {},
 
       studentLists: [],
-      editStudentData: {},
-      sourceRules: {
-        name: [
-          {required: true, message: '请输入渠道'},
-          {max: 20, message: '长度不能超过20个字符'}
-        ]
-      },
-      courseRules: {
-        course_id: [
-          {required: true, message: '请选择课程', trigger: 'change'}
-        ],
-        lesson_num: [
-          {required: true, message: '请输入购买课时数'}
-        ],
-        given_num: [
-          {required: true, message: '请输入赠送课时数'}
-        ],
-        expire: [
-          {required: true, message: '请输入课程有效期'}
-        ],
-        pay_at: [
-          {required: true, message: '请选择购课日期', trigger: 'change'}
-        ],
-        pay_way: [
-          {required: true, message: '请选择付款方式', trigger: 'change'}
-        ],
-        preferential_price: [
-          {required: true, message: '请输入优惠金额'}
-        ],
-        unit_price: [
-          {required: true, message: '请输入课时单价'}
-        ],
-        explain: [
-          {max: 200, message: '长度不能超过200个字符'}
-        ]
-      },
       pickerBeginDateAfter: {
         disabledDate: (time) => {
-          return time.getTime() > new Date().getTime();
+          return time.getTime() < new Date(this.$$cache.getMemberInfo().school_create_at * 1000).setHours(0, 0, 0, 0);
         }
       }
     };
@@ -353,10 +325,17 @@ export default {
       } else if (id === 'week') {
         this.timeFilter.begin_time = new Date(date.getTime() - (d - 1) * 864e5);
         this.timeFilter.end_time = new Date(date.getTime() + (7 - d) * 864e5);
+      } else {
+        this.timeFilter.begin_time = this.$$cache.getMemberInfo().school_create_at * 1000;
+        this.timeFilter.end_time = new Date().getTime();
       }
+
+      this.getAllLists();
     },
     dateChange () {
-
+      this.timeFilter.type = '';
+      if (this.timeFilter.end_time < this.timeFilter.begin_time) return this.$message.error('结束时间不能大于开始时间');
+      this.getAllLists();
     },
     //列表顾问选择
     async listAdvisorChange (id) {
@@ -529,6 +508,7 @@ export default {
     },
     //单元格时间格式化
     dateForamt (row, column, cellValue) {
+      if (!cellValue) return '-';
       return this.$$tools.format(cellValue);
     },
     //搜索
@@ -557,7 +537,10 @@ export default {
     },
     //获取tab列表
     async getTabLists () {
-      let result = await this.$$request.post('/student/tab');
+      let result = await this.$$request.post('/student/tab', {
+        startTime: this.timeFilter.begin_time / 1000,
+        endTime: this.timeFilter.end_time / 1000
+      });
 
       console.log(result);
       if (!result) {
@@ -570,28 +553,31 @@ export default {
     //获取学员列表
     async getStudentLists (currentPage) {
       this.loading = true;
+      let params = {
+        startTime: this.timeFilter.begin_time / 1000,
+        endTime: this.timeFilter.end_time / 1000
+      };
+
+      Object.keys(this.searchFilter).forEach(v => {params[v] = this.searchFilter[v]});
+
       if (this.searchKeyWord) {
         if (isNaN(this.searchKeyWord)) {
-          this.searchFilter.name = this.searchKeyWord;
-          this.searchFilter.mobile = '';
+          params.name = this.searchKeyWord;
+          params.mobile = '';
         } else {
-          this.searchFilter.mobile = this.searchKeyWord;
-          this.searchFilter.name = '';
+          params.mobile = this.searchKeyWord;
+          params.name = '';
         }
       } else {
-        this.searchFilter.mobile = '';
-        this.searchFilter.name = '';
+        params.mobile = '';
+        params.name = '';
       }
-      this.searchFilter.startTime = new Date().getTime()/1000;
-      this.searchFilter.endTime = new Date().getTime()/1000;
-      let params = {data: this.searchFilter};
 
       if (currentPage) {
         params.page = currentPage;
       }
-      console.log(params);
 
-      let result = await this.$$request.post('/student/lists', params);
+      let result = await this.$$request.post(`/student/${this.activeTab === 'no_advisor' ? 'noAdvisor' : 'lists'}`, {data: params});
 
       console.log(result);
       if (!result) {

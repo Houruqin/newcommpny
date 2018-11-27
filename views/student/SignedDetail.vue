@@ -241,12 +241,12 @@
                     <el-table-column label="学员状态" prop="status.define" align="center"></el-table-column>
                   </el-table>
                   <el-pagination v-if="timetableLists.total"
-                        class="d-f f-j-c mt-50 mb-20"
-                        :page-size="timetableLists.per_page"
-                        background layout="total, prev, pager, next"
-                        :total="timetableLists.total"
-                        :current-page="timetableLists.current_page" @current-change="paginationClick">
-                    </el-pagination>
+                      class="d-f f-j-c mt-50 mb-20"
+                      :page-size="timetableLists.per_page"
+                      background layout="total, prev, pager, next"
+                      :total="timetableLists.total"
+                      :current-page="timetableLists.current_page" @current-change="paginationClick">
+                  </el-pagination>
                 </div>
                 <!-- 课程评价列表 -->
                 <div v-else-if="activeTab == 'comment'" key="comment" class="course-comment">

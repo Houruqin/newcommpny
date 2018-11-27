@@ -86,9 +86,8 @@
             </template>
           </el-table-column>
         </el-table>
-
         <!-- 分页 -->
-       <el-pagination v-if="buyCourseTable.lists.total > buyCourseTable.lists.per_page"
+       <el-pagination v-if="buyCourseTable.lists.total"
           class="d-f f-j-c mt-50 mb-50" :page-size="buyCourseTable.lists.per_page"
           background layout="total, prev, pager, next"
           :total="buyCourseTable.lists.total" :current-page="buyCourseTable.lists.current_page" @current-change="go_page">
@@ -123,7 +122,7 @@
         </el-table>
 
         <!-- 分页 -->
-        <el-pagination v-if="changeCourseTable.lists.total > changeCourseTable.lists.per_page"
+        <el-pagination v-if="changeCourseTable.lists.total"
           class="d-f f-j-c mt-50 mb-50" :page-size="10"
           background layout="total, prev, pager, next"
           :total="changeCourseTable.lists.total" :current-page="changeCourseTable.lists.current_page" @current-change="go_page">
