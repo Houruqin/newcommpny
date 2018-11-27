@@ -13,6 +13,13 @@
                       <el-option v-for="(item, index) in $store.state.followupStatus" :key="index" :label="item.comment" :value="item.code"
                       v-if="(item.code === 4 && $$tools.isAuthority('handleAudition')) || (item.code === 9 && $$tools.isAuthority('payReturnDeposit')) || ![-2,0,4,9,10].includes(item.code) "></el-option>
                   </el-select>
+              </el-form-item> 
+
+              <el-form-item label="未上门原因：" prop="reason" v-if="followUpForm.status === 1" key="uncommitted">
+                <el-select v-model="followUpForm.reason" placeholder="请选择未上门原因">
+                    <el-option v-for="(item, index) in $store.state.uncommitted" :key="index" :label="item.reason" :value="item.id"></el-option>
+                </el-select>
+                <div class="p-a add-room ver-c cursor-pointer" @click="addUncommitted"><img src="../../images/common/add.png" alt=""></div>
               </el-form-item>
 
               <el-form-item v-if="followUpForm.status === 4 && checkListenCourse.timetable_id">
@@ -42,6 +49,9 @@
 
       <!-- 试听弹窗 -->
       <AddAudition v-model="dialogStatus.audition" :studentId="studentId" auditionType="followup_audition" @CB-audition="CB_audition" :istoBody="true"></AddAudition>
+      
+      <!-- 添加未承诺上门原因 -->
+      <AddUncommitted :visible="dialogStatus.uncommitted" label="跟进状态" @close="$store.dispatch('getUncommitted');dialogStatus.uncommitted = false"/>
   </el-dialog>
 </template>
 
@@ -49,9 +59,10 @@
 import MyButton from '../common/MyButton';
 import {StudentStatic} from '../../script/static';
 import AddAudition from '../../components/dialog/AddAudition';
+import AddUncommitted from '../../components/dialog/AddUncommitted';
 
 export default {
-  components: {MyButton, AddAudition},
+  components: {MyButton, AddAudition, AddUncommitted},
   props: {
     value: {default: false},
     studentId: {default: ''}
@@ -63,7 +74,7 @@ export default {
   },
   data () {
     return {
-      dialogStatus: {followUp: this.value, audition: false},
+      dialogStatus: {followUp: this.value, audition: false, uncommitted: false},
       checkListenCourse: {timetable_id: '', course_name: '', begin_time: '', done_type: 'yes'}, //试听课程，跟进form显示
       wayIdArr: StudentStatic.followUp.wayId,
       followUpForm: {
@@ -72,7 +83,8 @@ export default {
         invited_at: '', //邀约时间
         content: '', //跟进内容
         next_at: '',
-        money: '' //定金金额  如果选择跟进为已交定金
+        money: '', //定金金额  如果选择跟进为已交定金
+        reason: ''
       },
       followUpRules: {
         way_id: [
@@ -94,7 +106,10 @@ export default {
           {validator: this.$$tools.formOtherValidate('decimals', 2)},
           {validator: this.$$tools.formOtherValidate('total', 9999)}
         ],
-        next_at: []
+        next_at: [],
+        // reason: [
+        //   {required: true, message: '请选择未上门原因', trigger: 'change'}
+        // ],
       },
       submitLoading: false,
       pickListenDisable: {
@@ -121,6 +136,11 @@ export default {
 
         return callback();
       };
+    },
+    //添加未上门原因
+    addUncommitted() {
+      console.log(11111111)
+      this.dialogStatus.uncommitted = true;
     },
     followUpStatusChange (value) {
       if (value === 4) {
@@ -166,7 +186,8 @@ export default {
         way_id: this.followUpForm.way_id,
         content: this.followUpForm.content,
         status: this.followUpForm.status,
-        timetable_id: this.checkListenCourse.timetable_id
+        timetable_id: this.checkListenCourse.timetable_id,
+        uncommitted_reason_id: this.followUpForm.reason
       };
 
       if (this.followUpForm.status === 9) {
@@ -196,6 +217,12 @@ export default {
       /deep/ .el-input, .el-textarea {
         width: 350px;
       }
+      .add-room {
+            right: 0px;
+            img {
+                display: block;
+            }
+        }
       h3 {
           font-weight: normal;
           font-size: 14px;

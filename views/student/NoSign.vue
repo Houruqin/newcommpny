@@ -39,22 +39,15 @@
                             <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li v-if="activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid'">
-                        <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
-                            <el-option label="全部跟进" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index"
-                              :label="item.comment" :value="item.code" v-if="(activeTab !== 'following' && item.code !== -1 && item.code !== -2) || (activeTab === 'following' && item.code !== 0 && item.code !== -1 && item.code !== -2)">
-                            </el-option>
-                        </el-select>
+                    <li v-if="activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid'" style="width: auto;">
+                            <el-cascader
+                              size="small"
+                              :options="allFollowUpList"
+                              v-model="searchFilter.follow_status"
+                              change-on-select
+                              @change="searchHandle">
+                            </el-cascader>
                     </li>
-                    <!-- <li v-if="(activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid') && type">
-                        <el-select size="small" placeholder="全部跟进" v-model="searchFilter.follow_status" @change="searchHandle">
-                            <el-option label="全部原因" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.followupStatus" :key="index"
-                              :label="item.comment" :value="item.code" v-if="(activeTab !== 'following' && item.code !== -1 && item.code !== -2) || (activeTab === 'following' && item.code !== 0 && item.code !== -1 && item.code !== -2)">
-                            </el-option>
-                        </el-select>
-                    </li> -->
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
@@ -96,6 +89,7 @@
                           'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7 || scope.row.follow_status === 1 || scope.row.follow_status === 8}">
                           {{scope.row.follow_cn}}
                         </span>
+                        <p class='fs-12' v-if="scope.row.follow_status === 1 && !!scope.row.reason">{{scope.row.reason}}</p>
                     </template>
                 </el-table-column>
                 <el-table-column label="定金金额（元）" align="center" v-if="activeTab !== 'no_advisor' && activeTab !== 'unFollowed'" key="deposit_money">
@@ -230,6 +224,8 @@ export default {
 
       paymentDetail: {},
 
+      allFollowUpList: [],
+
       listStudentId: '',
       advisorId: '',
       operationLists: [],
@@ -239,7 +235,7 @@ export default {
 
       timeTab: [{id: 'all', name: '全部'}, {id: 'month', name: '本月'}, {id: 'week', name: '本周'}],
 
-      searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: ''}, //搜索筛选条件
+      searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: [""]}, //搜索筛选条件
       timeFilter: {type: 'all', begin_time: this.$$cache.getMemberInfo().school_create_at * 1000, end_time: new Date().getTime()},
       dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false, followUp: false},
       studentType: '',
@@ -259,6 +255,22 @@ export default {
       if (type === 'advisor') {
         this.advisorId = '';
       }
+    },
+    //获取全部跟进状态（联动二级）
+    getAllFollowUpList() {
+      let parent = this.$store.state.followupStatus;
+      let children = [];
+      this.$store.state.uncommitted.map(v => {
+        children.push({'value': v.id,'label': v.reason});
+      });
+      parent.map((v,i) => {
+        this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment});
+        if(v.code === 1) {
+          this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': children});
+        }
+      })
+      this.allFollowUpList.unshift({'value': '','label': '全部跟进'})
+      console.log(this.allFollowUpList)
     },
     //删除学员
     deleteStudent (id) {
@@ -381,7 +393,7 @@ export default {
             this.searchFilter[key] = key === 'type' ? tab.type : '';
           }
         }
-
+        this.searchFilter.follow_status = [""];
         this.activeTab = tab.type;
         this.getStudentLists();
         this.isShowCheckbox = false;
@@ -557,8 +569,19 @@ export default {
         startTime: this.timeFilter.begin_time / 1000,
         endTime: this.timeFilter.end_time / 1000
       };
+      console.log(this.searchFilter)
+      // this.searchFilter.follow_status = [""];
+      Object.keys(this.searchFilter).forEach(v => {
+        if(v === 'follow_status') {
+          params[v] = this.searchFilter[v][0];
+          if(this.searchFilter[v][0] === 1 && this.searchFilter[v].length > 1) params.uncommitted_reason_id = this.searchFilter[v][1];
+        }else{
+          params[v] = this.searchFilter[v]
+        }
+      });
 
-      Object.keys(this.searchFilter).forEach(v => {params[v] = this.searchFilter[v]});
+      console.log(params);
+      // return false;
 
       if (this.searchKeyWord) {
         if (isNaN(this.searchKeyWord)) {
@@ -597,11 +620,12 @@ export default {
         this.getAllLists();
       }
     });
-
+    
     this.operationLists = OperationLists.filter(v => {
       return this.$$tools.isAuthority(v.permission);
     });
     console.log(this.operationLists)
+    this.getAllFollowUpList();
     let datas = await this.getAllLists();
 
     if (datas) {

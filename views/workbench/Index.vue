@@ -384,6 +384,36 @@
                 </el-table-column>
               </el-table>
             </el-tab-pane>
+
+            <!-- 待选择试听课 -->
+            <el-tab-pane label="待选择试听课" name="pendingSelect">
+              <el-table class="student-table" :data="pendingSelect_list" v-loading="follow_loading" :show-header="true">
+                <el-table-column label="学员姓名" align="left">
+                  <template slot-scope="scope">
+                    <router-link v-if="$$tools.isAuthority('unSignDetail')" :to="{path: '/student/nosigndetail', query: {student_id: scope.row.student_id}}" class="fc-m">
+                      <span class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name fc-m cursor-pointer'>{{scope.row.student.name}}</span>
+                      </span>
+                    </router-link>
+                    <span v-else class='c_icon' :class="[scope.row.sex === 0 ? 'icon_girl' : 'icon_boy']">
+                        <span class='name'>{{scope.row.student.name}}</span>
+                      </span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="联系电话" prop="student.parent.mobile"  align="center"></el-table-column>
+                <el-table-column label="最新跟进时间" align="center">
+                  <template slot-scope="scope">
+                    <span>{{scope.row.updated_at | date('yyyy-MM-dd hh:mm')}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="课程顾问" prop="advisor.name"  align="center"></el-table-column>
+                <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('assignConsultant')">
+                  <template slot-scope="scope">
+                    <div class="student_handle able_handle" slot="reference" @click="addListenHandle();handle_student.id = scope.row.student_id">办理试听</div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
           </el-tabs>
 
           <!-- 分页 -->
@@ -606,6 +636,10 @@
       <el-row v-html="notice_info.content"></el-row>
     </el-dialog>
 
+    <!-- 试听弹窗 -->
+    <AddAudition v-model="show_add_audition" :studentId="handle_student.id" @CB-auditionSuccess="CB_auditionSuccess"></AddAudition>
+
+
      <!-- 请假是否扣课时弹窗 -->
     <!-- <LeaveConfirmDialog v-model="dialogStatus.leaveConfirm" :detail="leaveDetail"></LeaveConfirmDialog> -->
   </div>
@@ -616,6 +650,7 @@ import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import echarts from 'echarts';
 
+import AddAudition from '../../components/dialog/AddAudition';
 import AddStudentDialog from '../../components/dialog/AddStudent';
 // import LeaveConfirmDialog from '../../components/dialog/LeaveConfirm';
 
@@ -735,9 +770,11 @@ export default {
       audition_list: [],
       follow_up_list: [],
       assign_list: [],
+      pendingSelect_list: [],
       handle_student: {
         id: ''
       },
+      show_add_audition: false,
       //今日跟进部分分页信息
       follow_up_page_info: {
         total: 0,
@@ -1303,6 +1340,9 @@ export default {
         case 'assign':
           type = 'no_advisor';
           break;
+        case 'pendingSelect':
+          type = 'audition_notimetable';
+          break;
       }
       let params;
 
@@ -1477,6 +1517,14 @@ export default {
 
       this.get_follow_up_data();
       this.$message.success('操作成功');
+    },
+    //办理试听
+    addListenHandle () {
+      this.show_add_audition = true;
+    },
+    // 直接试听成功
+    CB_auditionSuccess () {
+      this.get_follow_up_data();
     },
     //================通知模块================
 
@@ -1746,7 +1794,7 @@ export default {
       this.init_bar_charts(this.charts_data.bar_data);
     });
   },
-  components: { TableHeader, MyButton, AddStudentDialog }
+  components: { TableHeader, MyButton, AddStudentDialog , AddAudition}
 }
 </script>
 
