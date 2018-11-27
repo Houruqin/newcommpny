@@ -596,11 +596,12 @@ export default {
         params.name = '';
       }
 
-      if (currentPage) {
-        params.page = currentPage;
-      }
+      let newParams = {data: params};
 
-      let result = await this.$$request.post(`/student/${this.activeTab === 'no_advisor' ? 'noAdvisor' : 'lists'}`, {data: params});
+      if (currentPage) {
+        newParams.page = currentPage;
+      }
+      let result = await this.$$request.post(`/student/${this.activeTab === 'no_advisor' ? 'noAdvisor' : 'lists'}`, newParams);
 
       console.log(result);
       if (!result) {

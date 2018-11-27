@@ -608,7 +608,7 @@ export default {
     //导出学员
     async exportStudent () {
       let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
-      let params = {type: this.activeTab, token: token.replace('bearer ', '')};
+      let params = {type: this.activeTab === 'over' ? 'invalid' : this.activeTab , token: token.replace('bearer ', '')};
 
       if (this.searchKeyWord) {
         if (isNaN(this.searchKeyWord)) {
