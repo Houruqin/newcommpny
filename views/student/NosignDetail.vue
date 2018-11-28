@@ -60,8 +60,8 @@
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
-                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2 && $$tools.isAuthority('handleAudition')" @click.native="addListenHandle">试听</MyButton>
-                <MyButton class="ml-20" v-if="$$tools.isAuthority('purchaseViewCourse')" @click.native="buyCourse">购课</MyButton>
+                <MyButton class="ml-20" v-if="$$cache.getMemberInfo().class_pattern !== 2 && $$tools.isAuthority('handleAudition') && !!detail.advisor" @click.native="addListenHandle">试听</MyButton>
+                <MyButton class="ml-20" v-if="$$tools.isAuthority('purchaseViewCourse') && !!detail.advisor" @click.native="buyCourse">购课</MyButton>
               </div>
             </div>
         </el-card>
@@ -69,7 +69,7 @@
         <el-card class="mt-20" shadow="hover">
             <TableHeader title="跟进记录"></TableHeader>
             <div class="followup-lists-box pl-80" v-loading="loading">
-                <div class="d-f"><MyButton v-if="$$tools.isAuthority('addFollow')" class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
+                <div class="d-f"><MyButton v-if="$$tools.isAuthority('addFollow') && !!detail.advisor" class="ml-156 mt-20" @click.native="addFollowUp">添加跟进</MyButton></div>
                 <div v-if="followUpLists.total">
                     <FollowUpList v-for="(item, index) in followUpLists.data" :list="item" :key="index"></FollowUpList>
                 </div>

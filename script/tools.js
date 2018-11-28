@@ -42,6 +42,14 @@ const Tools = {
     }
     return permission.includes(authority);
   },
+  // 部门判断
+  isDepartment(type) {
+    let res = store.state.allMenusData.departmentList.find(v => {
+      return v.name === type
+    });
+    console.log(!!res)
+    return !!res;
+  },
   //表单验证
   formValidate (type) {
     return (rule, value, callback) => {

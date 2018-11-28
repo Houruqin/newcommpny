@@ -27,7 +27,7 @@
         <el-card shadow="hover" class="mt-20">
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
-                    <li v-if="activeTab !== 'no_advisor'">
+                    <li v-if="activeTab !== 'no_advisor' && $$tools.isAuthority('viewAllData') && !$$tools.isDepartment('consulting_department')">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -104,7 +104,7 @@
                   <el-table-column label="判为无效时间" v-if="activeTab === 'invalid'" prop="follow_time" :formatter="dateForamt" align="center" key="invalid_list"></el-table-column>
                 </template>
                 <el-table-column label="操作" align="center" v-if="operationLists.length && activeTab !== 'no_advisor'" key="operation">
-                    <template slot-scope="scope">
+                    <template v-if="scope.row.advisor_info" slot-scope="scope">
                         <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer" @click="handleCommand({type: operation.type, data: scope.row})"
                           :class="{'ml-10': num}" v-if="operationLists.length <= 3 && num < 3 || operationLists.length > 3 && num < 2">
                           {{operation.text}}
@@ -236,7 +236,7 @@ export default {
       timeTab: [{id: 'all', name: '全部'}, {id: 'month', name: '本月'}, {id: 'week', name: '本周'}],
 
       searchFilter: {type: 'unsign', name: '', mobile: '', advisor_id: '', source_id: '', follow_status: [""]}, //搜索筛选条件
-      timeFilter: {type: 'all', begin_time: this.$$cache.getMemberInfo().school_create_at * 1000, end_time: new Date().getTime()},
+      timeFilter: {type: 'all', begin_time: this.$$cache.getMemberInfo().school_create_at * 1000, end_time: new Date().setHours(23,59,59,59)},
       dialogStatus: {student: false, course: false, contract: false, audition: false, payment: false, advisor: false, followUp: false},
       studentType: '',
 

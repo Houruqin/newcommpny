@@ -16,7 +16,7 @@
                             <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
-                    <li v-if="activeTab === 'onCourse' || activeTab === 'noGrade'">
+                    <li v-if="(activeTab === 'onCourse' || activeTab === 'noGrade') && $$tools.isAuthority('viewAllData') && !$$tools.isDepartment('consulting_department')">
                         <el-select size="small" placeholder="选择顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
                             <el-option v-for="(item, index) in $store.state.advisor" :key="index" :value="item.id" :label="item.name"></el-option>
