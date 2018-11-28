@@ -7,7 +7,7 @@
                 <div class="table-header-btn d-f ml-20 f-a-c">
                     <span v-for="item in timetableType" :key="item.type" @click="tableTypeChange(item.type)" class="mr-10 fs-12 cursor-pointer" :class="{'active': tableType == item.type}">{{item.text}}</span>
                 </div>
-                <MyButton v-if="$$tools.isAuthority('scheduling')" @click.native="multipleAddTimetable">批量排课</MyButton>
+                <MyButton v-if="returnPlanAuthority()" @click.native="multipleAddTimetable">批量排课</MyButton>
               </div>
             </TableHeader>
 
@@ -17,7 +17,9 @@
                     <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
                         <div class="timetable-filter-tab">
                             <ul class="d-f">
-                                <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
+                                <li class="flex1" :class="{'active': timetableFilter == item.id}"
+                                v-if="(item.id === 'teacher' && $$tools.isAuthority('viewAllData')) || item.id !== 'teacher'"
+                                v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
                             </ul>
 
                             <div class="grade-checkbox my-scrollbar">
@@ -116,7 +118,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_one.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_one.operate == true}"
                                             @click="addTimetableClick(scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
                                             <div v-show="scope.row.week_one.operate"><i class="iconfont icon-add"></i></div>
@@ -130,7 +132,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_two.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_two.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_two.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_two.operate == true}"
                                             @click="addTimetableClick(scope.row.week_two.hours_id, scope.row.week_two.full_date, scope.row.week_two.id)">
                                             <div v-show="scope.row.week_two.operate"><i class="iconfont icon-add"></i></div>
@@ -144,7 +146,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_three.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_three.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_three.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_three.operate == true}"
                                             @click="addTimetableClick(scope.row.week_three.hours_id, scope.row.week_three.full_date, scope.row.week_three.id)">
                                             <div v-show="scope.row.week_three.operate"><i class="iconfont icon-add"></i></div>
@@ -158,7 +160,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_four.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_four.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_four.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_four.operate == true}"
                                             @click="addTimetableClick(scope.row.week_four.hours_id, scope.row.week_four.full_date, scope.row.week_four.id)">
                                             <div v-show="scope.row.week_four.operate"><i class="iconfont icon-add"></i></div>
@@ -172,7 +174,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_five.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_five.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_five.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_five.operate == true}"
                                             @click="addTimetableClick(scope.row.week_five.hours_id, scope.row.week_five.full_date, scope.row.week_five.id)">
                                             <div v-show="scope.row.week_five.operate"><i class="iconfont icon-add"></i></div>
@@ -186,7 +188,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_six.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_six.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_six.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_six.operate == true}"
                                             @click="addTimetableClick(scope.row.week_six.hours_id, scope.row.week_six.full_date, scope.row.week_six.id)">
                                             <div v-show="scope.row.week_six.operate"><i class="iconfont icon-add"></i></div>
@@ -200,7 +202,7 @@
                                         <TimetablePopver v-for="(item, n) in scope.row.week_seven.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
                                             :item="item" :pastdue="scope.row.week_seven.past_due"></TimetablePopver>
-                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due && $$tools.isAuthority('scheduling')"
+                                        <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_seven.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_seven.operate == true}"
                                             @click="addTimetableClick(scope.row.week_seven.hours_id, scope.row.week_seven.full_date, scope.row.week_seven.id)">
                                             <div v-show="scope.row.week_seven.operate"><i class="iconfont icon-add"></i></div>
@@ -357,6 +359,10 @@ export default {
     CB_timetableSuccess () {
       this.getAllTableLists();
       this.getAddTimeTableFull();
+    },
+    // 是否有排课权限
+    returnPlanAuthority () {
+      return this.$$tools.isAuthority('scheduling') && (this.$$tools.isAuthority('viewAllData') || (!this.$$tools.isAuthority('viewAllData') && this.timetableFull.course && this.timetableFull.course.length));
     },
     setNewDate () {
       let now = new Date(this.calendarTime * 1000);

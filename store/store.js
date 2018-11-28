@@ -12,6 +12,7 @@ const state = {
   errorType: '',
   guide: false, //是否引导页
   advisor: [], //顾问列表
+  personaladvisor: [], // 个人顾问数据
   teacherList: [], //老师列表
   source: [], //渠道列表
   sourceState: 'loading',
@@ -80,18 +81,23 @@ const mutations = {
   async getRoleLists (state, data) {
     state.roleLists = data;
   },
-  async getAdvisor (state) {
-    let result = await Request.get('/user/consultingList');
+  async getAdvisor (state, type) {
+    let result = await Request.get('/user/consultingList', {
+      type: type === 'personal' ? 1 : 0
+    });
 
     console.log(result);
     if (!result) {
       return 0;
     }
-
-    state.advisor = result;
+    if (type === 'personal') {
+      state.personaladvisor = result;
+    } else {
+      state.advisor = result;
+    }
   },
   async getTeacher (state) {
-    let result = await Request.get('/user/educationList');
+    let result = await Request.get('/user/educationList', {type: 0});
 
     if (!result) {
       return 0;
@@ -221,8 +227,8 @@ const actions = {
     context.commit('getAllUser');
   },
 
-  getAdvisor (context) {
-    context.commit('getAdvisor');
+  getAdvisor (context, type = 'all') {
+    context.commit('getAdvisor', type);
   },
 
   getSource (context) {

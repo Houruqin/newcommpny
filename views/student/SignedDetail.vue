@@ -13,50 +13,54 @@
                 <p class="mt-10"><span class="fc-9">学员编号：</span>{{studentDetail.id}}</p>
                 <p><span class="fc-9">课堂评分：</span>{{studentDetail.score}}</p>
               </div>
-              <div class="right flex1 pl-20 pt-20" v-if="studentDetail.parent_info">
-                <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
-                <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
-                <div class="d-f parent-info">
-                  <div class="fc-9">家长信息：</div>
-                  <div class="flex1 fc-2">
-                    <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.relation === 0">
-                      <span>暂无</span>
-                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
-                    </p>
-                    <p v-if="studentDetail.parent_info.name">
-                      <span>{{studentDetail.parent_info.name}}({{getRelations(studentDetail.parent_info.relation)}})</span>
-                      <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
-                    </p>
-                    <div v-if="studentDetail.deputyParentInfo.length">
-                      <div v-for="(item, num) in studentDetail.deputyParentInfo" :key="num">
-                        <p v-if="!item.name">
-                          <span>暂无</span>
-                          <span class="pl-20">{{item.mobile}}</span>
-                        </p>
-                        <p v-if="item.name">
-                          <span>{{item.name}}({{getRelations(item.pivot.relation)}})</span>
-                          <span class="pl-20">{{item.mobile}}</span>
-                        </p>
+              <div class="right flex1 pl-20 pt-20 d-f" v-if="studentDetail.parent_info">
+                <div class="detail-left">
+                  <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
+                  <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
+                  <p><span>就读学校：</span>{{studentDetail.school_name}}</p>
+                  <div class="d-f parent-info">
+                    <div class="fc-9">家长信息：</div>
+                    <div class="flex1 fc-2">
+                      <p v-if="!studentDetail.parent_info.name && studentDetail.parent_info.relation === 0">
+                        <span>暂无</span>
+                        <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                      </p>
+                      <p v-if="studentDetail.parent_info.name">
+                        <span>{{studentDetail.parent_info.name}}({{getRelations(studentDetail.parent_info.relation)}})</span>
+                        <span class="pl-20">{{studentDetail.parent_info.mobile}}</span>
+                      </p>
+                      <div v-if="studentDetail.deputyParentInfo.length">
+                        <div v-for="(item, num) in studentDetail.deputyParentInfo" :key="num">
+                          <p v-if="!item.name">
+                            <span>暂无</span>
+                            <span class="pl-20">{{item.mobile}}</span>
+                          </p>
+                          <p v-if="item.name">
+                            <span>{{item.name}}({{getRelations(item.pivot.relation)}})</span>
+                            <span class="pl-20">{{item.mobile}}</span>
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <p><span>家庭住址：</span>{{studentDetail.address}}</p>
+                  <div class="d-f">
+                    <span>学员备注：</span>
+                    <template v-if="studentDetail.remark && studentDetail.remark.length > 16">
+                        <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
+                            <div slot="reference" class="cursor-pointer">
+                                <a class="fc-2">{{studentDetail.remark.substring(0, 16)}}...</a>
+                            </div>
+                        </el-popover>
+                    </template>
+                    <a v-else>{{studentDetail.remark}}</a>
+                  </div>
                 </div>
-                <!-- <p><span>联系电话：</span>{{studentDetail.parent_info.mobile}}</p> -->
-                <p><span>家庭住址：</span>{{studentDetail.address}}</p>
-                <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
-                <p><span>登记人员：</span>{{studentDetail.registerInfo.operator.name}}</p>
-                <p><span>渠道来源：</span>{{studentDetail.source_info.name}}</p>
-                <p><span>就读学校：</span>{{studentDetail.school_name}}</p>
-                <div class="d-f">
-                  <span>学员备注：</span>
-                  <template v-if="studentDetail.remark && studentDetail.remark.length > 30">
-                      <el-popover popper-class="grade-student-popver" placement="right" trigger="hover" width="200" :content="studentDetail.remark">
-                          <div slot="reference" class="cursor-pointer">
-                              <a class="fc-2">{{studentDetail.remark.substring(0, 30)}}...</a>
-                          </div>
-                      </el-popover>
-                  </template>
-                  <a v-else>{{studentDetail.remark}}</a>
+
+                <div class="detail-right">
+                  <p><span>渠道来源：</span>{{studentDetail.source_info.name}}</p>
+                  <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
+                  <p><span>登记人员：</span>{{studentDetail.registerInfo.operator.name}}</p>
                 </div>
               </div>
               <div class="p-a d-f btn-toolbar">
@@ -549,6 +553,8 @@ export default {
       contractData: {}, //合约详情
       changeCourseData: {}, //转课详情
       quitPriceDetail: {}, //退费详情
+
+      // personalTeacherList: [], //老师个人数据
 
       editTeacherLists: [],
       teacherForm: {course_id: '', techer_id: '', student_id: '', old_teacher_id: ''},
@@ -1339,11 +1345,23 @@ export default {
       if (a && b) {
         this.state = 'loaded';
       }
+    },
+    // 老师个人数据
+    async getPersonalTeacher () {
+      let result = await this.$$request.get('/user/educationList', {type: 1});
+
+      if (!result) {
+        return 0;
+      }
+      console.log(result);
+      this.personalTeacherList = result;
     }
   },
   created () {
     this.studentId = this.$route.query.id;
     this.pageInit();
+
+    // this.getPersonalTeacher();
   },
   watch: {
     $route: function (val) {

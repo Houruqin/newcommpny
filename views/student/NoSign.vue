@@ -30,7 +30,7 @@
                     <li v-if="activeTab !== 'no_advisor' && $$tools.isAuthority('viewAllData') && !$$tools.isDepartment('consulting_department')">
                         <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in $store.state.personaladvisor" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li>
@@ -40,13 +40,13 @@
                         </el-select>
                     </li>
                     <li v-if="activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid'" style="width: auto;">
-                            <el-cascader
-                              size="small"
-                              :options="allFollowUpList"
-                              v-model="searchFilter.follow_status"
-                              change-on-select
-                              @change="searchHandle">
-                            </el-cascader>
+                        <el-cascader
+                          size="small"
+                          :options="allFollowUpList"
+                          v-model="searchFilter.follow_status"
+                          change-on-select
+                          @change="searchHandle">
+                        </el-cascader>
                     </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
@@ -75,7 +75,7 @@
                                 </span>
                                 <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
-                                        <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                        <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                     </el-scrollbar>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -173,7 +173,7 @@
             </p>
             <div class="d-f f-j-c mt-20">
               <el-select v-model="advisorId" placeholder="请选择" size="small">
-                  <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                  <el-option v-for="(item, index) in $store.state.personaladvisor" :key="index" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </div>
             <div class="d-f f-j-c mt-40">
@@ -621,7 +621,7 @@ export default {
         this.getAllLists();
       }
     });
-    
+
     this.operationLists = OperationLists.filter(v => {
       return this.$$tools.isAuthority(v.permission);
     });

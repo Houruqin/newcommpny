@@ -80,7 +80,7 @@
                         <el-form-item v-if="$$tools.isAuthority('assignConsultant')" label="分配顾问：">
                             <el-select v-model="studentForm.advisor_id" placeholder="选择顾问" clearable>
                                 <el-option label="暂不分配" value=""></el-option>
-                                <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                                <el-option v-for="(item, index) in $store.state.personaladvisor" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -347,6 +347,12 @@ export default {
         this.$message.success('登记成功')
         this.$emit('CB-addStudent');
       }
+    }
+  },
+  created () {
+    let {personaladvisor} = this.$store.state;
+    if (!personaladvisor.length) {
+      this.$store.dispatch('getAdvisor', 'personal');
     }
   }
 };

@@ -54,7 +54,7 @@
                   <el-form-item label="辅助老师：" prop="counselor_ids">
                       <el-select v-model="classForm.counselor_ids" placeholder="可选" clearable :disabled="disabled.counselor" @change="$refs.gradeForm.validateField('teacher_ids')">
                           <el-option
-                              v-for="(item, index) in classSelectInfo.teacher"
+                              v-for="(item, index) in $store.state.teacherList"
                               :key="index"
                               :label="item.name"
                               :value="item.id">

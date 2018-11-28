@@ -51,15 +51,15 @@
                           </el-form-item>
 
                           <el-form-item label="辅助老师：" prop="counselor_ids">
-                              <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
-                                  <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
+                              <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" :disabled="!this.$$tools.isAuthority('viewAllData')" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
+                                  <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                               </el-select>
                           </el-form-item>
                       </div>
                       <div v-else key="single">
                           <el-form-item label="辅助老师：" prop="counselor_ids">
-                              <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
-                                  <el-option v-for="(item, index) in timetableFull.teacher" :key="index" :label="item.name" :value="item.id"></el-option>
+                              <el-select placeholder="请选择" v-model="timetableForm.counselor_ids" :disabled="!this.$$tools.isAuthority('viewAllData')" clearable @change="$refs.addTimeTable.validateField('teacher_ids')">
+                                  <el-option v-for="(item, index) in $store.state.teacherList" :key="index" :label="item.name" :value="item.id"></el-option>
                               </el-select>
                           </el-form-item>
                           <el-form-item label="扣课时数：" prop="lesson_num">
