@@ -568,7 +568,6 @@ export default {
     if (this.$store.state.guide && (this.$$cache.getMemberInfo.type === 'master' || this.$$cache.getMemberInfo.type === 'institution')) {
       this.showModal();
     }
-
     this.$store.dispatch('getAdvisor');
     this.$store.dispatch('getFollowupStatus');
     this.$store.dispatch('getCourse');

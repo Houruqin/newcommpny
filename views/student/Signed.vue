@@ -80,7 +80,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -156,7 +156,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -205,7 +205,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -270,7 +270,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -344,7 +344,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.advisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -471,28 +471,6 @@
             <p class="mt-20"><span :class="{'pl-10': index}" v-for="(item, index) in deleteErrorStudents" :key="index">{{item}}</span></p>
             <div class="d-f f-j-c mt-30"><MyButton @click.native="dialogStatus.errorAlert = false">返回</MyButton></div>
         </el-dialog>
-
-        <!-- 批量分配顾问 -->
-        <!-- <el-dialog title="批量分配顾问" width="540px" center :visible.sync="dialogStatus.advisor" :close-on-click-modal="false" @close="dialogClose('advisor')">
-            <p class="t-a-c">
-              <span>将</span>
-              <span class="fc-m" v-for="(item, index) in selectedIds" :key="index" v-if="index <= 2">
-                {{item.student_name}}
-                <i v-if="selectedIds.length > 1 && index < (selectedIds.length <= 3 ? selectedIds.length - 1 : 2)">、</i>
-              </span>
-              <span class="fc-m" v-if="selectedIds.length > 3">等{{selectedIds.length}}名学员</span>
-              <span>分配给</span>
-            </p>
-            <div class="d-f f-j-c mt-20">
-              <el-select v-model="advisorId" placeholder="请选择" size="small">
-                  <el-option v-for="(item, index) in $store.state.advisor" :key="index" :label="item.name" :value="item.id"></el-option>
-              </el-select>
-            </div>
-            <div class="d-f f-j-c mt-40">
-              <MyButton @click.native="dialogStatus.advisor = false" type="border" fontColor="fc-m">取消</MyButton>
-              <MyButton @click.native="advisorMultipleDone()" :loading="submitLoading.advisor" class="ml-20">确定</MyButton>
-            </div>
-        </el-dialog> -->
     </div>
 </template>
 
@@ -772,51 +750,20 @@ export default {
     advisorClick (data) {
       this.listStudentId = data.student_id;
     },
-    // //批量分配
-    // distributionAdvisor () {
-    //   if (!this.selectedIds.length) {
-    //     return this.$message.error('请至少选中一条数据');
-    //   }
-
-    //   this.dialogStatus.advisor = true;
-    // },
-    // 批量分配顾问确定
-    // advisorMultipleDone () {
-    //   if (!this.advisorId) {
-    //     return this.$message.error('请选择顾问');
-    //   }
-    //   if (this.submitLoading.advisor) {
-    //     return 0;
-    //   }
-    //   this.submitLoading.advisor = true;
-    //   this.listAdvisorChange('all');
-    // },
     //列表顾问选择
     async listAdvisorChange (id) {
-      // let params = {
-      //   student_id: id === 'all' ? this.selectedIds.map(v => v.student_id) : [this.listStudentId],
-      //   advisor_id: id === 'all' ? this.advisorId : id
-      // };
-      // console.log(params);
-
       let result = await this.$$request.post('/student/distribute', {
         student_id: [this.listStudentId],
         advisor_id: id
       });
       console.log(result);
 
-      // this.submitLoading.advisor = false;
       if (!result) {
         return 0;
       }
 
-      // this.dialogStatus.advisor = false;
       this.getAllLists(true);
       this.$message.success('分配成功');
-      // if (id === 'all') {
-      //   this.isShowCheckbox = false;
-      //   this.selectedIds.splice(0, this.selectedIds.length);
-      // }
     },
     //流失学员
     lossStudent (id) {
