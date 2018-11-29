@@ -22,7 +22,6 @@ export default {
   created () {
     console.log(this.tab)
     this.explain = this.getExplain();
-    
   },
   methods: {
     classifyHandle (tab) {
@@ -33,7 +32,8 @@ export default {
         case 'contract':
           return 'explain_a';
         case 'unsign':
-          return 'explain_b';
+          // return 'explain_b';
+          return null;
         case 'invalid':
           return 'explain_c';
         case 'onCourse':

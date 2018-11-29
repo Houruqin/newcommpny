@@ -80,7 +80,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -156,7 +156,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -205,7 +205,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -270,7 +270,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>
@@ -344,7 +344,7 @@
                                     </span>
                                     <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                         <el-scrollbar style="height: 100%;">
-                                            <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                            <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                         </el-scrollbar>
                                     </el-dropdown-menu>
                                 </el-dropdown>

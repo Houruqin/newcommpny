@@ -14,7 +14,7 @@
                 <p><span class="fc-9">课堂评分：</span>{{studentDetail.score}}</p>
               </div>
               <div class="right flex1 pl-20 pt-20 d-f" v-if="studentDetail.parent_info">
-                <div class="detail-left">
+                <div style="width: 320px;">
                   <p><span>性　　别：</span>{{studentDetail.sex ? '男' : '女'}}</p>
                   <p><span>出生日期：</span>{{studentDetail.birthday > 0 ? $$tools.format(studentDetail.birthday) : ''}}</p>
                   <p><span>就读学校：</span>{{studentDetail.school_name}}</p>
@@ -57,7 +57,7 @@
                   </div>
                 </div>
 
-                <div class="detail-right">
+                <div>
                   <p><span>渠道来源：</span>{{studentDetail.source_info.name}}</p>
                   <p><span>登记时间：</span>{{$$tools.format(studentDetail.registerInfo.created_at)}}</p>
                   <p><span>登记人员：</span>{{studentDetail.registerInfo.operator.name}}</p>

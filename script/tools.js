@@ -44,14 +44,31 @@ const Tools = {
   },
   // 部门判断
   isDepartment(type) {
-    if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
-      return false;
+    let departmentList = store.state.allMenusData.departmentList;
+
+    console.log(departmentList);
+
+    if (type) {
+      return departmentList.length === 1 && departmentList[0].name === type;
     }
 
-    let res = store.state.allMenusData.departmentList.find(v => {
-      return v.name === type
-    });
-    return !!res;
+    if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
+      return true;
+    }
+
+    return departmentList.some(v => v.name === 'academic_department' || v.name === 'marketing_department' || v.name === 'education_department' || v.name === 'functions_department');
+
+    // let res = store.state.allMenusData.departmentList.find(v => {
+    //   return v.name === type
+    // });
+    // return !!res;
+  },
+  getAdvisorLists () {
+    if (!this.isAuthority('viewAllData') && this.isDepartment('consulting_department')) {
+      return store.state.personaladvisor;
+    } else {
+      return store.state.advisor;
+    }
   },
   //表单验证
   formValidate (type) {
