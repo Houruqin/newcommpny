@@ -44,10 +44,13 @@ const Tools = {
   },
   // 部门判断
   isDepartment(type) {
+    if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
+      return false;
+    }
+
     let res = store.state.allMenusData.departmentList.find(v => {
       return v.name === type
     });
-    console.log(!!res)
     return !!res;
   },
   //表单验证

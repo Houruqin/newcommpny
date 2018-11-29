@@ -157,7 +157,7 @@
         </AddCourseDialog>
 
         <!-- 添加/修改班级弹窗 -->
-        <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" @CB-addGrade="CB_addGrade" :editDetail="editGradeDetail" :type="gradeType"></AddGradeDialog>
+        <AddGradeDialog v-model="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" @CB-addGrade="CB_addGrade" :editDetail="editGradeDetail" :type="gradeType"></AddGradeDialog>
 
         <!-- 课程大纲 -->
         <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams"/>
@@ -304,13 +304,10 @@ export default {
         this.editCourseDetail = {};
         this.dialogStatus.course = false;
         this.courseOperate = '';
-
         return 0;
       }
       if (type === 'grade') {
         this.editGradeDetail = {};
-        this.dialogStatus.grade = false;
-
         return 0;
       }
     },
@@ -341,7 +338,6 @@ export default {
     },
     //修改班级
     async editClassRoom (data, type) {
-      console.log(data);
       this.editGradeDetail = {...data, course_type: type};
       this.gradeType = 'edit';
       this.dialogStatus.grade = true;

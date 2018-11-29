@@ -83,18 +83,31 @@ const mutations = {
   },
   async getAdvisor (state, type) {
     let result = await Request.get('/user/consultingList', {
-      type: type === 'personal' ? 1 : 0
+      type: 0
     });
 
     console.log(result);
     if (!result) {
       return 0;
     }
-    if (type === 'personal') {
-      state.personaladvisor = result;
-    } else {
-      state.advisor = result;
+
+    state.advisor = result;
+    // type === 'personal' ? 1 : 0
+    let result2 = await Request.get('/user/consultingList', {
+      type: 1
+    });
+
+    console.log(result2);
+    if (!result2) {
+      return 0;
     }
+
+    state.personaladvisor = result2;
+    // if (type === 'personal') {
+    //   state.personaladvisor = result;
+    // } else {
+    //   state.advisor = result;
+    // }
   },
   async getTeacher (state) {
     let result = await Request.get('/user/educationList', {type: 0});
@@ -187,7 +200,7 @@ const mutations = {
     console.log(result);
     state.familyRelations = result.relations;
   },
-  async getFollowupStatusLists (state) {
+  async getFollowupStatusLists (state, fn) {
     let result = await Request.get('/followUp/status');
 
     if (!result) {
@@ -195,6 +208,7 @@ const mutations = {
     }
     console.log(result);
     state.followupStatus = result.status;
+    if (fn && 'function' === typeof fn) fn();
   },
   // 保存权限
   async saveAuthority (state, fn) {
@@ -267,8 +281,8 @@ const actions = {
     context.commit('getTeacher');
   },
 
-  getFollowupStatus (context) {
-    context.commit('getFollowupStatusLists');
+  getFollowupStatus (context, fn) {
+    context.commit('getFollowupStatusLists', fn);
   }
 };
 

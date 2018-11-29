@@ -269,7 +269,7 @@ export default {
       this.$store.state.uncommitted.map(v => {
         uncommitted_children.push({'value': v.id,'label': v.reason});
       });
-      parent.map((v,i) => {
+      parent.map((v, i) => {
         this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment});
         if(v.code === 1 && uncommitted_children.length > 0) {   //未承诺上门
           this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': uncommitted_children});
@@ -637,8 +637,7 @@ export default {
     this.operationLists = OperationLists.filter(v => {
       return this.$$tools.isAuthority(v.permission);
     });
-    console.log(this.operationLists)
-    this.getAllFollowUpList();
+    this.$store.dispatch('getFollowupStatus', () => {this.getAllFollowUpList()});
     let datas = await this.getAllLists();
 
     if (datas) {

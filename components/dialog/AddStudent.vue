@@ -348,13 +348,13 @@ export default {
         this.$emit('CB-addStudent');
       }
     }
-  },
-  created () {
-    let {personaladvisor} = this.$store.state;
-    if (!personaladvisor.length) {
-      this.$store.dispatch('getAdvisor', 'personal');
-    }
   }
+  // created () {
+  //   let {personaladvisor} = this.$store.state;
+  //   if (!personaladvisor.length) {
+  //     this.$store.dispatch('getAdvisor', 'personal');
+  //   }
+  // }
 };
 </script>
 
