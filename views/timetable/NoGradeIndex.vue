@@ -17,7 +17,9 @@
                         <el-popover placement="bottom-start" width="260" trigger="click" ref="myFilterPopover" popper-class="timetable-filter">
                             <div class="timetable-filter-tab">
                                 <ul class="d-f">
-                                    <li class="flex1" :class="{'active': timetableFilter == item.id}" v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
+                                    <li class="flex1" :class="{'active': timetableFilter == item.id}"
+                                    v-if="(item.id === 'teacher' && $$tools.isAuthority('viewAllData')) || item.id !== 'teacher'"
+                                    v-for="(item, index) in timetableFilterTab" :key="index" @click="timetableFilterTabClick(item)">{{item.name}}</li>
                                 </ul>
 
                                 <div class="grade-checkbox my-scrollbar">
