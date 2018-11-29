@@ -3,6 +3,7 @@
         <div class="d-f f-a-c">
             <Explain v-if="title === '有班课程'" title="explain_g"></Explain>
             <Explain v-else-if="title === '无班课程'" title="explain_h"></Explain>
+            <Explain v-else-if="title === '跟进状态设置'" title="explain_t"></Explain>
             <span class="fs-16" v-else>{{title}}</span>
             <i v-if="icon" class="iconfont icon-bianji ml-10 cursor-pointer" @click="imgClick"></i>
         </div>
@@ -15,7 +16,8 @@ export default {
   props: {
     title: {default: ''},
     other: {default: false},
-    icon: {default: false}
+    icon: {default: false},
+    explain: {default: ''}
   },
   data () {
     return {};

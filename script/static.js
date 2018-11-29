@@ -184,7 +184,8 @@ const explainLists = {
   'explain_p': { title: '类型设置', text: '根据物品用途，设置物品的种类，例如教具、教材' },
   'explain_q': { title: '实际库存', text: '实际库存=待售库存+学员库存' },
   'explain_r': { title: '待售库存', text: '仓库内该库存未售出，所有权归属于机构的库存' },
-  'explain_s': { title: '学员库存', text: '学员已经购买，但还未发放的物品库存' }
+  'explain_s': { title: '学员库存', text: '学员已经购买，但还未发放的物品库存' },
+  'explain_t': { title: '跟进状态设置', text: '该状态为“未承诺上门”状态下的二级状态' }
 };
 
 
