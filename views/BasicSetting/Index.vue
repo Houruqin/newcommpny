@@ -24,7 +24,7 @@
               </el-row>
             <el-row class='mt-20'>
               <el-card shadow="hover">
-                <TableHeader title="跟进状态设置" explain="该状态为“未承诺上门”状态下的二级状态">
+                <TableHeader title="跟进状态设置">
                     <MyButton @click.native="buttonHandle('addUncommitted')" v-if="$$tools.isAuthority('addClassroom')">添加跟进状态</MyButton>
                 </TableHeader>
                 <el-table :data="$store.state.uncommitted" stripe>
