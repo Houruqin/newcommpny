@@ -659,19 +659,35 @@ export default {
 
       return true;
     },
-    allEChartInit () {
+    sexEchartInit () {
       sexChartObj = Echart.init(this.$refs.sexChart);
       ageChartObj = Echart.init(this.$refs.ageChart);
-
+    },
+    studentEchartInit () {
       studentLeftObj = Echart.init(this.$refs.studentLeft);
       studentRightObj = Echart.init(this.$refs.studentRight);
-
+    },
+    courseEchartInit () {
       courseChartObj = Echart.init(this.$refs.courseChart);
-
+    },
+    sourceEchartInit () {
       sourceLeftObj = Echart.init(this.$refs.sourceLeft);
       sourceRightObj = Echart.init(this.$refs.sourceRight);
-
+    },
+    sellEchartInit () {
       sellLeftObj = Echart.init(this.$refs.sellLeft);
+    },
+    sexDomInit () {
+      this.sexChartInit();
+      this.ageChartInit();
+    },
+    studentDomInit () {
+      this.studentChartInit();
+      this.studentRightInit();
+    },
+    sourceDomInit () {
+      this.sourceChartInit();
+      this.sourceRightInit();
     }
   },
   async created () {
@@ -679,28 +695,33 @@ export default {
       this.monthArr.push(`${i}月`);
     }
 
-    let [a, b, c, d, e] = await Promise.all([this.getSexLists(), this.getStudentLists(), this.getCourseLists(), this.getSellLists(), this.getSourseLists()]);
+    let Authority = [
+      {auth: 'viewAgeSexChart', method: this.getSexLists, domInit: this.sexDomInit, echartInit: this.sexEchartInit} ,
+      {auth: 'viewSignedChart', method: this.getStudentLists, domInit: this.studentDomInit, echartInit: this.studentEchartInit},
+      {auth: 'viewCourseChart', method: this.getCourseLists, domInit: this.courseChartInit, echartInit: this.courseEchartInit},
+      {auth: 'viewChannelChart', method: this.getSourseLists, domInit: this.sourceDomInit, echartInit: this.sourceEchartInit},
+      {auth: 'viewSalesChart', method: this.getSellLists, domInit: this.sellLeftChartInit, echartInit: this.sellEchartInit}
+    ];
 
-    if (a && b && c && d && e) {
-      this.state = 'loaded';
-    }
+    let requestArr = [], DomArr = [], EchartArr = [];
 
-    this.$nextTick(() => {
-      this.allEChartInit();
-
-      this.sexChartInit();
-      this.ageChartInit();
-
-      this.studentChartInit();
-      this.studentRightInit();
-
-      this.courseChartInit();
-
-      this.sourceChartInit();
-      this.sourceRightInit();
-
-      this.sellLeftChartInit();
+    Authority.forEach(v => {
+      if (this.$$tools.isAuthority(v.auth)) {
+        requestArr.push(v.method());
+        EchartArr.push(v.echartInit);
+        DomArr.push(v.domInit);
+      }
     });
+
+    let res = await Promise.all(requestArr);
+
+    if(res.every(v => v)) {
+      this.state = 'loaded';
+      this.$nextTick(() => {
+        EchartArr.forEach(v => v());
+        DomArr.forEach(v => v());
+      });
+    }
   },
   components: {TableHeader, MyButton}
 };
@@ -734,58 +755,6 @@ export default {
     .sell-box {
         .funnel-chart {
           height: 400px;
-            // .model-box {
-            //     overflow: hidden;
-            //     width: 214px;
-            //     height: 240px;
-            //     ul {
-            //         li {
-            //             width: 215px;
-            //             height: 30px;
-            //         }
-            //     }
-            //     &::before {
-            //         content: '';
-            //         display: block;
-            //         position: absolute;
-            //         width: 0;
-            //         height: 0;
-            //         top: 0;
-            //         left: 0;
-            //         border-width: 180px 80px 180px 80px;
-            //         border-style: solid;
-            //         border-color: transparent transparent #fff #fff;
-            //     }
-            //     &::after {
-            //         content: '';
-            //         display: block;
-            //         position: absolute;
-            //         top: 0;
-            //         right: 0;
-            //         width: 0;
-            //         height: 0;
-            //         border-width: 175px 80px 175px 80px;
-            //         border-style: solid;
-            //         border-color: transparent transparent #fff #fff;
-            //         transform: scaleX(-1);
-            //     }
-            // }
-            // .detail-box {
-            //     li {
-            //         height: 30px;
-            //         .line {
-            //             width: 70px;
-            //             border: 0.5px #e3e3e3 dashed;
-            //         }
-            //         .detail {
-            //             .type {
-            //                 width: 10px;
-            //                 height: 10px;
-            //             }
-            //         }
-            //     }
-            // }
-
         }
         .sell-right {
             .item {

@@ -1355,7 +1355,8 @@ export default {
             mobile: '',
             advisor_id: '',
             source_id: '',
-            follow_status: ''
+            follow_status: '',
+            isAuth: false
           },
           page: this.follow_up_page_info.current_page
         };
@@ -1455,7 +1456,7 @@ export default {
     //学员签到
     async sign_student (s_id, t_id, status, item) {
       if (status !== 1 && this.all_student_info.sign && !this.all_student_info.end) {
-        
+
         const params = {
           timetable_id: t_id,
           student_id: s_id
@@ -1466,7 +1467,7 @@ export default {
         if (!result) {
           return 0;
         }
-        
+
         item.status2 = 1;
         this.$message.success('已签到');
         this.get_all_student_list(t_id);
