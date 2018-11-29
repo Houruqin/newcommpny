@@ -32,8 +32,8 @@ export default {
       switch (this.tab.type) {
         case 'contract':
           return 'explain_a';
-        case 'unsign':
-          return 'explain_b';
+        // case 'unsign':
+        //   return 'explain_b';
         case 'invalid':
           return 'explain_c';
         case 'onCourse':

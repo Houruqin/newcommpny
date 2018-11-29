@@ -90,7 +90,7 @@
                           {{scope.row.follow_cn}}
                         </span>
                         <p class='fs-12' v-if="scope.row.follow_status === 1 && !!scope.row.reason">{{scope.row.reason}}</p>
-                        <p class='fs-12' v-if="scope.row.follow_status === 4 && scope.row.timetable_id !== 0">未选择试听课</p>
+                        <p class='fs-12' v-if="scope.row.follow_status === 4 && scope.row.timetable_id === 0">未选择试听课</p>
                     </template>
                 </el-table-column>
                 <el-table-column label="定金金额（元）" align="center" v-if="activeTab !== 'no_advisor' && activeTab !== 'unFollowed'" key="deposit_money">
@@ -637,7 +637,11 @@ export default {
     this.operationLists = OperationLists.filter(v => {
       return this.$$tools.isAuthority(v.permission);
     });
-    this.$store.dispatch('getFollowupStatus', () => {this.getAllFollowUpList()});
+    this.$store.dispatch('getFollowupStatus', () => {
+      this.$store.dispatch('getUncommitted',() => {
+        this.getAllFollowUpList()
+      })
+    });
     let datas = await this.getAllLists();
 
     if (datas) {

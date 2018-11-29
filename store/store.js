@@ -149,13 +149,14 @@ const mutations = {
     // state.classRoomState = 'loaded';
     // state.classRoom = result.lists;
   },
-  async getUncommitted (state) {
+  async getUncommitted (state, fn) {
     let result = await Request.get('/uncommittedReason/lists');
 
     if (!result) {
       return 0;
     }
     state.uncommitted = result.reasons;
+    if (fn && 'function' === typeof fn) fn();
   },
   async getCourse (state) {
     let result = await Request.post('/course/normalLists');
