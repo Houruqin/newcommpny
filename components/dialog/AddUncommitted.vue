@@ -1,8 +1,8 @@
 <template>
-    <el-dialog :title="formLabel+':'" width="500px" center :visible.sync="show" append-to-body :close-on-click-modal="false" @close="dialogClose">
+    <el-dialog :title="mode + formLabel" width="500px" center :visible.sync="show" append-to-body :close-on-click-modal="false" @close="dialogClose">
         <el-form :model="formInfo" label-width="100px" size="small" :rules="formRules" ref="customForm" @submit.native.prevent>
             <div class="form-box">
-                <el-form-item :label="label" prop="value">
+                <el-form-item :label="label+':'" prop="value">
                     <el-input v-model.trim="formInfo.value" :placeholder="formLabel"></el-input>
                 </el-form-item>
                 <div class="d-f f-j-c mt-40">
@@ -17,13 +17,15 @@ import MyButton from "../common/MyButton";
 
 export default {
   props: {
-    visible: false,
-    label: ""
+    visible: {default: false},
+    type: {default: "add"},
+    label: {default: ""},
   },
   data() {
     return {
       submitLoading: false,
       show: this.visible,
+      mode: '添加',
       formLabel: this.label,
       formInfo: {
         value: ""
@@ -31,14 +33,14 @@ export default {
       formRules: {
         value: [
           { required: true, message: "请输入跟进名称" },
-          { max: 20, message: "长度不能超过20个字符" }
+          { max: 10, message: "长度不能超过10个字符" }
         ]
       }
     };
   },
   methods: {
-    dialogClose() {
-      this.$emit("close");
+    dialogClose(obj) {
+      this.$emit("close",obj);
     },
     doneHandle() {
       this.$refs.customForm.validate(valid => {
@@ -53,19 +55,21 @@ export default {
       };
       let result = await this.$$request.post("/uncommittedReason/add", params);
       if (!result) return false;
-      this.$message.success("添加成功");
-      this.dialogClose();
+      this.$message.success(`${this.mode}成功`);
+      this.dialogClose(result);
     }
-  },
-  created() {
-    console.log(this.formRules);
   },
   watch: {
     visible: function(v) {
       this.show = v;
+      this.$refs.customForm.resetFields();
+      if(this.type === 'add') this.formInfo.value = "";
     },
     label: function(v) {
       this.formLabel = v;
+    },
+    type: function(v) {
+      this.mode = v === 'add' ? '添加' : '修改';
     }
   },
   components: { MyButton }

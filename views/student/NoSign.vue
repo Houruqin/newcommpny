@@ -85,11 +85,12 @@
                 </el-table-column>
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
-                        <span class="follow-status fc-5 cursor-pointer" @click="addFollowUpClick(scope.row)" :class="{'green': scope.row.follow_status === 9 || scope.row.follow_status === 10,
-                          'fc-subm': scope.row.follow_status === 4 || scope.row.follow_status === 7 || scope.row.follow_status === 1 || scope.row.follow_status === 8}">
+                        <span class="follow-status fc-5" @click="addFollowUpClick(scope.row)" :class="[{'green': [9,10].includes(scope.row.follow_status),
+                          'fc-subm': [0,1,4,7,8].includes(scope.row.follow_status)},{'cursor-pointer': $$tools.isAuthority('addFollow')}]">
                           {{scope.row.follow_cn}}
                         </span>
                         <p class='fs-12' v-if="scope.row.follow_status === 1 && !!scope.row.reason">{{scope.row.reason}}</p>
+                        <p class='fs-12' v-if="scope.row.follow_status === 4 && scope.row.timetable_id !== 0">未选择试听课</p>
                     </template>
                 </el-table-column>
                 <el-table-column label="定金金额（元）" align="center" v-if="activeTab !== 'no_advisor' && activeTab !== 'unFollowed'" key="deposit_money">
@@ -259,14 +260,21 @@ export default {
     //获取全部跟进状态（联动二级）
     getAllFollowUpList() {
       let parent = this.$store.state.followupStatus;
-      let children = [];
+      let uncommitted_children = [];
+      let unselected_course = [
+        {'value': 0,'label': '未选择试听课'},
+        {'value': 1,'label': '已选择试听课'},
+      ];
+      console.log(parent);
       this.$store.state.uncommitted.map(v => {
-        children.push({'value': v.id,'label': v.reason});
+        uncommitted_children.push({'value': v.id,'label': v.reason});
       });
       parent.map((v,i) => {
         this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment});
-        if(v.code === 1) {
-          this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': children});
+        if(v.code === 1 && uncommitted_children.length > 0) {   //未承诺上门
+          this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': uncommitted_children});
+        }else if(v.code === 4) {  //邀约试听未选择试听课
+          this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': unselected_course});
         }
       })
       this.allFollowUpList.unshift({'value': '','label': '全部跟进'})
@@ -303,6 +311,7 @@ export default {
       }
     },
     addFollowUpClick (data) {
+      if(!this.$$tools.isAuthority('addFollow')) return false;
       console.log(data);
       this.listStudentId = data.id;
       this.dialogStatus.followUp = true;
@@ -570,11 +579,14 @@ export default {
         endTime: this.timeFilter.end_time / 1000
       };
       console.log(this.searchFilter)
-      // this.searchFilter.follow_status = [""];
       Object.keys(this.searchFilter).forEach(v => {
         if(v === 'follow_status') {
           params[v] = this.searchFilter[v][0];
-          if(this.searchFilter[v][0] === 1 && this.searchFilter[v].length > 1) params.uncommitted_reason_id = this.searchFilter[v][1];
+          if(this.searchFilter[v][0] === 1 && this.searchFilter[v].length > 1){
+             params.uncommitted_reason_id = this.searchFilter[v][1]
+          }else if(this.searchFilter[v][0] === 4) {
+            params.listen_status = this.searchFilter[v][1]
+          };
         }else{
           params[v] = this.searchFilter[v]
         }

@@ -51,7 +51,7 @@
       <AddAudition v-model="dialogStatus.audition" :studentId="studentId" auditionType="followup_audition" @CB-audition="CB_audition" :istoBody="true"></AddAudition>
       
       <!-- 添加未承诺上门原因 -->
-      <AddUncommitted :visible="dialogStatus.uncommitted" label="跟进状态" @close="$store.dispatch('getUncommitted');dialogStatus.uncommitted = false"/>
+      <AddUncommitted :visible="dialogStatus.uncommitted" label="跟进状态" @close="selectUncommitted"/>
   </el-dialog>
 </template>
 
@@ -124,9 +124,16 @@ export default {
     CB_audition (data) {
       this.checkListenCourse = data;
     },
-    dialogClose () {
+    dialogClose (type) {
       this.$emit('input', false);
       this.$refs.followUpForm.resetFields();
+    },
+    selectUncommitted(info) {
+      this.$store.dispatch('getUncommitted');
+      this.dialogStatus.uncommitted = false;
+      if(!!info) {
+        this.followUpForm.reason = info.id
+      }
     },
     moneyValidate () {
       return (rule, value, callback) => {
