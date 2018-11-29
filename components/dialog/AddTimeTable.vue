@@ -677,9 +677,12 @@ export default {
       this.timetableForm.counselor_ids = gradeInfo.counselor.length ? gradeInfo.counselor[0].id : ''; //辅助老师
 
       if (this.addTableType === 'multiple') {
-        this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length, gradeInfo.room_id);
+        this.timetableForm.room_id.splice(0, this.timetableForm.room_id.length);
+        if (gradeInfo.room_id) {
+          this.timetableForm.room_id.push(gradeInfo.room_id);
+        }
       } else {
-        this.timetableForm.room_id = gradeInfo.room_id;
+        this.timetableForm.room_id = gradeInfo.room_id ?  gradeInfo.room_id : '';
       }
     },
     //排课，开课日期改变

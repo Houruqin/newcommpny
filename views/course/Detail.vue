@@ -75,7 +75,7 @@
         </el-card>
 
         <!-- 修改班级弹窗 -->
-        <AddGradeDialog :dialogStatus="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" :editDetail="editDetail" :type="gradeType" @CB-addGrade="CB_addGrade"></AddGradeDialog>
+        <!-- <AddGradeDialog v-model="dialogStatus.grade" @CB-dialogStatus="CB_dialogStatus" :editDetail="editDetail" type="edit" @CB-addGrade="CB_addGrade"></AddGradeDialog> -->
 
         <!-- 班级大纲 -->
         <CourseSyllabus v-model="dialogStatus.syllabus" :syllabus="syllabusParams" type="grade" @refreshGradeDetail="getGradeDetail"/>
@@ -86,11 +86,11 @@
 
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
-import AddGradeDialog from '../../components/dialog/AddGrade';
+// import AddGradeDialog from '../../components/dialog/AddGrade';
 import CourseSyllabus from '../../components/dialog/CourseSyllabus';
 
 export default {
-  components: {TableHeader, MyButton, AddGradeDialog, CourseSyllabus},
+  components: {TableHeader, MyButton, CourseSyllabus},
   data () {
     return {
       state: 'loading',
@@ -99,8 +99,6 @@ export default {
       gradeDetail: {},
       timeTableLists: [],
 
-      gradeType: '',
-
       dialogStatus: {grade: false, syllabus: false},
       courseType: 1,
       classSelectInfo: {},
@@ -108,7 +106,7 @@ export default {
       allStudentLists: [],
       studentCheckAll: false,
 
-      editDetail: {},
+      // editDetail: {},
       syllabusParams: {},
 
       selectedIds: [], //删除课表，选中的课表
@@ -127,23 +125,16 @@ export default {
 
       return room_name;
     },
-    dialogClose () {
-      this.$refs.classRoomForm.resetFields();
-    },
-    CB_dialogStatus (type) {
-      if (type == 'grade') {
-        this.gradeType = '';
-        this.editDetail = {};
-        this.dialogStatus.grade = false;
-
-        return 0;
-      }
-    },
-    CB_addGrade () {
-      this.getPageData();
-      this.editDetail = {};
-      this.dialogStatus.grade = false;
-    },
+    // CB_dialogStatus (type) {
+    //   if (type == 'grade') {
+    //     this.editDetail = {};
+    //     return 0;
+    //   }
+    // },
+    // CB_addGrade () {
+    //   this.getPageData();
+    //   this.dialogStatus.grade = false;
+    // },
     //班级大纲点击
     async syllabusClick (id) {
       let result = await this.$$request.get('course/getCourseOutline', {courseId: id});
@@ -170,27 +161,6 @@ export default {
     },
     handleSelectionChange (val) {
       this.selectedIds = val.map(v => v.id);
-    },
-    //删除班级
-    deleteGrade () {
-      this.$confirm('确定删除班级吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteClassRoom();
-      }).catch(() => {
-        return 0;
-      });
-    },
-    async deleteClassRoom () {
-      let result = await this.$$request.post('/grade/delete', {id: this.gradeDetail.id});
-
-      if (!result) {
-        return 0;
-      }
-      this.$message.success('已删除');
-      this.$router.go(-1);
     },
     async deleteTimeTable () {
       if (this.selectedIds && this.selectedIds.length) {

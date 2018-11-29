@@ -200,7 +200,7 @@ const mutations = {
     console.log(result);
     state.familyRelations = result.relations;
   },
-  async getFollowupStatusLists (state) {
+  async getFollowupStatusLists (state, fn) {
     let result = await Request.get('/followUp/status');
 
     if (!result) {
@@ -208,6 +208,7 @@ const mutations = {
     }
     console.log(result);
     state.followupStatus = result.status;
+    if (fn && 'function' === typeof fn) fn();
   },
   // 保存权限
   async saveAuthority (state, fn) {
@@ -280,8 +281,8 @@ const actions = {
     context.commit('getTeacher');
   },
 
-  getFollowupStatus (context) {
-    context.commit('getFollowupStatusLists');
+  getFollowupStatus (context, fn) {
+    context.commit('getFollowupStatusLists', fn);
   }
 };
 

@@ -60,7 +60,7 @@
                 </div>
                 <div v-if="buyCourse_type === 2">
                   <el-form-item prop="teacher_id">
-                    <el-select size="small" v-model="courseForm.teacher_id" placeholder="选择老师" :clearable="true">
+                    <el-select size="small" v-model="courseForm.teacher_id" placeholder="选择老师(必填)" :clearable="true">
                       <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
                     </el-select>
                   </el-form-item>
@@ -510,7 +510,7 @@ export default {
       this.$refs.courseForm.validate(valid => {
         if (valid) {
           let text = '';
-          let priceDifference = Math.abs(this.SettlementMoney) - this.courseForm.realPrice;
+          let priceDifference = (Math.abs(this.SettlementMoney) - this.courseForm.realPrice).toFixed(2);
 
           if (this.courseForm.realPrice < Math.abs(this.SettlementMoney)) {
             text = this.SettlementMoney >= 0 ? `此次转课亏损${priceDifference}元，` : `此次转课少退费${priceDifference}元，`;
