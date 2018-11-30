@@ -27,8 +27,8 @@
         <el-card shadow="hover" class="mt-20">
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
-                    <li v-if="activeTab !== 'no_advisor' && ($$tools.isAuthority('viewAllData') || $$tools.isDepartment())">
-                        <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
+                    <li v-if="activeTab !== 'no_advisor' && ($$tools.isAuthority('viewAllData') || $$tools.isDepartment('consulting_department'))">
+                        <el-select size="small" placeholder="选择顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
                             <el-option v-for="(item, index) in $$tools.getAdvisorLists()" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>

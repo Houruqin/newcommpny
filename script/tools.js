@@ -49,7 +49,7 @@ const Tools = {
     console.log(departmentList);
 
     if (type) {
-      return departmentList.length === 1 && departmentList[0].name === type;
+      return !(departmentList.length === 1 && departmentList[0].name === type);
     }
 
     if (cache.getMemberInfo().type === 'master' || cache.getMemberInfo().type === 'institution') {
