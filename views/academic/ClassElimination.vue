@@ -27,7 +27,7 @@
           <li v-else class="course_select ml-20">
             <el-select v-model="search_info.course" placeholder="请选择课程" @change="filter_change">
               <el-option label="全部课程" :value="0"></el-option>
-              <el-option v-for="item in course_option" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              <el-option v-for="item in $$tools.getCourseLists()" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </li>
           <li class="name ml-20">
@@ -298,9 +298,9 @@ export default {
     };
   },
   computed: {
-    course_option () {
-      return this.$store.state.course;
-    },
+    // course_option () {
+    //   return this.$store.state.course;
+    // },
     grade_option () {
       return this.$store.state.grade;
     }

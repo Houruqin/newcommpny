@@ -58,12 +58,8 @@ const Tools = {
 
     // return departmentList.some(v => v.name === 'academic_department' || v.name === 'marketing_department' || v.name === 'education_department' || v.name === 'functions_department');
     return departmentList.some(v => v.name !== type);
-
-    // let res = store.state.allMenusData.departmentList.find(v => {
-    //   return v.name === type
-    // });
-    // return !!res;
   },
+  // 顾问筛选列表 根据部门和是否个人权限
   getAdvisorLists () {
     if (!this.isAuthority('viewAllData') && this.isDepartment('consulting_department')) {
       return store.state.personaladvisor;
@@ -71,7 +67,15 @@ const Tools = {
       return store.state.advisor;
     }
   },
-
+  // 课程筛选列表 根据部门和是否个人权限
+  getCourseLists () {
+    let departmentList = store.state.allMenusData.departmentList;
+    if (departmentList.length === 1 && departmentList[0].name === 'academic_department' && !this.isAuthority('viewAllData')) {
+      return store.state.personalCourse;
+    } else {
+      return store.state.course;
+    }
+  },
   //表单验证
   formValidate (type) {
     return (rule, value, callback) => {

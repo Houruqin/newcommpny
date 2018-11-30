@@ -24,7 +24,7 @@
           <li class="ml-20">
             <el-select size="small" placeholder="全部课程" v-model="searchFilter.course_id" @change="searchHandle">
                 <el-option label="全部课程" value=""></el-option>
-                <el-option v-for="(item, index) in $store.state.course" :key="index" :label="item.name" :value="item.id"></el-option>
+                <el-option v-for="(item, index) in $$tools.getCourseLists()" :key="index" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </li>
           <li class="name ml-20"><el-input size="small" placeholder="请输入老师姓名" v-model.trim="searchFilter.keyword"></el-input></li>
