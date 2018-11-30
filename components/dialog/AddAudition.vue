@@ -63,7 +63,7 @@
                   <el-table-column label="姓名" prop="name" align="center"></el-table-column>
                   <el-table-column label="联系电话" prop="mobile" align="center"></el-table-column>
                   <el-table-column label="顾问" prop="advisor_name" align="center"></el-table-column>
-                  <el-table-column label="渠道" prop="advisor_name" align="center"></el-table-column>
+                  <el-table-column label="渠道" prop="source_name" align="center"></el-table-column>
                   <el-table-column label="操作" align="center">
                       <template slot-scope="scope">
                           <div class="d-f f-j-c student-btn">
