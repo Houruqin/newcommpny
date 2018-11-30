@@ -61,7 +61,7 @@ const Tools = {
   },
   // 顾问筛选列表 根据部门和是否个人权限
   getAdvisorLists () {
-    if (!this.isAuthority('viewAllData') && this.isDepartment('consulting_department')) {
+    if (!this.isAuthority('viewAllData') && !this.isDepartment('consulting_department')) {
       return store.state.personaladvisor;
     } else {
       return store.state.advisor;

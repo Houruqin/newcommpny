@@ -280,7 +280,12 @@ export default {
       this.timetableForm.lesson_time = option.course_info.lesson_time;
       this.timetableForm.teacher_ids = option.grade_info.teacher_lists.length ? option.grade_info.teacher_lists[0].id : ''; //任课老师
       this.timetableForm.counselor_ids = option.grade_info.counselor_lists.length ? option.grade_info.counselor_lists[0].id : ''; //辅助老师
-      this.timetableForm.room_id.push(option.grade_info.room_id); //上课教室
+      // this.timetableForm.room_id.push(option.grade_info.room_id); //上课教室
+
+      if (option.grade_info.room_id) {
+        this.timetableForm.room_id.push(option.grade_info.room_id);
+      }
+
       this.timetableForm.course_id = option.grade_info.course_id;
       this.timetableForm.grade_id = option.grade_info.id;
 
