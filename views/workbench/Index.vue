@@ -306,6 +306,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
+                <el-table-column label="操作人" prop="operator.name" align="center"></el-table-column>
                 <el-table-column label="试听状态" prop="operate" align="center">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status === 4" class="fc-subm">待试听</span>
@@ -332,6 +333,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name" align="center"></el-table-column>
+                <el-table-column label="操作人" prop="operator.name" align="center"></el-table-column>
                 <el-table-column label="上次跟进时间" align="center">
                   <template slot-scope="scope">
                     <span>{{scope.row.created_at | date('yyyy-MM-dd hh:mm')}}</span>
@@ -407,6 +409,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name"  align="center"></el-table-column>
+                <el-table-column label="操作人" prop="operator.name" align="center"></el-table-column>
                 <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('handleAudition')">
                   <template slot-scope="scope">
                     <div class="student_handle able_handle" slot="reference" @click="addListenHandle();handle_student.id = scope.row.student_id">办理试听</div>

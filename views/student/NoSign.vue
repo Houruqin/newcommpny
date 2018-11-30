@@ -259,6 +259,7 @@ export default {
     },
     //获取全部跟进状态（联动二级）
     getAllFollowUpList() {
+      this.allFollowUpList = [];
       let parent = this.$store.state.followupStatus;
       let uncommitted_children = [];
       let unselected_course = [
@@ -280,6 +281,9 @@ export default {
         }
       })
       this.allFollowUpList.unshift({'value': '','label': '全部跟进'})
+      if(this.activeTab === 'following') {
+        this.allFollowUpList = this.allFollowUpList.filter(v => ![-1,0].includes(v.value))
+      }
       console.log(this.allFollowUpList)
     },
     //删除学员
@@ -400,13 +404,6 @@ export default {
       this.searchKeyWord = '';
       if (tab.type != this.activeTab) {
         this.loading = true;
-        if(tab.type === 'following'){
-          this.allFollowUpList.filter(v => {
-            console.log(![-1,0].includes(v.value))
-            return ![-1,0].includes(v.value)
-          })
-          console.log(this.allFollowUpList)
-        }
         for (let key in this.searchFilter) {
           if (this.searchFilter.hasOwnProperty(key)) {
             this.searchFilter[key] = key === 'type' ? tab.type : '';
@@ -415,6 +412,7 @@ export default {
         this.searchFilter.follow_status = [""];
         this.activeTab = tab.type;
         this.getStudentLists();
+        this.getAllFollowUpList();
         this.isShowCheckbox = false;
       }
     },
