@@ -56,7 +56,8 @@ const Tools = {
       return true;
     }
 
-    return departmentList.some(v => v.name === 'academic_department' || v.name === 'marketing_department' || v.name === 'education_department' || v.name === 'functions_department');
+    // return departmentList.some(v => v.name === 'academic_department' || v.name === 'marketing_department' || v.name === 'education_department' || v.name === 'functions_department');
+    return departmentList.some(v => v.name !== type);
 
     // let res = store.state.allMenusData.departmentList.find(v => {
     //   return v.name === type
@@ -70,6 +71,7 @@ const Tools = {
       return store.state.advisor;
     }
   },
+
   //表单验证
   formValidate (type) {
     return (rule, value, callback) => {

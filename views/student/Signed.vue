@@ -13,7 +13,7 @@
                     <li v-if="activeTab !== 'birthday'">
                         <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
                             <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
+                            <el-option v-for="(item, index) in getCourseLists()" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li v-if="(activeTab === 'onCourse' || activeTab === 'noGrade') && $$tools.isAuthority('viewAllData') && !$$tools.isDepartment('consulting_department')">
@@ -570,6 +570,15 @@ export default {
       }
 
       return 30;
+    },
+    // 课程筛选列表 根据部门和是否个人权限
+    getCourseLists () {
+      let departmentList = this.$store.state.allMenusData.departmentList;
+      if (departmentList.length === 1 && departmentList[0].name === 'academic_department' && !this.$$tools.isAuthority('viewAllData')) {
+        return this.$store.state.personalCourse;
+      } else {
+        return this.$store.state.course;
+      }
     },
     //搜索
     searchHandle () {
