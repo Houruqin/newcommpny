@@ -250,7 +250,7 @@
                                                     </div>
                                                     <div class="ml-50">
                                                         <i class="iconfont fs-13 icon-renshu"></i>
-                                                        <span v-if="item.course_type === 2">{{item.student_grades[0].student_name}}</span>
+                                                        <span v-if="item.course_type === 2 && item.student_grades.length">{{item.student_grades[0].student_name}}</span>
                                                         <span v-else>{{item.student_grades.length}}/{{item.grade_limit_num}}</span>
                                                     </div>
                                                 </div>

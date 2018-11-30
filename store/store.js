@@ -21,6 +21,7 @@ const state = {
   uncommitted: [], //未承诺上门列表
   uncommittedState: 'loading',
   course: [], //课程列表
+  personalCourse: [], //个人课程列表
   grade: [], //班级列表
   listen_grade: [], //试听班级列表
   listen_status: [], //试听状态
@@ -92,7 +93,6 @@ const mutations = {
     }
 
     state.advisor = result;
-    // type === 'personal' ? 1 : 0
     let result2 = await Request.get('/user/consultingList', {
       type: 1
     });
@@ -103,11 +103,6 @@ const mutations = {
     }
 
     state.personaladvisor = result2;
-    // if (type === 'personal') {
-    //   state.personaladvisor = result;
-    // } else {
-    //   state.advisor = result;
-    // }
   },
   async getTeacher (state) {
     let result = await Request.get('/user/educationList', {type: 0});
@@ -132,9 +127,7 @@ const mutations = {
     let result = await Request.post('/classRoom/lists');
 
     console.log(result);
-    // if (!result) {
-    //   return 0;
-    // }
+
     if (!result) {
       if (fn && typeof fn === 'function') {
         fn(false);
@@ -146,8 +139,6 @@ const mutations = {
         fn(true);
       }
     }
-    // state.classRoomState = 'loaded';
-    // state.classRoom = result.lists;
   },
   async getUncommitted (state, fn) {
     let result = await Request.get('/uncommittedReason/lists');
@@ -159,7 +150,7 @@ const mutations = {
     if (fn && 'function' === typeof fn) fn();
   },
   async getCourse (state) {
-    let result = await Request.post('/course/normalLists');
+    let result = await Request.post('/course/normalLists', {type: 0});
 
     console.log(result);
     if (!result) {
@@ -167,6 +158,12 @@ const mutations = {
     }
 
     state.course = result.lists;
+    let result2 = await Request.post('/course/normalLists', {type: 1});
+
+    if (!result2) {
+      return 0;
+    }
+    state.personalCourse = result2.lists;
   },
   async getGrade (state) {
     let result = await Request.post('/eduCount/gradeLists', {is_listen: 0});

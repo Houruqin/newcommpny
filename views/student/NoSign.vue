@@ -27,10 +27,10 @@
         <el-card shadow="hover" class="mt-20">
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
-                    <li v-if="activeTab !== 'no_advisor' && $$tools.isAuthority('viewAllData') && !$$tools.isDepartment('consulting_department')">
-                        <el-select size="small" placeholder="全部顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
+                    <li v-if="activeTab !== 'no_advisor' && ($$tools.isAuthority('viewAllData') || $$tools.isDepartment('consulting_department'))">
+                        <el-select size="small" placeholder="选择顾问" v-model="searchFilter.advisor_id" @change="searchHandle">
                             <el-option label="全部顾问" value=""></el-option>
-                            <el-option v-for="(item, index) in $store.state.personaladvisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                            <el-option v-for="(item, index) in $$tools.getAdvisorLists()" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
                     <li>
@@ -75,7 +75,7 @@
                                 </span>
                                 <el-dropdown-menu slot="dropdown" class="allocation-advisor-tooltip my-scrollbar">
                                     <el-scrollbar style="height: 100%;">
-                                        <el-dropdown-item v-for="(item, index) in $store.state.personaladvisor" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
+                                        <el-dropdown-item v-for="(item, index) in $$tools.getAdvisorLists()" :command="item.id" :key="index">{{item.name}}</el-dropdown-item>
                                     </el-scrollbar>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -174,7 +174,7 @@
             </p>
             <div class="d-f f-j-c mt-20">
               <el-select v-model="advisorId" placeholder="请选择" size="small">
-                  <el-option v-for="(item, index) in $store.state.personaladvisor" :key="index" :label="item.name" :value="item.id"></el-option>
+                  <el-option v-for="(item, index) in $$tools.getAdvisorLists()" :key="index" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </div>
             <div class="d-f f-j-c mt-40">

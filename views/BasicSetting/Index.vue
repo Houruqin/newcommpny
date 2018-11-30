@@ -15,7 +15,7 @@
                         <template slot-scope="scope">
                             <div class="d-f f-j-c">
                                 <span class="cursor-pointer fc-m" @click="modifySource(scope.row, 'class')" v-if="$$tools.isAuthority('editClassroom')">编辑</span>
-                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'class')" v-if="$$tools.isAuthority('deleteClassroom')">删除</span>
+                                <span class="cursor-pointer ml-20 fc-subm" @click="deleteSource(scope.row, 'classRoom')" v-if="$$tools.isAuthority('deleteClassroom')">删除</span>
                             </div>
                         </template>
                     </el-table-column>
@@ -151,11 +151,11 @@ export default {
           this.classMaskStatus = true;
           this.classForm.name = '';
           break;
-        case 'addSource' : 
+        case 'addSource' :
           this.sourceMaskStatus = true;
           this.sourceForm.name = '';
           break;
-        case 'addUncommitted' : 
+        case 'addUncommitted' :
           this.uncommittedMaskStatus = true;
           this.uncommittedForm.name = '';
           break;
@@ -198,6 +198,7 @@ export default {
     },
     //删除
     deleteSource (scope, type) {
+      console.log(type)
       let msg = type == 'source' ? '渠道' : '教室';
 
       this.$confirm(`确定删除${msg}吗?`, '提示', {
@@ -226,7 +227,7 @@ export default {
       }
 
       switch (type) {
-        case 'class' :
+        case 'classRoom' :
         this.$store.dispatch('getClassRoom');
         break;
         case 'source' :
@@ -284,14 +285,14 @@ export default {
 
       this.$message.success(this.maskState == 'modify' ? '修改成功' : '添加成功');
 
-      
+
       switch (formName) {
-        case 'classForm' : 
+        case 'classForm' :
           this.$store.dispatch('getClassRoom'); //更新教室信息
           this.classForm.name = '';
           this.classMaskStatus = false;
           break;
-        case 'sourceForm' : 
+        case 'sourceForm' :
           this.$store.dispatch('getSource'); //更新渠道信息
           this.sourceForm.name = '';
           this.sourceMaskStatus = false;
