@@ -79,9 +79,6 @@
                               </el-table-column>
                               <el-table-column label="操作" align="center" v-if="operationLists.length">
                                   <template slot-scope="scope">
-                                      <!-- <span class="cursor-pointer" v-if="$$tools.isAuthority('scheduling')"
-                                      :class="!scope.row.unscheduled && course.type === 1 ? 'fc-9' : 'fc-m'" @click="addTimetable({grade_info: scope.row, course_info: course})">排课</span>
-                                      <span class="fc-m ml-10 cursor-pointer" v-if="$$tools.isAuthority('endingClass')" @click="classCourseState({type: 'over', grade_info: scope.row, course_info: course})">结课</span> -->
                                       <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer"
                                         @click="handleCommand({type: operation.type, grade_info: scope.row, course_info: course})"
                                         :class="{'ml-10': num, 'disabled-c': isDisabled(course.type, scope.row, operation.type)}"
@@ -98,47 +95,6 @@
                                                  || (scope.row.status === -2 && item.type === 'over')">
                                                   <i v-if="item.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
                                                   <i v-else>{{item.text}}</i>
-                                                  <!--未开课-->
-                                                  <!-- <template v-if="scope.row.begin_status == 0">
-                                                      <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
-                                                          || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
-                                                          <i class="iconfont" :class="item.icon"></i>
-                                                          <span>{{item.text}}</span>
-                                                      </div>
-                                                  </template> -->
-                                                  <!--已开课-->
-                                                  <!-- <template v-else> -->
-                                                      <!--停课-->
-                                                      <!-- <template v-if="scope.row.status == -3">
-                                                          <div class="d-f f-j-b" v-if="(item.type == 'begin' && $$tools.isAuthority('stopClasses'))
-                                                              || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
-                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))">
-                                                              <i class="iconfont" :class="item.icon"></i>
-                                                              <span>{{item.text}}</span>
-                                                          </div>
-                                                      </template> -->
-
-                                                      <!--结课-->
-                                                      <!-- <template v-else-if="scope.row.status == -2">
-                                                          <div class="d-f f-j-b" v-if="(item.type == 'edit' && $$tools.isAuthority('editClasses'))
-                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
-                                                              :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                              <i class="iconfont" :class="item.icon"></i>
-                                                              <span>{{item.text}}</span>
-                                                          </div>
-                                                      </template> -->
-
-                                                      <!--正常开课-->
-                                                      <!-- <template v-else>
-                                                          <div class="d-f f-j-b" v-if="(item.type == 'stop' && $$tools.isAuthority('stopClasses'))
-                                                              || (item.type == 'edit' && $$tools.isAuthority('editClasses'))
-                                                              || (item.type == 'delete' && $$tools.isAuthority('deleteClasses'))"
-                                                              :class="{'fc-9': item.type == 'plan' && !scope.row.unscheduled && course.type === 1}">
-                                                              <i class="iconfont" :class="item.icon"></i>
-                                                              <span>{{item.text}}</span>
-                                                          </div>
-                                                      </template> -->
-                                                  <!-- </template> -->
                                               </el-dropdown-item>
                                           </el-dropdown-menu>
                                       </el-dropdown>
@@ -217,14 +173,7 @@ export default {
       editGradeDetail: {},
       classEdit: false,
       courseOperate: '', //添加课程/编辑课程
-      operationLists: [
-        // {type: 'begin', text: '开课', icon: 'icon-renwuweikaishi'},
-        // {type: 'plan', text: '排课', icon: 'icon-paike1'},
-        // {type: 'over', text: '结课', icon: 'icon-jieke'},
-        // {type: 'stop', text: '停课', icon: 'icon-tingke'},
-        // {type: 'edit', text: '编辑', icon: 'icon-icon1'},
-        // {type: 'delete', text: '删除', icon: 'icon-shanchu'}
-      ],
+      operationLists: [],
       timeRules: {
         begin_time: [
           {required: true, message: '请选择起始时间', trigger: 'change'}
