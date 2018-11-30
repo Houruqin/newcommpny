@@ -366,7 +366,7 @@ export default {
     },
     // 是否有排课权限
     returnPlanAuthority () {
-      return this.$$tools.isAuthority('scheduling') && (this.$$tools.isAuthority('viewAllData') || (!this.$$tools.isAuthority('viewAllData') && this.timetableFull.course && this.timetableFull.course.length));
+      return this.$$tools.isAuthority('scheduling') && (this.$$tools.isAuthority('viewAllData') || (!this.$$tools.isAuthority('viewAllData') && this.planCourseLists.course && this.planCourseLists.course.length));
     },
     tableHeader (elem, {column, $index}) {
       let weekList = this.defaultWeekList;
