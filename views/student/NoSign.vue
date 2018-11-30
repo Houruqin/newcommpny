@@ -39,7 +39,7 @@
                             <el-option v-for="(item, index) in $store.state.source" :key="index" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </li>
-                    <li v-if="activeTab === 'unsign' || activeTab === 'following' || activeTab === 'invalid'" style="width: auto;">
+                    <li v-if="activeTab === 'unsign' || activeTab === 'following'" style="width: auto;">
                         <el-cascader
                           size="small"
                           :options="allFollowUpList"
@@ -86,7 +86,7 @@
                 <el-table-column label="最新跟进状态" align="center">
                     <template slot-scope="scope">
                         <span class="follow-status fc-5" @click="addFollowUpClick(scope.row)" :class="[{'green': [9,10].includes(scope.row.follow_status),
-                          'fc-subm': [0,1,4,7,8].includes(scope.row.follow_status)},{'cursor-pointer': $$tools.isAuthority('addFollow')}]">
+                          'fc-subm': [0,1,4,7,8].includes(scope.row.follow_status)},{'cursor-pointer': $$tools.isAuthority('addFollow') && scope.row.advisor_id !== 0 }]">
                           {{scope.row.follow_cn}}
                         </span>
                         <p class='fs-12' v-if="scope.row.follow_status === 1 && !!scope.row.reason">{{scope.row.reason}}</p>
@@ -270,7 +270,9 @@ export default {
         uncommitted_children.push({'value': v.id,'label': v.reason});
       });
       parent.map((v, i) => {
-        this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment});
+        if(v.code !== -2) {
+          this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment});
+        }
         if(v.code === 1 && uncommitted_children.length > 0) {   //未承诺上门
           this.$set(this.allFollowUpList, i, {'value': v.code,'label': v.comment,'children': uncommitted_children});
         }else if(v.code === 4) {  //邀约试听未选择试听课
@@ -311,7 +313,7 @@ export default {
       }
     },
     addFollowUpClick (data) {
-      if(!this.$$tools.isAuthority('addFollow')) return false;
+      if(!this.$$tools.isAuthority('addFollow') || data.advisor_id === 0) return false;
       console.log(data);
       this.listStudentId = data.id;
       this.dialogStatus.followUp = true;
@@ -394,9 +396,17 @@ export default {
       });
     },
     tabClick (tab) {
+      console.log(tab.type)
       this.searchKeyWord = '';
       if (tab.type != this.activeTab) {
         this.loading = true;
+        if(tab.type === 'following'){
+          this.allFollowUpList.filter(v => {
+            console.log(![-1,0].includes(v.value))
+            return ![-1,0].includes(v.value)
+          })
+          console.log(this.allFollowUpList)
+        }
         for (let key in this.searchFilter) {
           if (this.searchFilter.hasOwnProperty(key)) {
             this.searchFilter[key] = key === 'type' ? tab.type : '';

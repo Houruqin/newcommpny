@@ -407,7 +407,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="课程顾问" prop="advisor.name"  align="center"></el-table-column>
-                <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('assignConsultant')">
+                <el-table-column label="操作" align="center" v-if="$$tools.isAuthority('handleAudition')">
                   <template slot-scope="scope">
                     <div class="student_handle able_handle" slot="reference" @click="addListenHandle();handle_student.id = scope.row.student_id">办理试听</div>
                   </template>
