@@ -12,6 +12,11 @@
                     && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
+                <div class="teachBtn" v-if="item.lesson_end_time && $$tools.isAuthority('endingCourse')
+                    && item.end_time < new Date().getTime() / 1000
+                    && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">
+                    <a class="cursor-pointer" @click="addTeachRecord(item)" >添加教学记录</a>
+                </div>
             </div>
             <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
             <p class="mt-5"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
@@ -64,50 +69,78 @@
 
             <div class="rm-table" v-if="item.origin == 3">手动消课</div>
         </div>
+        <!-- 添加教学记录 -->
+        <el-dialog class="teachRecord" title="教学记录" :visible.sync="dialogFormTeachRecord" align="center"  label-width="800">
+          <el-form :inline="true"  label-width="100%" label-position="left" >
+              <el-form-item label="课程:" label-width="50px">美术课
+              <!-- <el-input></el-input> -->
+            </el-form-item>
+            <el-form-item label="班级:" label-width="50px">美术1班
+              <!-- <el-input type="text"></el-input> -->
+            </el-form-item>
+            <el-form-item label="学员:" label-width="50px">张三
+              <!-- <el-input type="text" ></el-input> -->
+            </el-form-item>
+            <el-form-item label="上课时间:" label-width="80px">2018-12-03
+              <!-- <el-input type="text" ></el-input> -->
+            </el-form-item>
+            <el-form-item label-width="100%" :inline="false">
+              <el-input :rows="10" type="textarea" ></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer" style="text-align:center">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          </div>
+        </el-dialog>
     </el-popover>
 </template>
 
 <script>
-
 export default {
   props: {
-    pastdue: {default: false},
-    item: {default: {}}
+    pastdue: { default: false },
+    item: { default: {} }
   },
-  data () {
-    return {};
+  data() {
+    return {
+      dialogFormTeachRecord: false,
+    };
   },
   methods: {
-    detailEdit (item) {
+    detailEdit(item) {
       this.$refs.myPopver.showPopper = false;
-      this.$emit('CB-detailEdit', item);
+      this.$emit("CB-detailEdit", item);
     },
-    detailDelete (item) {
-      this.$confirm('确定删除排课吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteHandle(item.id);
-      }).catch(() => {
-        return 0;
-      });
+    detailDelete(item) {
+      this.$confirm("确定删除排课吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.deleteHandle(item.id);
+        })
+        .catch(() => {
+          return 0;
+        });
     },
-    async deleteHandle (id) {
-      let result = await this.$$request.post('/timetable/delete', {id: id});
+    async deleteHandle(id) {
+      let result = await this.$$request.post("/timetable/delete", { id: id });
 
       if (!result || !result.status) {
         return 0;
       }
 
       this.$refs.myPopver.showPopper = false;
-      this.$emit('CB-deleteTable');
-      this.$message.success('删除成功');
+      this.$emit("CB-deleteTable");
+      this.$message.success("删除成功");
     },
     //结课
-    async endTimeTable (item) {
-      let result = await this.$$request.get('/timetable/finishClassInfo', {timetable_id: item.id});
-
+    async endTimeTable(item) {
+      let result = await this.$$request.get("/timetable/finishClassInfo", {
+        timetable_id: item.id
+      });
       if (!result) {
         return 0;
       }
@@ -123,137 +156,166 @@ export default {
           <span class="flex1">旷课人数：${result.not_come_num}</span>
           <span class="flex1">请假人数：${result.leave_ticket_num}</span>
         </div>`;
-
-      this.$confirm(title, '确定结课吗?', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(title, "确定结课吗?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
         dangerouslyUseHTMLString: true,
         center: true
-      }).then(() => {
-        this.endTimeTableHandle(item.id);
-      }).catch(() => {
-        return 0;
-      });
+      })
+        .then(() => {
+          this.endTimeTableHandle(item.id);
+        })
+        .catch(() => {
+          return 0;
+        });
     },
-    async endTimeTableHandle (id) {
-      let result = await this.$$request.post('/timetable/lessonEnd', {timetable_id: id});
-
+    async endTimeTableHandle(id) {
+      let result = await this.$$request.post("/timetable/lessonEnd", {
+        timetable_id: id
+      });
       if (!result) {
         return 0;
       }
-
-      this.$emit('CB-deleteTable');
-      this.$message.success('已结课');
+      this.$emit("CB-deleteTable");
+      this.$message.success("已结课");
+    },
+    // 添加教学记录
+    async addTeachRecord(item) {
+      this.dialogFormTeachRecord = true
+      console.log(item)
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-    .course-item {
-        box-sizing: border-box;
-        min-height: 80px;
-        line-height: normal;
-        .course-type {
-            right: 0;
-            top: 0;
-            width: 18px;
-            line-height: 13px;
-            text-align: center;
-            color: #fff;
-            &.gray {
-                background-color: #C8C8C8;
-            }
-            &.yellow {
-                background-color: #FBBF3F;
-            }
-        }
-        &.gray {
-            border: 1px #C8C8C8 solid;
-            background-color: #f5f5f5;
-        }
-        &.green {
-            border: 1px #3FD88A solid;
-            background-color: #fff;
-            padding-left: 18px;
-        }
-        &.yellow {
-            border: 1px #FBBF3F solid;
-            background-color: #fff;
-            border-left-width: 5px !important;
-        }
-        &.red {
-            border: 1px #FC5A5A solid;
-            background-color: #fff;
-            border-left-width: 5px !important;
-        }
-        .icon {
-            position: relative;
-            top: 3px;
-        }
-        .rm-table {
-          position: absolute;
-          background-color: #fff;
-          // padding: 2px 5px;
-          top: 0;
-          right: 0;
-          font-size: 12px;
-          width: 60px;
-          line-height: 24px;
-          text-align: center;
-        }
-        .leave-status {
-          width: 54px;
-          line-height: 20px;
-          background-color: #FBBF3F;
-          color: #fff;
-          right: 5px;
-          top: 5px;
-          border-radius: 2px;
-          &.gray {
-            background-color: #f5f5f5;
-            color: #999;
-          }
-        }
+.course-item {
+  box-sizing: border-box;
+  min-height: 80px;
+  line-height: normal;
+  .course-type {
+    right: 0;
+    top: 0;
+    width: 18px;
+    line-height: 13px;
+    text-align: center;
+    color: #fff;
+    &.gray {
+      background-color: #c8c8c8;
     }
-    .course-popver {
-        padding: 10px;
-        .btn {
-            a {
-                display: block;
-                width: 54px;
-                box-sizing: border-box;
-                height: 28px;
-                line-height: 28px;
-                text-align: center;
-                border: 1px #45DAD5 solid;
-                color: #45DAD5;
-                border-radius: 3px;
-            }
-        }
-        i {
-            margin-bottom: 5px;
-        }
+    &.yellow {
+      background-color: #fbbf3f;
     }
-    .proportion-box {
-        width: 5px;
-        height: 100%;
-        left: 0;
-        top: 0;
-        background-color: #f5f5f5;
-        .proportion {
-            background-color: #3FD88A;
-            width: 100%;
-            left: 0;
-            bottom: 0;
-        }
+  }
+  &.gray {
+    border: 1px #c8c8c8 solid;
+    background-color: #f5f5f5;
+  }
+  &.green {
+    border: 1px #3fd88a solid;
+    background-color: #fff;
+    padding-left: 18px;
+  }
+  &.yellow {
+    border: 1px #fbbf3f solid;
+    background-color: #fff;
+    border-left-width: 5px !important;
+  }
+  &.red {
+    border: 1px #fc5a5a solid;
+    background-color: #fff;
+    border-left-width: 5px !important;
+  }
+  .icon {
+    position: relative;
+    top: 3px;
+  }
+  .rm-table {
+    position: absolute;
+    background-color: #fff;
+    // padding: 2px 5px;
+    top: 0;
+    right: 0;
+    font-size: 12px;
+    width: 60px;
+    line-height: 24px;
+    text-align: center;
+  }
+  .leave-status {
+    width: 54px;
+    line-height: 20px;
+    background-color: #fbbf3f;
+    color: #fff;
+    right: 5px;
+    top: 5px;
+    border-radius: 2px;
+    &.gray {
+      background-color: #f5f5f5;
+      color: #999;
     }
-    .student-box {
-        i {
-            width: 70px;
-            text-align: left;
-        }
+  }
+}
+.course-popver {
+  padding: 10px;
+  .btn {
+    a {
+      display: inline-block;
+      width: 54px;
+      box-sizing: border-box;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      border: 1px #45dad5 solid;
+      color: #45dad5;
+      border-radius: 3px;
     }
+  }
+  i {
+    margin-bottom: 5px;
+  }
+}
+.course-popver {
+  padding: 10px;
+  .teachBtn {
+    a {
+      display: inline-block;
+      width: 100px;
+      box-sizing: border-box;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      border: 1px #45dad5 solid;
+      color: #45dad5;
+      border-radius: 3px;
+    }
+  }
+}
+.proportion-box {
+  width: 5px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: #f5f5f5;
+  .proportion {
+    background-color: #3fd88a;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+  }
+}
+.student-box {
+  i {
+    width: 70px;
+    text-align: left;
+  }
+.teachRecord el-form{
+    width: 800px;
+    height:500px;
+}
+.teachRecord .el-form--inline .el-form-item {
+  margin-right:50px
+}
+}
 </style>
 
 

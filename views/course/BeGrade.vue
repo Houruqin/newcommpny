@@ -95,7 +95,9 @@
                                                  || (scope.row.status === -2 && item.type === 'over')">
                                                   <i v-if="item.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
                                                   <i v-else>{{item.text}}</i>
+
                                               </el-dropdown-item>
+                                              <a style="text-align:center" class="cursor-pointer" @click="addTeachRecord()">教学记录</a>
                                           </el-dropdown-menu>
                                       </el-dropdown>
                                   </template>

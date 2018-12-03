@@ -15,6 +15,8 @@ const router = new Router({
       { path: '/', component: () => import(/* webpackChunkName: 'page-workbench-index' */ '@/views/workbench/Index'), meta: { needlogin: true, menu: '/' } },
       { path: '/workbench/editNotice', component: () => import(/* webpackChunkName: 'page-workbench-editnotice' */ '@/views/workbench/EditNotice'), meta: {needlogin: true, menu: '/'} },
       { path: '/workbench/schoolsetting', component: () => import(/* webpackChunkName: 'page-workbench-schoolsetting' */ '@/views/BasicSetting/SchoolSetting'), meta: {needlogin: true, menu: '/'} },
+      // 教学记录路由
+      // { path:'/timetable/begrade', component: () => import('../components/common/AddTeachRecord'), meta: { needlogin: true, menu: '/'}},
 
       { path: '/setting', component: () => import(/* webpackChunkName: 'page-setting-index' */ '@/views/BasicSetting/Index'), meta: {needlogin: true, menu: '/setting'} },
       { path: '/setting/wechat', component: () => import(/* webpackChunkName: 'page-setting-wechat' */ '@/views/BasicSetting/WechatSetting'), meta: {needlogin: true, menu: '/setting/wechat'} },
