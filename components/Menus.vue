@@ -50,7 +50,8 @@ export default {
         ]},
         course: {id: `/course/${Cache.getMemberInfo().class_pattern === 2 ? 'nograde' : 'begrade'}`, icon: 'icon-kecheng-', itemLists: [
           {id: '/course/begrade', name: 'begradeCourse', text: '有班课程'},
-          {id: '/course/nograde', name: 'nogradeCourse', text: '无班课程'}
+          {id: '/course/nograde', name: 'nogradeCourse', text: '无班课程'},
+          {id: '/course/coursepack', name: 'coursepack', text: '课程包'}
         ]},
         staff: {id: '/staff', icon: 'icon-yuangongguanli'},
         inventory: {id: '/inventory', icon: 'icon-kucunguanli', itemLists: [

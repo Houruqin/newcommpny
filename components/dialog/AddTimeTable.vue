@@ -487,6 +487,8 @@ export default {
     editTimeTable () {
       if (this.courseType !== 1 && this.editStudentGrades.length) {
         this.studentRadio = this.editStudentGrades[0].student_id;
+      } else {
+
       }
       let gradeInfo;
 
@@ -510,7 +512,7 @@ export default {
           return v.student_id;
         });
         this.studentLists = this.checkStudentForm;
-        this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length;
+        // this.studentCheckAll = this.checkStudentForm.length === this.allStudentLists.length;
       } else {
         this.radioStudentForm = this.editStudentGrades[0].student_id;
         this.studentRadio = this.radioStudentForm;
@@ -730,7 +732,7 @@ export default {
       this.dialogStatus.student = true;
       if (this.courseType === 1) {
         this.studentLists = JSON.parse(JSON.stringify(this.checkStudentForm));
-        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return (f.buy_lesson_num - f.scheduled)}).length;
+        this.studentCheckAll = this.studentLists.length === this.allStudentLists.filter(f => {return (!f.disabled)}).length;
       } else {
         this.studentRadio = this.radioStudentForm;
       }

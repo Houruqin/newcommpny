@@ -48,6 +48,7 @@ const router = new Router({
       { path: '/course/begrade', component: () => import(/* webpackChunkName: 'page-course-begrade' */ '@/views/course/BeGrade'), meta: { needlogin: true, menu: '/course/begrade' } },
       { path: '/course/nograde', component: () => import(/* webpackChunkName: 'page-course-nograde' */ '@/views/course/NoGrade'), meta: { needlogin: true, menu: '/course/nograde' } },
       { path: '/course/detail', component: () => import(/* webpackChunkName: 'page-course-detail' */ '@/views/course/Detail'), meta: { needlogin: true, menu: '/course/begrade' } },
+      { path: '/course/coursepack', component: () => import(/* webpackChunkName: 'page-course-detail' */ '@/views/course/CoursePack'), meta: { needlogin: true, menu: '/course/coursepack' } },
 
       { path: '/finance/income', component: () => import(/* webpackChunkName: 'page-finance-income' */ '@/views/finance/IncomeStatistics'), meta: { needlogin: true } },
       { path: '/finance/outlay', component: () => import(/* webpackChunkName: 'page-finance-outlay' */ '@/views/finance/OutlayStatistics'), meta: { needlogin: true } },
