@@ -117,7 +117,7 @@
                                     <div class="cursor-pointer item-box" mytype="week_one">
                                         <TimetablePopver v-for="(item, n) in scope.row.week_one.lists" :key="n"
                                             @CB-detailEdit="detailEdit" @CB-deleteTable="CB_deleteTable"
-                                            :item="item" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
+                                            :item="item" :timetable_lists="timetable_lists" :pastdue="scope.row.week_one.past_due"></TimetablePopver>
                                         <div class="add-course d-f f-a-c f-j-c" v-if="!scope.row.week_one.past_due && returnPlanAuthority()"
                                             :class="{'hover': scope.row.week_one.operate == true}"
                                             @click="addTimetableClick(scope.row.week_one.hours_id, scope.row.week_one.full_date, scope.row.week_one.id)">
@@ -292,6 +292,9 @@ export default {
   components: {TableHeader, MyButton, TimetablePopver, AddTimeTable},
   data () {
     return {
+      // 班级id
+      timetable_lists: [],
+
       state: 'loading',
       timetableFilterTab: [
         {id: 'grade', name: '班级'},
@@ -391,6 +394,7 @@ export default {
       ]);
     },
     timetableFilterTabClick (item) {
+      console.log( + item)
       if (this.timetableFilter != item.id) {
         this.timetableFilter = item.id;
       }
@@ -563,20 +567,16 @@ export default {
     //获取新增排课填充数据
     async getAddTimeTableFull () {
       let result = await this.$$request.post('/timetable/fill', {class_pattern: 1});
-
       console.log(result);
-
       if (!result) {
         return 0;
       }
-
       result.lists.course.forEach(v => {
         v.value = v.id;
         v.label = v.name;
         v.children = v.grade.map(d => {
           d.value = d.id;
           d.label = d.name;
-
           return d;
         });
       });
@@ -593,6 +593,7 @@ export default {
       if (!result) {
         return 0;
       }
+      this.timetable_lists = result.lists.timetable_lists
 
       this.resultDispose(result.lists.timetable_lists);
       this.timeTableInfo = result.lists;

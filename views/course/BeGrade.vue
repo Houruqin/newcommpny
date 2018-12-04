@@ -95,10 +95,9 @@
                                                  || (scope.row.status === -2 && item.type === 'over')">
                                                   <i v-if="item.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
                                                   <i v-else>{{item.text}}</i>
-
                                               </el-dropdown-item>
-                                              <a style="text-align:center" class="cursor-pointer" @click="addTeachRecord()">教学记录</a>
                                           </el-dropdown-menu>
+                                          <el-dropdown-item class="cursor-pointer" @click="addTeachRecord()">教学记录</el-dropdown-item>
                                       </el-dropdown>
                                   </template>
                               </el-table-column>
@@ -123,6 +122,58 @@
         <!-- 添加排课 -->
         <AddTimeTable :tableType="addTableType" v-model="dialogStatus.timetable" @CB-popverClose="CB_popverClose" :parentData="timetableDetail"
         @CB-timetableSuccess="CB_timetableSuccess" parentPage="course"></AddTimeTable>
+
+        <!-- 添加教学记录 -->
+        <!-- 添加记录表格 -->
+      <el-dialog :visible.sync="showTeachRecordTable">
+        <el-table
+            label="教学记录表"
+            style="width: 100%">
+            <el-table-column label="学员姓名">
+                  <template slot="header" slot-scope="scope">
+                    <el-input
+                      v-model="search"
+                      size="mini"
+                      placeholder="请输入学员姓名搜索"/>
+                  </template>
+            </el-table-column>
+            <el-table-column
+              prop="date"
+              label="日期"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="地址">
+            </el-table-column>
+        </el-table>
+        <!-- 添加记录表单 -->
+        <el-dialog class="teachRecord" title="教学记录" :visible.sync="showTeachRecord" center  label-width="800px" :modal-append-to-body="false">
+          <el-form  v-model="formData">
+              <el-form-item>
+                <span style="margin-right: 50px">课程： {{formData.course_name}}</span>
+                <!-- <span style="margin-right: 20px">班级： {{formData.grade_name:}}</span> -->
+                <!-- <span style="margin-right: 30px">学员： {{formData.student_grades}}</span> -->
+                <span >上课时间： {{formData.time_quantum.week}} {{formData.time_quantum.begin_time}}-{{formData.time_quantum.end_time}}</span>
+            </el-form-item>
+            <el-form-item >
+              <el-input ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 8, maxRows: 12}" type="textarea" ></el-input>
+            </el-form-item>
+            <!-- <span style="margin-right: 400px">添加人：{{formData.teacher[0].name}}</span> -->
+            <span v-if="desc.length > 0">已输入{{remnant}}字</span>
+          </el-form>
+          <div slot="footer" class="dialog-footer" style="text-align:center">
+            <!-- <el-button v-if="code" @click="dialogFormVisible = false">编 辑</el-button> -->
+            <el-button type="primary" @click="handelTeach($refs.txt.value, item.id, item.student_grades.type)">提 交</el-button>
+          </div>
+        </el-dialog>
+      </el-dialog>
+
     </div>
 </template>
 
@@ -149,6 +200,22 @@ export default {
   components: {TableHeader, MyButton, AddCourseDialog, AddGradeDialog, CourseSyllabus, AddTimeTable},
   data () {
     return {
+      // 显示添加教学记录按钮
+      showTeachRecordTable: false,
+      isRecord:false,
+      showTeachRecord: false,
+      remnant: 1000,
+      desc:'',
+      formData:{
+        // course_name:'',
+        grade_name:'',
+        time_quantum: '',
+        teacher: [ ],
+        student_grades:[ ],
+        begin_time:'',
+        end_time:''
+      },
+
       state: 'loading',
       loading: false,
       submitLoading: {
@@ -205,6 +272,24 @@ export default {
     };
   },
   methods: {
+     // 教学记录表单提交
+    async handelTeach(desc, ID, type){
+      const result = await this.$$request.post('timetable/addTimetableRecord',{recordContent: desc, timetableId: ID, type: type})
+      console.log(result)
+      this.desc = ''
+      this.showTeachRecord = false
+
+    },
+    // 教学记录显示剩余字数
+    descInput(){
+      const txtVal = this.desc.length
+      this.remnant = txtVal
+    },
+    // 添加教学记录
+   addTeachRecord(item) {
+      this.formData = item
+      this.showTeachRecordTable = true
+    },
     //弹出框关闭事件
     dialogClose (type) {
       this.$refs[type].resetFields();

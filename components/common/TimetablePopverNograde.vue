@@ -12,6 +12,9 @@
                 && item.end_time < new Date().getTime() / 1000">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
+                 <div class="teachBtn" v-if="item.isRecord">
+                    <a class="cursor-pointer" @click="addTeachRecord(item)" >添加教学记录</a>
+                </div>
             </div>
             <p class="mt-10"><span>{{`${item.time_quantum.begin_time}-${item.time_quantum.end_time}`}}</span><span class="ml-50">{{Math.round((item.end_time - item.begin_time) / 60)}}分钟</span></p>
             <p class="mt-20 fc-9">课时：<span class="fc-5">{{item.lesson_num}}课时</span></p>
@@ -62,6 +65,26 @@
             <div class="rm-table" v-if="item.origin == 3">手动消课</div>
             <!-- <div class="course-type p-a fs-12" v-if="item.course_type == 2" :class="item.lesson_end_time ? 'gray' : 'yellow'">一对一</div> -->
         </div>
+         <!-- 添加教学记录 -->
+        <el-dialog class="teachRecord" title="教学记录" :visible.sync="showTeachRecord" center  label-width="800px" :modal-append-to-body="false">
+          <el-form  v-model="formData">
+              <el-form-item>
+                <span style="margin-right: 50px">课程： {{formData.course_name}} {{` ${formData.begin_time}- ${formData.end_time}`}}</span>
+                <!-- <span style="margin-right: 20px">班级： {{formData.grade_name:}}</span> -->
+                <!-- <span style="margin-right: 30px">学员： {{formData.student_grades}}</span> -->
+                <span >上课时间： {{formData.time_quantum.week}}</span>
+            </el-form-item>
+            <el-form-item label="张三">
+              <el-input ></el-input>
+            </el-form-item>
+            <!-- <span style="margin-right: 400px">添加人：{{formData.teacher[0].name}}</span> -->
+            <span v-if="desc.length > 0">已输入{{remnant}}字</span>
+          </el-form>
+          <div slot="footer" class="dialog-footer" style="text-align:center">
+            <!-- <el-button @click="dialogFormVisible = false">取 消</el-button> -->
+            <el-button type="primary" @click="handelTeach($refs.txt.value, item.course_id)">提 交</el-button>
+          </div>
+        </el-dialog>
     </el-popover>
 </template>
 
@@ -73,9 +96,45 @@ export default {
     item: {default: {}}
   },
   data () {
-    return {};
+    return {
+      // 显示添加教学记录按钮
+      isRecord:false,
+      showTeachRecord: false,
+      remnant: 1000,
+      desc:'',
+      formData:{
+        course_name:'',
+        grade_name:'',
+        time_quantum: '',
+        teacher: [ ],
+        student_grades:[ ],
+        begin_time: "",
+        end_time: " "
+      }
+    };
   },
   methods: {
+    // 教学记录表单提交
+    async handelTeach(desc, ID){
+      console.log(desc)
+      console.log(ID)
+      const result = await this.$$request.post('timetable/addTimetableRecord',{recordContent:desc, timetableId:ID})
+      console.log(result)
+    },
+    // 教学记录显示剩余字数
+    descInput(){
+      const txtVal = this.desc.length
+      this.remnant = txtVal
+    },
+    // 添加教学记录
+    addTeachRecord(item) {
+      console.log(item)
+      // let {course_name, grade_name , room_name, student_grades, begin_time, teacher} =item;
+      this.formData = item
+      // console.log(course_name, grade_name , room_name, student_grades, begin_time, teacher)
+      this.showTeachRecord = true
+    },
+
     detailEdit (item) {
       this.$refs.myPopver.showPopper = false;
       this.$emit('CB-detailEdit', item);

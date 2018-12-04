@@ -12,10 +12,9 @@
                     && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">
                     <a class="cursor-pointer" @click="endTimeTable(item)">结课</a>
                 </div>
-                <div class="teachBtn" v-if="item.lesson_end_time && $$tools.isAuthority('endingCourse')
-                    && item.end_time < new Date().getTime() / 1000
-                    && (item.course_type === 1 || (item.student_grades.length && item.course_type === 2))">
-                    <a class="cursor-pointer" @click="addTeachRecord(item)" >添加教学记录</a>
+                <div class="teachBtn" v-if="item.isRecord">
+                    <a class="cursor-pointer"  @click="addTeachRecord(item)" >添加教学记录</a>
+                    <!-- <a class="cursor-pointer" v-if="code" @click="addTeachRecord(item)" >查看教学记录</a> -->
                 </div>
             </div>
             <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
@@ -70,27 +69,23 @@
             <div class="rm-table" v-if="item.origin == 3">手动消课</div>
         </div>
         <!-- 添加教学记录 -->
-        <el-dialog class="teachRecord" title="教学记录" :visible.sync="dialogFormTeachRecord" align="center"  label-width="800">
-          <el-form :inline="true"  label-width="100%" label-position="left" >
-              <el-form-item label="课程:" label-width="50px">美术课
-              <!-- <el-input></el-input> -->
+        <el-dialog class="teachRecord" title="教学记录" :visible.sync="showTeachRecord" center  label-width="800px" :modal-append-to-body="false">
+          <el-form  v-model="formData">
+              <el-form-item>
+                <span style="margin-right: 50px">课程： {{formData.course_name}}</span>
+                <!-- <span style="margin-right: 20px">班级： {{formData.grade_name:}}</span> -->
+                <!-- <span style="margin-right: 30px">学员： {{formData.student_grades}}</span> -->
+                <span >上课时间： {{formData.time_quantum.week}} {{formData.time_quantum.begin_time}}-{{formData.time_quantum.end_time}}</span>
             </el-form-item>
-            <el-form-item label="班级:" label-width="50px">美术1班
-              <!-- <el-input type="text"></el-input> -->
+            <el-form-item >
+              <el-input ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 8, maxRows: 12}" type="textarea" placeholder="限制1000个字符以内" ></el-input>
             </el-form-item>
-            <el-form-item label="学员:" label-width="50px">张三
-              <!-- <el-input type="text" ></el-input> -->
-            </el-form-item>
-            <el-form-item label="上课时间:" label-width="80px">2018-12-03
-              <!-- <el-input type="text" ></el-input> -->
-            </el-form-item>
-            <el-form-item label-width="100%" :inline="false">
-              <el-input :rows="10" type="textarea" ></el-input>
-            </el-form-item>
+            <!-- <span style="margin-right: 400px">添加人：{{formData.teacher[0].name}}</span> -->
+            <span v-if="desc.length > 0">已输入{{remnant}}字</span>
           </el-form>
           <div slot="footer" class="dialog-footer" style="text-align:center">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            <!-- <el-button v-if="code" @click="dialogFormVisible = false">编 辑</el-button> -->
+            <el-button type="primary" @click="handelTeach($refs.txt.value, item.id, item.student_grades.type)">提 交</el-button>
           </div>
         </el-dialog>
     </el-popover>
@@ -100,14 +95,46 @@
 export default {
   props: {
     pastdue: { default: false },
-    item: { default: {} }
+    item: { default() {return {}} },
+    timetable_lists: { default() {return {} }}
   },
   data() {
     return {
-      dialogFormTeachRecord: false,
+      // 显示添加教学记录按钮
+      isRecord:false,
+      showTeachRecord: false,
+      remnant: 1000,
+      desc:'',
+      formData:{
+        course_name:'',
+        grade_name:'',
+        time_quantum: '',
+        teacher: [ ],
+        student_grades:[ ],
+        begin_time:'',
+        end_time:''
+      }
     };
   },
   methods: {
+    // 教学记录表单提交
+    async handelTeach(desc, ID, type){
+      const result = await this.$$request.post('timetable/addTimetableRecord',{recordContent: desc, timetableId: ID, type: type})
+      console.log(result)
+      this.desc = ''
+      this.showTeachRecord = false
+
+    },
+    // 教学记录显示剩余字数
+    descInput(){
+      const txtVal = this.desc.length
+      this.remnant = txtVal
+    },
+    // 添加教学记录
+    addTeachRecord(item, desc) {
+      this.formData = item
+      this.showTeachRecord = true
+    },
     detailEdit(item) {
       this.$refs.myPopver.showPopper = false;
       this.$emit("CB-detailEdit", item);
@@ -178,12 +205,17 @@ export default {
       }
       this.$emit("CB-deleteTable");
       this.$message.success("已结课");
-    },
-    // 添加教学记录
-    async addTeachRecord(item) {
-      this.dialogFormTeachRecord = true
-      console.log(item)
     }
+
+  },
+  watch: {
+    item: function(v) {
+      console.log('item:',v)
+    }
+
+  },
+  created() {
+    console.log(this.item)
   }
 };
 </script>
@@ -308,13 +340,6 @@ export default {
     width: 70px;
     text-align: left;
   }
-.teachRecord el-form{
-    width: 800px;
-    height:500px;
-}
-.teachRecord .el-form--inline .el-form-item {
-  margin-right:50px
-}
 }
 </style>
 
