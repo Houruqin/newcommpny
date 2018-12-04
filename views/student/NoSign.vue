@@ -503,10 +503,26 @@ export default {
         this.searchFilter.mobile = '';
         this.searchFilter.name = '';
       }
+      let data = JSON.parse(JSON.stringify(this.searchFilter));
+      data.startTime = this.timeFilter.begin_time / 1000;
+      data.endTime = this.timeFilter.end_time / 1000;
+     
+      for(let v in this.searchFilter) {
+        console.log(v)
+        if(v === 'follow_status') {
+          console.log(this.searchFilter[v],this.searchFilter[v][0])
+          data[v] = this.searchFilter[v][0];
+          if(this.searchFilter[v][0] === 1 && this.searchFilter[v].length > 1){
+             data.uncommitted_reason_id = this.searchFilter[v][1]
+          }else if(this.searchFilter[v][0] === 4) {
+            data.listen_status = this.searchFilter[v][1]
+          };
+        }
+      }
 
       let baseUrl = config.api;
       let token = this.$$cache.get('TOKEN') || this.$$cache.getSession('TOKEN') || '';
-      let params = {data: this.searchFilter, token: token.replace('bearer ', '')};
+      let params = {data: data, token: token.replace('bearer ', '')};
 
       window.location.href = `${baseUrl}student/export?${qs.stringify(params)}`;
     },
@@ -587,7 +603,6 @@ export default {
         startTime: this.timeFilter.begin_time / 1000,
         endTime: this.timeFilter.end_time / 1000
       };
-      console.log(this.searchFilter)
       Object.keys(this.searchFilter).forEach(v => {
         if(v === 'follow_status') {
           params[v] = this.searchFilter[v][0];
@@ -600,9 +615,6 @@ export default {
           params[v] = this.searchFilter[v]
         }
       });
-
-      console.log(params);
-      // return false;
 
       if (this.searchKeyWord) {
         if (isNaN(this.searchKeyWord)) {
