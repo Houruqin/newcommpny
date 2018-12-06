@@ -90,7 +90,14 @@
                         <el-table-column label="购课类型" align="center">
                             <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : (scope.row.type === 2 ? '续约' : '转课')}}</template>
                         </el-table-column>
-                        <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
+                        <el-table-column label="课程名称" prop="course_name" align="center">
+                          <template slot-scope="scope">
+                            <el-popover v-if="scope.row.course_package_id" popper-class="grade-student-popver" placement="right" trigger="hover" content="课程包">
+                                <span slot="reference">{{scope.row.course_package_name}}</span>
+                            </el-popover>
+                            <span v-else>{{scope.row.course_name}}</span>
+                          </template>
+                        </el-table-column>
                         <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
                         <el-table-column label="总课时" align="center">
                             <template slot-scope="scope">

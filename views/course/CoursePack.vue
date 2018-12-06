@@ -2,7 +2,7 @@
   <div class="flex1">
     <PageState :state="state"/>
     <el-card shadow="hover">
-       <TableHeader title="课程包">
+        <TableHeader title="课程包">
             <MyButton @click.native="addCoursePack" class="ml-20">添加课程包</MyButton>
         </TableHeader>
 
@@ -26,7 +26,7 @@
         </div>
     </el-card>
 
-    <AddCoursePack v-model="dialogStatus.coursePack" :courselists="noGradeCourseLists" :detail="editDetail" @CB-success="CB_success" @input="CB_input" :type="courseType"></AddCoursePack>
+    <AddCoursePack v-model="dialogStatus.coursePack" :detail="editDetail" @CB-success="CB_success" @input="CB_input" :type="courseType"></AddCoursePack>
   </div>
 </template>
 
@@ -99,11 +99,14 @@ export default {
     // }
   },
   async created (){
-    // this.$store.dispatch('getCourse');
-    let datas = await this.getCourseLists();
-    if (datas) {
-      this.state = 'loaded';
-    }
+    // let datas = await this.getCourseLists();
+    // if (datas) {
+    //   this.state = 'loaded';
+    // }
+  },
+  mounted () {
+    console.log(this.$store.state.coursePackLists)
+    setTimeout(() => {this.state = 'loaded'}, 1000);
   }
 }
 </script>
