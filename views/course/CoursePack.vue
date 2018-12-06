@@ -84,22 +84,10 @@ export default {
 
       this.noGradeCourseLists = res.lists.map(v => {return {id: v.id, name: v.name, type: 'nograde'}});
        return true;
-    },
-    // async getCoursePackLists () {
-    //   let res = await this.$$request.get('/coursePackage/lists');
-    //   console.log(res);
-
-    //   if (!res) {
-    //     return 0;
-    //   }
-    //   this.coursePackLists = res.lists;
-    //   return true;
-    //   this.$store.dispatch('coursePackLists');
-    //   return true;
-    // }
+    }
   },
   async created (){
-    // let datas = await this.getCourseLists();
+    // let datas = await this.getAllCourse();
     // if (datas) {
     //   this.state = 'loaded';
     // }

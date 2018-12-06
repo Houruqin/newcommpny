@@ -189,16 +189,30 @@ export default {
       this.dialogStatus.coursePack = false;
 
       this.$emit('CB-success');
+    },
+    async getAllCourse () {
+      let res = await this.$$request.get('/course/allLists');
+      console.log(res);
+      if (!res) return 0;
+
+      res.courses.forEach(v => {
+        if (v.class_pattern === 1) {
+          this.courseLists.begrade.push({name: v.name, id: v.id, type: 'begrade'});
+        } else {
+          this.courseLists.nograde.push({name: v.name, id: v.id, type: 'nograde'});
+        }
+      });
     }
   },
   created () {
-    this.$store.state.course.forEach(v => {
-      if (v.class_pattern === 1) {
-        this.courseLists.begrade.push({name: v.name, id: v.id, type: 'begrade'});
-      } else {
-        this.courseLists.nograde.push({name: v.name, id: v.id, type: 'nograde'});
-      }
-    });
+    this.getAllCourse();
+    // this.$store.state.course.forEach(v => {
+    //   if (v.class_pattern === 1) {
+    //     this.courseLists.begrade.push({name: v.name, id: v.id, type: 'begrade'});
+    //   } else {
+    //     this.courseLists.nograde.push({name: v.name, id: v.id, type: 'nograde'});
+    //   }
+    // });
   }
 }
 </script>

@@ -92,10 +92,13 @@
                         </el-table-column>
                         <el-table-column label="课程名称" prop="course_name" align="center">
                           <template slot-scope="scope">
-                            <el-popover v-if="scope.row.course_package_id" popper-class="grade-student-popver" placement="right" trigger="hover" content="课程包">
+                            <!-- <el-popover v-if="scope.row.course_package_id" popper-class="grade-student-popver" placement="right" trigger="hover" content="课程包">
                                 <span slot="reference">{{scope.row.course_package_name}}</span>
-                            </el-popover>
-                            <span v-else>{{scope.row.course_name}}</span>
+                            </el-popover> -->
+                            <div class="course-name">
+                              {{scope.row.course_package_id ? scope.row.course_package_name : scope.row.course_name}}
+                              <span v-if="scope.row.course_package_id">课程包</span>
+                            </div>
                           </template>
                         </el-table-column>
                         <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
@@ -1485,70 +1488,24 @@ export default {
             height: 200px;
         }
     }
-    .contract-box {
-        padding: 0 30px;
-        p {
-            &:not(:first-child) {
-                margin-top: 10px;
-            }
-            span {
-                margin-right: 30px;
-            }
-        }
-        .course-table {
-            border-collapse: collapse;
-            margin-top: 10px;
-            td {
-                border: 1px #BFBFBF solid;
-                width: 120px;
-                text-align: center;
-                line-height: 40px;
-            }
-        }
-    }
-    .listen-course-box {
-        max-height: 350px;
-        overflow: hidden;
-        overflow-y: auto;
-    }
-    .listen-nothing {
-        width: 610px;
-        height: 120px;
-    }
-    .audition-lists {
-        li {
-            padding: 20px;
-            &:not(:first-child) {
-                border-top: 1px #e3e3e3 solid;
-            }
-            &::after {
-                content: '';
-                display: block;
-                width: 20px;
-                height: 20px;
-                background: url(../../images/common/not-check.png) no-repeat;
-                background-size: 100%;
-                position: absolute;
-                right: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-            }
-            &.active {
-                &::after {
-                    background: url(../../images/common/check-box.png) no-repeat;
-                    background-size: 100%;
-                }
-            }
-            .two-p {
-                span {
-                    position: relative;
-                }
-            }
-        }
-    }
     .timetable-multiple {
       top: 0;
       right: 0;
+    }
+    .bottom-content-box {
+      .course-name {
+        position: relative;
+        span {
+          position: absolute;
+          background-color: #45DAD5;
+          padding: 0 2px;
+          right: 0;
+          top: 0;
+          display: block;
+          color: #fff;
+          font-size: 12px;
+        }
+      }
     }
 </style>
 
