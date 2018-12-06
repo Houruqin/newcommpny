@@ -6,7 +6,7 @@
             <MyButton @click.native="addCoursePack" class="ml-20">添加课程包</MyButton>
         </TableHeader>
 
-        <div class="course-box mt-20" v-for="(course, index) in coursePackLists" :key="index">
+        <div class="course-box mt-20" v-for="(course, index) in $store.state.coursePackLists" :key="index">
           <div class="list-header cursor-pointer d-f p-r f-a-c f-j-b" @click.stop.self.prevent="listHeaderClick(course, index)">
               <div class="d-f f-a-c">
                 <div class="fc-7 fs-16 d-f f-a-c">
@@ -56,7 +56,8 @@ export default {
       }
     },
     CB_success () {
-      this.getCoursePackLists();
+      // this.getCoursePackLists();
+      this.$store.dispatch('getCoursePack');
     },
     addCoursePack () {
       this.courseType = 'add';
@@ -84,21 +85,23 @@ export default {
       this.noGradeCourseLists = res.lists.map(v => {return {id: v.id, name: v.name, type: 'nograde'}});
        return true;
     },
-    async getCoursePackLists () {
-      let res = await this.$$request.get('/coursePackage/lists');
-      console.log(res);
+    // async getCoursePackLists () {
+    //   let res = await this.$$request.get('/coursePackage/lists');
+    //   console.log(res);
 
-      if (!res) {
-        return 0;
-      }
-      this.coursePackLists = res.lists;
-      return true;
-    }
+    //   if (!res) {
+    //     return 0;
+    //   }
+    //   this.coursePackLists = res.lists;
+    //   return true;
+    //   this.$store.dispatch('coursePackLists');
+    //   return true;
+    // }
   },
   async created (){
     // this.$store.dispatch('getCourse');
-    let [a, b] = await Promise.all([this.getCoursePackLists(), this.getCourseLists()]);
-    if (a && b) {
+    let datas = await this.getCourseLists();
+    if (datas) {
       this.state = 'loaded';
     }
   }

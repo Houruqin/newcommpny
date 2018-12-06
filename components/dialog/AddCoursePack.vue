@@ -108,6 +108,7 @@ export default {
         this.$refs[type].resetFields();
         this.dialogStatus.coursePack = false;
         this.checkCourseForm = [];
+        Object.keys(this.coursePackForm).forEach(v => {this.coursePackForm[v] = ''});
         this.$emit('input', false);
       } else {
         this.checkCourse.begrade = [];
