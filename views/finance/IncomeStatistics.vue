@@ -30,9 +30,9 @@
       <div class="toolbar mt-20">
         <ul class="d-f">
           <li class="ml-20" v-if="activeTab === 'contract'">
-            <el-select size="small" placeholder="选择课程" v-model="search_info.course_id" @change="search">
+            <el-select size="small" placeholder="选择课程" v-model="search_info.courseId" @change="courseChange">
               <el-option label="全部课程" :value="0"></el-option>
-              <el-option v-for="(item, index) in $store.state.course" :key="index" :value="item.id" :label="item.name"></el-option>
+              <el-option v-for="(item, index) in $$tools.getCourseLists('pack')" :key="index" :value="item.id" :label="item.name"></el-option>
             </el-select>
           </li>
           <li class="ml-20" v-if="activeTab === 'contract'">
@@ -66,7 +66,11 @@
               <span v-else>{{scope.row.student_name}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="购买课程" prop="course.name" align="center"></el-table-column>
+          <el-table-column label="购买课程" align="center">
+            <template slot-scope="scope">
+              {{scope.row.course ? scope.row.course.name : scope.row.course_package ? scope.row.course_package.name : ''}}
+            </template>
+          </el-table-column>
           <el-table-column label="签约日期" align="center">
             <template slot-scope="scope">{{scope.row.pay_at | date('yyyy-MM-dd')}}</template>
           </el-table-column>
@@ -160,6 +164,8 @@ export default {
         name: '',
         date_type: 'current_month',
         course_id: 0,
+        courseId: 0,
+        course_package_id: 0,
         advisor_id: 0,
         pay_method: 0
       },
@@ -231,6 +237,26 @@ export default {
       }
       this.getTableData();
     },
+    courseChange () {
+      let allCourse = this.$$tools.getCourseLists('pack');
+      if (!this.search_info.courseId) {
+        this.search_info.course_package_id = 0;
+        this.search_info.course_id = 0;
+      } else {
+        allCourse.forEach(v => {
+          if (v.id === this.search_info.courseId) {
+            if (v.type === 'course') {
+              this.search_info.course_package_id = 0;
+              this.search_info.course_id = this.search_info.courseId;
+            } else {
+              this.search_info.course_package_id = this.search_info.courseId;
+              this.search_info.course_id = 0;
+            }
+          }
+        });
+      }
+      this.search();
+    },
     search () {
       this.getTableData();
     },
@@ -251,6 +277,7 @@ export default {
           begin: this.$format_date(this.search_info.begin, 'yyyy-MM-dd'),
           end: this.$format_date(this.search_info.end, 'yyyy-MM-dd'),
           course_id: this.search_info.course_id,
+          course_package_id: this.search_info.course_package_id,
           seller_id: this.search_info.advisor_id,
           pay_type: this.search_info.pay_method,
           user_name: this.search_info.name

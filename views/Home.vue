@@ -570,6 +570,7 @@ export default {
       this.showModal();
     }
     this.$store.dispatch('getAdvisor');
+    this.$store.dispatch('getCoursePack');
     // this.$store.dispatch('getFollowupStatus');
     this.$store.dispatch('getCourse');
     this.$store.dispatch('getSource');

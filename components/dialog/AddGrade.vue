@@ -408,6 +408,7 @@ export default {
 
       this.$emit('CB-addGrade', params.course_id);
       this.$store.dispatch('getCourse');
+      this.$store.dispatch('getCoursePack');
       this.studentLists.splice(0, this.studentLists.length); //成功以后，studentLists选中的学员列表清空
     }
     // // 获取角色列表

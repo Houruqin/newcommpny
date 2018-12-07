@@ -72,10 +72,22 @@
         </el-card>
 
         <el-card class="mt-20" shadow="hover">
-            <div class="mt-10 p-r">
-              <el-tabs v-model="activeTab" @tab-click="tabClick">
+            <div class="mt-10 p-r tab-box">
+              <!-- <el-tabs v-model="activeTab" @tab-click="tabClick">
                 <el-tab-pane v-for="(item, index) in tabLists" :key="index" :label="item.name" :name="item.type"></el-tab-pane>
-              </el-tabs>
+              </el-tabs> -->
+              <ul class="d-f tab-toolbar">
+                <li v-for="(list, index) in tabLists" :key="index" :class="{'ml-20': index, 'active': list.id === activeTab.parent_id}">
+                  <el-dropdown trigger="click" v-if="list.item.length" placement="bottom" @command="tabClick" class="role-popver-box">
+                    <span class="el-dropdown-link title cursor-pointer">{{list.name}}<i class="el-icon-arrow-down el-icon--right"></i></span>
+                    <el-dropdown-menu slot="dropdown" class="role-popver-box">
+                      <el-dropdown-item v-for="(item, num) in list.item" :key="num" :command="item" class="drop-item"
+                      :class="{'active': item.id === activeTab.item_id && list.id === activeTab.parent_id}">{{item.name}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <span v-else class="title cursor-pointer" @click="tabClick(list)" :class="{'active': list.id === activeTab.parent_id}">{{list.name}}</span>
+                </li>
+              </ul>
               <div class="d-f f-a-c p-a timetable-multiple" v-if="activeTab === 'timetable' && $$tools.isAuthority('deleteTimetable')">
                 <MyButton v-if="!timetableMultiple.isShowCheckbox" @click.native="timetableMultiple.isShowCheckbox = true" type="border" fontColor="fc-m">批量管理</MyButton>
                 <span v-if="timetableMultiple.isShowCheckbox" class="fc-9 cursor-pointer" :class="{'fc-m': timetableMultiple.selectedIds.length}" @click="deleteTimeTable">批量删除</span>
@@ -84,13 +96,23 @@
             </div>
             <div class="bottom-content-box">
                 <!-- 订单记录列表 -->
-                <div key="course_info" v-if="activeTab == 'course_info'">
+                <div key="course_info" v-if="activeTab.parent_id == 'course_info'">
                     <el-table :data="quitCourseLists.data" stripe v-loading="loading">
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="购课类型" align="center">
                             <template slot-scope="scope">{{scope.row.type === 1 ? '新签约' : (scope.row.type === 2 ? '续约' : '转课')}}</template>
                         </el-table-column>
-                        <el-table-column label="课程名称" prop="course_name" align="center"></el-table-column>
+                        <el-table-column label="课程名称" prop="course_name" align="center">
+                          <template slot-scope="scope">
+                            <!-- <el-popover v-if="scope.row.course_package_id" popper-class="grade-student-popver" placement="right" trigger="hover" content="课程包">
+                                <span slot="reference">{{scope.row.course_package_name}}</span>
+                            </el-popover> -->
+                            <div class="course-name">
+                              {{scope.row.course_package_id ? scope.row.course_package_name : scope.row.course_name}}
+                              <span v-if="scope.row.course_package_id">课程包</span>
+                            </div>
+                          </template>
+                        </el-table-column>
                         <el-table-column label="购课总额" prop="real_price" align="center"></el-table-column>
                         <el-table-column label="总课时" align="center">
                             <template slot-scope="scope">
@@ -117,7 +139,7 @@
                                 <span v-if="scope.row.type === 3 && $$tools.isAuthority('transferCourse') && scope.row.status != 2" class="cursor-pointer fc-m mr-10" @click="getContractDetail(scope.row.id)">转课详情</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status != 2 && scope.row.expired_at > new Date().getTime() / 1000 && scope.row.lesson_num_remain > 0" class="fc-subm cursor-pointer" @click="quitCourse(scope.row)">退费</span>
                                 <span v-if="$$tools.isAuthority('refundAndView') && scope.row.status == 2" class="fc-m cursor-pointer" @click="getQuitPriceDetail(scope.row)">退费详情</span>
-                                <span v-if="$$tools.isAuthority('manualEliminate') && scope.row.lesson_num_remain > 0 && scope.row.status != 2"
+                                <span v-if="$$tools.isAuthority('manualEliminate') && scope.row.lesson_num_remain > 0 && scope.row.status != 2 && scope.row.course_id"
                                     @click="removeTimeTableClick(scope.row)" class="fc-subm cursor-pointer ml-10">消课</span>
                             </template>
                         </el-table-column>
@@ -132,8 +154,9 @@
                 </div>
 
                 <!-- 上课信息列表 -->
-                <div key="grade" v-else-if="activeTab == 'grade'">
-                    <el-table :data="courseTimeTable.data" stripe v-loading="loading">
+                <div key="grade" v-else-if="activeTab.parent_id == 'grade'">
+                    <div v-if="activeTab.item_id === 'grade'" key="grade_course">
+                      <el-table :data="courseTimeTable.data" stripe v-loading="loading">
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="课程名称" prop="course.name" align="center"></el-table-column>
                         <el-table-column label="班级名称" align="center">
@@ -196,30 +219,109 @@
                                     <div v-if="scope.row.course.class_pattern == 1" class="list-btn-box">
                                         <span :class="[{'fc-m': scope.row.isTransfer},'cursor-pointer fc-9']" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
                                         <span v-if="$$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m"  @click="gradeDivideClick('change', scope.row)">转班</span>
-                                        <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(scope.row.student_id,scope.row.grade_id,scope.row.suspend_type,scope.$index)">
+                                        <span v-if="$$tools.isAuthority('stopCourses') && scope.row.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(scope.row.grade_id,scope.row.suspend_type,scope.$index)">
                                             {{scope.row.suspend_type === 0 ? '停课' : '开课'}}
                                         </span>
                                     </div>
                                     <ul v-else class="table-item-list list-btn-box">
                                         <li v-for="(list, index) in scope.row.studentCourses" :key="index">
                                           <span :class="[{'fc-m': scope.row.isTransfer},'cursor-pointer fc-9']" v-if="$$tools.isAuthority('transferCourse')" @click="changeCourse(scope.row)">转课</span>
-                                          <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacherClick(scope.row.course.id, list.teacher_ids, scope.row.student_id)">分配老师</span>
+                                          <span class="cursor-pointer fc-m" v-if="$$tools.isAuthority('assignTeacher')" @click="editTeacherClick(scope.row.course.id, list.teacher_ids)">分配老师</span>
                                         </li>
                                     </ul>
                                 </div>
                             </template>
                         </el-table-column>
-                    </el-table>
-                    <el-pagination v-if="courseTimeTable.total"
-                        class="d-f f-j-c mt-50 mb-20"
-                        :page-size="courseTimeTable.per_page"
-                        background layout="total, prev, pager, next"
-                        :total="courseTimeTable.total"
-                        :current-page="courseTimeTable.current_page" @current-change="paginationClick">
-                    </el-pagination>
+                      </el-table>
+                      <el-pagination v-if="courseTimeTable.total"
+                          class="d-f f-j-c mt-50 mb-20"
+                          :page-size="courseTimeTable.per_page"
+                          background layout="total, prev, pager, next"
+                          :total="courseTimeTable.total"
+                          :current-page="courseTimeTable.current_page" @current-change="paginationClick">
+                      </el-pagination>
+                    </div>
+                    <div v-else key="grade_coursepack">
+                      <el-table :data="coursePackTable.course_packages" stripe v-loading="loading">
+                        <el-table-column label="序号" type="index" align="center"></el-table-column>
+                        <el-table-column label="课程包名称" prop="name" align="center"></el-table-column>
+                        <el-table-column label="课时总数" prop="total_lesson_num" align="center"></el-table-column>
+                        <el-table-column label="剩余课时" prop="total_lesson_num_remain" align="center"></el-table-column>
+
+                        <el-table-column label="包含课程" align="center" class-name="table-item">
+                            <template slot-scope="scope">
+                                <ul class="table-item-list" :class="{'first-merge': scope.row.courses && scope.row.courses.length > 1}">
+                                    <li v-for="(list, index) in scope.row.courses" :key="index">
+                                      {{list.name}}
+                                    </li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="班级名称" align="center" class-name="table-item">
+                            <template slot-scope="scope">
+                                <ul class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.courses" :key="index">
+                                      {{list.student_grade ? list.student_grade.name : '-'}}
+                                    </li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="任课老师/辅助老师" align="center" class-name="table-item">
+                            <template slot-scope="scope">
+                                <ul class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.courses" :key="index">
+                                      <div v-if="list.class_pattern === 2 && list.buy_teachers.length">{{list.buy_teachers[0].name}}</div>
+                                      <div v-else>
+                                        <span v-if="list.teacher && list.teacher.length">
+                                          <i v-for="(teacher, num) in list.teacher" :key="teacher.id"><i v-if="num">/</i>{{teacher.name}}</i>
+                                        </span>
+                                        <span v-else>-</span>
+                                      </div>
+                                    </li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="已消课时" align="center" class-name="table-item">
+                            <template slot-scope="scope">
+                                <ul class="table-item-list">
+                                    <li v-for="(list, index) in scope.row.courses" :key="index">
+                                      {{list.lesson_num_already}}
+                                    </li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="操作" align="center" class-name="table-item" v-if="$$tools.isAuthority(['changeClasses', 'stopCourses', 'assignTeacher'])">
+                            <template slot-scope="scope">
+                                <div v-if="scope.row.total_lesson_num_remain > 0">
+                                    <ul class="table-item-list list-btn-box">
+                                        <li v-for="(list, index) in scope.row.courses" :key="index">
+                                          <span v-if="list.class_pattern === 1 && list.student_grade && $$tools.isAuthority('changeClasses')" class="cursor-pointer fc-m">转班</span>
+                                          <span class="cursor-pointer fc-m" v-if="list.class_pattern === 2 && $$tools.isAuthority('assignTeacher')" @click="editTeacherClick(list.id, list.buy_teachers[0].id)">分配老师</span>
+                                          <span v-if="$$tools.isAuthority('stopCourses') && list.student_grade && list.student_grade.suspend_type !== 1" class="fc-subm cursor-pointer" @click="stopCourse(list.student_grade.grade_id, scope.row.suspend_type, scope.$index)">
+                                              {{list.student_grade.suspend_type === 0 ? '停课' : '开课'}}
+                                          </span>
+                                          <span v-if="!list.student_grade && list.class_pattern === 1">-</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
+                        </el-table-column>
+                      </el-table>
+                      <el-pagination v-if="coursePackTable.page && coursePackTable.page.total"
+                          class="d-f f-j-c mt-50 mb-20"
+                          :page-size="coursePackTable.page.per_page"
+                          background layout="total, prev, pager, next"
+                          :total="coursePackTable.page.total"
+                          :current-page="coursePackTable.page.current_page" @current-change="paginationClick">
+                      </el-pagination>
+                    </div>
                 </div>
                 <!-- 学员课表 -->
-                <div key="timetable" v-else-if="activeTab == 'timetable'">
+                <div key="timetable" v-else-if="activeTab.parent_id == 'timetable'">
                   <el-table :data="timetableLists.data" stripe v-loading="loading" @selection-change="handleSelectionChange" ref="timetable">
                     <el-table-column type="selection" :selectable="checkboxIsDisabled" width="30" v-if="timetableMultiple.isShowCheckbox"></el-table-column>
                     <el-table-column label="序号" type="index" align="center"></el-table-column>
@@ -253,7 +355,7 @@
                   </el-pagination>
                 </div>
                 <!-- 课程评价列表 -->
-                <div v-else-if="activeTab == 'comment'" key="comment" class="course-comment">
+                <div v-else-if="activeTab.parent_id == 'comment'" key="comment" class="course-comment">
                     <div v-if="courseCommentLists.length" v-loading="loading">
                         <ul>
                             <li v-for="(list, index) in courseCommentLists" :key="index">
@@ -346,10 +448,10 @@
             <div class="form-box divide-grade-dialog">
                 <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
                     <div class="fc-m fs-16">{{course.name}}</div>
-                    <div v-if="course.grade.length">
+                    <div v-if="course.grades.length">
                         <el-radio-group v-model="divideClassRadio">
                             <ul class="d-f f-w-w">
-                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
+                                <li v-for="(list, index) in course.grades" :key="index" class="fs-15 mr-30 mt-20">
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span>
                                         <span class="ml-20">
@@ -502,7 +604,7 @@
         <el-dialog title="编辑" width="400px" center :visible.sync="dialogStatus.editTeacher" :close-on-click-modal="false" @close="editTeahcerDiaClose">
             <el-form :model="teacherForm" label-width="100px" size="small" :rules="teacherRules" ref="teacherForm">
                 <el-form-item prop="techer_id" label="选择老师：">
-                    <el-select v-model="teacherForm.techer_id" placeholder="请选择">
+                    <el-select v-model="teacherForm.teacher_id" placeholder="请选择">
                         <el-option v-for="(teacher, index) in editTeacherLists" :key="index" :label="teacher.name" :value="teacher.id"></el-option>
                     </el-select>
                 </el-form-item>
@@ -561,7 +663,8 @@ export default {
       loading: false,
 
       quitCourseLists: {}, //退费课程列表
-      courseTimeTable: {}, //课程信息
+      courseTimeTable: {}, //课程 单课程信息
+      coursePackTable: {}, //课程 课程包
       timetableLists: {}, //学员课表
       courseCommentLists: {}, //课评列表
       followUpLists: {}, //跟进列表
@@ -587,7 +690,11 @@ export default {
       gradeLists: [], //手动消课填充数据
 
       oldActiveTab: 'course_info', //tab之前的值
-      activeTab: 'course_info', //tab列表选中key
+
+      // activeTab: 'course_info', //tab列表选中key
+      activeTab: {
+        parent_id: 'course_info', item_id: ''
+      },
 
       classMaskStatus: false, //分班弹窗
       quitCourseMaskStatus: false, //退费弹窗
@@ -605,11 +712,11 @@ export default {
       },
 
       tabLists: [
-        {type: 'course_info', name: '订单记录'},
-        {type: 'grade', name: '课程信息'},
-        {type: 'timetable', name: '学员课表'},
-        {type: 'comment', name: '课评信息'},
-        {type: 'follow_up', name: '跟进记录'}
+        {id: 'course_info', name: '订单记录', item: []},
+        {id: 'grade', name: '课程信息', item: [{id: 'grade', name: '单课程', parent_id: 'grade'}, {id: 'coursepack', name: '课程包', parent_id: 'grade'}]},
+        {id: 'timetable', name: '学员课表', item: []},
+        {id: 'comment', name: '课评信息', item: []},
+        {id: 'follow_up', name: '跟进记录', item: []}
       ],
 
       quitCourseForm: {
@@ -803,11 +910,11 @@ export default {
       };
     },
     //编辑修改老师信息 click
-    editTeacherClick (course_id, teacher_id, student_id) {
+    editTeacherClick (course_id, teacher_id) {
       this.teacherForm.old_teacher_id = +teacher_id;
-      this.teacherForm.techer_id = +teacher_id;
+      this.teacherForm.teacher_id = +teacher_id;
       this.teacherForm.course_id = course_id;
-      this.teacherForm.student_id = student_id;
+      this.teacherForm.student_id = this.studentId;
       this.getEditTeacherLists(course_id);
     },
     //获取编辑老师列表
@@ -845,7 +952,7 @@ export default {
       let params = {
         id: this.teacherForm.old_teacher_id,
         course_id: this.teacherForm.course_id,
-        teacher_id: this.teacherForm.techer_id,
+        teacher_id: this.teacherForm.teacher_id,
         student_id: this.teacherForm.student_id
       };
 
@@ -910,11 +1017,22 @@ export default {
       });
     },
     //底部列表切换
-    tabClick (item) {
-      if (this.oldActiveTab === item.name) {
-        return 0;
+    tabClick (tab) {
+      console.log(tab)
+
+      if (tab.parent_id) {
+        this.activeTab.parent_id = tab.parent_id;
+        this.activeTab.item_id = tab.id;
+      } else {
+        this.activeTab.parent_id = tab.id;
+        this.activeTab.item_id = '';
       }
-      this.oldActiveTab = item.name;
+
+      console.log(this.activeTab)
+      // if (this.oldActiveTab === item.name) {
+      //   return 0;
+      // }
+      // this.oldActiveTab = item.name;
       this.getBottomTabLists();
     },
     //手动消课提交数据
@@ -1068,7 +1186,7 @@ export default {
       }
 
       this.gradeDivideLists.lists.forEach(v => {
-        v.grade.forEach(d => {
+        v.grades.forEach(d => {
           if (d.id == this.divideClassRadio) {
             if (d.join_num >= d.limit_num && v.type === 1) {
               this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
@@ -1100,9 +1218,9 @@ export default {
       }
     },
     // 停课/开课（只针对学员停课）
-    stopCourse (s_id, g_id, type, index) {
+    stopCourse (g_id, type, index) {
       const params = {
-        student_id: s_id,
+        student_id: this.studentId,
         grade_id: g_id,
         type: type === 0 ? 'stop' : 'start'
       };
@@ -1286,7 +1404,7 @@ export default {
         }
         this.gradeDivideLists.lists = result.lists;
         this.gradeDivideLists.disabled = result.lists.every(k => {
-          return k.grade.length ? false : true;
+          return k.grades.length ? false : true;
         });
       } else {
         let courseObj = [{grade: result.lists || [], id: data.course.id, name: data.course.name}];
@@ -1304,12 +1422,15 @@ export default {
       let requestUrl = {
         course_info: {url: '/studentCourse/normalLists', list: 'quitCourseLists'},
         grade: {url: '/studentGrade/lists', list: 'courseTimeTable'},
+        coursepack: {url: '/studentCourse/coursePackageLists', list: 'coursePackTable'},
         timetable: {url: '/timetable/studentList', list: 'timetableLists'},
         comment: {url: '/sign/comment', list: 'courseCommentLists'},
         follow_up: {url: '/followUp/lists', list: 'followUpLists'}
       };
 
-      let url = requestUrl[this.activeTab].url, params = {student_id: this.studentId}, dataLists = requestUrl[this.activeTab].list;
+      let dataId = this.activeTab.item_id ? this.activeTab.item_id : this.activeTab.parent_id;
+
+      let url = requestUrl[dataId].url, params = {student_id: this.studentId}, dataLists = requestUrl[dataId].list;
 
       if (currentPage) {
         params.page = currentPage;
@@ -1317,7 +1438,7 @@ export default {
 
       let result = null;
 
-      if (this.activeTab === 'timetable') {
+      if (dataId === 'timetable' || dataId === 'coursepack') {
         result = await this.$$request.get(url, params);
       } else {
         result = await this.$$request.post(url, params);
@@ -1334,9 +1455,10 @@ export default {
         });
       }
 
-      this[dataLists] = result.lists;
+      this[dataLists] = dataLists === 'coursePackTable' ? result : result.lists;
       this.loading = false;
 
+      console.log(this.coursePackTable)
       return true;
     },
     async pageInit () {
@@ -1478,70 +1600,76 @@ export default {
             height: 200px;
         }
     }
-    .contract-box {
-        padding: 0 30px;
-        p {
-            &:not(:first-child) {
-                margin-top: 10px;
-            }
-            span {
-                margin-right: 30px;
-            }
-        }
-        .course-table {
-            border-collapse: collapse;
-            margin-top: 10px;
-            td {
-                border: 1px #BFBFBF solid;
-                width: 120px;
-                text-align: center;
-                line-height: 40px;
-            }
-        }
-    }
-    .listen-course-box {
-        max-height: 350px;
-        overflow: hidden;
-        overflow-y: auto;
-    }
-    .listen-nothing {
-        width: 610px;
-        height: 120px;
-    }
-    .audition-lists {
-        li {
-            padding: 20px;
-            &:not(:first-child) {
-                border-top: 1px #e3e3e3 solid;
-            }
-            &::after {
-                content: '';
-                display: block;
-                width: 20px;
-                height: 20px;
-                background: url(../../images/common/not-check.png) no-repeat;
-                background-size: 100%;
-                position: absolute;
-                right: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-            }
-            &.active {
-                &::after {
-                    background: url(../../images/common/check-box.png) no-repeat;
-                    background-size: 100%;
-                }
-            }
-            .two-p {
-                span {
-                    position: relative;
-                }
-            }
-        }
-    }
     .timetable-multiple {
       top: 0;
       right: 0;
+    }
+    .bottom-content-box {
+      .course-name {
+        position: relative;
+        span {
+          position: absolute;
+          background-color: #45DAD5;
+          padding: 0 2px;
+          right: 0;
+          top: 0;
+          display: block;
+          color: #fff;
+          font-size: 12px;
+        }
+      }
+    }
+    .tab-box {
+        width: 100%;
+        border-bottom: 2px #e4e7ed solid;
+        .tab-toolbar {
+          li {
+            position: relative;
+            padding: 15px 0;
+            &:hover {
+              .title {
+                color: #45DAD5;
+              }
+            }
+            &.active {
+              &::before {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 2px;
+                background-color: #45DAD5;
+                position: absolute;
+                left: 0;
+                bottom: -2px;
+              }
+              .title {
+                color: #45DAD5;
+              }
+            }
+            .title {
+              padding: 0 20px;
+              outline: none;
+              .el-icon-arrow-down {
+                -webkit-transition: transform 300ms;
+                transition: transform 300ms;
+              }
+              &.dropshow {
+                .el-icon-arrow-down {
+                  -webkit-transform :rotate(180deg);
+                  transform: rotate(180deg);
+                }
+              }
+            }
+          }
+        }
+    }
+    .role-popver-box {
+      .drop-item {
+        padding: 0 40px 0 20px;
+        &.active {
+          color: #45DAD5;
+        }
+      }
     }
 </style>
 

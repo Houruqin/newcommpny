@@ -31,6 +31,8 @@ const state = {
   systemSetting: {},
   followupStatus: [],
 
+  coursePackLists: [], //课程包列表
+
   allMenusData: {}, // 初始化菜单数据，包含权限、菜单、角色
   httpState: 'normal' // 请求状态 normal menu authority
 };
@@ -165,6 +167,15 @@ const mutations = {
     }
     state.personalCourse = result2.lists;
   },
+  async getCoursePack (state) {
+    let res = await Request.get('/coursePackage/lists');
+    console.log(res);
+
+    if (!res) {
+      return 0;
+    }
+    state.coursePackLists = res.lists;
+  },
   async getGrade (state) {
     let result = await Request.post('/eduCount/gradeLists', {is_listen: 0});
 
@@ -257,6 +268,10 @@ const actions = {
 
   getCourse (context) {
     context.commit('getCourse');
+  },
+
+  getCoursePack (context) {
+    context.commit('getCoursePack');
   },
 
   getGrade (context) {

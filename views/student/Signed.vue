@@ -11,9 +11,9 @@
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
                     <li v-if="activeTab !== 'birthday'">
-                        <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in $$tools.getCourseLists()" :key="index" :value="item.id" :label="item.name"></el-option>
+                        <el-select size="small" placeholder="选择课程" v-model="searchFilter.courseId" @change="courseChange">
+                            <el-option label="全部课程" :value="0"></el-option>
+                            <el-option v-for="(item, index) in $$tools.getCourseLists('pack')" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li v-if="(activeTab === 'onCourse' || activeTab === 'noGrade') && ($$tools.isAuthority('viewAllData') || $$tools.isDepartment('consulting_department'))">
@@ -36,21 +36,19 @@
                             <el-option label="本月签约" value="month"></el-option>
                         </el-select>
                     </li>
-                    <template v-if="activeTab === 'birthday'">
-                        <li>
-                            <el-select size="small" placeholder="全部状态" v-model="searchFilter.gift_status" @change="searchHandle">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="已发放" :value="1"></el-option>
-                                <el-option label="未发放" :value="0"></el-option>
-                            </el-select>
-                        </li>
-                        <li class="birthday-date">
-                            <span class="pr-5">出生月份</span>
-                            <el-select size="small" placeholder="选择月份" v-model="searchFilter.month" @change="searchHandle">
-                                <el-option v-for="(item, index) in monthArr" :key="index" :label="item + '月'" :value="index + 1"></el-option>
-                            </el-select>
-                        </li>
-                    </template>
+                    <li v-if="activeTab === 'birthday'" key="birthday_tab">
+                        <el-select size="small" placeholder="全部状态" v-model="searchFilter.gift_status" @change="searchHandle">
+                            <el-option label="全部" value=""></el-option>
+                            <el-option label="已发放" :value="1"></el-option>
+                            <el-option label="未发放" :value="0"></el-option>
+                        </el-select>
+                    </li>
+                    <li class="birthday-date" v-if="activeTab === 'birthday'">
+                        <span class="pr-5">出生月份</span>
+                        <el-select size="small" placeholder="选择月份" v-model="searchFilter.month" @change="searchHandle">
+                            <el-option v-for="(item, index) in monthArr" :key="index" :label="item + '月'" :value="index + 1"></el-option>
+                        </el-select>
+                    </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
@@ -92,7 +90,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -217,7 +215,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -282,7 +280,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -356,7 +354,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -430,14 +428,14 @@
         </el-card>
 
         <!-- 分班弹窗 -->
-        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divide_grade')">
+        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideClass" :close-on-click-modal="false" @close="dialogClose('divide_grade')">
             <div class="form-box divide-grade-dialog">
                 <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
                     <div class="fc-m fs-16">{{course.name}}</div>
-                    <div v-if="course.grade.length">
+                    <div v-if="course.grades.length">
                         <el-radio-group v-model="divideClassRadio">
                             <ul class="d-f f-w-w">
-                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
+                                <li v-for="(list, index) in course.grades" :key="index" class="fs-15 mr-30 mt-20">
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span>
                                         <span class="ml-20">
@@ -462,6 +460,9 @@
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
 
+        <!-- 分班弹窗 -->
+        <!-- <DivideClasses v-model="dialogStatus.divideClass" :gradeLists="divideClassLists" @CB-divideSuccess="CB_divideSuccess" divideType="student" @input="CB_dialogClose"></DivideClasses> -->
+
         <!-- 学员基础信息 -->
         <EditStudent v-model="dialogStatus.student" :editDetail="studentDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
 
@@ -480,6 +481,7 @@ import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 import AddAudition from '../../components/dialog/AddAudition';
 import EditStudent from '../../components/dialog/StudentSigned';
+import DivideClasses from '../../components/dialog/DivideClasses';
 
 import Bus from '../../script/bus';
 import qs from 'qs';
@@ -509,7 +511,7 @@ const LoseOperation = [
 ];
 
 export default {
-  components: {TableHeader, Classify, MyButton, AddAudition, EditStudent},
+  components: {TableHeader, Classify, MyButton, AddAudition, EditStudent, DivideClasses},
   data () {
     return {
       state: 'loading',
@@ -521,7 +523,7 @@ export default {
       selectedIds: [], //批量删除学员列表
       deleteErrorStudents: [],
 
-      dialogStatus: {audition: false, divideGrade: false, student: false, errorAlert: false, advisor: false},
+      dialogStatus: {audition: false, divideClass: false, student: false, errorAlert: false, advisor: false},
 
       studentDetail: {},
 
@@ -534,6 +536,8 @@ export default {
         lists: [],
         disabled: false
       },
+
+      // divideClassLists: [],
 
       listStudentId: '',
       advisorId: '',
@@ -553,7 +557,7 @@ export default {
       loading: true,
       studentTable: {}, //学员table列表
       searchFilter: { //学员搜索筛选条件
-        course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
+        courseId: 0, course_package_id: 0, course_id: 0, advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
       }
     };
   },
@@ -570,6 +574,27 @@ export default {
       }
 
       return 30;
+    },
+    courseChange () {
+      let allCourse = this.$$tools.getCourseLists('pack');
+      if (!this.searchFilter.courseId) {
+        this.searchFilter.course_package_id = 0;
+        this.searchFilter.course_id = 0;
+      } else {
+        allCourse.forEach(v => {
+          if (v.id === this.searchFilter.courseId) {
+            if (v.type === 'course') {
+              this.searchFilter.course_package_id = 0;
+              this.searchFilter.course_id = this.searchFilter.courseId;
+            } else {
+              this.searchFilter.course_package_id = this.searchFilter.courseId;
+              this.searchFilter.course_id = 0;
+            }
+          }
+        });
+      }
+
+      this.getStudentLists();
     },
     //搜索
     searchHandle () {
@@ -637,6 +662,12 @@ export default {
     CB_success () {
       this.getAllLists(true);
     },
+    // CB_divideSuccess () {
+
+    // },
+    // CB_dialogClose () {
+
+    // },
     // CB_auditionSuccess () {
     //   this.getStudentLists(this.activePage);
     // },
@@ -647,11 +678,13 @@ export default {
       if (tab.type != this.activeTab) {
         this.loading = true;
         for (let key in this.searchFilter) {
-          if (key != 'month') {
-            this.searchFilter[key] = '';
-          }
+          if (key === 'courseId' || key === 'course_id' || key === 'course_package_id') {
+            this.searchFilter[key] = 0;
+          } else if (key != 'month') this.searchFilter[key] = '';
         }
         this.activeTab = tab.type;
+
+        console.log(this.searchFilter)
         this.getStudentLists();
       }
     },
@@ -856,7 +889,7 @@ export default {
       }
 
       this.gradeDivideLists.lists.forEach(v => {
-        v.grade.forEach(d => {
+        v.grades.forEach(d => {
           if (d.id == this.divideClassRadio) {
             if (d.join_num >= d.limit_num && v.type === 1) {
               this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
@@ -892,7 +925,7 @@ export default {
         return 0;
       }
       this.$message.success('分班成功');
-      this.dialogStatus.divideGrade = false;
+      this.dialogStatus.divideClass = false;
     },
     async getAllLists (isCurrPage) {
       let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
@@ -934,12 +967,20 @@ export default {
       if (!result.lists.length) {
         return this.$message.warning('没有可分班的课程!');
       }
+
       this.gradeDivideLists.lists = result.lists;
+
+      // result.lists.forEach(v => {
+      //   v.divideClassRadio = 0;
+      // });
+
+      // this.divideClassLists = result.lists;
+
       this.gradeDivideLists.disabled = result.lists.every(k => {
-        return k.grade.length ? false : true;
+        return k.grades.length ? false : true;
       });
 
-      this.dialogStatus.divideGrade = true;
+      this.dialogStatus.divideClass = true;
     },
     //获取学员列表
     async getStudentLists (currentPage) {
@@ -964,6 +1005,7 @@ export default {
         params.month = this.searchFilter.month;
       } else {
         params.course_id = this.searchFilter.course_id;
+        params.course_package_id = this.searchFilter.course_package_id;
         if (this.activeTab === 'onCourse') {
           params.advisor_id = this.searchFilter.advisor_id;
           params.what_time = this.searchFilter.sign_what_time;

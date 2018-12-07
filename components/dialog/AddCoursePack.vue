@@ -55,16 +55,15 @@ export default {
   props: {
     value: {default: false},
     type: {default: 'add'},
-    courselists: {default: []},
     detail: {}
   },
   watch: {
     value (val) {
       this.dialogStatus.coursePack = val;
     },
-    courselists (val) {
-      this.courseLists.nograde = val;
-    },
+    // courselists (val) {
+    //   this.courseLists.nograde = val;
+    // },
     detail (val) {
       if (Object.keys(val).length) {
         this.coursePackForm.name = val.name;
@@ -108,6 +107,7 @@ export default {
         this.$refs[type].resetFields();
         this.dialogStatus.coursePack = false;
         this.checkCourseForm = [];
+        Object.keys(this.coursePackForm).forEach(v => {this.coursePackForm[v] = ''});
         this.$emit('input', false);
       } else {
         this.checkCourse.begrade = [];
@@ -189,10 +189,30 @@ export default {
       this.dialogStatus.coursePack = false;
 
       this.$emit('CB-success');
+    },
+    async getAllCourse () {
+      let res = await this.$$request.get('/course/allLists');
+      console.log(res);
+      if (!res) return 0;
+
+      res.courses.forEach(v => {
+        if (v.class_pattern === 1) {
+          this.courseLists.begrade.push({name: v.name, id: v.id, type: 'begrade'});
+        } else {
+          this.courseLists.nograde.push({name: v.name, id: v.id, type: 'nograde'});
+        }
+      });
     }
   },
   created () {
-    this.courseLists.begrade = this.$store.state.course.map(v => {return {name: v.name, id: v.id, type: 'begrade'}});
+    this.getAllCourse();
+    // this.$store.state.course.forEach(v => {
+    //   if (v.class_pattern === 1) {
+    //     this.courseLists.begrade.push({name: v.name, id: v.id, type: 'begrade'});
+    //   } else {
+    //     this.courseLists.nograde.push({name: v.name, id: v.id, type: 'nograde'});
+    //   }
+    // });
   }
 }
 </script>

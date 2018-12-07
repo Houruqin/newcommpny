@@ -4,14 +4,23 @@
         <el-card shadow="hover">
             <TableHeader title="购买课程"></TableHeader>
 
-            <el-form :model="courseForm" label-width="95px" size="small" :rules="courseRules" ref="courseForm" class="form-box mt-20">
+            <el-tabs v-model="activeTab" @tab-click="tabClick" class="tab-toolbar">
+                <el-tab-pane label="购买课程" name="course"></el-tab-pane>
+                <el-tab-pane label="购买课程包" name="coursePack"></el-tab-pane>
+            </el-tabs>
 
+            <el-form :model="courseForm" label-width="110px" size="small" :rules="courseRules" ref="courseForm" class="form-box mt-20">
                 <p class="head-info">购买信息</p>
                 <div class="mt-10 d-f">
                     <div class="list-item">
-                        <el-form-item label="课程名称：" prop="course_id">
-                            <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="addCourseChange">
+                        <el-form-item label="课程名称：" prop="course_id" v-if="activeTab === 'course'" key="course_change">
+                            <el-select v-model="courseForm.course_id" placeholder="选择课程" @change="courseChange">
                                 <el-option v-for="(item, index) in courseLists" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="课程包名称：" prop="course_package_id" v-if="activeTab === 'coursePack'" key="coursepack_change">
+                            <el-select v-model="courseForm.course_package_id" placeholder="选择课程包" @change="coursePackChange">
+                                <el-option v-for="(item, index) in $store.state.coursePackLists" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
 
@@ -27,7 +36,7 @@
                             <el-date-picker v-model="courseForm.pay_at" type="date" :editable="false" placeholder="选择日期" value-format="timestamp"></el-date-picker>
                         </el-form-item>
 
-                        <div v-if="buyCourse_type == 1" key="change_grade">
+                        <div v-if="buyCourse_type == 1 && activeTab === 'course'" key="grade_course_begrade">
                             <el-form-item label="选择班级：">
                                 <el-select v-model="courseForm.grade_id" placeholder="请选择" :clearable="true">
                                     <el-option v-for="(grade, index) in gradeLists" :key="index" :label="grade.name" :value="grade.id"></el-option>
@@ -35,17 +44,24 @@
                             </el-form-item>
                         </div>
 
-                        <div v-if="buyCourse_type == 2" key="change_teacher">
+                        <div v-if="buyCourse_type == 2 && activeTab === 'course'" key="teacher_coursepack_begrade">
                             <el-form-item label="选择老师：" prop="teacher_id">
                                 <el-select placeholder="请选择" v-model="courseForm.teacher_id">
                                     <el-option v-for="(item, index) in gradeLists" :key="index" :label="item.name" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
+
+                        <el-form-item label="上课班级：" v-if="activeTab === 'coursePack' && beGradeLists.length" key="grade_course_nograde">
+                          <div class="d-f"><MyButton @click.native="coursePackGradeClick" type="border" fontColor="fc-m" :minWidth="0">选择</MyButton></div>
+                        </el-form-item>
                     </div>
                     <div class="list-item">
                         <el-form-item label="课程有效期：" prop="expire" label-width="110px">
                             <el-input type="number" placeholder="课程有效期" v-model.number="courseForm.expire"></el-input><span class="pl-10">月</span>
+                        </el-form-item>
+                        <el-form-item label="分配老师：" v-if="activeTab === 'coursePack' && noGradeLists.length" key="teacher_coursepack_nograde">
+                          <div class="d-f"><MyButton @click.native="coursePackTeacherClick" type="border" fontColor="fc-m" :minWidth="0">分配</MyButton></div>
                         </el-form-item>
                     </div>
                 </div>
@@ -149,8 +165,25 @@
             </el-form>
         </el-card>
 
+        <!-- 分班弹窗 -->
+        <DivideClasses v-model="dialogStatus.divideClass" :gradeLists="divideClassLists" @CB-divideSuccess="CB_divideSuccess" divideType="buycourse" @input="CB_dialogClose"></DivideClasses>
+
         <!-- 购课合约弹窗 -->
         <ContractDialog v-model="dialogStatus.contract" :contractData="contractData" @CB-dialogStatus="CB_dialogStatus"></ContractDialog>
+
+        <!-- 分配老师弹窗 -->
+        <el-dialog title="分配老师" width="600px" center :visible.sync="dialogStatus.teacher" :close-on-click-modal="false">
+          <el-form :model="teacherForm" label-width="110px" size="small" :rules="teacherRules" ref="teacherForm" class="teacher-form-box" v-for="(teacherForm, index) in noGradeLists" :key="index">
+            <el-form-item :label="teacherForm.course.name + '：'" prop="teacher_id">
+                <el-select v-model="teacherForm.teacher_id" placeholder="选择老师">
+                  <el-option v-for="item in teacherForm.grades" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                </el-select>
+            </el-form-item>
+          </el-form>
+          <div class="d-f f-j-c mt-30">
+              <MyButton @click.native="divideTeacherDone">确定</MyButton>
+          </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -158,17 +191,22 @@
 import TableHeader from '../../components/common/TableHeader';
 import MyButton from '../../components/common/MyButton';
 import ContractDialog from '../../components/dialog/Contract';
+import DivideClasses from '../../components/dialog/DivideClasses';
 import {StudentStatic} from '../../script/static';
 
 export default {
   data () {
     return {
-      dialogStatus: {contract: false},
+      dialogStatus: {contract: false, divideClass: false, teacher: false},
 
       state: 'loading',
       submitLoading: false,
-
+      activeTab: 'course',
       contractData: {},
+
+      divideClassLists: [], //分班列表
+      beGradeLists: [], //课程包有班课程列表,传给后台的数据
+      noGradeLists: [], //课程包无班课程列表
 
       buyCourse_type: null, //选择课程的类型    有班/无班
       courseLists: [],
@@ -197,14 +235,20 @@ export default {
         grade_id: '',
         teacher_id: '',
         is_order: '',
-        textbook_price: 0 //教材费用
+        textbook_price: 0, //教材费用
+
+        course_package_id: '', //课程包id
       },
+
       textbookFormLists: [],
       preferentialDisabled: true,
       textbookForm: {goods_id: '', num: '', unit_price: ''},
       courseRules: {
         course_id: [
           {required: true, message: '请选择课程', trigger: 'change'}
+        ],
+        course_package_id: [
+          {required: true, message: '请选择课程包', trigger: 'change'}
         ],
         lesson_num: [
           {required: true, message: '请输入购买课时数'},
@@ -251,6 +295,11 @@ export default {
         type: [
           {required: true, message: '请选择购课类型', trigger: 'change'}
         ],
+        teacher_id: [
+          {required: true, message: '请选择老师', trigger: 'change'}
+        ]
+      },
+      teacherRules: {
         teacher_id: [
           {required: true, message: '请选择老师', trigger: 'change'}
         ]
@@ -309,14 +358,6 @@ export default {
           return callback();
         }
 
-        // if (type == 'leave_num') {
-        //   if (value > this.courseForm.lesson_num) {
-        //     return callback(new Error('请假次数不能超过购买课时数'));
-        //   }
-
-        //   return callback();
-        // }
-
         if (type === 'lesson_num_already') {
           if (value > this.courseForm.lesson_num) {
             return callback(new Error('已扣课时数不能超过购买课时数'));
@@ -332,6 +373,85 @@ export default {
         this.contractData = {};
         return 0;
       }
+    },
+    /**
+     * 课程包相关
+     */
+    tabClick () {
+
+    },
+    CB_dialogClose (type) {
+      // if (!type) {
+      //   this.divideClassLists = [];
+      // }
+    },
+    CB_divideSuccess (data) {
+      console.log(data);
+      this.beGradeLists = data;
+    },
+    coursePackChange () {
+      this.beGradeLists = [];
+      this.divideClassLists = [];
+      this.noGradeLists = [];
+      this.getStudentGradeLists();
+    },
+    coursePackGradeClick () {
+      if (!this.courseForm.course_package_id) return this.$message.error('请选择课程包');
+      this.dialogStatus.divideClass = true;
+    },
+    coursePackTeacherClick () {
+      this.dialogStatus.teacher = true;
+    },
+    async getStudentGradeLists () {
+      let res = await this.$$request.get('/studentCourse/gradeCoursePackage', {
+        student_id: this.courseForm.student_id,
+        course_package_id: this.courseForm.course_package_id
+      });
+      console.log(res)
+      if (!res) {
+        return 0;
+      }
+
+      let coursePackLists = JSON.parse(JSON.stringify(this.$store.state.coursePackLists));
+
+      coursePackLists.forEach(v => {
+        if (v.id === this.courseForm.course_package_id) {
+          v.course_package.forEach(k => {
+            if (k.course.class_pattern === 1) {
+              k.divideClassRadio = 0;
+              res.grades.forEach(m => {
+                if (k.course_id === m.course_id) {
+                  k.grades.forEach(n => {
+                    if (n.id === m.student_grade_id) {
+                      k.divideClassRadio = m.student_grade_id;   //默认选中的班级
+                    }
+                  });
+                }
+              });
+              this.divideClassLists.push(k);
+              this.beGradeLists.push({
+                course_id: k.course_id,
+                grade_id: k.divideClassRadio,
+                teacher_id: 0
+              });
+            } else {
+              this.noGradeLists.push({...k, teacher_id: ''});
+            }
+          });
+        }
+      });
+    },
+    divideTeacherDone () {
+      let isValid = false;
+      for (let i = 0, len = this.$refs.teacherForm.length; i < len; i++) {
+        this.$refs.teacherForm[i].validate(valid => {
+          isValid = valid ? true : false;
+        });
+      }
+      if (isValid) {
+        this.dialogStatus.teacher = false;
+      }
+      console.log(this.noGradeLists);
     },
     //根据school_id获取课程列表
     async getCourseLists (id) {
@@ -351,7 +471,7 @@ export default {
       }
     },
     //购买课程，选择课程change
-    addCourseChange (val) {
+    courseChange (val) {
       this.$refs.courseForm.clearValidate();
       this.getGradeLists(val, true);
     },
@@ -434,6 +554,22 @@ export default {
     },
     //提交购买课程
     async submitBuyCourse () {
+      let nogradeTeacher = [];
+      if (this.activeTab === 'coursePack') {
+        nogradeTeacher = this.noGradeLists.map(v => {
+          return {
+            course_id: v.course_id,
+            grade_id: 0,
+            teacher_id: v.teacher_id
+          }
+        });
+        console.log(nogradeTeacher)
+        let isValid = nogradeTeacher.every(v => v.teacher_id);
+        if (!isValid) {
+          return this.$message.error('课程未分配老师');
+        }
+      }
+
       if (this.submitLoading) {
         return 0;
       }
@@ -446,7 +582,7 @@ export default {
           params[key] = '';
         } else if (key === 'pay_at') {
           params[key] = this.courseForm[key] / 1000;
-        } else if (key !== 'advisor_name' && key !== 'grade_id' && key !== 'teacher_id') {
+        } else if (key !== 'advisor_name' && key !== 'grade_id' && key !== 'teacher_id' && key !== 'course_package_id' && key !== 'course_id') {
           params[key] = this.courseForm[key];
         }
       }
@@ -457,9 +593,16 @@ export default {
       });
       params.preferential_price = this.courseForm.preferential_class_price + this.courseForm.preferential_textbook_price;
 
+      if (this.activeTab === 'coursePack') {
+        params.course_package = this.beGradeLists.concat(nogradeTeacher);
+        params.course_package_id = this.courseForm.course_package_id;
+      } else {
+        params.course_id = this.courseForm.course_id;
+      }
+
       console.log(params);
 
-      let result = await this.$$request.post('/studentCourse/add', params);
+      let result = await this.$$request.post(`/studentCourse/${this.activeTab === 'course' ? 'add' : 'addCoursePackage'}`, params);
 
       this.submitLoading = false;
       console.log(result);
@@ -526,7 +669,7 @@ export default {
       this.state = 'loaded';
     }
   },
-  components: {TableHeader, MyButton, ContractDialog}
+  components: {TableHeader, MyButton, ContractDialog, DivideClasses}
 };
 </script>
 

@@ -564,6 +564,7 @@ export default {
       this.$message.success('修改老师成功');
       this.dialogStatus.edit = false;
       this.getOrderStudentLists(this.activeCurrentPage);
+      this.$store.dispatch('getCoursePack');
     }
   },
   async created () {

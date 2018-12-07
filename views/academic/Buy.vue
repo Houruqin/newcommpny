@@ -33,7 +33,11 @@
             <div v-else>{{scope.row.stu_name}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="购买课程" prop="cour_name" align="center"></el-table-column>
+        <el-table-column label="购买课程" align="center">
+          <template slot-scope="scope">
+            {{scope.row.cour_name ? scope.row.cour_name : scope.row.course_package_name}}
+          </template>
+        </el-table-column>
         <el-table-column label="购买课时" prop="lesson_num" align="center"></el-table-column>
         <el-table-column label="总金额" prop="real_price" align="center"></el-table-column>
         <el-table-column label="购买日期" align="center">
