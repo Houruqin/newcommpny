@@ -68,12 +68,19 @@ const Tools = {
     }
   },
   // 课程筛选列表 根据部门和是否个人权限
-  getCourseLists () {
+  getCourseLists (type) {
     let departmentList = store.state.allMenusData.departmentList;
+
+    let personalCourse = store.state.personalCourse.map(v => { return { id: v.id, name: v.name, type: 'course' }});
+    let allCourse = store.state.course.map(v => { return { id: v.id, name: v.name, type: 'course' } });
+    let coursePack = store.state.coursePackLists.map(v => { return { id: v.id, name: v.name, type: 'coursepack' } });
+
     if (departmentList.length === 1 && departmentList[0].name === 'academic_department' && !this.isAuthority('viewAllData')) {
-      return store.state.personalCourse;
+      if (type === 'pack') return personalCourse.concat(coursePack);
+      return personalCourse;
     } else {
-      return store.state.course;
+      if (type === 'pack') return allCourse.concat(coursePack);
+      return allCourse;
     }
   },
   //表单验证

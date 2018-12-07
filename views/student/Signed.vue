@@ -11,9 +11,9 @@
             <div class="fifter-toolbar mt-30 d-f">
                 <ul class="d-f flex1">
                     <li v-if="activeTab !== 'birthday'">
-                        <el-select size="small" placeholder="选择课程" v-model="searchFilter.course_id" @change="searchHandle">
-                            <el-option label="全部课程" value=""></el-option>
-                            <el-option v-for="(item, index) in $$tools.getCourseLists()" :key="index" :value="item.id" :label="item.name"></el-option>
+                        <el-select size="small" placeholder="选择课程" v-model="searchFilter.courseId" @change="courseChange">
+                            <el-option label="全部课程" :value="0"></el-option>
+                            <el-option v-for="(item, index) in $$tools.getCourseLists('pack')" :key="index" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </li>
                     <li v-if="(activeTab === 'onCourse' || activeTab === 'noGrade') && ($$tools.isAuthority('viewAllData') || $$tools.isDepartment('consulting_department'))">
@@ -36,21 +36,19 @@
                             <el-option label="本月签约" value="month"></el-option>
                         </el-select>
                     </li>
-                    <template v-if="activeTab === 'birthday'">
-                        <li>
-                            <el-select size="small" placeholder="全部状态" v-model="searchFilter.gift_status" @change="searchHandle">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="已发放" :value="1"></el-option>
-                                <el-option label="未发放" :value="0"></el-option>
-                            </el-select>
-                        </li>
-                        <li class="birthday-date">
-                            <span class="pr-5">出生月份</span>
-                            <el-select size="small" placeholder="选择月份" v-model="searchFilter.month" @change="searchHandle">
-                                <el-option v-for="(item, index) in monthArr" :key="index" :label="item + '月'" :value="index + 1"></el-option>
-                            </el-select>
-                        </li>
-                    </template>
+                    <li v-if="activeTab === 'birthday'" key="birthday_tab">
+                        <el-select size="small" placeholder="全部状态" v-model="searchFilter.gift_status" @change="searchHandle">
+                            <el-option label="全部" value=""></el-option>
+                            <el-option label="已发放" :value="1"></el-option>
+                            <el-option label="未发放" :value="0"></el-option>
+                        </el-select>
+                    </li>
+                    <li class="birthday-date" v-if="activeTab === 'birthday'">
+                        <span class="pr-5">出生月份</span>
+                        <el-select size="small" placeholder="选择月份" v-model="searchFilter.month" @change="searchHandle">
+                            <el-option v-for="(item, index) in monthArr" :key="index" :label="item + '月'" :value="index + 1"></el-option>
+                        </el-select>
+                    </li>
                     <li class="name"><el-input size="small" placeholder="请输入学员姓名或手机号" v-model.trim="searchKeyWord"></el-input></li>
                     <li><MyButton @click.native="searchHandle" :radius="false">搜索</MyButton></li>
                 </ul>
@@ -559,7 +557,7 @@ export default {
       loading: true,
       studentTable: {}, //学员table列表
       searchFilter: { //学员搜索筛选条件
-        course_id: '', advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
+        courseId: 0, course_package_id: 0, course_id: 0, advisor_id: '', absent_what_time: '', sign_what_time: '', gift_status: '', month: ''
       }
     };
   },
@@ -576,6 +574,27 @@ export default {
       }
 
       return 30;
+    },
+    courseChange () {
+      let allCourse = this.$$tools.getCourseLists('pack');
+      if (!this.searchFilter.courseId) {
+        this.searchFilter.course_package_id = 0;
+        this.searchFilter.course_id = 0;
+      } else {
+        allCourse.forEach(v => {
+          if (v.id === this.searchFilter.courseId) {
+            if (v.type === 'course') {
+              this.searchFilter.course_package_id = 0;
+              this.searchFilter.course_id = this.searchFilter.courseId;
+            } else {
+              this.searchFilter.course_package_id = this.searchFilter.courseId;
+              this.searchFilter.course_id = 0;
+            }
+          }
+        });
+      }
+
+      this.getStudentLists();
     },
     //搜索
     searchHandle () {
@@ -643,12 +662,12 @@ export default {
     CB_success () {
       this.getAllLists(true);
     },
-    CB_divideSuccess () {
+    // CB_divideSuccess () {
 
-    },
-    CB_dialogClose () {
+    // },
+    // CB_dialogClose () {
 
-    },
+    // },
     // CB_auditionSuccess () {
     //   this.getStudentLists(this.activePage);
     // },
@@ -659,11 +678,13 @@ export default {
       if (tab.type != this.activeTab) {
         this.loading = true;
         for (let key in this.searchFilter) {
-          if (key != 'month') {
-            this.searchFilter[key] = '';
-          }
+          if (key === 'courseId' || key === 'course_id' || key === 'course_package_id') {
+            this.searchFilter[key] = 0;
+          } else if (key != 'month') this.searchFilter[key] = '';
         }
         this.activeTab = tab.type;
+
+        console.log(this.searchFilter)
         this.getStudentLists();
       }
     },
@@ -984,6 +1005,7 @@ export default {
         params.month = this.searchFilter.month;
       } else {
         params.course_id = this.searchFilter.course_id;
+        params.course_package_id = this.searchFilter.course_package_id;
         if (this.activeTab === 'onCourse') {
           params.advisor_id = this.searchFilter.advisor_id;
           params.what_time = this.searchFilter.sign_what_time;
