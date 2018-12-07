@@ -14,7 +14,10 @@
                 </div>
                 <div class="teachBtn" v-if="item.isRecord">
                     <a class="cursor-pointer"  @click="addTeachRecord(item)" >添加教学记录</a>
-                    <!-- <a class="cursor-pointer" v-if="code" @click="addTeachRecord(item)" >查看教学记录</a> -->
+                </div>
+                <div class="teachBtn"
+                  v-if=" (item.timetable_record && item.timetable_record[0] && item.timetable_record[0].record_content ) ">
+                    <a class="cursor-pointer" @click="watchTeachRecord(item.id, item.student_grades[0].type, item)" >查看教学记录</a>
                 </div>
             </div>
             <p class="mt-10"><span>{{item.course_name}}</span><span class="ml-50">{{item.teacher.name}}</span></p>
@@ -68,25 +71,58 @@
 
             <div class="rm-table" v-if="item.origin == 3">手动消课</div>
         </div>
+
         <!-- 添加教学记录 -->
         <el-dialog class="teachRecord" title="教学记录" :visible.sync="showTeachRecord" center  label-width="800px" :modal-append-to-body="false">
           <el-form  v-model="formData">
               <el-form-item>
-                <span style="margin-right: 50px">课程： {{formData.course_name}}</span>
-                <!-- <span style="margin-right: 20px">班级： {{formData.grade_name:}}</span> -->
-                <!-- <span style="margin-right: 30px">学员： {{formData.student_grades}}</span> -->
-                <span >上课时间： {{formData.time_quantum.week}} {{formData.time_quantum.begin_time}}-{{formData.time_quantum.end_time}}</span>
+                <span v-if="addperson" style="margin-right: 20px">添加人：{{formData.teacher[0] && formData.teacher[0].name}}</span>
+                <span style="margin-right: 20px">课程： {{formData.course_name}}</span>
+                <span style="margin-right: 20px">班级： {{formData.grade_name}}</span>
+                <span v-if="item.course_type === 2" style="margin-right: 30px">学员： {{formData.student_grades.student_name}}</span>
+                <span>上课时间： {{formData.time_quantum.week}} {{formData.time_quantum.begin_time}}-{{formData.time_quantum.end_time}}</span>
             </el-form-item>
-            <el-form-item >
-              <el-input ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 8, maxRows: 12}" type="textarea" placeholder="限制1000个字符以内" ></el-input>
+            <el-form-item>
+              <el-input v-if="item.course_type === 1" @keyup.enter="submit" ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 8, maxRows: 12}" type="textarea" ></el-input>
+              <el-input  v-if="item.course_type === 2"  @keyup.enter="submit" ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 4, maxRows: 8}" type="textarea" ></el-input>
             </el-form-item>
-            <!-- <span style="margin-right: 400px">添加人：{{formData.teacher[0].name}}</span> -->
             <span v-if="desc.length > 0">已输入{{remnant}}字</span>
+            <el-alert
+              v-if="elasticFrame"
+              title=" 输入的内容不能大于300个字"
+              type="warning"
+              show-icon>
+            </el-alert>
+            <el-alert
+              v-if="emptyRecord"
+              title="教学记录不能为空"
+              type="warning"
+              show-icon>
+            </el-alert>
+
           </el-form>
           <div slot="footer" class="dialog-footer" style="text-align:center">
-            <!-- <el-button v-if="code" @click="dialogFormVisible = false">编 辑</el-button> -->
-            <el-button type="primary" @click="handelTeach($refs.txt.value, item.id, item.student_grades.type)">提 交</el-button>
+            <el-button
+              v-if="!(item.isRecord) && (item.timetable_record && item.timetable_record[0] && item.timetable_record[0].record_content && item.timetable_record[0].record_content !== null) "
+              @click="deleteRecord=true">删 除</el-button>
+             <el-button type="primary"
+              v-if="!(item.isRecord) &&  (item.timetable_record && item.timetable_record[0] && item.timetable_record[0].record_content && item.timetable_record[0].record_content !== null)"
+              @click="editTeachRecord(desc, item.timetable_record, item.student_grades[0].type )">编 辑</el-button>
+            <el-button
+              v-if="item.isRecord"
+              type="primary"
+              @click="handelTeach($refs.txt.value, item.id, item.student_grades.type, item)">{{item.student_grades.type}}提 交</el-button>
           </div>
+        </el-dialog>
+        <el-dialog
+          :visible.sync="deleteRecord"
+          :modal-append-to-body="false"
+          width="30%">
+          <span>教学记录删除后数据不能恢复，请确认进行删除操作</span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="deleteRecord = false">取 消</el-button>
+            <el-button type="primary" @click="deleteTeachRecord(item.course_type, item.timetable_record, item)">确 定</el-button>
+          </span>
         </el-dialog>
     </el-popover>
 </template>
@@ -95,35 +131,89 @@
 export default {
   props: {
     pastdue: { default: false },
-    item: { default() {return {}} },
-    timetable_lists: { default() {return {} }}
+    item: { default() {return {}} }
   },
   data() {
     return {
-      // 显示添加教学记录按钮
-      isRecord:false,
-      showTeachRecord: false,
-      remnant: 1000,
+      addperson:false, // 添加人的显示
+      deleteRecord: false, // 删除教学记录确认
+      elasticFrame:false, //提示输入字数
+      emptyRecord: false, // 非空验证
+      showTeachRecord: false, //显示添加弹框
+      remnant: '',
       desc:'',
       formData:{
-        course_name:'',
-        grade_name:'',
         time_quantum: '',
-        teacher: [ ],
-        student_grades:[ ],
-        begin_time:'',
-        end_time:''
-      }
+        teacher: [],
+        student_grades: [ ],
+        timetable_record: [ ],
+      },
     };
   },
   methods: {
-    // 教学记录表单提交
-    async handelTeach(desc, ID, type){
-      const result = await this.$$request.post('timetable/addTimetableRecord',{recordContent: desc, timetableId: ID, type: type})
-      console.log(result)
+    // 查看教学记录
+    async watchTeachRecord(id, type, item){
+      this. deleteRecord = false
+      this.showTeachRecord = false
+      this.formData = item
+      const res = await this.$$request.get('timetable/getTimetableRecordDetail', {timetableId: id, type: type});
+      if (!res) return 0;
+      this.desc = res.record_content
+      this.remnant = this.desc.length
+      this.showTeachRecord = true //显示编辑弹框
+      this.deleteRecord = false
+      this.addperson = true
+    },
+
+    // 删除教学记录
+    async deleteTeachRecord(type, temetable_record, item){
+      const res = await this.$$request.post('timetable/delTimetableRecord', {type: type, recordIdList: [item.timetable_record[0].id]})
+      console.log(res)
+      if (res) return void 0;
+      this.desc = ' '
+      this. deleteRecord = false
+      this.showTeachRecord = false
+      this.$refs.myPopver.showPopper = false //结课弹框
+
+      item.isRecord = true;
+      this.$set(item.timetable_record, 0, {record_content: ''})
+    },
+    //编辑教学记录
+    async editTeachRecord(desc, temetable_record, type){
+      let params = [];
+      temetable_record.forEach(item => {
+        params.push({
+          id:item.id,
+          content:item.record_content
+        });
+      });
+      if (desc.length > 301) {
+        this.elasticFrame = true
+        return false
+        }
+        else if(desc.length < 301){
+          this.elasticFrame = false
+        }
+      const res = await this.$$request.post('timetable/editTimetableRecord', { recordContent:  params, type: type})
+      this.showTeachRecord = false
+    },
+    // 提交教学记录
+    async handelTeach(desc, ID, type, item){
+      if (desc.length > 301 || desc.length === 0) {
+        this.elasticFrame = true
+        return false
+      }
+        else if(desc.length < 301){
+          this.elasticFrame = false
+        }
+      const res = await this.$$request.post('timetable/addTimetableRecord',{recordContent: desc, timetableId: ID, type: type})
+      if(!res){return false}
+      this.$refs.myPopver.showPopper = false
+      console.log(item);
+      item.isRecord = false;
+      this.$set(item.timetable_record, 0, {record_content: this.desc})
       this.desc = ''
       this.showTeachRecord = false
-
     },
     // 教学记录显示剩余字数
     descInput(){
@@ -132,6 +222,7 @@ export default {
     },
     // 添加教学记录
     addTeachRecord(item, desc) {
+      this.desc = ''
       this.formData = item
       this.showTeachRecord = true
     },
@@ -165,6 +256,7 @@ export default {
     },
     //结课
     async endTimeTable(item) {
+      console.log(item)
       let result = await this.$$request.get("/timetable/finishClassInfo", {
         timetable_id: item.id
       });
@@ -212,10 +304,6 @@ export default {
     item: function(v) {
       console.log('item:',v)
     }
-
-  },
-  created() {
-    console.log(this.item)
   }
 };
 </script>

@@ -79,6 +79,7 @@
                               </el-table-column>
                               <el-table-column label="操作" align="center" v-if="operationLists.length">
                                   <template slot-scope="scope">
+                                    <span style=“padding-left:20px” class="cursor-pointer" @click="addTeachRecord()">教学记录</span>
                                       <span v-for="(operation, num) in operationLists" :key="num" class="fc-m cursor-pointer"
                                         @click="handleCommand({type: operation.type, grade_info: scope.row, course_info: course})"
                                         :class="{'ml-10': num, 'disabled-c': isDisabled(course.type, scope.row, operation.type)}"
@@ -96,8 +97,8 @@
                                                   <i v-if="item.type === 'stop'">{{scope.row.status === -3 ? '开课' : '停课'}}</i>
                                                   <i v-else>{{item.text}}</i>
                                               </el-dropdown-item>
+                                              <!-- <span style=“padding-left:20px” class="cursor-pointer" @click="addTeachRecord()">教学记录</span> -->
                                           </el-dropdown-menu>
-                                          <el-dropdown-item class="cursor-pointer" @click="addTeachRecord()">教学记录</el-dropdown-item>
                                       </el-dropdown>
                                   </template>
                               </el-table-column>
@@ -125,41 +126,35 @@
 
         <!-- 添加教学记录 -->
         <!-- 添加记录表格 -->
-      <el-dialog :visible.sync="showTeachRecordTable">
-        <el-table
-            label="教学记录表"
-            style="width: 100%">
-            <el-table-column label="学员姓名">
-                  <template slot="header" slot-scope="scope">
-                    <el-input
-                      v-model="search"
-                      size="mini"
-                      placeholder="请输入学员姓名搜索"/>
-                  </template>
-            </el-table-column>
-            <el-table-column
-              prop="date"
-              label="日期"
-              width="180">
-            </el-table-column>
-            <el-table-column
-              prop="name"
-              label="姓名"
-              width="180">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="地址">
-            </el-table-column>
-        </el-table>
+      <el-dialog title="教学记录列表" :visible.sync="showTeachRecordTable" center>
+          <el-row>
+            <el-col>
+              学员：
+              <!-- <input type="text" placeholder="搜索学员姓名"> -->
+              <el-select
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="搜索学员姓名">
+                <!-- <el-option>
+                </el-option> -->
+              </el-select>
+            </el-col>
+          </el-row>
+          <el-row id="styleIcon">
+            <span>nihao </span>
+            <a style="margin:6px">1111</a>
+            <span>222</span>
+          </el-row>
         <!-- 添加记录表单 -->
         <el-dialog class="teachRecord" title="教学记录" :visible.sync="showTeachRecord" center  label-width="800px" :modal-append-to-body="false">
           <el-form  v-model="formData">
               <el-form-item>
-                <span style="margin-right: 50px">课程： {{formData.course_name}}</span>
+                <span style="margin-right: 50px">课程：</span>
                 <!-- <span style="margin-right: 20px">班级： {{formData.grade_name:}}</span> -->
                 <!-- <span style="margin-right: 30px">学员： {{formData.student_grades}}</span> -->
-                <span >上课时间： {{formData.time_quantum.week}} {{formData.time_quantum.begin_time}}-{{formData.time_quantum.end_time}}</span>
+                <span >上课时间：</span>
             </el-form-item>
             <el-form-item >
               <el-input ref="txt" @input="descInput" v-model="desc" resize="none" :autosize="{ minRows: 8, maxRows: 12}" type="textarea" ></el-input>
@@ -169,7 +164,7 @@
           </el-form>
           <div slot="footer" class="dialog-footer" style="text-align:center">
             <!-- <el-button v-if="code" @click="dialogFormVisible = false">编 辑</el-button> -->
-            <el-button type="primary" @click="handelTeach($refs.txt.value, item.id, item.student_grades.type)">提 交</el-button>
+            <el-button type="primary" @click="handelTeach()">提 交</el-button>
           </div>
         </el-dialog>
       </el-dialog>
@@ -206,15 +201,7 @@ export default {
       showTeachRecord: false,
       remnant: 1000,
       desc:'',
-      formData:{
-        // course_name:'',
-        grade_name:'',
-        time_quantum: '',
-        teacher: [ ],
-        student_grades:[ ],
-        begin_time:'',
-        end_time:''
-      },
+      formData:{ },
 
       state: 'loading',
       loading: false,
@@ -286,10 +273,11 @@ export default {
       this.remnant = txtVal
     },
     // 添加教学记录
-   addTeachRecord(item) {
-      this.formData = item
+   addTeachRecord() {
+      // this.formData = item
       this.showTeachRecordTable = true
     },
+
     //弹出框关闭事件
     dialogClose (type) {
       this.$refs[type].resetFields();
@@ -608,6 +596,20 @@ export default {
 </script>
 
 <style lang="less" scoped>
+// 教学记录需要的样式
+  el-dialog {
+    #styleIcon {
+      padding:10px 20px;
+      span:frist-child{
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background-color: #45DAD5;
+        border: 1px solid #45DAD5;
+        position: relative;
+      }
+    }
+  }
     h4 {
         font-weight: normal;
         padding-left: 38px;
