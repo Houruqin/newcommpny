@@ -91,7 +91,7 @@ export default {
         this.menuLists = menuData.map(v => {
           let itemLists = [];
 
-          if (v.description === 'timetable' || v.description === 'course') {
+          if (v.description === 'timetable') {
             itemLists = this.$$cache.getMemberInfo().class_pattern === 0 ? this.menuData[v.description].itemLists : [];
           } else {
             itemLists = this.menuData[v.description].itemLists ? this.menuData[v.description].itemLists : [];

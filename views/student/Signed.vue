@@ -92,7 +92,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -217,7 +217,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -282,7 +282,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -356,7 +356,7 @@
                         <template slot-scope="scope">
                             <ul class="table-item-list" :class="{'first-merge': scope.row.course_lists && scope.row.course_lists.length > 1}">
                                 <li v-for="(list, index) in scope.row.course_lists" :key="index">
-                                    {{list.course_name}}
+                                    {{list.course_package_id ? list.course_package_name : list.course_name}}
                                 </li>
                             </ul>
                         </template>
@@ -430,14 +430,14 @@
         </el-card>
 
         <!-- 分班弹窗 -->
-        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideGrade" :close-on-click-modal="false" @close="dialogClose('divide_grade')">
+        <el-dialog title="分班" width="800px" center :visible.sync="dialogStatus.divideClass" :close-on-click-modal="false" @close="dialogClose('divide_grade')">
             <div class="form-box divide-grade-dialog">
                 <div v-for="(course, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
                     <div class="fc-m fs-16">{{course.name}}</div>
-                    <div v-if="course.grade.length">
+                    <div v-if="course.grades.length">
                         <el-radio-group v-model="divideClassRadio">
                             <ul class="d-f f-w-w">
-                                <li v-for="(list, index) in course.grade" :key="index" class="fs-15 mr-30 mt-20">
+                                <li v-for="(list, index) in course.grades" :key="index" class="fs-15 mr-30 mt-20">
                                     <el-radio :label="list.id">
                                         <span>{{list.name}}</span>
                                         <span class="ml-20">
@@ -462,6 +462,9 @@
         <!-- 试听弹窗 -->
         <AddAudition v-model="dialogStatus.audition" :studentId="listStudentId"></AddAudition>
 
+        <!-- 分班弹窗 -->
+        <!-- <DivideClasses v-model="dialogStatus.divideClass" :gradeLists="divideClassLists" @CB-divideSuccess="CB_divideSuccess" divideType="student" @input="CB_dialogClose"></DivideClasses> -->
+
         <!-- 学员基础信息 -->
         <EditStudent v-model="dialogStatus.student" :editDetail="studentDetail" @CB-success="CB_success" @CB-dialogStatus="CB_dialogStatus"></EditStudent>
 
@@ -480,6 +483,7 @@ import MyButton from '../../components/common/MyButton';
 import Classify from '../../components/common/StudentClassify';
 import AddAudition from '../../components/dialog/AddAudition';
 import EditStudent from '../../components/dialog/StudentSigned';
+import DivideClasses from '../../components/dialog/DivideClasses';
 
 import Bus from '../../script/bus';
 import qs from 'qs';
@@ -509,7 +513,7 @@ const LoseOperation = [
 ];
 
 export default {
-  components: {TableHeader, Classify, MyButton, AddAudition, EditStudent},
+  components: {TableHeader, Classify, MyButton, AddAudition, EditStudent, DivideClasses},
   data () {
     return {
       state: 'loading',
@@ -521,7 +525,7 @@ export default {
       selectedIds: [], //批量删除学员列表
       deleteErrorStudents: [],
 
-      dialogStatus: {audition: false, divideGrade: false, student: false, errorAlert: false, advisor: false},
+      dialogStatus: {audition: false, divideClass: false, student: false, errorAlert: false, advisor: false},
 
       studentDetail: {},
 
@@ -534,6 +538,8 @@ export default {
         lists: [],
         disabled: false
       },
+
+      // divideClassLists: [],
 
       listStudentId: '',
       advisorId: '',
@@ -636,6 +642,12 @@ export default {
     },
     CB_success () {
       this.getAllLists(true);
+    },
+    CB_divideSuccess () {
+
+    },
+    CB_dialogClose () {
+
     },
     // CB_auditionSuccess () {
     //   this.getStudentLists(this.activePage);
@@ -856,7 +868,7 @@ export default {
       }
 
       this.gradeDivideLists.lists.forEach(v => {
-        v.grade.forEach(d => {
+        v.grades.forEach(d => {
           if (d.id == this.divideClassRadio) {
             if (d.join_num >= d.limit_num && v.type === 1) {
               this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
@@ -892,7 +904,7 @@ export default {
         return 0;
       }
       this.$message.success('分班成功');
-      this.dialogStatus.divideGrade = false;
+      this.dialogStatus.divideClass = false;
     },
     async getAllLists (isCurrPage) {
       let [a, b] = await Promise.all([this.getTabLists(), this.getStudentLists(isCurrPage ? this.activePage : false)]);
@@ -934,12 +946,20 @@ export default {
       if (!result.lists.length) {
         return this.$message.warning('没有可分班的课程!');
       }
+
       this.gradeDivideLists.lists = result.lists;
+
+      // result.lists.forEach(v => {
+      //   v.divideClassRadio = 0;
+      // });
+
+      // this.divideClassLists = result.lists;
+
       this.gradeDivideLists.disabled = result.lists.every(k => {
-        return k.grade.length ? false : true;
+        return k.grades.length ? false : true;
       });
 
-      this.dialogStatus.divideGrade = true;
+      this.dialogStatus.divideClass = true;
     },
     //获取学员列表
     async getStudentLists (currentPage) {

@@ -440,8 +440,6 @@ export default {
           });
         }
       });
-      console.log(this.divideClassLists);
-      console.log(this.beGradeLists)
     },
     divideTeacherDone () {
       let isValid = false;

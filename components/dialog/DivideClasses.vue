@@ -2,7 +2,7 @@
   <el-dialog :title="type === 'add' ? '分班' : '转班'" width="800px" center :visible.sync="dialogStatus" :close-on-click-modal="false" @close="dialogClose('divideGrade')">
       <div class="form-box divide-grade-dialog">
           <div v-for="(item, index) in gradeDivideLists.lists" :key="index" :class="{'mt-30': index}">
-              <div class="fc-m fs-16">{{item.course.name}}</div>
+              <div class="fc-m fs-16">{{divideType === 'student' ? item.name : item.course.name}}</div>
               <div v-if="item.grades.length">
                   <el-radio-group v-model="item.divideClassRadio">
                       <ul class="d-f f-w-w">
@@ -70,6 +70,10 @@ export default {
       this.$emit('input', false);
     },
     divideClassDone () {
+      if (!this.gradeDivideLists.lists.some(v => v.divideClassRadio)) {
+        return this.$message.warning('请选择班级');
+      }
+
       if (this.divideType === 'buycourse') {
         let data = this.gradeDivideLists.lists.map(v => {
           return {
@@ -80,7 +84,53 @@ export default {
         });
         this.$emit('CB-divideSuccess', data);
         this.dialogStatus = false;
+      } else {
+        // this.studentDivideClasses();
       }
+    },
+    studentDivideClasses () {
+      let isOver = this.gradeDivideLists.lists.some(v => {
+        return v.grades.some(k => {k.join_num >= k.limit_num && v.type === 1 && v.divideClassRadio});
+      });
+
+      if (isOver) {
+        this.$confirm('学员数量已经超过上限，是否继续添加?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.submitDivideClass();
+        }).catch(() => {
+          return 0;
+        });
+      } else {
+        this.submitDivideClass();
+      }
+    },
+    async submitDivideClass () {
+      if (this.submitLoading) {
+        return 0;
+      }
+      this.submitLoading = true;
+
+      let res = await this.$$request.post('/studentGrade/add', {
+        grade_id: this.gradeDivideLists.lists.map(v => {
+          return {
+            course_id: v.id,
+            grade_id: v.divideClassRadio
+          }
+        }),
+        student_id: this.listStudentId
+      });
+
+      console.log(res);
+
+      if (!res) {
+        return 0;
+      }
+      this.$message.success('分班成功');
+      this.dialogStatus = false;
+      this.$emit('CB-divideSuccess');
     }
   }
 }
