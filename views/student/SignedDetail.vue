@@ -246,6 +246,7 @@
                         <el-table-column label="序号" type="index" align="center"></el-table-column>
                         <el-table-column label="课程包名称" prop="name" align="center"></el-table-column>
                         <el-table-column label="课时总数" prop="total_lesson_num" align="center"></el-table-column>
+                        <el-table-column label="剩余课时" prop="total_lesson_num_remain" align="center"></el-table-column>
 
                         <el-table-column label="包含课程" align="center" class-name="table-item">
                             <template slot-scope="scope">
@@ -259,7 +260,7 @@
 
                         <el-table-column label="班级名称" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <ul class="table-item-list" :class="{'first-merge': scope.row.courses && scope.row.courses.length > 1}">
+                                <ul class="table-item-list">
                                     <li v-for="(list, index) in scope.row.courses" :key="index">
                                       {{list.student_grade ? list.student_grade.name : '-'}}
                                     </li>
@@ -269,12 +270,15 @@
 
                         <el-table-column label="任课老师/辅助老师" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <ul class="table-item-list" :class="{'first-merge': scope.row.courses && scope.row.courses.length > 1}">
+                                <ul class="table-item-list">
                                     <li v-for="(list, index) in scope.row.courses" :key="index">
-                                      <span v-if="list.teacher && list.teacher.length">
-                                        <i v-for="(teacher, num) in list.teacher" :key="teacher.id"><i v-if="num">/</i>{{teacher.name}}</i>
-                                      </span>
-                                      <span v-else>-</span>
+                                      <div v-if="list.class_pattern === 2 && list.buy_teachers.length">{{list.buy_teachers[0].name}}</div>
+                                      <div v-else>
+                                        <span v-if="list.teacher && list.teacher.length">
+                                          <i v-for="(teacher, num) in list.teacher" :key="teacher.id"><i v-if="num">/</i>{{teacher.name}}</i>
+                                        </span>
+                                        <span v-else>-</span>
+                                      </div>
                                     </li>
                                 </ul>
                             </template>
@@ -282,7 +286,7 @@
 
                         <el-table-column label="已消课时" align="center" class-name="table-item">
                             <template slot-scope="scope">
-                                <ul class="table-item-list" :class="{'first-merge last-merge': scope.row.courses && scope.row.courses.length > 1}">
+                                <ul class="table-item-list">
                                     <li v-for="(list, index) in scope.row.courses" :key="index">
                                       {{list.lesson_num_already}}
                                     </li>
